@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-cabin-condensed: "Cabin Condensed", sans-serif;
+  --font-calistoga: "Calistoga", serif;
+
+  /* Brewhaus Custom Colors */
+  --brewhaus-green: #22481e;
+  --brewhaus-cream: #f8f0d2;
+  --brewhaus-light-green: #73ac8a;
+  --brewhaus-brown: #926446;
+  --brewhaus-tan: #afa082;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-cabin-condensed);
+    background-color: var(--brewhaus-cream);
+    color: var(--brewhaus-green);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-calistoga);
+  }
+}
+
+@layer utilities {
+  .font-cabin {
+    font-family: var(--font-cabin-condensed);
+  }
+
+  .font-calistoga {
+    font-family: var(--font-calistoga);
+  }
+
+  .bg-brewhaus-green {
+    background-color: var(--brewhaus-green);
+  }
+
+  .bg-brewhaus-cream {
+    background-color: var(--brewhaus-cream);
+  }
+
+  .text-brewhaus-green {
+    color: var(--brewhaus-green);
+  }
+
+  .text-brewhaus-cream {
+    color: var(--brewhaus-cream);
+  }
+
+  .border-brewhaus-cream {
+    border-color: var(--brewhaus-cream);
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
