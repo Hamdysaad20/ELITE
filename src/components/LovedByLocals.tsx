@@ -1,4 +1,16 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
+
 export default function LovedByLocals() {
+  const productRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const products = [
     {
       name: "Cappuccino",
@@ -26,6 +38,40 @@ export default function LovedByLocals() {
     }
   ];
 
+  useEffect(() => {
+    // Set initial state - scale down to 0
+    gsap.set([...productRefs.current, buttonRef.current], {
+      scale: 0,
+      opacity: 0
+    });
+
+    // Create timeline for staggered animation
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: productRefs.current[0],
+        start: "top 90%",
+        end: "bottom 10%",
+        toggleActions: "play none none none"
+      }
+    });
+
+    // Animate products in sequence
+    tl.to(productRefs.current, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.8,
+      ease: "back.out(1.7)",
+      stagger: 0.2
+    })
+    // Animate button last
+    .to(buttonRef.current, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.8,
+      ease: "back.out(1.7)"
+    }, "-=0.4");
+  }, []);
+
   return (
     <section className="bg-brewhaus-cream py-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
@@ -45,23 +91,28 @@ export default function LovedByLocals() {
             <a
               key={index}
               href={product.link}
-              className="group cursor-pointer"
+              className="group cursor-pointer flex flex-col items-center"
+              ref={(el) => {
+                productRefs.current[index] = el;
+              }}
             >
-              <div className="bg-brewhaus-green rounded-3xl p-6 transition-transform group-hover:scale-105">
-                <div className="aspect-square mb-6 overflow-hidden rounded-2xl">
+              <div className="bg-brewhaus-green rounded-3xl  transition-transform group-hover:scale-105 mb-4 relative overflow-hidden">
+                <div className="aspect-square overflow-hidden rounded-2xl flex items-end">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-bottom"
                   />
                 </div>
-                <div className="text-left">
-                  <h3 className="font-calistoga text-brewhaus-cream text-2xl mb-1">
+              </div>
+              <div className="text-center w-full">
+                <div className="flex items-center justify-between w-full">
+                  <h3 className="font-calistoga text-brewhaus-green text-2xl">
                     {product.name}
                   </h3>
-                  <p className="text-[#73ac8a] font-cabin text-xl font-semibold">
+                  <span className="text-brewhaus-green font-cabin text-xl font-semibold">
                     {product.price}
-                  </p>
+                  </span>
                 </div>
               </div>
             </a>
@@ -69,7 +120,7 @@ export default function LovedByLocals() {
         </div>
 
         {/* Explore Menu Button */}
-        <button className="bg-brewhaus-green text-brewhaus-cream px-8 py-4 rounded-full font-cabin text-lg font-semibold hover:opacity-90 transition-opacity">
+        <button ref={buttonRef} className="bg-brewhaus-green text-brewhaus-cream px-6 py-3 rounded-full font-cabin text-base font-semibold hover:opacity-90 transition-opacity">
           Explore Menu
         </button>
       </div>

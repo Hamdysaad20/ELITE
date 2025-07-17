@@ -27,35 +27,30 @@ export default function Navigation() {
       {/* Main Navigation */}
       <nav className="bg-brewhaus-green sticky top-0 z-50">
         {/* Desktop Navigation */}
-        <div className="hidden md:block py-4 px-6">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            {/* Left Nav Items */}
-            <div className="flex items-center space-x-8">
-              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-4 py-2 rounded-full transition-all duration-300 font-cabin text-lg">
+        <div className="hidden md:block py-3 px-6">
+          <div className="max-w-6xl mx-auto flex items-center justify-center">
+            {/* Pilled Navigation Container */}
+            <div className="bg-brewhaus-green rounded-full px-6 py-2 flex items-center space-x-6 shadow-lg border border-brewhaus-cream/10">
+              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-3 py-1.5 rounded-full transition-all duration-300 font-cabin text-base font-medium">
                 Menu
               </a>
-              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-4 py-2 rounded-full transition-all duration-300 font-cabin text-lg">
+              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-3 py-1.5 rounded-full transition-all duration-300 font-cabin text-base font-medium">
                 Locations
               </a>
-            </div>
-
-            {/* Center Logo */}
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-brewhaus-cream rounded-full flex items-center justify-center">
+              
+              {/* Center Logo */}
+              <div className="w-10 h-10 bg-brewhaus-cream rounded-full flex items-center justify-center shadow-md">
                 <img
                   src="https://ext.same-assets.com/1022434225/3804416376.svg"
                   alt="Brewhaus Logo"
-                  className="w-8 h-8"
+                  className="w-6 h-6"
                 />
               </div>
-            </div>
-
-            {/* Right Nav Items */}
-            <div className="flex items-center space-x-8">
-              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-4 py-2 rounded-full transition-all duration-300 font-cabin text-lg">
+              
+              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-3 py-1.5 rounded-full transition-all duration-300 font-cabin text-base font-medium">
                 About Us
               </a>
-              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-4 py-2 rounded-full transition-all duration-300 font-cabin text-lg">
+              <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-3 py-1.5 rounded-full transition-all duration-300 font-cabin text-base font-medium">
                 News
               </a>
             </div>
@@ -66,37 +61,37 @@ export default function Navigation() {
         <div className="md:hidden py-4 px-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="w-10 h-10 bg-brewhaus-cream rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-brewhaus-cream rounded-full flex items-center justify-center shadow-md">
               <img
                 src="https://ext.same-assets.com/1022434225/3804416376.svg"
                 alt="Brewhaus Logo"
-                className="w-6 h-6"
+                className="w-7 h-7"
               />
             </div>
 
             {/* Hamburger Menu */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-brewhaus-cream"
+              className="w-12 h-12 bg-brewhaus-cream rounded-full flex items-center justify-center shadow-md"
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={24} className="text-brewhaus-green" /> : <Menu size={24} className="text-brewhaus-green" />}
             </button>
           </div>
 
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
-            <div className="mt-4 py-4 border-t border-brewhaus-cream/20">
-              <div className="flex flex-col space-y-4">
-                <a href="#" className="text-brewhaus-cream font-cabin text-lg py-2">
+            <div className="mt-3 py-3 border-t border-brewhaus-cream/20">
+              <div className="flex flex-col space-y-3">
+                <a href="#" className="text-brewhaus-cream font-cabin text-base py-1.5">
                   Menu
                 </a>
-                <a href="#" className="text-brewhaus-cream font-cabin text-lg py-2">
+                <a href="#" className="text-brewhaus-cream font-cabin text-base py-1.5">
                   Locations
                 </a>
-                <a href="#" className="text-brewhaus-cream font-cabin text-lg py-2">
+                <a href="#" className="text-brewhaus-cream font-cabin text-base py-1.5">
                   About Us
                 </a>
-                <a href="#" className="text-brewhaus-cream font-cabin text-lg py-2">
+                <a href="#" className="text-brewhaus-cream font-cabin text-base py-1.5">
                   News
                 </a>
               </div>

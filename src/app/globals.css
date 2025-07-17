@@ -55,16 +55,65 @@
     border-color: var(--brewhaus-cream);
   }
 
-  .animate-scroll {
-    animation: scroll 30s linear infinite;
+  /* Improved Marquee Styles - Industry Best Practices */
+  .marquee-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    width: 100%;
+    display: block;
+  }
+
+  .marquee-content {
+    display: flex;
+    align-items: center;
+    animation: marquee-scroll 25s linear infinite;
+    will-change: transform;
+    width: max-content;
+  }
+
+  .marquee-item {
+    flex-shrink: 0;
+    margin-right: 2rem;
+    color: var(--brewhaus-green);
+    font-family: var(--font-cabin-condensed);
+    font-size: 1.125rem;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* Pause animation on hover for better UX */
+  .marquee-container:hover .marquee-content {
+    animation-play-state: paused;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-content {
+      animation: none;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .marquee-content {
+      animation-duration: 20s;
+    }
+    
+    .marquee-item {
+      margin-right: 1.5rem;
+      font-size: 1rem;
+    }
   }
 }
 
-@keyframes scroll {
+@keyframes marquee-scroll {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-33.333%);
   }
 }
+
+
