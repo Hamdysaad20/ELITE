@@ -95,7 +95,7 @@ export default function GoodVibesSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="bg-elite-cream relative overflow-hidden">
+    <section ref={sectionRef} className="bg-elite-burgundy relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-32 h-32 bg-elite-burgundy rounded-full blur-3xl"></div>
@@ -108,11 +108,11 @@ export default function GoodVibesSection() {
           <div className="space-y-8">
             {/* Main Heading and Description */}
             <div className="space-y-6">
-              <h2 className="font-calistoga text-elite-black text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
+              <h2 className="font-calistoga text-elite-white text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
                 Good Vibes.<br />
-                <span className="text-elite-burgundy">Great Coffee.</span>
+                <span className="text-elite-cream">Great Coffee.</span>
               </h2>
-              <p className="text-elite-black font-cabin text-lg md:text-xl leading-relaxed max-w-lg">
+              <p className="text-elite-white font-cabin text-lg md:text-xl leading-relaxed max-w-lg">
                 At Elite, we serve great coffee and fresh pastries with care and passion, 
                 creating a warm, cozy space that feels like home.
               </p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, Mail, Instagram, Facebook, Globe } from 'lucide-react';
+import { Instagram, Facebook, Globe } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -8,53 +8,43 @@ export default function Footer() {
 
       <div className="relative max-w-7xl mx-auto px-6 py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-16">
-          {/* Brand & Contact Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
+          {/* Brand Section */}
           <div className="space-y-6">
             {/* Tagline */}
-            <div className="space-y-2">
-              <h3 className="font-calistoga text-elite-white text-2xl leading-tight">
+            <div className="space-y-4">
+              <h3 className="font-calistoga text-elite-white text-3xl md:text-4xl leading-tight">
                 Life Begins
                 <br />
                 After Coffee
               </h3>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-3">
-              <a 
-                href="tel:+201234567890" 
-                className="flex items-center space-x-3 text-elite-white hover:text-elite-cream transition-colors duration-300"
-              >
-                <Phone className="w-5 h-5" />
-                <span className="font-cabin">+20 123 456 7890</span>
-              </a>
-              <a 
-                href="mailto:info@elitecafee.com" 
-                className="flex items-center space-x-3 text-elite-white hover:text-elite-cream transition-colors duration-300"
-              >
-                <Mail className="w-5 h-5" />
-                <span className="font-cabin">info@elitecafee.com</span>
-              </a>
+              <p className="text-elite-cream font-cabin text-sm leading-relaxed">
+                Experience the perfect blend of tradition and innovation in every cup.
+              </p>
             </div>
           </div>
 
           {/* Main Navigation */}
           <div className="space-y-6">
-            <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-              Main
-            </h4>
+            <div className="space-y-3">
+              <h4 className="font-calistoga text-elite-white text-xl font-semibold">
+                Navigation
+              </h4>
+              <p className="text-elite-cream font-cabin text-xs">
+                Explore our world
+              </p>
+            </div>
             <nav className="space-y-3">
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 Menu
               </a>
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 Locations
               </a>
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 About Us
               </a>
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 News
               </a>
             </nav>
@@ -62,17 +52,22 @@ export default function Footer() {
 
           {/* Categories */}
           <div className="space-y-6">
-            <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-              Categories
-            </h4>
+            <div className="space-y-3">
+              <h4 className="font-calistoga text-elite-white text-xl font-semibold">
+                Categories
+              </h4>
+              <p className="text-elite-cream font-cabin text-xs">
+                Our offerings
+              </p>
+            </div>
             <nav className="space-y-3">
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 Coffee
               </a>
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 Cold Drinks
               </a>
-              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300">
+              <a href="#" className="block font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm">
                 Bakery
               </a>
             </nav>
@@ -80,9 +75,14 @@ export default function Footer() {
 
           {/* Social Media */}
           <div className="space-y-6">
-            <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-              Follow Us
-            </h4>
+            <div className="space-y-3">
+              <h4 className="font-calistoga text-elite-white text-xl font-semibold">
+                Follow Us
+              </h4>
+              <p className="text-elite-cream font-cabin text-xs">
+                Stay connected
+              </p>
+            </div>
             <div className="flex space-x-4">
               {/* Instagram */}
               <a 

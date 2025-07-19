@@ -84,12 +84,12 @@ export default function NearbyCafesSection() {
   };
 
   const handleContact = () => {
-    // Open Facebook messenger or contact page
-    window.open('https://facebook.com', '_blank');
+    // Open Facebook messenger for Elite Cafee page
+    window.open('https://m.me/61577901386334', '_blank');
   };
 
   return (
-    <section ref={sectionRef} className="bg-elite-white relative py-20 lg:py-32">
+    <section ref={sectionRef} className="bg-elite-cream relative py-20 lg:py-32">
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Modern Section Header */}
         <div className="text-center mb-16 lg:mb-20">

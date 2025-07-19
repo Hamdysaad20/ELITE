@@ -98,7 +98,7 @@ export default function TestimonialsSection() {
   };
 
   return (
-    <section ref={sectionRef} className="bg-elite-white relative overflow-hidden py-12 lg:py-20">
+    <section ref={sectionRef} className="bg-elite-cream relative overflow-hidden py-12 lg:py-20">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-32 h-32 bg-elite-burgundy rounded-full blur-3xl"></div>

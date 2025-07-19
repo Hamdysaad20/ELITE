@@ -16,8 +16,32 @@ const calistoga = Calistoga({
 });
 
 export const metadata: Metadata = {
-  title: "Brewhaus - Life Begins After Coffee",
-  description: "Enjoy handcrafted drinks, cozy cafés, and friendly baristas at Brewhaus.",
+  title: "Elite Coffee - Premium Coffee Experience",
+  description: "Experience the finest coffee at Elite Coffee. Located in Faiyum, Governorate Club.",
+  icons: {
+    icon: [
+      {
+        url: '/logo.png',
+        sizes: '32x32',
+        type: 'image/png',
+        rel: 'icon',
+      },
+      {
+        url: '/logo.png',
+        sizes: '16x16',
+        type: 'image/png',
+        rel: 'icon',
+      },
+    ],
+    apple: [
+      {
+        url: '/logo.png',
+        sizes: '180x180',
+        type: 'image/png',
+        rel: 'apple-touch-icon',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

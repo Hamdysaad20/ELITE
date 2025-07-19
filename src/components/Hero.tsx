@@ -106,7 +106,7 @@ export default function Hero() {
       </div>
 
       {/* Infinite Scroll Section */}
-      <div className="bg-elite-white py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
+      <div className="bg-elite-burgundy py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
         <div className="marquee-container w-full">
           <div className="marquee-content">
             {/* Original Content */}

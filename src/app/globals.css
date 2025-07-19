@@ -130,7 +130,7 @@
   .marquee-item {
     flex-shrink: 0;
     margin-right: 2rem;
-    color: var(--elite-black);
+    color: var(--elite-white);
     font-family: var(--font-cabin-condensed);
     font-size: 1.125rem;
     white-space: nowrap;
@@ -169,6 +169,11 @@
   100% {
     transform: translateX(-33.333%);
   }
+}
+
+/* Favicon styling to make it burgundy */
+link[rel="icon"] {
+  filter: hue-rotate(340deg) saturate(150%) brightness(0.8);
 }
 
 
