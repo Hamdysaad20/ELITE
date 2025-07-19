@@ -171,9 +171,9 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Main Content Grid */}
-        <div ref={testimonialsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div ref={testimonialsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* Left Column - Testimonials */}
-          <div className="space-y-6 h-full flex flex-col justify-center">
+          <div className="space-y-6 flex flex-col justify-center min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={idx}
@@ -215,7 +215,7 @@ export default function TestimonialsSection() {
           <div className="lg:col-span-1 h-full">
             <div 
               ref={imageRef}
-              className="relative group rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 h-full"
+              className="relative group rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 h-full min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]"
             >
               <img
                 src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=800&fit=crop"
