@@ -9,10 +9,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function TestimonialsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const testimonialsRef = useRef<HTMLDivElement>(null);
-  const testimonialRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,17 +16,16 @@ export default function TestimonialsSection() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     if (prefersReducedMotion) {
-      // Simple fade in for users who prefer reduced motion
-      gsap.set([headingRef.current, subtitleRef.current, testimonialsRef.current], {
+      // Simple fade in for image only
+      gsap.set(imageRef.current, {
         opacity: 0,
         y: 20
       });
       
-      gsap.to([headingRef.current, subtitleRef.current, testimonialsRef.current], {
+      gsap.to(imageRef.current, {
         opacity: 1,
         y: 0,
         duration: 0.6,
-        stagger: 0.2,
         ease: "power2.out",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -41,29 +36,12 @@ export default function TestimonialsSection() {
       return;
     }
 
-    // Enhanced animations for users who don't prefer reduced motion
-    // Set initial states
-    gsap.set(headingRef.current, {
-      opacity: 0,
-      y: 30,
-      scale: 0.95
-    });
-    
-    gsap.set(subtitleRef.current, {
-      opacity: 0,
-      y: 20
-    });
-    
-    gsap.set(testimonialRefs.current, {
-      opacity: 0,
-      y: 30,
-      scale: 0.9
-    });
-    
+    // Enhanced animations for image only
+    // Set initial states for image
     gsap.set(imageRef.current, {
       opacity: 0,
       scale: 0.8,
-      rotationY: -10
+      rotationY: -15
     });
 
     // Create main timeline
@@ -71,43 +49,18 @@ export default function TestimonialsSection() {
       scrollTrigger: {
         trigger: sectionRef.current,
         start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse"
+        toggleActions: "play none none none" // Only play once
       }
     });
 
-    // Animate heading with bounce effect
-    tl.to(headingRef.current, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.8,
-      ease: "back.out(1.7)"
-    })
-    // Animate subtitle
-    .to(subtitleRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out"
-    }, "-=0.4")
-    // Animate testimonials with stagger
-    .to(testimonialRefs.current, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.5,
-      stagger: 0.1,
-      ease: "back.out(1.4)"
-    }, "-=0.3")
     // Animate image with 3D effect
-    .to(imageRef.current, {
+    tl.to(imageRef.current, {
       opacity: 1,
       scale: 1,
       rotationY: 0,
-      duration: 0.8,
+      duration: 1,
       ease: "power2.out"
-    }, "-=0.2");
+    });
 
     // Cleanup function
     return () => {
@@ -145,58 +98,51 @@ export default function TestimonialsSection() {
   };
 
   return (
-    <section ref={sectionRef} className="bg-brewhaus-cream relative overflow-hidden py-12 lg:py-20">
+    <section ref={sectionRef} className="bg-elite-white relative overflow-hidden py-12 lg:py-20">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-brewhaus-green rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-brewhaus-light-green rounded-full blur-3xl"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-elite-burgundy rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-elite-cream rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 
-            ref={headingRef} 
-            className="font-calistoga text-brewhaus-green text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-6"
-          >
+          <h2 className="font-calistoga text-elite-black text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-6">
             What People<br />
-            <span className="text-brewhaus-light-green">Love About Us</span>
+            <span className="text-elite-burgundy">Love About Us</span>
           </h2>
-          <p 
-            ref={subtitleRef} 
-            className="text-brewhaus-green font-cabin text-lg md:text-xl leading-relaxed max-w-2xl mx-auto"
-          >
-            Real stories from real people who've made Brewhaus their daily ritual
+          <p className="text-elite-black font-cabin text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+            Real stories from real people who've made Elite their daily ritual
           </p>
         </div>
 
         {/* Main Content Grid */}
-        <div ref={testimonialsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* Left Column - Testimonials */}
           <div className="space-y-6 flex flex-col justify-center min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={idx}
-                ref={(el) => { testimonialRefs.current[idx] = el; }}
-                className="group relative bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brewhaus-green/10 hover:border-brewhaus-green/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="group relative bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
                 {/* Quote Icon */}
-                <div className="text-brewhaus-light-green text-3xl font-calistoga mb-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="text-elite-burgundy text-3xl font-calistoga mb-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
                   "
                 </div>
 
                 {/* Quote Text */}
-                <p className="text-brewhaus-green font-cabin text-base leading-relaxed mb-4">
+                <p className="text-elite-black font-cabin text-base leading-relaxed mb-4">
                   {testimonial.quote}
                 </p>
 
                 {/* Author Info and Rating */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-brewhaus-green font-cabin font-semibold text-sm">
+                    <p className="text-elite-black font-cabin font-semibold text-sm">
                       {testimonial.author}
                     </p>
-                    <p className="text-brewhaus-green/70 font-cabin text-xs">
+                    <p className="text-elite-black/70 font-cabin text-xs">
                       {testimonial.descriptor}
                     </p>
                   </div>
@@ -206,7 +152,7 @@ export default function TestimonialsSection() {
                 </div>
 
                 {/* Hover effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-brewhaus-light-green/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               </div>
             ))}
           </div>
@@ -226,7 +172,7 @@ export default function TestimonialsSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
               <div className="absolute bottom-4 left-4 z-20">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
-                  <p className="text-brewhaus-green font-cabin text-sm font-medium">Crafted with Love</p>
+                  <p className="text-elite-black font-cabin text-sm font-medium">Crafted with Love</p>
                 </div>
               </div>
             </div>

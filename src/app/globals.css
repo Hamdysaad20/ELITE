@@ -6,19 +6,22 @@
   --font-cabin-condensed: "Cabin Condensed", sans-serif;
   --font-calistoga: "Calistoga", serif;
 
-  /* Brewhaus Custom Colors */
-  --brewhaus-green: #22481e;
-  --brewhaus-cream: #f8f0d2;
-  --brewhaus-light-green: #73ac8a;
-  --brewhaus-brown: #926446;
-  --brewhaus-tan: #afa082;
+  /* Elite Custom Colors - Youthful Cream & Burgundy Theme */
+  --elite-white: #ffffff;
+  --elite-cream: #f8f0d2;
+  --elite-light-cream: #fef7e0;
+  --elite-dark-cream: #e6d7b8;
+  --elite-burgundy: #8b2635;
+  --elite-dark-burgundy: #6b1f2a;
+  --elite-light-burgundy: #a83247;
+  --elite-black: #2c2c2c;
 }
 
 @layer base {
   body {
     font-family: var(--font-cabin-condensed);
-    background-color: var(--brewhaus-cream);
-    color: var(--brewhaus-green);
+    background-color: var(--elite-cream);
+    color: var(--elite-black);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -35,32 +38,76 @@
     font-family: var(--font-calistoga);
   }
 
-  .bg-brewhaus-green {
-    background-color: var(--brewhaus-green);
+  .bg-elite-white {
+    background-color: var(--elite-white);
   }
 
-  .bg-brewhaus-cream {
-    background-color: var(--brewhaus-cream);
+  .bg-elite-cream {
+    background-color: var(--elite-cream);
   }
 
-  .text-brewhaus-green {
-    color: var(--brewhaus-green);
+  .bg-elite-light-cream {
+    background-color: var(--elite-light-cream);
   }
 
-  .text-brewhaus-cream {
-    color: var(--brewhaus-cream);
+  .bg-elite-dark-cream {
+    background-color: var(--elite-dark-cream);
   }
 
-  .text-brewhaus-light-green {
-    color: var(--brewhaus-light-green);
+  .bg-elite-burgundy {
+    background-color: var(--elite-burgundy);
   }
 
-  .border-brewhaus-cream {
-    border-color: var(--brewhaus-cream);
+  .bg-elite-dark-burgundy {
+    background-color: var(--elite-dark-burgundy);
   }
 
-  .bg-brewhaus-light-green {
-    background-color: var(--brewhaus-light-green);
+  .bg-elite-light-burgundy {
+    background-color: var(--elite-light-burgundy);
+  }
+
+  .bg-elite-black {
+    background-color: var(--elite-black);
+  }
+
+  .text-elite-white {
+    color: var(--elite-white);
+  }
+
+  .text-elite-cream {
+    color: var(--elite-cream);
+  }
+
+  .text-elite-light-cream {
+    color: var(--elite-light-cream);
+  }
+
+  .text-elite-dark-cream {
+    color: var(--elite-dark-cream);
+  }
+
+  .text-elite-burgundy {
+    color: var(--elite-burgundy);
+  }
+
+  .text-elite-dark-burgundy {
+    color: var(--elite-dark-burgundy);
+  }
+
+  .text-elite-light-burgundy {
+    color: var(--elite-light-burgundy);
+  }
+
+  .text-elite-black {
+    color: var(--elite-black);
+  }
+
+  .border-elite-cream {
+    border-color: var(--elite-cream);
+  }
+
+  .border-elite-burgundy {
+    border-color: var(--elite-burgundy);
   }
 
   /* Improved Marquee Styles - Industry Best Practices */
@@ -83,7 +130,7 @@
   .marquee-item {
     flex-shrink: 0;
     margin-right: 2rem;
-    color: var(--brewhaus-green);
+    color: var(--elite-black);
     font-family: var(--font-cabin-condensed);
     font-size: 1.125rem;
     white-space: nowrap;

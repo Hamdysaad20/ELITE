@@ -40,30 +40,30 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="bg-brewhaus-green flex flex-col max-h-[90vh]">
+    <section className="bg-elite-cream flex flex-col max-h-[90vh]">
       {/* Main content area */}
       <div className="flex flex-col items-center justify-center text-center px-6 pt-20 min-h-[50vh] max-h-[60vh]">
-        <h1 className="font-calistoga text-brewhaus-cream text-6xl md:text-7xl lg:text-8xl leading-tight max-w-4xl mb-6">
+        <h1 className="font-calistoga text-elite-black text-6xl md:text-7xl lg:text-8xl leading-tight max-w-4xl mb-6">
           Life Begins<br />
           After Coffee
         </h1>
 
-        <p className="text-brewhaus-cream font-cabin text-xl md:text-2xl mb-10 max-w-2xl">
+        <p className="text-elite-black font-cabin text-xl md:text-2xl mb-10 max-w-2xl">
           Because great coffee is the start of something even greater.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 mb-12 w-full sm:w-auto">
-          <button className="w-full sm:w-auto bg-brewhaus-cream text-brewhaus-green px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:opacity-90 transition-opacity">
+          <button className="w-full sm:w-auto bg-elite-burgundy text-elite-white px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:opacity-90 transition-opacity">
             Explore Menu
           </button>
-          <button className="w-full sm:w-auto border-2 border-brewhaus-cream text-brewhaus-cream px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-brewhaus-cream hover:text-brewhaus-green transition-colors">
+          <button className="w-full sm:w-auto border-2 border-elite-burgundy text-elite-burgundy px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-burgundy hover:text-elite-white transition-colors">
             Our Locations
           </button>
         </div>
       </div>
 
-      {/* Coffee Cups Grid Section - Inspired by Brewhaus */}
-      <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[24rem] bg-brewhaus-green flex-shrink-0">
+      {/* Coffee Cups Grid Section - Inspired by Elite */}
+      <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[24rem] bg-elite-cream flex-shrink-0">
         <div className="w-layout-blockcontainer container w-container mx-auto h-full max-w-6xl px-2 sm:px-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 items-end justify-items-center h-full sm:-space-x-10 overflow-hidden">
           {/* Left Cup */}
@@ -106,7 +106,7 @@ export default function Hero() {
       </div>
 
       {/* Infinite Scroll Section */}
-      <div className="bg-brewhaus-cream py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
+      <div className="bg-elite-white py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
         <div className="marquee-container w-full">
           <div className="marquee-content">
             {/* Original Content */}

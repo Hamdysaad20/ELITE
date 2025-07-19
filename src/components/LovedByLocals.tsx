@@ -73,15 +73,15 @@ export default function LovedByLocals() {
   }, []);
 
   return (
-    <section className="bg-brewhaus-cream py-20 px-6">
+    <section className="bg-elite-white py-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
-        <h2 className="font-calistoga text-brewhaus-green text-5xl md:text-6xl lg:text-7xl mb-6">
+        <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl mb-6">
           Loved by Locals
         </h2>
 
         {/* Subtext */}
-        <p className="text-brewhaus-green font-cabin text-xl md:text-2xl mb-16 max-w-2xl mx-auto">
+        <p className="text-elite-black font-cabin text-xl md:text-2xl mb-16 max-w-2xl mx-auto">
           Local go-to's everyone loves — handpicked and always fresh.
         </p>
 
@@ -96,7 +96,7 @@ export default function LovedByLocals() {
                 productRefs.current[index] = el;
               }}
             >
-              <div className="bg-brewhaus-green rounded-3xl  transition-transform group-hover:scale-105 mb-4 relative overflow-hidden">
+              <div className="bg-elite-burgundy rounded-3xl  transition-transform group-hover:scale-105 mb-4 relative overflow-hidden">
                 <div className="aspect-square overflow-hidden rounded-2xl flex items-end">
                   <img
                     src={product.image}
@@ -107,10 +107,10 @@ export default function LovedByLocals() {
               </div>
               <div className="text-center w-full">
                 <div className="flex items-center justify-between w-full">
-                  <h3 className="font-calistoga text-brewhaus-green text-2xl">
+                  <h3 className="font-calistoga text-elite-black text-2xl">
                     {product.name}
                   </h3>
-                  <span className="text-brewhaus-green font-cabin text-xl font-semibold">
+                  <span className="text-elite-black font-cabin text-xl font-semibold">
                     {product.price}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ export default function LovedByLocals() {
         </div>
 
         {/* Explore Menu Button */}
-        <button ref={buttonRef} className="bg-brewhaus-green text-brewhaus-cream px-6 py-3 rounded-full font-cabin text-base font-semibold hover:opacity-90 transition-opacity">
+        <button ref={buttonRef} className="bg-elite-burgundy text-elite-white px-6 py-3 rounded-full font-cabin text-base font-semibold hover:opacity-90 transition-opacity">
           Explore Menu
         </button>
       </div>

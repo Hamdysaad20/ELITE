@@ -9,24 +9,21 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function GoodVibesSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLDivElement>(null);
-  const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     if (prefersReducedMotion) {
-      // Simple fade in for users who prefer reduced motion
-      gsap.set([headingRef.current, descriptionRef.current, featuresRef.current, imagesRef.current], {
+      // Simple fade in for images only
+      gsap.set(imageRefs.current, {
         opacity: 0,
         y: 20
       });
       
-      gsap.to([headingRef.current, descriptionRef.current, featuresRef.current, imagesRef.current], {
+      gsap.to(imageRefs.current, {
         opacity: 1,
         y: 0,
         duration: 0.6,
@@ -41,26 +38,9 @@ export default function GoodVibesSection() {
       return;
     }
 
-    // Enhanced animations for users who don't prefer reduced motion
-    // Set initial states
-    gsap.set(headingRef.current, {
-      opacity: 0,
-      y: 50,
-      scale: 0.95
-    });
-    
-    gsap.set(descriptionRef.current, {
-      opacity: 0,
-      y: 30
-    });
-    
-    gsap.set(featureRefs.current, {
-      opacity: 0,
-      y: 40,
-      scale: 0.9
-    });
-    
-    gsap.set(imagesRef.current, {
+    // Enhanced animations for images only
+    // Set initial states for images
+    gsap.set(imageRefs.current, {
       opacity: 0,
       scale: 0.8,
       rotationY: -15
@@ -71,43 +51,19 @@ export default function GoodVibesSection() {
       scrollTrigger: {
         trigger: sectionRef.current,
         start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse"
+        toggleActions: "play none none none" // Only play once
       }
     });
 
-    // Animate heading with bounce effect
-    tl.to(headingRef.current, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 1,
-      ease: "back.out(1.7)"
-    })
-    // Animate description
-    .to(descriptionRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "-=0.6")
-    // Animate features with stagger
-    .to(featureRefs.current, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: "back.out(1.4)"
-    }, "-=0.4")
-    // Animate images with 3D effect
-    .to(imagesRef.current, {
+    // Animate images with 3D effect and stagger
+    tl.to(imageRefs.current, {
       opacity: 1,
       scale: 1,
       rotationY: 0,
       duration: 1,
+      stagger: 0.2,
       ease: "power2.out"
-    }, "-=0.3");
+    });
 
     // Cleanup function
     return () => {
@@ -139,11 +95,11 @@ export default function GoodVibesSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="bg-brewhaus-cream relative overflow-hidden">
+    <section ref={sectionRef} className="bg-elite-cream relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-brewhaus-green rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-brewhaus-light-green rounded-full blur-3xl"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-elite-burgundy rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-elite-cream rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-6xl mx-auto py-12 px-6 lg:py-20">
@@ -152,30 +108,23 @@ export default function GoodVibesSection() {
           <div className="space-y-8">
             {/* Main Heading and Description */}
             <div className="space-y-6">
-              <h2 
-                ref={headingRef} 
-                className="font-calistoga text-brewhaus-green text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight"
-              >
+              <h2 className="font-calistoga text-elite-black text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
                 Good Vibes.<br />
-                <span className="text-brewhaus-light-green">Great Coffee.</span>
+                <span className="text-elite-burgundy">Great Coffee.</span>
               </h2>
-              <p 
-                ref={descriptionRef} 
-                className="text-brewhaus-green font-cabin text-lg md:text-xl leading-relaxed max-w-lg"
-              >
-                At Brewhaus, we serve great coffee and fresh pastries with care and passion, 
+              <p className="text-elite-black font-cabin text-lg md:text-xl leading-relaxed max-w-lg">
+                At Elite, we serve great coffee and fresh pastries with care and passion, 
                 creating a warm, cozy space that feels like home.
               </p>
             </div>
 
             {/* Enhanced Features Grid */}
-            <div ref={featuresRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {features.map((feature, idx) => (
-                                  <div
-                    key={idx}
-                    ref={(el) => { featureRefs.current[idx] = el; }}
-                    className="group relative bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brewhaus-green/10 hover:border-brewhaus-green/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-                  >
+                <div
+                  key={idx}
+                  className="group relative bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                >
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
                       <span className="text-3xl md:text-4xl group-hover:scale-110 transition-transform duration-300 block">
@@ -183,17 +132,17 @@ export default function GoodVibesSection() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-cabin text-brewhaus-green text-lg font-semibold mb-1 group-hover:text-brewhaus-light-green transition-colors duration-300">
+                      <h3 className="font-cabin text-elite-black text-lg font-semibold mb-1 group-hover:text-elite-burgundy transition-colors duration-300">
                         {feature.text}
                       </h3>
-                      <p className="text-brewhaus-green/70 font-cabin text-sm leading-relaxed">
+                      <p className="text-elite-black/70 font-cabin text-sm leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
                   </div>
                   
                   {/* Hover effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-brewhaus-light-green/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
@@ -205,7 +154,10 @@ export default function GoodVibesSection() {
             className="relative grid grid-cols-2 gap-4 lg:gap-6 h-[400px] lg:h-[500px] xl:h-[600px]"
           >
             {/* Left Column - Barista Image */}
-            <div className="relative group h-full">
+            <div 
+              ref={(el) => { imageRefs.current[0] = el; }}
+              className="relative group h-full"
+            >
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
               <img
                 src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bfc82841763bc93a7b_medium-shot-barista-with-mask-preparing-coffee.avif"
@@ -213,17 +165,20 @@ export default function GoodVibesSection() {
                 className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
-              <div className="absolute bottom-4 left-4 z-20">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
-                  <p className="text-brewhaus-green font-cabin text-sm font-medium">Expert Baristas</p>
+                              <div className="absolute bottom-4 left-4 z-20">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
+                    <p className="text-elite-black font-cabin text-sm font-medium">Expert Baristas</p>
+                  </div>
                 </div>
-              </div>
             </div>
 
             {/* Right Column - Two Images Stacked */}
             <div className="space-y-4 lg:space-y-6 h-full flex flex-col">
               {/* Top Right - Cafe Interior */}
-              <div className="relative group flex-1">
+              <div 
+                ref={(el) => { imageRefs.current[1] = el; }}
+                className="relative group flex-1"
+              >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bf98dbe39dd2a370be_interior-shot-cafe-with-chairs-near-bar-with-wooden-tables.avif"
@@ -233,13 +188,16 @@ export default function GoodVibesSection() {
                 />
                 <div className="absolute bottom-3 left-3 z-20">
                   <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
-                    <p className="text-brewhaus-green font-cabin text-sm font-medium">Cozy Space</p>
+                    <p className="text-elite-black font-cabin text-sm font-medium">Cozy Space</p>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Right - Coffee Cup */}
-              <div className="relative group flex-1">
+              <div 
+                ref={(el) => { imageRefs.current[2] = el; }}
+                className="relative group flex-1"
+              >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11fedcb344bd7472203b_white-ceramic-teacup-brown-surface.avif"
@@ -249,7 +207,7 @@ export default function GoodVibesSection() {
                 />
                 <div className="absolute bottom-3 left-3 z-20">
                   <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
-                    <p className="text-brewhaus-green font-cabin text-sm font-medium">Handcrafted</p>
+                    <p className="text-elite-black font-cabin text-sm font-medium">Handcrafted</p>
                   </div>
                 </div>
               </div>

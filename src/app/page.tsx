@@ -5,6 +5,7 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import NearbyCafesSection from '@/components/NearbyCafesSection';
 import FindAndGet from '@/components/FindAndGet';
 import LovedByLocals from '@/components/LovedByLocals';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <GoodVibesSection />
       <TestimonialsSection />
       <NearbyCafesSection />
+      <Footer />
     </main>
   );
 }
