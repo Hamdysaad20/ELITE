@@ -7,10 +7,24 @@ export default function ClientBody({
 }: {
   children: React.ReactNode;
 }) {
-  // Remove any extension-added classes during hydration
+  // Handle body classes to prevent hydration mismatches
   useEffect(() => {
-    // This runs only on the client after hydration
-    // Keep the antialiased class that's already on the body
+    // Ensure the body has the correct classes
+    const body = document.body;
+    if (body) {
+      // Remove any extension-added classes that might cause hydration issues
+      const classesToRemove = ['vsc-initialized', 'vscode-initialized'];
+      classesToRemove.forEach(className => {
+        if (body.classList.contains(className)) {
+          body.classList.remove(className);
+        }
+      });
+      
+      // Ensure antialiased class is present
+      if (!body.classList.contains('antialiased')) {
+        body.classList.add('antialiased');
+      }
+    }
   }, []);
 
   return <>{children}</>;

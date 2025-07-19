@@ -8,134 +8,250 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function GoodVibesSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLDivElement>(null);
+  const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    // Set initial state - scale down to 0
-    gsap.set([headingRef.current, descriptionRef.current, featuresRef.current, imagesRef.current], {
-      scale: 0,
-      opacity: 0
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (prefersReducedMotion) {
+      // Simple fade in for users who prefer reduced motion
+      gsap.set([headingRef.current, descriptionRef.current, featuresRef.current, imagesRef.current], {
+        opacity: 0,
+        y: 20
+      });
+      
+      gsap.to([headingRef.current, descriptionRef.current, featuresRef.current, imagesRef.current], {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none"
+        }
+      });
+      return;
+    }
+
+    // Enhanced animations for users who don't prefer reduced motion
+    // Set initial states
+    gsap.set(headingRef.current, {
+      opacity: 0,
+      y: 50,
+      scale: 0.95
+    });
+    
+    gsap.set(descriptionRef.current, {
+      opacity: 0,
+      y: 30
+    });
+    
+    gsap.set(featureRefs.current, {
+      opacity: 0,
+      y: 40,
+      scale: 0.9
+    });
+    
+    gsap.set(imagesRef.current, {
+      opacity: 0,
+      scale: 0.8,
+      rotationY: -15
     });
 
-    // Create timeline for staggered animation
+    // Create main timeline
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: headingRef.current,
-        start: "top 90%",
-        end: "bottom 10%",
-        toggleActions: "play none none none"
+        trigger: sectionRef.current,
+        start: "top 80%",
+        end: "bottom 20%",
+        toggleActions: "play none none reverse"
       }
     });
 
-    // Animate elements in sequence
+    // Animate heading with bounce effect
     tl.to(headingRef.current, {
-      scale: 1,
       opacity: 1,
-      duration: 0.8,
+      y: 0,
+      scale: 1,
+      duration: 1,
       ease: "back.out(1.7)"
     })
+    // Animate description
     .to(descriptionRef.current, {
-      scale: 1,
       opacity: 1,
+      y: 0,
       duration: 0.8,
-      ease: "back.out(1.7)"
-    }, "-=0.4")
-    .to(featuresRef.current, {
-      scale: 1,
+      ease: "power2.out"
+    }, "-=0.6")
+    // Animate features with stagger
+    .to(featureRefs.current, {
       opacity: 1,
-      duration: 0.8,
-      ease: "back.out(1.7)"
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: "back.out(1.4)"
     }, "-=0.4")
+    // Animate images with 3D effect
     .to(imagesRef.current, {
-      scale: 1,
       opacity: 1,
-      duration: 0.8,
-      ease: "back.out(1.7)"
-    }, "-=0.4");
+      scale: 1,
+      rotationY: 0,
+      duration: 1,
+      ease: "power2.out"
+    }, "-=0.3");
+
+    // Cleanup function
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   const features = [
     {
       icon: "☕",
-      text: "Great Coffee, Tasty Sips"
+      text: "Great Coffee, Tasty Sips",
+      description: "Expertly crafted beverages with premium beans"
     },
     {
       icon: "♥",
-      text: "Warm, Cozy Atmosphere"
+      text: "Warm, Cozy Atmosphere",
+      description: "A welcoming space that feels like home"
     },
     {
       icon: "😊",
-      text: "Speedy Service with a Smile"
+      text: "Speedy Service with a Smile",
+      description: "Quick, friendly service every time"
     },
     {
       icon: "🏠",
-      text: "Local & Sustainable"
+      text: "Local & Sustainable",
+      description: "Supporting local farmers and eco-friendly practices"
     }
   ];
 
   return (
-    <section className="bg-brewhaus-cream py-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start h-full">
-          {/* Left Column - Text and Features Grid */}
-          <div className="space-y-6 h-full flex flex-col justify-between">
+    <section ref={sectionRef} className="bg-brewhaus-cream relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-brewhaus-green rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-brewhaus-light-green rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative max-w-6xl mx-auto py-12 px-6 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left Column - Text and Features */}
+          <div className="space-y-8">
             {/* Main Heading and Description */}
-            <div className="space-y-4">
-              <h2 ref={headingRef} className="font-calistoga text-brewhaus-green text-4xl md:text-5xl lg:text-6xl leading-tight">
-                Good Vibes.<br />Great Coffee.
+            <div className="space-y-6">
+              <h2 
+                ref={headingRef} 
+                className="font-calistoga text-brewhaus-green text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight"
+              >
+                Good Vibes.<br />
+                <span className="text-brewhaus-light-green">Great Coffee.</span>
               </h2>
-              <p ref={descriptionRef} className="text-brewhaus-green font-cabin text-lg md:text-xl leading-relaxed">
-                At Brewhaus, we serve great coffee and fresh pastries with care and passion, creating a warm, cozy space that feels like home.
+              <p 
+                ref={descriptionRef} 
+                className="text-brewhaus-green font-cabin text-lg md:text-xl leading-relaxed max-w-lg"
+              >
+                At Brewhaus, we serve great coffee and fresh pastries with care and passion, 
+                creating a warm, cozy space that feels like home.
               </p>
             </div>
 
-            {/* Features Grid - 2x2 Equal Squares */}
-            <div ref={featuresRef} className="grid grid-cols-2 gap-3">
-              {features.map((feature, index) => (
-                <div key={index} className="aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-3">
-                  <div className="w-14 h-14 bg-brewhaus-green rounded-full flex items-center justify-center mb-3">
-                    <span className="text-white text-xl">{feature.icon}</span>
+            {/* Enhanced Features Grid */}
+            <div ref={featuresRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {features.map((feature, idx) => (
+                                  <div
+                    key={idx}
+                    ref={(el) => { featureRefs.current[idx] = el; }}
+                    className="group relative bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brewhaus-green/10 hover:border-brewhaus-green/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                  >
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      <span className="text-3xl md:text-4xl group-hover:scale-110 transition-transform duration-300 block">
+                        {feature.icon}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-cabin text-brewhaus-green text-lg font-semibold mb-1 group-hover:text-brewhaus-light-green transition-colors duration-300">
+                        {feature.text}
+                      </h3>
+                      <p className="text-brewhaus-green/70 font-cabin text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-cabin text-brewhaus-green text-sm md:text-base font-medium leading-tight">
-                    {feature.text}
-                  </p>
+                  
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-brewhaus-light-green/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right Column - Images Layout */}
-          <div ref={imagesRef} className="grid grid-cols-2 gap-4 h-full">
-            {/* Left Column - Barista Image (Full Height) */}
-            <div className="h-full rounded-2xl overflow-hidden shadow-xl">
+          {/* Right Column - Enhanced Images Layout */}
+          <div 
+            ref={imagesRef} 
+            className="relative grid grid-cols-2 gap-4 lg:gap-6 h-[400px] lg:h-[500px] xl:h-[600px]"
+          >
+            {/* Left Column - Barista Image */}
+            <div className="relative group h-full">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
               <img
                 src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bfc82841763bc93a7b_medium-shot-barista-with-mask-preparing-coffee.avif"
-                alt="Barista preparing coffee"
-                className="w-full h-full object-cover"
+                alt="Barista preparing coffee with care and expertise"
+                className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
               />
+              <div className="absolute bottom-4 left-4 z-20">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
+                  <p className="text-brewhaus-green font-cabin text-sm font-medium">Expert Baristas</p>
+                </div>
+              </div>
             </div>
 
             {/* Right Column - Two Images Stacked */}
-            <div className="space-y-4 h-full flex flex-col">
+            <div className="space-y-4 lg:space-y-6 h-full flex flex-col">
               {/* Top Right - Cafe Interior */}
-              <div className="flex-1 rounded-2xl overflow-hidden shadow-xl">
+              <div className="relative group flex-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bf98dbe39dd2a370be_interior-shot-cafe-with-chairs-near-bar-with-wooden-tables.avif"
-                  alt="Cafe interior with cozy atmosphere"
-                  className="w-full h-full object-cover"
+                  alt="Cozy cafe interior with warm lighting and comfortable seating"
+                  className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
                 />
+                <div className="absolute bottom-3 left-3 z-20">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
+                    <p className="text-brewhaus-green font-cabin text-sm font-medium">Cozy Space</p>
+                  </div>
+                </div>
               </div>
 
               {/* Bottom Right - Coffee Cup */}
-              <div className="flex-1 rounded-2xl overflow-hidden shadow-xl">
+              <div className="relative group flex-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11fedcb344bd7472203b_white-ceramic-teacup-brown-surface.avif"
-                  alt="Beautiful coffee cup with latte art"
-                  className="w-full h-full object-cover"
+                  alt="Beautiful handcrafted coffee with latte art"
+                  className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
                 />
+                <div className="absolute bottom-3 left-3 z-20">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
+                    <p className="text-brewhaus-green font-cabin text-sm font-medium">Handcrafted</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

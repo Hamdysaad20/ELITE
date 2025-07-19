@@ -25,12 +25,12 @@ export default function Navigation() {
       )}
 
       {/* Main Navigation */}
-      <nav className="bg-brewhaus-green sticky top-0 z-50">
+      <nav className="md:bg-transparent bg-brewhaus-green sticky top-0 z-50">
         {/* Desktop Navigation */}
         <div className="hidden md:block py-3 px-6">
           <div className="max-w-6xl mx-auto flex items-center justify-center">
             {/* Pilled Navigation Container */}
-            <div className="bg-brewhaus-green rounded-full px-6 py-2 flex items-center space-x-6 shadow-lg border border-brewhaus-cream/10">
+            <div className="bg-brewhaus-green rounded-full px-6 py-2 flex items-center space-x-6 shadow-lg">
               <a href="#" className="text-brewhaus-cream hover:bg-brewhaus-cream hover:text-brewhaus-green px-3 py-1.5 rounded-full transition-all duration-300 font-cabin text-base font-medium">
                 Menu
               </a>

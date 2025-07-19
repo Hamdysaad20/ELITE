@@ -51,8 +51,16 @@
     color: var(--brewhaus-cream);
   }
 
+  .text-brewhaus-light-green {
+    color: var(--brewhaus-light-green);
+  }
+
   .border-brewhaus-cream {
     border-color: var(--brewhaus-cream);
+  }
+
+  .bg-brewhaus-light-green {
+    background-color: var(--brewhaus-light-green);
   }
 
   /* Improved Marquee Styles - Industry Best Practices */
