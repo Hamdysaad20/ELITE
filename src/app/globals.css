@@ -130,7 +130,7 @@
   .marquee-item {
     flex-shrink: 0;
     margin-right: 2rem;
-    color: var(--elite-white);
+    color: var(--elite-black);
     font-family: var(--font-cabin-condensed);
     font-size: 1.125rem;
     white-space: nowrap;

@@ -40,30 +40,36 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="bg-elite-cream flex flex-col max-h-[90vh]">
+    <section className="bg-elite-burgundy flex flex-col max-h-[90vh] relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-elite-burgundy rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-elite-cream rounded-full blur-3xl"></div>
+      </div>
+      
       {/* Main content area */}
-      <div className="flex flex-col items-center justify-center text-center px-6 pt-20 min-h-[50vh] max-h-[60vh]">
-        <h1 className="font-calistoga text-elite-black text-6xl md:text-7xl lg:text-8xl leading-tight max-w-4xl mb-6">
+      <div className="relative flex flex-col items-center justify-center text-center px-6 pt-20 min-h-[50vh] max-h-[60vh]">
+        <h1 className="font-calistoga text-elite-white text-6xl md:text-7xl lg:text-8xl leading-tight max-w-4xl mb-6">
           Life Begins<br />
           After Coffee
         </h1>
 
-        <p className="text-elite-black font-cabin text-xl md:text-2xl mb-10 max-w-2xl">
+        <p className="text-elite-white font-cabin text-xl md:text-2xl mb-10 max-w-2xl">
           Because great coffee is the start of something even greater.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 mb-12 w-full sm:w-auto">
-          <button className="w-full sm:w-auto bg-elite-burgundy text-elite-white px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:opacity-90 transition-opacity">
+          <button className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-white hover:shadow-xl transition-all duration-300 transform hover:scale-105">
             Explore Menu
           </button>
-          <button className="w-full sm:w-auto border-2 border-elite-burgundy text-elite-burgundy px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-burgundy hover:text-elite-white transition-colors">
+          <button className="w-full sm:w-auto border-2 border-elite-cream text-elite-cream px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-300 transform hover:scale-105">
             Our Locations
           </button>
         </div>
       </div>
 
       {/* Coffee Cups Grid Section - Inspired by Elite */}
-      <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[24rem] bg-elite-cream flex-shrink-0">
+      <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[24rem] bg-elite-burgundy flex-shrink-0">
         <div className="w-layout-blockcontainer container w-container mx-auto h-full max-w-6xl px-2 sm:px-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 items-end justify-items-center h-full sm:-space-x-10 overflow-hidden">
           {/* Left Cup */}
@@ -106,7 +112,7 @@ export default function Hero() {
       </div>
 
       {/* Infinite Scroll Section */}
-      <div className="bg-elite-burgundy py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
+      <div className="bg-elite-cream py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
         <div className="marquee-container w-full">
           <div className="marquee-content">
             {/* Original Content */}

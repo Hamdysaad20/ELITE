@@ -25,7 +25,7 @@ export default function Navigation() {
       )}
 
       {/* Main Navigation */}
-      <nav className="md:bg-transparent bg-elite-white sticky top-0 z-50">
+      <nav className="md:bg-elite-burgundy bg-elite-white sticky top-0 z-50">
         {/* Desktop Navigation */}
         <div className="hidden md:block py-3 px-6">
           <div className="max-w-6xl mx-auto flex items-center justify-center">

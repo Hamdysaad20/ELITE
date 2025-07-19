@@ -51,7 +51,7 @@ export default function FindAndGet() {
   }, []);
 
   return (
-    <section className="bg-elite-white py-20 xl:py-36 px-6">
+    <section className="bg-elite-cream py-20 xl:py-36 px-6">
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
         <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl mb-16">
