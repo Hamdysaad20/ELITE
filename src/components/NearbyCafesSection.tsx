@@ -89,7 +89,7 @@ export default function NearbyCafesSection() {
   };
 
   return (
-    <section ref={sectionRef} className="bg-elite-cream relative py-20 lg:py-32">
+    <section ref={sectionRef} id="location" className="bg-elite-cream relative py-20 lg:py-32">
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Modern Section Header */}
         <div className="text-center mb-16 lg:mb-20">
