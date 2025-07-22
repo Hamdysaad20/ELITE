@@ -50,20 +50,21 @@ export default function Navigation() {
             <div className={`bg-elite-cream rounded-full flex items-center space-x-10 shadow-2xl transition-all duration-500 ease-in-out ${
               isScrolled ? 'px-10 py-4' : 'px-16 py-6'
             }`}>
-              <Link 
-                href="/" 
-                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
-              >
-                <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
-                  Home
-                </span>
-              </Link>
+
               <Link 
                 href="/menu" 
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
                 <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
                   Menu
+                </span>
+              </Link>
+              <Link 
+                href="/rewards" 
+                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
+              >
+                <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
+                  Rewards
                 </span>
               </Link>
               
@@ -80,14 +81,6 @@ export default function Navigation() {
                 />
               </div>
               
-              <Link 
-                href="/rewards" 
-                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
-              >
-                <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
-                  Rewards
-                </span>
-              </Link>
               <a 
                 href="#location" 
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
@@ -96,6 +89,17 @@ export default function Navigation() {
                   Location
                 </span>
               </a>
+              <Link 
+                href="/shop" 
+                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
+              >
+                <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
+                  Shop
+                </span>
+                <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
+                  Soon
+                </span>
+              </Link>
             </div>
           </div>
         </div>
@@ -135,32 +139,35 @@ export default function Navigation() {
 
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
-            <div className="mt-4 py-4 border-t border-elite-burgundy/20 animate-in slide-in-from-top duration-300 bg-white/95 backdrop-blur-md rounded-lg mx-2">
-              <div className="flex flex-col space-y-4">
-                <Link 
-                  href="/" 
-                  className="text-elite-black font-cabin text-lg font-bold tracking-wider py-3 active:bg-elite-burgundy active:text-elite-white px-4 rounded-lg transition-all duration-300 active:scale-95 transform uppercase border-2 border-transparent active:border-elite-burgundy/20"
-                >
-                  Home
-                </Link>
+            <div className="mt-4 py-4 border-t border-elite-burgundy/20 bg-white rounded-lg mx-2">
+              <div className="flex flex-col space-y-2 px-4">
                 <Link 
                   href="/menu" 
-                  className="text-elite-black font-cabin text-lg font-bold tracking-wider py-3 active:bg-elite-burgundy active:text-elite-white px-4 rounded-lg transition-all duration-300 active:scale-95 transform uppercase border-2 border-transparent active:border-elite-burgundy/20"
+                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
                 >
                   Menu
                 </Link>
                 <Link 
                   href="/rewards" 
-                  className="text-elite-black font-cabin text-lg font-bold tracking-wider py-3 active:bg-elite-burgundy active:text-elite-white px-4 rounded-lg transition-all duration-300 active:scale-95 transform uppercase border-2 border-transparent active:border-elite-burgundy/20"
+                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
                 >
                   Rewards
                 </Link>
                 <a 
                   href="#location" 
-                  className="text-elite-black font-cabin text-lg font-bold tracking-wider py-3 active:bg-elite-burgundy active:text-elite-white px-4 rounded-lg transition-all duration-300 active:scale-95 transform uppercase border-2 border-transparent active:border-elite-burgundy/20"
+                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
                 >
                   Location
                 </a>
+                <Link 
+                  href="/shop" 
+                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream relative"
+                >
+                  Shop
+                  <span className="absolute -top-1 -right-1 bg-elite-burgundy text-elite-cream text-xs px-1.5 py-0.5 rounded-full font-bold">
+                    Soon
+                  </span>
+                </Link>
               </div>
             </div>
           )}

@@ -23,7 +23,7 @@ export default function MenuPage() {
       case 'heart':
         return <Heart {...iconProps} />;
       case 'utensils':
-        return <Utensils {...iconProps} />;
+        return <div className="w-6 h-6 bg-elite-burgundy rounded-full"></div>;
       case 'home':
         return <Home {...iconProps} />;
       default:
@@ -55,7 +55,7 @@ export default function MenuPage() {
           {/* Menu Text - Center */}
           <h1 className="font-calistoga text-elite-cream text-6xl md:text-8xl lg:text-[12rem] font-bold leading-none tracking-tight opacity-90 relative z-10">
             MENU
-          </h1>
+        </h1>
           
           {/* Drink Image Overlay - Much Bigger */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -216,7 +216,7 @@ export default function MenuPage() {
                   {/* Coming Soon Badge - Smaller */}
                   {category.comingSoon && (
                     <div className="absolute top-4 right-4 bg-elite-burgundy text-elite-cream px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-md">
-                      Coming Soon
+          Coming Soon
                     </div>
                   )}
 
@@ -339,7 +339,7 @@ export default function MenuPage() {
           </div>
         </div>
       </div>
-      </div>
+    </div>
       <Footer />
     </main>
   );
