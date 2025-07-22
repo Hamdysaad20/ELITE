@@ -139,7 +139,7 @@ export default function MenuPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h3 className={`font-calistoga text-lg font-bold ${
-                          category.comingSoon ? 'text-elite-burgundy' : 'text-elite-cream'
+                          category.comingSoon ? 'text-elite-black' : 'text-elite-cream'
                         }`}>
                           {category.name}
                         </h3>
@@ -150,7 +150,7 @@ export default function MenuPage() {
                         )}
                       </div>
                       <p className={`font-cabin text-xs mb-1 line-clamp-1 ${
-                        category.comingSoon ? 'text-elite-burgundy/80' : 'text-elite-cream/95'
+                        category.comingSoon ? 'text-elite-black/80' : 'text-elite-cream/95'
                       }`}>
                         {category.description}
                       </p>
@@ -221,14 +221,14 @@ export default function MenuPage() {
                   )}
 
                   {/* Content - Smaller */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-elite-cream">
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className={`font-calistoga text-xl lg:text-2xl mb-2 font-bold ${
-                      category.comingSoon ? 'text-elite-burgundy' : 'text-elite-cream'
+                      category.comingSoon ? 'text-elite-black' : 'text-elite-cream'
                     }`}>
                       {category.name}
                     </h3>
                     <p className={`font-cabin text-sm mb-3 line-clamp-1 ${
-                      category.comingSoon ? 'text-elite-burgundy/80' : 'text-elite-cream/95'
+                      category.comingSoon ? 'text-elite-black/80' : 'text-elite-cream/95'
                     }`}>
                       {category.description}
                     </p>

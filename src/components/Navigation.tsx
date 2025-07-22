@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import { X, Menu } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Navigation() {
-  const [showPromo, setShowPromo] = useState(true);
+  const [showPromo, setShowPromo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Handle scroll detection
   useEffect(() => {
@@ -19,6 +22,37 @@ export default function Navigation() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Handle hash navigation when page loads
+  useEffect(() => {
+    if (pathname === '/' && window.location.hash === '#location') {
+      // Small delay to ensure the page is fully loaded
+      const timer = setTimeout(() => {
+        const locationElement = document.getElementById('location');
+        if (locationElement) {
+          locationElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [pathname]);
+
+  // Handle location navigation
+  const handleLocationClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (pathname === '/') {
+      // If already on home page, just scroll to location
+      const locationElement = document.getElementById('location');
+      if (locationElement) {
+        locationElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If on another page, navigate to home and then scroll to location
+      router.push('/#location');
+    }
+  };
 
   return (
     <>
@@ -59,17 +93,18 @@ export default function Navigation() {
                   Menu
                 </span>
               </Link>
-              <Link 
-                href="/rewards" 
+              <a 
+                href="#location" 
+                onClick={handleLocationClick}
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
                 <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
-                  Rewards
+                  Location
                 </span>
-              </Link>
+              </a>
               
               {/* Center Logo */}
-              <div className={`rounded-lg flex items-center justify-center px-10 transition-all duration-500 ease-in-out ${
+              <Link href="/" className={`rounded-lg flex items-center justify-center px-10 transition-all duration-500 ease-in-out hover:scale-105 ${
                 isScrolled ? 'h-20 -my-3' : 'h-32 -my-8'
               }`}>
                 <img
@@ -79,16 +114,19 @@ export default function Navigation() {
                     isScrolled ? 'h-16' : 'h-24'
                   }`}
                 />
-              </div>
+              </Link>
               
-              <a 
-                href="#location" 
-                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
+              <Link 
+                href="/rewards" 
+                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
               >
                 <span className={`transition-all duration-300 uppercase ${isScrolled ? 'text-base' : 'text-lg'}`}>
-                  Location
+                  Rewards
                 </span>
-              </a>
+                <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
+                  Soon
+                </span>
+              </Link>
               <Link 
                 href="/shop" 
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
@@ -110,7 +148,7 @@ export default function Navigation() {
         }`}>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className={`rounded-lg flex items-center justify-center px-4 transition-all duration-500 ease-in-out ${
+            <Link href="/" className={`rounded-lg flex items-center justify-center px-4 transition-all duration-500 ease-in-out hover:scale-105 ${
               isScrolled ? 'h-16 -my-2' : 'h-20 -my-3'
             }`}>
               <img
@@ -120,7 +158,7 @@ export default function Navigation() {
                   isScrolled ? 'h-12' : 'h-16'
                 }`}
               />
-            </div>
+            </Link>
 
             {/* Hamburger Menu */}
             <button
@@ -147,18 +185,22 @@ export default function Navigation() {
                 >
                   Menu
                 </Link>
-                <Link 
-                  href="/rewards" 
-                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
-                >
-                  Rewards
-                </Link>
                 <a 
                   href="#location" 
+                  onClick={handleLocationClick}
                   className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
                 >
                   Location
                 </a>
+                <Link 
+                  href="/rewards" 
+                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream relative"
+                >
+                  Rewards
+                  <span className="absolute -top-1 -right-1 bg-elite-burgundy text-elite-cream text-xs px-1.5 py-0.5 rounded-full font-bold">
+                    Soon
+                  </span>
+                </Link>
                 <Link 
                   href="/shop" 
                   className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream relative"

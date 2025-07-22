@@ -14,27 +14,23 @@ export default function LovedByLocals() {
   const products = [
     {
       name: "Cappuccino",
-      price: "$5.25",
       image: "https://ext.same-assets.com/1022434225/2347648118.avif",
-      link: "/menu/cappuccino"
+      link: "/menu/classic-drinks"
     },
     {
       name: "Bubble Tea",
-      price: "$6.75",
       image: "https://ext.same-assets.com/1022434225/4278114908.avif",
-      link: "/menu/bubble-tea"
+      link: "/menu/special-drinks"
     },
     {
       name: "Iced Tea",
-      price: "$4.35",
       image: "https://ext.same-assets.com/1022434225/703059297.avif",
-      link: "/menu/iced-tea"
+      link: "/menu/special-drinks"
     },
     {
       name: "Iced Latte",
-      price: "$4.45",
       image: "https://ext.same-assets.com/1022434225/1157300862.avif",
-      link: "/menu/iced-latte"
+      link: "/menu/special-drinks"
     }
   ];
 
@@ -106,14 +102,9 @@ export default function LovedByLocals() {
                 </div>
               </div>
               <div className="text-center w-full">
-                <div className="flex items-center justify-between w-full">
-                  <h3 className="font-calistoga text-elite-black text-2xl">
-                    {product.name}
-                  </h3>
-                  <span className="text-elite-black font-cabin text-xl font-semibold">
-                    {product.price}
-                  </span>
-                </div>
+                <h3 className="font-calistoga text-elite-black text-2xl">
+                  {product.name}
+                </h3>
               </div>
             </a>
           ))}

@@ -6,8 +6,16 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { getAllCategories } from '@/lib/menuData';
 
+/**
+ * Generate static params for all menu categories
+ * This ensures all category pages are pre-built at build time
+ * Following Next.js best practices for static exports
+ */
 export async function generateStaticParams() {
   const categories = getAllCategories();
+  
+  // Return all category IDs as static params
+  // This ensures all category pages are generated at build time
   return categories.map((category) => ({
     category: category.id,
   }));

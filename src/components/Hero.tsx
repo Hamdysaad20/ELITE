@@ -2,11 +2,23 @@
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
   const leftCupRef = useRef(null);
   const centerCupRef = useRef(null);
   const rightCupRef = useRef(null);
+  const router = useRouter();
+
+  // Handle location navigation
+  const handleLocationClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const locationElement = document.getElementById('location');
+    if (locationElement) {
+      locationElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     // Set initial state
@@ -59,10 +71,13 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 mb-12 w-full sm:w-auto">
-          <button className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-white hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <Link href="/menu" className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-white hover:shadow-xl transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center">
             Explore Menu
-          </button>
-          <button className="w-full sm:w-auto border-2 border-elite-cream text-elite-cream px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-300 transform hover:scale-105">
+          </Link>
+          <button 
+            onClick={handleLocationClick}
+            className="w-full sm:w-auto border-2 border-elite-cream text-elite-cream px-8 py-4 sm:px-6 sm:py-3 rounded-full font-cabin text-lg sm:text-base font-semibold hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-300 transform hover:scale-105"
+          >
             Our Locations
           </button>
         </div>

@@ -4,10 +4,17 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ItemDetailClient from '@/components/ItemDetailClient';
 
+/**
+ * Generate static params for all menu items
+ * This ensures all item detail pages are pre-built at build time
+ * Following Next.js best practices for static exports
+ */
 export async function generateStaticParams() {
   const categories = getAllCategories();
   const params = [];
   
+  // Generate params for all category-subcategory-item combinations
+  // This ensures all item detail pages are generated at build time
   for (const category of categories) {
     for (const subCategory of category.subCategories) {
       for (const item of subCategory.items) {

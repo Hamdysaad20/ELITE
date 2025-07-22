@@ -6,10 +6,17 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { getAllCategories } from '@/lib/menuData';
 
+/**
+ * Generate static params for all menu subcategories
+ * This ensures all subcategory pages are pre-built at build time
+ * Following Next.js best practices for static exports
+ */
 export async function generateStaticParams() {
   const categories = getAllCategories();
   const params = [];
   
+  // Generate params for all category-subcategory combinations
+  // This ensures all subcategory pages are generated at build time
   for (const category of categories) {
     for (const subCategory of category.subCategories) {
       params.push({
@@ -211,13 +218,10 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
 
                   {/* Item Details */}
                   <div className="p-6">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="mb-2">
                       <h3 className="font-calistoga text-elite-burgundy text-xl leading-tight">
                         {item.name}
                       </h3>
-                      <span className="font-cabin font-bold text-elite-burgundy text-lg">
-                        ${item.price.toFixed(2)}
-                      </span>
                     </div>
                     
                     <p className="font-cabin text-elite-black/80 text-sm mb-4 line-clamp-2">

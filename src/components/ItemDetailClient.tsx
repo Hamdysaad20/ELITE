@@ -173,9 +173,7 @@ export default function ItemDetailClient({
               <h2 className="font-calistoga text-elite-burgundy text-4xl lg:text-5xl font-bold mb-4">
                 {item.name}
               </h2>
-              {/* <div className="text-3xl font-cabin font-bold text-elite-burgundy mb-6">
-                ${calculateTotalPrice().toFixed(2)}
-              </div> */}
+
               <p className="font-cabin text-elite-black/80 text-lg leading-relaxed">
                 {item.description}
               </p>
@@ -317,10 +315,7 @@ export default function ItemDetailClient({
                     <p className="font-cabin text-elite-black/70 text-sm mb-3 line-clamp-2">
                       {recommendedItem.description}
                     </p>
-                    <div className="flex items-center justify-between">
-                      {/* <span className="font-cabin font-bold text-elite-burgundy">
-                        ${recommendedItem.price.toFixed(2)}
-                      </span> */}
+                    <div className="flex items-center justify-end">
                       <span className="text-sm text-elite-black/50 group-hover:text-elite-burgundy transition-colors">
                         View →
                       </span>

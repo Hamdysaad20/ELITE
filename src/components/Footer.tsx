@@ -1,6 +1,6 @@
 'use client';
 
-import { Instagram, Facebook, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Facebook, Globe, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -39,8 +39,9 @@ export default function Footer() {
               <Link href="/menu" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
                 Menu
               </Link>
-              <Link href="/rewards" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
+              <Link href="/rewards" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative">
                 Rewards
+                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">Soon</span>
               </Link>
               <Link href="/shop" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
                 Shop <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">Soon</span>
@@ -62,31 +63,44 @@ export default function Footer() {
               <Link href="/menu/classic-drinks" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
                 Classic Drinks
               </Link>
+              <Link href="/menu/special-drinks" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
+                Special Drinks
+              </Link>
+              <Link href="/menu/kids-corner" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
+                Kids' Corner
+              </Link>
+              <Link href="/menu/food" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative">
+                Food & Treats
+                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">Soon</span>
+              </Link>
+              <Link href="/menu/at-home-coffee" className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative">
+                At Home Coffee
+                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">Soon</span>
+              </Link>
             </nav>
           </div>
 
-          {/* Contact & Support */}
+          {/* Location */}
           <div className="space-y-6">
             <div className="space-y-3">
               <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-                Contact & Support
+                Location
               </h4>
               <p className="text-elite-cream font-cabin text-sm">
-                Get in touch
+                Visit us
               </p>
             </div>
             <div className="space-y-4">
-              <a href="tel:+201234567890" className="flex items-center gap-3 font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
-                <Phone className="w-4 h-4" />
-                +20 123 456 7890
-              </a>
-              <a href="mailto:info@elitecoffee.com" className="flex items-center gap-3 font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform">
-                <Mail className="w-4 h-4" />
-                info@elitecoffee.com
-              </a>
-              <div className="flex items-center gap-3 font-cabin text-elite-white text-base font-semibold tracking-wide">
-                <MapPin className="w-4 h-4" />
-                Fayoum, Egypt
+              <div className="flex items-start gap-3 font-cabin text-elite-white text-base font-semibold tracking-wide">
+                <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
+                <div className="space-y-2">
+                  <div className="text-elite-white">
+                    Faiyum, Governorate Club, next to the Governor's Villa
+                  </div>
+                  <div className="text-elite-cream/80 text-sm" dir="rtl">
+                    الفيوم، نادي المحافظة، بجوار فيلا المحافظ
+                  </div>
+                </div>
               </div>
             </div>
           </div>
