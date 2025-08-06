@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Star, Coffee, Utensils, Home, ArrowRight } from 'lucide-react';
 import { MenuItem, RecommendedItem, MenuCategory, SubCategory } from '@/lib/menuData';
@@ -22,11 +22,36 @@ export default function ItemDetailClient({
   recommendedItems,
   recommendedItemsData 
 }: ItemDetailClientProps) {
+  // Initialize state with proper defaults to prevent hydration mismatches
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
   const [activeSubCategory, setActiveSubCategory] = useState<string | null>(subCategory.id);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure client-side rendering to prevent hydration mismatches
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Reset state when component mounts to prevent stale state
+    setCurrentImageIndex(0);
+    setSelectedSize(null);
+    setSelectedToppings([]);
+    setSelectedFlavor(null);
+    setActiveSubCategory(subCategory.id);
+  }, [subCategory.id]);
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Reset state on unmount
+      setCurrentImageIndex(0);
+      setSelectedSize(null);
+      setSelectedToppings([]);
+      setSelectedFlavor(null);
+    };
+  }, []);
 
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
@@ -85,6 +110,15 @@ export default function ItemDetailClient({
     );
   };
 
+  // Don't render until client-side to prevent hydration issues
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-elite-cream flex items-center justify-center">
+        <div className="text-elite-burgundy">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-elite-cream">
       {/* Simple Header */}
@@ -111,53 +145,59 @@ export default function ItemDetailClient({
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          {/* Image Slider - 1:1 Aspect Ratio */}
+          {/* Image Slider - Fixed */}
           <div className="relative">
-            <div className="aspect-square bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy rounded-3xl overflow-hidden shadow-2xl">
-              {/* Main Image */}
-              <div className="w-full h-full flex items-center justify-center relative">
-                <div className="w-32 h-32 bg-elite-cream/20 rounded-3xl flex items-center justify-center">
-                  <Coffee className="w-16 h-16 text-elite-cream" />
+            <div className="aspect-square bg-elite-cream relative">
+              
+              {/* Circular Container with Overflow Hidden - Like FindAndGet */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-[28rem] h-[28rem] bg-elite-dark-burgundy rounded-full border border-elite-dark-burgundy/20 overflow-hidden z-10">
+                <div className="w-full h-full p-8 pt-12">
+                  <img
+                    src={item.images[currentImageIndex]}
+                    alt={item.name}
+                    className="w-full h-full object-cover object-top"
+                    loading="eager"
+                  />
                 </div>
-                
-                {/* Featured Badge */}
-                {item.featured && (
-                  <div className="absolute top-6 right-6 bg-elite-cream text-elite-burgundy px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg">
-                    <Star className="w-4 h-4 inline mr-1" />
-                    Featured
-                  </div>
-                )}
-                
-                {/* Navigation Arrows */}
-                {item.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-elite-cream/20 text-elite-cream rounded-full flex items-center justify-center hover:bg-elite-cream/30 transition-all duration-300 backdrop-blur-sm"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-elite-cream/20 text-elite-cream rounded-full flex items-center justify-center hover:bg-elite-cream/30 transition-all duration-300 backdrop-blur-sm"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </>
-                )}
               </div>
+              
+              {/* Featured Badge */}
+              {item.featured && (
+                <div className="absolute top-6 right-6 bg-elite-burgundy text-elite-cream px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg z-30">
+                  <Star className="w-4 h-4 inline mr-1" />
+                  Featured
+                </div>
+              )}
+              
+              {/* Navigation Arrows */}
+              {item.images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-30"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-30"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
               
               {/* Image Indicators */}
               {item.images.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3">
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-3 z-30">
                   {item.images.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`w-3 h-3 rounded-full transition-all duration-300 ${
                         index === currentImageIndex 
-                          ? 'bg-elite-cream scale-125' 
-                          : 'bg-elite-cream/50 hover:bg-elite-cream/75'
+                          ? 'bg-elite-burgundy scale-125' 
+                          : 'bg-elite-burgundy/50 hover:bg-elite-burgundy/75'
                       }`}
                     />
                   ))}

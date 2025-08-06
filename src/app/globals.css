@@ -27,6 +27,16 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-calistoga);
   }
+
+  /* Prevent layout shifts during navigation */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Ensure proper stacking context */
+  * {
+    box-sizing: border-box;
+  }
 }
 
 @layer utilities {
@@ -176,7 +186,7 @@ link[rel="icon"] {
   filter: hue-rotate(340deg) saturate(150%) brightness(0.8);
 }
 
-/* Drink Image Overlay Animation - One-time appearing effect */
+/* Drink Image Overlay Animation - One-time appearing effect with better cleanup */
 @keyframes drink-appear {
   0% {
     opacity: 0;
@@ -198,9 +208,200 @@ link[rel="icon"] {
   animation-fill-mode: forwards;
 }
 
-/* Ensure animation only plays once per page load */
+/* Ensure animation only plays once per page load and cleans up properly */
 .drink-overlay-animation.animated {
   animation: none;
+}
+
+/* Hide scrollbar for mobile category pills */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Enhanced drink card effects with circular base */
+.drink-card-container {
+  position: relative;
+}
+
+.drink-image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.drink-image {
+  transition: transform 0.3s ease;
+}
+
+/* Circular base effect */
+.circular-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Radial mask for emerging effect */
+.drink-emerging {
+  mask-image: radial-gradient(ellipse 70% 90% at center bottom, black 40%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 90% at center bottom, black 40%, transparent 75%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .drink-emerging {
+    mask-image: radial-gradient(ellipse 65% 85% at center bottom, black 35%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 65% 85% at center bottom, black 35%, transparent 70%);
+  }
+}
+
+/* Hover enhancements with better performance */
+.group:hover .drink-image {
+  transform: scale(1.05);
+}
+
+/* Enhanced Sidebar Styles */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--elite-burgundy) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--elite-burgundy);
+  border-radius: 3px;
+  opacity: 0.3;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--elite-dark-burgundy);
+  opacity: 0.6;
+}
+
+/* Enhanced Menu Items Scrollbar */
+.menu-items-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--elite-burgundy) transparent;
+  scroll-behavior: smooth;
+}
+
+.menu-items-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.menu-items-scroll::-webkit-scrollbar-track {
+  background: var(--elite-cream);
+  border-radius: 4px;
+  margin: 0 4px;
+}
+
+.menu-items-scroll::-webkit-scrollbar-thumb {
+  background: var(--elite-burgundy);
+  border-radius: 4px;
+  opacity: 0.4;
+}
+
+.menu-items-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--elite-dark-burgundy);
+  opacity: 0.7;
+}
+
+/* Smooth scroll snap for menu items */
+.menu-items-scroll {
+  scroll-snap-type: x mandatory;
+}
+
+.menu-items-scroll > div > div {
+  scroll-snap-align: start;
+}
+
+/* Sidebar hover effects with better performance */
+.sidebar-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(139, 38, 53, 0.1), transparent);
+  transition: left 0.5s;
+  pointer-events: none;
+}
+
+.sidebar-item:hover::before {
+  left: 100%;
+}
+
+/* Professional gradient borders */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(135deg, var(--elite-cream), white);
+  border-radius: 24px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--elite-burgundy), var(--elite-dark-burgundy));
+  border-radius: 24px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
+
+/* Prevent layout shifts during navigation */
+.page-transition {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.page-transition.loading {
+  opacity: 0;
+}
+
+.page-transition.loaded {
+  opacity: 1;
+}
+
+/* Ensure proper image loading states */
+.image-loading {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.image-loaded {
+  opacity: 1;
+}
+
+/* Prevent animation conflicts during navigation */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 

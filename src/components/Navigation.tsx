@@ -72,7 +72,7 @@ export default function Navigation() {
       )}
 
       {/* Main Navigation */}
-      <nav className={` backdrop-blur-sm sticky top-0 z-50 transition-all duration-500 ease-in-out ${
+      <nav className={`sticky top-0 z-50 transition-all duration-500 ease-in-out ${
         isScrolled ? '' : ''
       }`}>
         {/* Desktop Navigation */}
@@ -177,36 +177,36 @@ export default function Navigation() {
 
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
-            <div className="mt-4 py-4 border-t border-elite-burgundy/20 bg-white rounded-lg mx-2">
-              <div className="flex flex-col space-y-2 px-4">
+            <div className="mt-4 py-6 border-t border-elite-burgundy/20 bg-elite-cream rounded-lg mx-2">
+              <div className="flex flex-col space-y-3 px-4">
                 <Link 
                   href="/menu" 
-                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
+                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105"
                 >
                   Menu
                 </Link>
                 <a 
                   href="#location" 
                   onClick={handleLocationClick}
-                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream"
+                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105"
                 >
                   Location
                 </a>
                 <Link 
                   href="/rewards" 
-                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream relative"
+                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 relative"
                 >
                   Rewards
-                  <span className="absolute -top-1 -right-1 bg-elite-burgundy text-elite-cream text-xs px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
                     Soon
                   </span>
                 </Link>
                 <Link 
                   href="/shop" 
-                  className="text-elite-black font-cabin text-base font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-elite-burgundy hover:text-elite-cream relative"
+                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 relative"
                 >
                   Shop
-                  <span className="absolute -top-1 -right-1 bg-elite-burgundy text-elite-cream text-xs px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
                     Soon
                   </span>
                 </Link>

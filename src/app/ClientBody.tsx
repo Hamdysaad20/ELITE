@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createNavigationState, cleanupNavigationState, preventLayoutShift, resetPageState } from "@/lib/utils";
 
 export default function ClientBody({
   children,
@@ -25,6 +26,46 @@ export default function ClientBody({
         body.classList.add('antialiased');
       }
     }
+
+    // Initialize navigation state
+    createNavigationState();
+    
+    // Prevent layout shifts
+    preventLayoutShift();
+
+    // Cleanup on unmount
+    return () => {
+      cleanupNavigationState();
+    };
+  }, []);
+
+  // Handle page visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Reset page state when page becomes visible again
+        resetPageState();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Handle beforeunload to clean up state
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      cleanupNavigationState();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   return <>{children}</>;

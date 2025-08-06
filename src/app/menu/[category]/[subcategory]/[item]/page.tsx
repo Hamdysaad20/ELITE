@@ -50,7 +50,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ cat
     .filter((item): item is MenuItem => item !== undefined);
 
   return (
-    <main>
+    <main className="page-transition loaded">
       <Navigation />
       <ItemDetailClient 
         item={item}

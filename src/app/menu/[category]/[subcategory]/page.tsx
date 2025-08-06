@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { getAllCategories } from '@/lib/menuData';
+import DrinkCard from '@/components/DrinkCard';
 
 /**
  * Generate static params for all menu subcategories
@@ -54,7 +55,7 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
   };
 
   return (
-    <main>
+    <main className="page-transition loaded">
       <Navigation />
       <div className="min-h-screen bg-elite-cream">
       {/* Header */}
@@ -65,6 +66,7 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
             <Link 
               href="/menu" 
               className="hover:text-elite-light-cream transition-colors duration-200"
+              prefetch={true}
             >
               Menu
             </Link>
@@ -72,6 +74,7 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
             <Link 
               href={`/menu/${category.id}`}
               className="hover:text-elite-light-cream transition-colors duration-200"
+              prefetch={true}
             >
               {category.name}
             </Link>
@@ -98,6 +101,7 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
           <Link
             href={`/menu/${category.id}`}
             className="inline-flex items-center gap-2 bg-elite-cream text-elite-burgundy px-6 py-3 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-light-cream hover:scale-105"
+            prefetch={true}
           >
             <ChevronLeft className="w-4 h-4" />
             Back to {category.name}
@@ -109,68 +113,104 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Side Navigation */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-8">
-              <h2 className="font-calistoga text-elite-burgundy text-2xl mb-6">
-                Categories
-              </h2>
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+              {/* Sidebar Header */}
+              <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
+                <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
+                  Categories
+                </h2>
+                <p className="font-cabin text-elite-black/70 text-xs">
+                  Navigate through our menu
+                </p>
+              </div>
               
               {/* Main Categories */}
-              <div className="space-y-4 mb-8">
-                {allCategories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={cat.comingSoon ? '#' : `/menu/${cat.id}`}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
-                      cat.id === categoryId
-                        ? 'bg-elite-burgundy text-elite-cream shadow-lg'
-                        : cat.comingSoon
-                        ? 'bg-elite-dark-cream text-elite-black/60 cursor-not-allowed'
-                        : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg'
-                    }`}
-                  >
-                    <span className="text-xl">{cat.icon}</span>
-                    <span className="font-cabin font-semibold">{cat.name}</span>
-                    {cat.comingSoon && (
-                      <span className="ml-auto text-xs bg-elite-burgundy text-elite-cream px-2 py-1 rounded-full">
-                        Soon
-                      </span>
+              <div className="space-y-1 mb-6">
+                {allCategories.map((cat, index) => (
+                  <div key={cat.id}>
+                    <Link
+                      href={cat.comingSoon ? '#' : `/menu/${cat.id}`}
+                      className={`group sidebar-item flex items-center gap-2 p-3 rounded-xl transition-all duration-300 border ${
+                        cat.id === categoryId
+                          ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
+                          : cat.comingSoon
+                          ? 'bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream'
+                          : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
+                      }`}
+                      prefetch={!cat.comingSoon}
+                    >
+                      <span className="text-lg">{cat.icon}</span>
+                      <span className="font-cabin font-medium text-sm">{cat.name}</span>
+                      {cat.comingSoon && (
+                        <span className="ml-auto text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
+                          Soon
+                        </span>
+                      )}
+                    </Link>
+                    {index < allCategories.length - 1 && (
+                      <div className="h-px bg-elite-burgundy/10 my-3"></div>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
 
-              {/* Subcategories */}
+              {/* Subcategories Section */}
               {!category.comingSoon && category.subCategories.length > 0 && (
-                <div>
-                  <h3 className="font-calistoga text-elite-burgundy text-xl mb-4">
-                    {category.name} Types
-                  </h3>
-                  <div className="space-y-2">
-                    {category.subCategories.map((sub) => (
-                      <Link
-                        key={sub.id}
-                        href={`/menu/${category.id}/${sub.id}`}
-                        className={`block p-3 rounded-xl transition-all duration-300 ${
-                          subCategoryId === sub.id
-                            ? 'bg-elite-burgundy text-elite-cream shadow-lg'
-                            : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-cabin font-semibold">{sub.name}</span>
-                          <span className="text-sm opacity-75">
-                            {sub.items.length} items
-                          </span>
-                        </div>
-                        <p className="text-sm opacity-75 mt-1">
-                          {sub.description}
-                        </p>
-                      </Link>
+                <div className="mb-6">
+                  <div className="mb-4 pb-3 border-b border-elite-burgundy/20">
+                    <h3 className="font-calistoga text-elite-burgundy text-lg font-bold mb-1">
+                      {category.name} Types
+                    </h3>
+                    <p className="font-cabin text-elite-black/70 text-xs">
+                      Choose your preference
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    {category.subCategories.map((sub, index) => (
+                      <div key={sub.id}>
+                        <Link
+                          href={`/menu/${category.id}/${sub.id}`}
+                          className={`group sidebar-item block p-3 rounded-xl transition-all duration-300 border ${
+                            subCategoryId === sub.id
+                              ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
+                              : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
+                          }`}
+                          prefetch={true}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                                subCategoryId === sub.id ? 'bg-elite-cream' : 'bg-elite-burgundy group-hover:bg-elite-cream'
+                              }`}></div>
+                              <span className="font-cabin font-medium text-sm">{sub.name}</span>
+                            </div>
+                            <span className="text-xs opacity-75 bg-white/20 px-2 py-0.5 rounded-full">
+                              {sub.items.length} items
+                            </span>
+                          </div>
+                          <p className="text-xs opacity-75 ml-3.5">
+                            {sub.description}
+                          </p>
+                        </Link>
+                        {index < category.subCategories.length - 1 && (
+                          <div className="h-px bg-elite-burgundy/10 my-3"></div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* Sidebar Footer */}
+              <div className="pt-4 border-t border-elite-burgundy/20">
+                <div className="text-center">
+                  <p className="font-cabin text-elite-black/40 text-xs">
+                    Fresh ingredients daily
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -190,96 +230,18 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
               </div>
             </div>
 
-            {/* Items Grid */}
+            {/* Items Grid with Circular Base Effect */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {subCategory.items.map((item) => (
-                <Link
+                <DrinkCard
                   key={item.id}
+                  image={item.images[0]}
+                  name={item.name}
+                  price={`${item.price} EGP`}
+                  description={item.description}
+                  size="large"
                   href={`/menu/${category.id}/${subCategory.id}/${item.id}`}
-                  className="group bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:shadow-elite-burgundy/20"
-                >
-                  {/* Item Image */}
-                  <div className="h-48 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center relative overflow-hidden">
-                    <Coffee className="w-16 h-16 text-elite-cream" />
-                    {item.featured && (
-                      <div className="absolute top-3 right-3 bg-elite-cream text-elite-burgundy px-2 py-1 rounded-full text-xs font-cabin font-semibold flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-current" />
-                        Featured
-                      </div>
-                    )}
-                    {!item.available && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="text-elite-cream font-cabin font-semibold">
-                          Temporarily Unavailable
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Item Details */}
-                  <div className="p-6">
-                    <div className="mb-2">
-                      <h3 className="font-calistoga text-elite-burgundy text-xl leading-tight">
-                        {item.name}
-                      </h3>
-                    </div>
-                    
-                    <p className="font-cabin text-elite-black/80 text-sm mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-
-                    {/* Item Features */}
-                    <div className="space-y-2 mb-4">
-                      {item.sizes.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {item.sizes.slice(0, 2).map((size) => (
-                            <span 
-                              key={size.name}
-                              className="bg-elite-cream text-elite-burgundy text-xs px-2 py-1 rounded-full font-cabin"
-                            >
-                              {size.name}
-                            </span>
-                          ))}
-                          {item.sizes.length > 2 && (
-                            <span className="bg-elite-cream text-elite-burgundy text-xs px-2 py-1 rounded-full font-cabin">
-                              +{item.sizes.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {item.allergens.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {item.allergens.slice(0, 2).map((allergen) => (
-                            <span 
-                              key={allergen}
-                              className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-cabin"
-                            >
-                              {allergen}
-                            </span>
-                          ))}
-                          {item.allergens.length > 2 && (
-                            <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-cabin">
-                              +{item.allergens.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Action Button */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-elite-black/60 group-hover:text-elite-burgundy transition-colors">
-                        View Details →
-                      </span>
-                      {!item.available && (
-                        <span className="text-sm text-red-600 font-cabin font-semibold">
-                          Unavailable
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                />
               ))}
             </div>
 
@@ -298,6 +260,7 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
                   <Link
                     href={`/menu/${category.id}`}
                     className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-dark-burgundy hover:scale-105"
+                    prefetch={true}
                   >
                     <ChevronLeft className="w-4 h-4" />
                     Back to {category.name}

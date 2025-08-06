@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { getAllCategories } from '@/lib/menuData';
+import DrinkCard from '@/components/DrinkCard';
 
 /**
  * Generate static params for all menu categories
@@ -92,57 +93,73 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       <div className="max-w-[1400px] mx-auto px-6 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Side Navigation */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-8">
-              <h2 className="font-calistoga text-elite-burgundy text-2xl mb-6">
-                Categories
-              </h2>
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+              {/* Sidebar Header */}
+              <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
+                <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
+                  Categories
+                </h2>
+                <p className="font-cabin text-elite-black/70 text-xs">
+                  Navigate through our menu
+                </p>
+              </div>
+              
               {/* Main Categories */}
-              <div className="space-y-4 mb-8">
-                {allCategories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={cat.comingSoon ? '#' : `/menu/${cat.id}`}
-                    className={`flex items-center justify-between p-3 rounded-xl transition-all duration-300 ${
-                      cat.id === categoryId
-                        ? 'bg-elite-burgundy text-elite-cream shadow-lg'
-                        : cat.comingSoon
-                        ? 'bg-elite-dark-cream text-elite-black/60 cursor-not-allowed'
-                        : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg'
-                    }`}
-                  >
-                    <span className="font-cabin font-semibold">{cat.name}</span>
-                    {cat.comingSoon && (
-                      <span className="text-xs bg-elite-burgundy text-elite-cream px-2 py-1 rounded-full">
-                        Soon
-                      </span>
+              <div className="space-y-1 mb-6">
+                {allCategories.map((cat, index) => (
+                  <div key={cat.id}>
+                    <Link
+                      href={cat.comingSoon ? '#' : `/menu/${cat.id}`}
+                      className={`group sidebar-item flex items-center justify-between p-3 rounded-xl transition-all duration-300 border ${
+                        cat.id === categoryId
+                          ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
+                          : cat.comingSoon
+                          ? 'bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream'
+                          : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                          cat.id === categoryId 
+                            ? 'bg-elite-cream' 
+                            : cat.comingSoon 
+                            ? 'bg-elite-black/20' 
+                            : 'bg-elite-burgundy group-hover:bg-elite-cream'
+                        }`}></div>
+                        <span className="font-cabin font-medium text-sm">{cat.name}</span>
+                      </div>
+                      {cat.comingSoon && (
+                        <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
+                          Soon
+                        </span>
+                      )}
+                    </Link>
+                    {index < allCategories.length - 1 && (
+                      <div className="h-px bg-elite-burgundy/10 my-3"></div>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
 
+              {/* Sidebar Footer */}
+              <div className="pt-4 border-t border-elite-burgundy/20">
+                <div className="text-center">
+                  <p className="font-cabin text-elite-black/40 text-xs">
+                    Fresh ingredients daily
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Right Side Content - REFACTORED */}
           <div className="flex-1">
-            <div className="mb-12">
-              <div className="text-center mb-8">
-                <div className="inline-block bg-gradient-to-r from-elite-burgundy/10 to-elite-dark-burgundy/10 rounded-3xl px-8 py-4 mb-4">
-                  <h2 className="font-calistoga text-elite-black text-4xl lg:text-5xl font-bold">
-                    {category.name}
-                  </h2>
-                </div>
-                <p className="font-cabin text-elite-black/90 text-lg lg:text-xl max-w-2xl mx-auto">
-                  {category.description}
-                </p>
-              </div>
-            </div>
-
             {/* Subcategories with Items - EXPANDED VIEW */}
             <div className="space-y-12">
-              {category.subCategories.map((sub) => (
-                <div key={sub.id} className="bg-elite-cream rounded-2xl shadow-md p-8 border border-elite-burgundy/10">
+              {category.subCategories.map((sub, index) => (
+                <div key={sub.id} className="relative">
+                  <div className="bg-elite-cream rounded-2xl shadow-md p-8 border border-elite-burgundy/10">
                   {/* Subcategory Header */}
                   <div className="mb-8">
                     <h3 className="font-calistoga text-elite-black text-3xl font-bold mb-3">
@@ -153,38 +170,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                     </p>
                   </div>
 
-                  {/* Items List - Enhanced Grid with Bigger Images */}
+                  {/* Items List - Enhanced Grid with Circular Base Effect */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {sub.items.map((item) => (
-                      <Link
+                      <DrinkCard
                         key={item.id}
+                        image={item.images[0]}
+                        name={item.name}
+                        price={`${item.price} EGP`}
+                        description={item.description}
+                        size="medium"
                         href={`/menu/${category.id}/${sub.id}/${item.id}`}
-                        className="group flex flex-col items-center p-4 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-white/50 cursor-pointer"
-                      >
-                        {/* Enhanced Product Image - Much Bigger */}
-                        <div className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 mb-6">
-                          {/* Background Gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy rounded-full shadow-xl group-hover:shadow-2xl transition-all duration-300"></div>
-                          
-                          {/* Inner Glow Effect */}
-                          <div className="absolute inset-3 bg-gradient-to-br from-white/30 to-transparent rounded-full"></div>
-                          
-                          {/* Product Icon */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Coffee className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 text-elite-cream drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
-                          </div>
-                          
-                          {/* Hover Ring Effect */}
-                          <div className="absolute inset-0 rounded-full border-3 border-transparent group-hover:border-elite-burgundy/40 transition-all duration-300"></div>
-                        </div>
-                        
-                        {/* Item Name */}
-                        <h4 className="font-cabin text-elite-black text-sm md:text-base font-semibold text-center leading-tight group-hover:text-elite-burgundy transition-colors duration-300">
-                          {item.name}
-                        </h4>
-                      </Link>
+                      />
                     ))}
                   </div>
+                </div>
+                  {index < category.subCategories.length - 1 && (
+                    <div className="h-px bg-elite-burgundy/10 mt-12"></div>
+                  )}
                 </div>
               ))}
             </div>
@@ -195,4 +198,4 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       <Footer />
     </main>
   );
-} 
+}
