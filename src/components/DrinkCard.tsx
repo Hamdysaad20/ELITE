@@ -27,18 +27,15 @@ export default function DrinkCard({
   const sizeClasses = {
     small: {
       container: 'h-72',
-      circle: 'w-56 h-56',
-      image: 'w-48 h-64'
+      imageContainer: 'h-48'
     },
     medium: {
       container: 'h-80',
-      circle: 'w-64 h-64',
-      image: 'w-56 h-72'
+      imageContainer: 'h-56'
     },
     large: {
       container: 'h-88',
-      circle: 'w-72 h-72', 
-      image: 'w-64 h-80'
+      imageContainer: 'h-64'
     }
   };
 
@@ -58,11 +55,11 @@ export default function DrinkCard({
       
       <div className={`relative ${classes.container} mb-4`}>
         
-        {/* Circular Container with Overflow Hidden - Like FindAndGet */}
-        <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 ${classes.circle} bg-elite-dark-burgundy rounded-full border border-elite-dark-burgundy/20 overflow-hidden z-10`}>
-          <div className="w-full h-full p-6 pt-8 relative">
+        {/* Image Container - Like LovedByLocals */}
+        <div className={`bg-elite-burgundy rounded-3xl transition-transform group-hover:scale-105 mb-4 relative overflow-hidden ${classes.imageContainer}`}>
+          <div className="w-full h-full overflow-hidden rounded-2xl flex items-end">
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-elite-dark-burgundy">
+              <div className="absolute inset-0 flex items-center justify-center bg-elite-dark-burgundy z-10">
                 <div className="text-elite-cream text-sm">Loading...</div>
               </div>
             )}
@@ -74,7 +71,7 @@ export default function DrinkCard({
               <img
                 src={image}
                 alt={name}
-                className={`w-full h-full object-cover object-top transition-opacity duration-300 ${
+                className={`w-full h-full object-cover object-bottom transition-opacity duration-300 ${
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 onLoad={handleImageLoad}

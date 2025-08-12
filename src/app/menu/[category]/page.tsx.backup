@@ -52,7 +52,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       <div className="bg-elite-burgundy text-elite-cream py-8">
         <div className="max-w-7xl mx-auto px-6">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-3 text-sm mb-4">
+          <div className="flex items-center gap-2 text-sm mb-4">
             <Link 
               href="/menu" 
               className="hover:text-elite-light-cream transition-colors duration-200"
@@ -81,7 +81,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           {/* Back to Menu Button */}
           <Link
             href="/menu"
-            className="inline-flex items-center gap-3 bg-elite-cream text-elite-burgundy px-6 py-3 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-light-cream hover:scale-105"
+            className="inline-flex items-center gap-2 bg-elite-cream text-elite-burgundy px-6 py-3 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-light-cream hover:scale-105"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Menu
@@ -98,15 +98,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               {/* Sidebar Header */}
               <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                 <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
-                  Menu
+                  Categories
                 </h2>
                 <p className="font-cabin text-elite-black/70 text-xs">
-                  Browse our categories
+                  Navigate through our menu
                 </p>
               </div>
               
-              {/* Main Menu */}
-              <div className="space-y-2 mb-6">
+              {/* Main Categories */}
+              <div className="space-y-1 mb-6">
                 {allCategories.map((cat, index) => (
                   <div key={cat.id}>
                     <Link
@@ -116,10 +116,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                           ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
                           : cat.comingSoon
                           ? 'bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream'
-                          : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 border-elite-burgundy/20 hover:border-elite-burgundy'
+                          : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
                           cat.id === categoryId 
                             ? 'bg-elite-cream' 
@@ -127,16 +127,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                             ? 'bg-elite-black/20' 
                             : 'bg-elite-burgundy group-hover:bg-elite-cream'
                         }`}></div>
-                        <span className="font-cabin font-semibold text-sm">{cat.name}</span>
+                        <span className="font-cabin font-medium text-sm">{cat.name}</span>
                       </div>
                       {cat.comingSoon && (
-                        <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-semibold">
+                        <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
                           Soon
                         </span>
                       )}
                     </Link>
                     {index < allCategories.length - 1 && (
-                      <div className="h-px bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent my-4"></div>
+                      <div className="h-px bg-elite-burgundy/10 my-3"></div>
                     )}
                   </div>
                 ))}
@@ -186,7 +186,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                   </div>
                 </div>
                   {index < category.subCategories.length - 1 && (
-                    <div className="h-px bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent mt-12"></div>
+                    <div className="h-px bg-elite-burgundy/10 mt-12"></div>
                   )}
                 </div>
               ))}

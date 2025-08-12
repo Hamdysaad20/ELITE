@@ -61,26 +61,6 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
       {/* Header */}
       <div className="bg-elite-burgundy text-elite-cream py-8">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm mb-4">
-            <Link 
-              href="/menu" 
-              className="hover:text-elite-light-cream transition-colors duration-200"
-              prefetch={true}
-            >
-              Menu
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link 
-              href={`/menu/${category.id}`}
-              className="hover:text-elite-light-cream transition-colors duration-200"
-              prefetch={true}
-            >
-              {category.name}
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-semibold">{subCategory.name}</span>
-          </div>
 
           {/* Subcategory Header */}
           <div className="flex items-center gap-4 mb-6">
@@ -91,9 +71,6 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
               <h1 className="font-calistoga text-4xl md:text-5xl mb-2">
                 {subCategory.name}
               </h1>
-              <p className="font-cabin text-elite-cream/90 text-lg">
-                {subCategory.description}
-              </p>
             </div>
           </div>
 
@@ -118,25 +95,26 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
               {/* Sidebar Header */}
               <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                 <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
-                  Categories
+                  Menu
                 </h2>
                 <p className="font-cabin text-elite-black/70 text-xs">
-                  Navigate through our menu
+                  Browse our categories
                 </p>
               </div>
               
-              {/* Main Categories */}
-              <div className="space-y-1 mb-6">
+              {/* Nested Menu Navigation */}
+              <div className="space-y-1">
                 {allCategories.map((cat, index) => (
                   <div key={cat.id}>
+                    {/* Main Category */}
                     <Link
-                      href={cat.comingSoon ? '#' : `/menu/${cat.id}`}
-                      className={`group sidebar-item flex items-center gap-2 p-3 rounded-xl transition-all duration-300 border ${
+                      href={cat.comingSoon ? "#" : `/menu/${cat.id}`}
+                      className={`group sidebar-item flex items-center gap-2 p-3 rounded-xl transition-all duration-300 border $
                         cat.id === categoryId
-                          ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
+                          ? "bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy"
                           : cat.comingSoon
-                          ? 'bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream'
-                          : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
+                          ? "bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream"
+                          : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
                       }`}
                       prefetch={!cat.comingSoon}
                     >
@@ -148,60 +126,41 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
                         </span>
                       )}
                     </Link>
+                    
+                    {/* Subcategories - Nested under main category */}
+                    {!cat.comingSoon && cat.subCategories.length > 0 && (
+                      <div className="ml-6 mt-2 space-y-1">
+                        {cat.subCategories.map((sub, subIndex) => (
+                          <Link
+                            key={sub.id}
+                            href={`/menu/${cat.id}/${sub.id}`}
+                            className={`group sidebar-item block p-2 rounded-lg transition-all duration-300 border text-sm $
+                              subCategoryId === sub.id
+                                ? "bg-elite-burgundy/20 text-elite-burgundy border-elite-burgundy/30"
+                                : "bg-white text-elite-black hover:bg-elite-burgundy/10 hover:border-elite-burgundy/20"
+                            }`}
+                            prefetch={true}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-cabin font-medium">{sub.name}</span>
+                              <span className="text-xs opacity-75 bg-white/50 px-2 py-0.5 rounded-full">
+                                {sub.items.length} items
+                              </span>
+                            </div>
+                            <p className="text-xs opacity-75 mt-1">
+                              {sub.description}
+                            </p>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    
                     {index < allCategories.length - 1 && (
                       <div className="h-px bg-elite-burgundy/10 my-3"></div>
                     )}
                   </div>
                 ))}
               </div>
-
-              {/* Subcategories Section */}
-              {!category.comingSoon && category.subCategories.length > 0 && (
-                <div className="mb-6">
-                  <div className="mb-4 pb-3 border-b border-elite-burgundy/20">
-                    <h3 className="font-calistoga text-elite-burgundy text-lg font-bold mb-1">
-                      {category.name} Types
-                    </h3>
-                    <p className="font-cabin text-elite-black/70 text-xs">
-                      Choose your preference
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    {category.subCategories.map((sub, index) => (
-                      <div key={sub.id}>
-                        <Link
-                          href={`/menu/${category.id}/${sub.id}`}
-                          className={`group sidebar-item block p-3 rounded-xl transition-all duration-300 border ${
-                            subCategoryId === sub.id
-                              ? 'bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy'
-                              : 'bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy'
-                          }`}
-                          prefetch={true}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                                subCategoryId === sub.id ? 'bg-elite-cream' : 'bg-elite-burgundy group-hover:bg-elite-cream'
-                              }`}></div>
-                              <span className="font-cabin font-medium text-sm">{sub.name}</span>
-                            </div>
-                            <span className="text-xs opacity-75 bg-white/20 px-2 py-0.5 rounded-full">
-                              {sub.items.length} items
-                            </span>
-                          </div>
-                          <p className="text-xs opacity-75 ml-3.5">
-                            {sub.description}
-                          </p>
-                        </Link>
-                        {index < category.subCategories.length - 1 && (
-                          <div className="h-px bg-elite-burgundy/10 my-3"></div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Sidebar Footer */}
               <div className="pt-4 border-t border-elite-burgundy/20">

@@ -61,26 +61,6 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
       {/* Header */}
       <div className="bg-elite-burgundy text-elite-cream py-8">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm mb-4">
-            <Link 
-              href="/menu" 
-              className="hover:text-elite-light-cream transition-colors duration-200"
-              prefetch={true}
-            >
-              Menu
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link 
-              href={`/menu/${category.id}`}
-              className="hover:text-elite-light-cream transition-colors duration-200"
-              prefetch={true}
-            >
-              {category.name}
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-semibold">{subCategory.name}</span>
-          </div>
 
           {/* Subcategory Header */}
           <div className="flex items-center gap-4 mb-6">
@@ -91,9 +71,6 @@ export default async function SubCategoryPage({ params }: { params: Promise<{ ca
               <h1 className="font-calistoga text-4xl md:text-5xl mb-2">
                 {subCategory.name}
               </h1>
-              <p className="font-cabin text-elite-cream/90 text-lg">
-                {subCategory.description}
-              </p>
             </div>
           </div>
 
