@@ -132,7 +132,7 @@ const menuData: MenuCategory[] = [
             price: 70,
             category: 'classic-drinks',
             subCategory: 'classic-essentials',
-            images: ['/images/menu/drinks/flatwhite.png'],
+            images: ['/images/menu/drinks/espresso-macchiato.png'],
             featured: false,
             available: true,
             allergens: ['Milk'],
