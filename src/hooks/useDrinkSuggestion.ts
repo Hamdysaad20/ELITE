@@ -46,8 +46,8 @@ export function useDrinkSuggestion() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": "demo-user",
         },
+        credentials: "include", // Include cookies for NextAuth
         body: JSON.stringify(prefs),
       });
 

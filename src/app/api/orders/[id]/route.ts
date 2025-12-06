@@ -1,15 +1,61 @@
 import { NextRequest } from "next/server";
-import { orderDB } from "@/server/utils/jsonDatabase";
+import { prisma } from "@/server/db/client";
 import {
   successResponse,
   jsonResponse,
   handleApiError,
 } from "@/server/utils/apiHelpers";
 
-/**
- * GET /api/orders/[id]
- * Get order by ID (JSON database storage)
- */
+function serializeOrder(dbOrder: any) {
+  return {
+    id: dbOrder.id,
+    orderNumber: dbOrder.id,
+    userId: dbOrder.userId || "demo-user",
+    status: dbOrder.status,
+    paymentStatus: dbOrder.paymentStatus,
+    paymentMethod: dbOrder.paymentMethod,
+    orderType: dbOrder.orderType,
+    subtotal: Number(dbOrder.subtotal),
+    deliveryFee: Number(dbOrder.deliveryFee),
+    discount: Number(dbOrder.discount),
+    total: Number(dbOrder.total),
+    notes: dbOrder.notes || undefined,
+    integrations: {
+      odoo: {
+        saleOrderId: dbOrder.saleOrderId || undefined,
+        posOrderId: dbOrder.posOrderId || undefined,
+        url: dbOrder.odooWebUrl || undefined,
+      },
+    },
+    items: (dbOrder.items || []).map((it: any) => ({
+      id: it.id,
+      menuItemId: it.productId,
+      quantity: it.quantity,
+      unitPrice: Number(it.unitPrice),
+      totalPrice: Number(it.totalPrice),
+      menuItem: it.name
+        ? {
+            id: it.productId,
+            name: it.name,
+            description: it.name,
+            price: Number(it.unitPrice),
+            category: it.categoryId || "unknown",
+            subCategory: it.categoryId || "unknown",
+            images: [],
+            featured: false,
+            available: true,
+            allergens: [],
+            sizes: [],
+            flavors: [],
+            toppings: [],
+          }
+        : undefined,
+    })),
+    createdAt: dbOrder.createdAt,
+    updatedAt: dbOrder.updatedAt,
+  };
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -17,16 +63,17 @@ export async function GET(
   try {
     const { id } = await params;
     const userId = request.headers.get("x-user-id") || "demo-user";
-    
-    // Get user's orders and find the specific one (serverless-compatible)
-    const userOrders = orderDB.getByUserId(userId);
-    const order = userOrders.find((o) => o.id === id);
+
+    const order = await prisma.order.findFirst({
+      where: { id, userId },
+      include: { items: true },
+    });
 
     if (!order) {
       return jsonResponse({ success: false, error: "Order not found" }, 404);
     }
 
-    return jsonResponse(successResponse(order));
+    return jsonResponse(successResponse(serializeOrder(order)));
   } catch (error) {
     return handleApiError(error);
   }

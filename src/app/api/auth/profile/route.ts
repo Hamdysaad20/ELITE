@@ -1,0 +1,152 @@
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/server/auth/session";
+import { prisma } from "@/server/db/client";
+import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
+import { z } from "zod";
+
+const UpdateProfileSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/).optional().nullable(),
+});
+
+/**
+ * GET /api/auth/profile - Get current user profile
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const user = await requireAuth(request);
+
+    const profile = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        createdAt: true,
+        lastLoginAt: true,
+        loyalty: {
+          select: {
+            points: true,
+            totalSpent: true,
+            level: true,
+            updatedAt: true,
+          },
+        },
+        _count: {
+          select: {
+            orders: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) {
+      return jsonResponse(errorResponse("User not found"), 404);
+    }
+
+    return jsonResponse(successResponse({
+      ...profile,
+      loyalty: profile.loyalty || {
+        points: 0,
+        totalSpent: 0,
+        level: "bronze",
+        updatedAt: new Date(),
+      },
+      orderCount: profile._count.orders,
+    }));
+  } catch (error: any) {
+    const message = error?.message || "Failed to fetch profile";
+    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+  }
+}
+
+/**
+ * PATCH /api/auth/profile - Update user profile
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = await requireAuth(request);
+    const body = await request.json();
+
+    // Validate input
+    const validation = UpdateProfileSchema.safeParse(body);
+    if (!validation.success) {
+      return jsonResponse(
+        errorResponse("Invalid input", validation.error.errors),
+        400,
+      );
+    }
+
+    const { name, phone } = validation.data;
+
+    // Update user profile
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(phone !== undefined && { phone }),
+        updatedAt: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        updatedAt: true,
+      },
+    });
+
+    logAuthEvent(
+      AuthEvent.ACCOUNT_UPDATED,
+      { userId: user.id, email: user.email },
+      "info",
+    );
+
+    return jsonResponse(
+      successResponse(updatedUser, "Profile updated successfully"),
+    );
+  } catch (error: any) {
+    console.error("Profile update error:", error);
+    const message = error?.message || "Failed to update profile";
+    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+  }
+}
+
+/**
+ * DELETE /api/auth/profile - Delete user account
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await requireAuth(request);
+
+    // Soft delete: mark as deleted instead of hard delete
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        status: "deleted",
+        email: `deleted_${user.id}@deleted.local`, // Prevent email reuse
+        updatedAt: new Date(),
+      },
+    });
+
+    logAuthEvent(
+      AuthEvent.ACCOUNT_DELETED,
+      { userId: user.id, email: user.email },
+      "info",
+    );
+
+    return jsonResponse(
+      successResponse(null, "Account deleted successfully"),
+    );
+  } catch (error: any) {
+    console.error("Account deletion error:", error);
+    const message = error?.message || "Failed to delete account";
+    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+  }
+}
+

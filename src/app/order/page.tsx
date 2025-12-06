@@ -69,8 +69,8 @@ export default function OrderPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": "demo-user",
         },
+        credentials: "include", // Include cookies for NextAuth
         body: JSON.stringify({
           paymentMethod: "ONLINE",
           orderType,

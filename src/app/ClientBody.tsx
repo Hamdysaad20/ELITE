@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { ToastProvider } from "@/components/ToastProvider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import {
   createNavigationState,
   cleanupNavigationState,
@@ -79,5 +80,9 @@ export default function ClientBody({
     };
   }, []);
 
-  return <ToastProvider>{children}</ToastProvider>;
+  return (
+    <AuthProvider>
+      <ToastProvider>{children}</ToastProvider>
+    </AuthProvider>
+  );
 }

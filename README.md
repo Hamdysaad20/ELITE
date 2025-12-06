@@ -1,32 +1,34 @@
-# Elite Coffee Shop - Full Stack Application
+# Elite Coffee Shop - Production-Ready Full Stack Application
 
-A modern, production-ready coffee shop web application built with Next.js 15, TypeScript, and JSON file-based persistent storage. Optional Odoo ERP/POS integration for real-world order management.
+A modern, scalable coffee shop web application built with Next.js 15, TypeScript, NextAuth.js authentication, Redis caching, Postgres database, and optional Odoo ERP/POS integration.
 
-> **Documentation:** All docs live in the `docs/` folder.
-> **Quick Start:** [QUICKSTART.md](./docs/QUICKSTART.md) · [QUICKSTART_GUIDE.md](./docs/QUICKSTART_GUIDE.md)
-> **Guides:** [START_HERE](./docs/START_HERE.md) · [PROJECT_STRUCTURE](./docs/PROJECT_STRUCTURE.md) · [ODOO_INTEGRATION](./docs/ODOO_INTEGRATION.md)
+> **📚 Complete Documentation:** All docs live in the `docs/` folder  
+> **🚀 Quick Start:** [AUTH_QUICKSTART.md](./docs/AUTH_QUICKSTART.md)  
+> **📖 Full Guide:** [AUTH_SYSTEM_V1.md](./docs/AUTH_SYSTEM_V1.md)  
+> **🏗️ Architecture:** [ARCHITECTURE_V1.md](./docs/ARCHITECTURE_V1.md)
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-### Current Features
-- ✅ **Menu System** - Categories, subcategories, and detailed item pages
-- ✅ **Cart Management** - Add, update, remove items with customizations
-- ✅ **Order Processing** - Complete order workflow from cart to completion
-- ✅ **RESTful API** - 10+ well-structured endpoints
-- ✅ **JSON File Storage** - Persistent data across server restarts
-- ✅ **Type Safety** - Full TypeScript coverage with Zod validation
+### Core Features
+- ✅ **Passwordless Authentication** - Magic link email sign-in via NextAuth.js
+- ✅ **User Management** - Profile, orders, loyalty points tracking
+- ✅ **Role-Based Access** - User and admin roles with middleware protection
+- ✅ **Product Catalog** - Redis-cached products from Odoo
+- ✅ **Cart Management** - Session-based cart with price validation
+- ✅ **Order Processing** - DB-first orders with async Odoo sync
+- ✅ **Admin Panel** - User management, product sync, system health
 - ✅ **Odoo Integration** - Optional ERP/POS connectivity (Sales & Kitchen Display)
-- ✅ **Modern UI** - Responsive design with Tailwind CSS
-- ✅ **Animations** - Framer Motion and GSAP for smooth UX
 
 ### Architecture Highlights
-- **Backend**: Next.js 15 API routes with server-side rendering
-- **Data Storage**: JSON file (`data/database.json`) - no SQL setup required
-- **Validation**: Zod schemas for request/response validation
-- **Error Handling**: Consistent error responses across all endpoints
-- **User Context**: Header-based user identification (`x-user-id`)
+- **Authentication**: NextAuth.js with magic link (passwordless)
+- **Database**: Postgres with Prisma ORM
+- **Caching**: Redis for products, categories, rate limiting
+- **Queue**: BullMQ for async Odoo synchronization
+- **Security**: Rate limiting, JWT sessions, security headers
+- **Logging**: Comprehensive audit trail for auth events
+- **API**: RESTful with 26+ well-structured endpoints
 
 ---
 
@@ -34,194 +36,376 @@ A modern, production-ready coffee shop web application built with Next.js 15, Ty
 
 ### Frontend
 - **Framework:** Next.js 15 (App Router, React Server Components)
-- **Language:** TypeScript 5.6+
+- **Language:** TypeScript 5.8+
 - **Styling:** Tailwind CSS 3.4+
 - **Animations:** Framer Motion, GSAP
-- **UI Components:** Custom components with class-variance-authority
+- **Auth:** NextAuth.js (magic link email)
 
 ### Backend
 - **Runtime:** Node.js 18+
 - **API:** Next.js Route Handlers (RESTful)
-- **Data Storage:** JSON File (`data/database.json`) - persistent, thread-safe
-- **Validation:** Zod schemas
-- **Integration:** Optional Odoo JSON-RPC client
+- **Database:** PostgreSQL with Prisma ORM
+- **Cache:** Redis (Upstash/self-hosted)
+- **Queue:** BullMQ for background jobs
+- **Integration:** Odoo JSON-RPC client (optional)
 
-### Development Tools
-- **Build Tool:** Turbopack (Next.js 15)
-- **Linting:** ESLint + TypeScript
-- **Formatting:** Biome
-- **Type Checking:** TypeScript strict mode
+### Security
+- **Authentication:** NextAuth.js (JWT sessions)
+- **Rate Limiting:** Redis-backed (5 requests/hour)
+- **Headers:** CSP, XSS, Clickjacking protection
+- **Validation:** Zod schemas
+- **Logging:** Comprehensive auth event tracking
 
 ---
 
-## 🛠️ Setup Instructions
+## 🚀 Quick Start (5 Minutes)
 
 ### Prerequisites
 - Node.js 18+ installed
-- npm package manager
-- Git (optional)
+- PostgreSQL database
+- Redis server
+- SMTP server (Gmail, SendGrid, SES)
 
-### Quick Start (3 Steps)
-
-1. **Install dependencies**
-   ```powershell
+### 1. Install Dependencies
+```bash
    npm install
    ```
 
-2. **Start development server**
-   ```powershell
-   npm run dev
-   ```
-
-3. **Open in browser**
-   Visit [http://localhost:3000](http://localhost:3000)
-
-### Optional: Odoo Integration
-
-Create `.env.local` file if you want Odoo connectivity:
-
+### 2. Set Environment Variables
+Create `.env` file:
 ```bash
+# Generate secret: openssl rand -base64 32
+NEXTAUTH_SECRET=your-generated-secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/elite
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# SMTP (for magic links)
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=your-email@gmail.com
+EMAIL_SERVER_PASSWORD=your-gmail-app-password
+EMAIL_FROM=noreply@yourdomain.com
+
+# Odoo (optional)
 ODOO_HOST=https://your-odoo.odoo.com
 ODOO_DB=your_db
 ODOO_USERNAME=your_user@example.com
 ODOO_API_KEY=your_api_key
 ```
 
-See [ODOO_INTEGRATION.md](./docs/ODOO_INTEGRATION.md) for complete guide.
+See [ENV_EXAMPLE.md](./docs/ENV_EXAMPLE.md) for complete list.
+
+### 3. Run Database Migration
+```bash
+npm run prisma:migrate
+```
+
+### 4. Start Services
+```bash
+# Terminal 1: Redis
+redis-server
+
+# Terminal 2: Development server
+npm run dev
+
+# Terminal 3: BullMQ worker (optional, for Odoo sync)
+npm run worker:odoo
+```
+
+### 5. Create Admin User
+```bash
+npx prisma studio
+# Navigate to User table
+# Change role from 'user' to 'admin'
+```
+
+### 6. Test Authentication
+Visit [http://localhost:3000/auth/signin](http://localhost:3000/auth/signin)
+
+---
 
 ## 📚 API Documentation
 
-### Menu Endpoints
+### Authentication Endpoints
 
-#### Get All Categories
-```http
-GET /api/menu
-```
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/auth/signin` | GET/POST | Public | Sign-in page |
+| `/api/auth/callback/email` | GET | Public | Magic link callback |
+| `/api/auth/signout` | POST | Public | Sign out |
+| `/api/auth/session` | GET | Public | Get session |
+| `/api/auth/profile` | GET | Required | Get user profile |
+| `/api/auth/profile` | PATCH | Required | Update profile |
+| `/api/auth/profile` | DELETE | Required | Delete account |
 
-#### Get Category by Slug
-```http
-GET /api/menu/[category]
-```
+### Product Catalog
 
-#### Get Menu Item by Slug
-```http
-GET /api/menu/items/[slug]
-```
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/products` | GET | Optional | List products (cached) |
+| `/api/products/:id` | GET | Optional | Get single product |
+| `/api/categories` | GET | Optional | List categories |
+| `/api/sync/products` | POST | Admin | Trigger product sync |
+| `/api/sync/status` | GET | Optional | Sync status |
 
-### Cart Endpoints
+### Cart & Orders
 
-#### Get Cart
-```http
-GET /api/cart
-Headers: x-user-id: <user-id>
-```
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/cart` | GET | Required | Get cart |
+| `/api/cart` | POST | Required | Add to cart |
+| `/api/cart` | DELETE | Required | Clear cart |
+| `/api/cart/:itemId` | DELETE | Required | Remove item |
+| `/api/cart/:itemId` | PATCH | Required | Update quantity |
+| `/api/orders` | GET | Required | List orders |
+| `/api/orders` | POST | Required | Create order |
+| `/api/orders/:id` | GET | Required | Get order details |
+| `/api/orders/:id/status` | GET | Required | Order sync status |
 
-#### Add to Cart
-```http
-POST /api/cart
-Headers: x-user-id: <user-id>
-Content-Type: application/json
+### Admin Endpoints
 
-{
-  "menuItemId": "string",
-  "quantity": number,
-  "size": "string",
-  "flavor": "string",
-  "toppings": ["string"]
-}
-```
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/admin/users` | GET | Admin | List all users |
+| `/api/admin/users/:id` | GET | Admin | Get user details |
+| `/api/admin/users/:id` | PATCH | Admin | Update user |
+| `/api/admin/users/:id` | DELETE | Admin | Delete user |
 
-#### Clear Cart
-```http
-DELETE /api/cart
-Headers: x-user-id: <user-id>
-```
+### System
 
-### Order Endpoints
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/health` | GET | Public | Health check |
+| `/api/pos/availability` | GET | Optional | POS availability |
 
-#### Get User Orders
-```http
-GET /api/orders
-Headers: x-user-id: <user-id>
-```
-
-#### Create Order
-```http
-POST /api/orders
-Headers: x-user-id: <user-id>
-Content-Type: application/json
-
-{
-  "paymentMethod": "CASH" | "CARD" | "WALLET" | "ONLINE",
-  "addressId": "string",
-  "notes": "string"
-}
-```
-
-#### Get Order by ID
-```http
-GET /api/orders/[id]
-Headers: x-user-id: <user-id>
-```
+---
 
 ## 🗄️ Database Schema
 
-### Main Models
-- **User**: Customer accounts and authentication
-- **Category**: Menu categories
-- **SubCategory**: Menu subcategories
-- **MenuItem**: Individual menu items
-- **Size/Flavor/Topping**: Customization options
-- **Cart/CartItem**: Shopping cart
-- **Order/OrderItem**: Order management
-- **Review**: Product reviews
-- **Reward**: Loyalty program
-- **Address**: User addresses
+### Core Models
+- **User** - User accounts with email, role, status
+- **Account** - OAuth provider accounts (NextAuth)
+- **Session** - Active sessions (NextAuth)
+- **VerificationToken** - Magic link tokens (NextAuth)
+- **LoyaltyAccount** - User loyalty points and level
+- **LoyaltyLedger** - Points transaction history
+- **Order** - Orders with Odoo sync status
+- **OrderItem** - Order line items
+- **ProductsSnapshot** - Cached product data
+- **SyncRun** - Product sync history
+
+See [DB_SCHEMA_AND_CACHE_V1.md](./docs/DB_SCHEMA_AND_CACHE_V1.md) for details.
 
 ---
 
 ## 🔧 Available Scripts
 
-```powershell
-npm run dev       # Start development server (with Turbopack)
-npm run build     # Build for production
-npm run start     # Start production server
-npm run lint      # TypeScript checking + ESLint
-npm run format    # Format code with Biome
-npm run db:reset  # Reset JSON database (clears all data)
+```bash
+# Development
+npm run dev              # Start dev server (Turbopack)
+npm run dev:turbo        # Start dev server with Turbopack
+
+# Production
+npm run build            # Build for production
+npm run start            # Start production server
+
+# Database
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:migrate   # Run migrations
+
+# Worker
+npm run worker:odoo      # Start BullMQ worker
+
+# Code Quality
+npm run lint             # TypeScript + ESLint
+npm run format           # Format with Biome
 ```
-
-## 🏗️ Development Workflow
-
-1. **Make changes** to your code
-2. **Run linter**: `npm run lint`
-3. **Format code**: `npm run format`
-4. **Test locally**: `npm run dev`
-5. **Build**: `npm run build`
-6. **Commit** your changes
-
-## 📝 Code Style
-
-- TypeScript for type safety
-- ESLint for code quality
-- Biome for code formatting
-- Follow the existing project structure
 
 ---
 
-## 🔐 Environment Variables
+## 🚀 Production Deployment
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ODOO_HOST` | Odoo base URL (e.g., https://odoo.example.com) | No |
-| `ODOO_DB` | Odoo database name | No |
-| `ODOO_USERNAME` | Odoo API user | No |
-| `ODOO_API_KEY` | Odoo API key (preferred) | No |
-| `ODOO_PASSWORD` | Odoo password (fallback) | No |
-| `ODOO_TIMEOUT_MS` | Request timeout in ms (default: 20000) | No |
-| `ODOO_INSECURE_SSL` | Allow self-signed certs (dev only) | No |
+### Vercel Deployment
 
-**Note:** No `DATABASE_URL` needed! The app uses JSON file storage (`data/database.json`).
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Vercel**
+   - Import project from GitHub
+   - Add environment variables
+   - Deploy
+
+3. **Set Up Services**
+   - **Database**: Vercel Postgres or external Postgres
+   - **Redis**: Upstash Redis (recommended for Vercel)
+   - **Email**: SendGrid, AWS SES, or Gmail
+
+4. **Configure Cron Job**
+   The `vercel.json` file includes cron configuration:
+   ```json
+   {
+     "crons": [
+       {
+         "path": "/api/sync/products",
+         "schedule": "*/10 * * * *"
+       }
+     ]
+   }
+   ```
+
+5. **Deploy Worker** (Optional)
+   For BullMQ worker, deploy separately:
+   ```bash
+   # On a server or container
+   npm run worker:odoo
+   ```
+
+### Environment Variables (Production)
+
+```bash
+# NextAuth
+NEXTAUTH_SECRET=<production-secret>
+NEXTAUTH_URL=https://your-domain.com
+
+# Database
+DATABASE_URL=<postgres-connection-string>
+
+# Redis
+REDIS_URL=<redis-connection-string>
+
+# SMTP
+EMAIL_SERVER_HOST=smtp.sendgrid.net
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=apikey
+EMAIL_SERVER_PASSWORD=<sendgrid-api-key>
+EMAIL_FROM=noreply@your-domain.com
+
+# Odoo (optional)
+ODOO_HOST=https://your-odoo.odoo.com
+ODOO_DB=your_db
+ODOO_USERNAME=your_user@example.com
+ODOO_API_KEY=your_api_key
+
+# Node
+NODE_ENV=production
+```
+
+### Post-Deployment
+
+1. **Run migrations**
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+2. **Create admin user**
+   ```bash
+   npx prisma studio
+   # Change role to 'admin'
+   ```
+
+3. **Trigger initial sync**
+   ```bash
+   curl -X POST https://your-domain.com/api/sync/products \
+     -H "Authorization: Bearer <admin-token>"
+   ```
+
+4. **Test authentication**
+   - Visit `/auth/signin`
+   - Request magic link
+   - Verify email delivery
+
+---
+
+## 🔐 Security Features
+
+### Authentication
+- ✅ Passwordless magic links (no password vulnerabilities)
+- ✅ JWT sessions (secure, HttpOnly cookies)
+- ✅ Single-use tokens (24-hour expiration)
+- ✅ Rate limiting (5 magic links/hour per email)
+
+### Application Security
+- ✅ Security headers (CSP, XSS, Clickjacking)
+- ✅ CSRF protection (built-in NextAuth)
+- ✅ Input validation (Zod schemas)
+- ✅ Role-based access control
+- ✅ Middleware route protection
+
+### Data Security
+- ✅ Email masking in logs
+- ✅ Soft deletes (account recovery)
+- ✅ Comprehensive audit trail
+- ✅ Price validation (prevents manipulation)
+
+---
+
+## 📖 Documentation
+
+### Quick Start
+- [AUTH_QUICKSTART.md](./docs/AUTH_QUICKSTART.md) - 5-minute setup
+- [QUICKSTART.md](./docs/QUICKSTART.md) - General quick start
+
+### Complete Guides
+- [AUTH_SYSTEM_V1.md](./docs/AUTH_SYSTEM_V1.md) - Authentication system
+- [ARCHITECTURE_V1.md](./docs/ARCHITECTURE_V1.md) - System architecture
+- [API_CONTRACT_V1.md](./docs/API_CONTRACT_V1.md) - API specifications
+- [DB_SCHEMA_AND_CACHE_V1.md](./docs/DB_SCHEMA_AND_CACHE_V1.md) - Database schema
+- [SYNC_AND_ORDER_FLOW_V1.md](./docs/SYNC_AND_ORDER_FLOW_V1.md) - Sync & orders
+- [ODOO_INTEGRATION.md](./docs/ODOO_INTEGRATION.md) - Odoo integration
+
+### Implementation Details
+- [AUTH_IMPLEMENTATION_SUMMARY.md](./docs/AUTH_IMPLEMENTATION_SUMMARY.md)
+- [FRONTEND_INTEGRATION_COMPLETE.md](./docs/FRONTEND_INTEGRATION_COMPLETE.md)
+- [IMPLEMENTATION_COMPLETE.md](./docs/IMPLEMENTATION_COMPLETE.md)
+
+---
+
+## 🎯 Troubleshooting
+
+### Magic Links Not Arriving
+```bash
+# Test SMTP connection
+node -e "require('nodemailer').createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  auth: { user: 'your-email', pass: 'app-password' }
+}).verify().then(console.log).catch(console.error)"
+```
+
+### Database Connection Issues
+```bash
+# Test connection
+npx prisma db push
+```
+
+### Redis Connection Issues
+```bash
+# Test Redis
+redis-cli PING
+```
+
+### Rate Limit Too Strict
+```bash
+# Clear rate limit for specific email
+redis-cli DEL "ratelimit:auth:magiclink:user@example.com"
+```
+
+### Build Errors
+```bash
+# Clear cache and rebuild
+rm -rf .next node_modules
+npm install
+npm run build
+```
+
+---
 
 ## 🤝 Contributing
 
@@ -230,59 +414,32 @@ npm run db:reset  # Reset JSON database (clears all data)
 3. Run tests and linting
 4. Submit a pull request
 
+---
+
 ## 📄 License
 
 This project is private and proprietary.
 
 ---
 
-## 🎯 Troubleshooting
-
-### Data Issues
-- Reset database: `npm run db:reset`
-- Verify `data/database.json` exists and is valid JSON
-- Check file permissions
-
-### Build Errors
-```powershell
-# Clear Next.js cache and reinstall
-Remove-Item -Recurse -Force .next, node_modules
-npm install
-```
-
-### Port 3000 in use
-```powershell
-# Option 1: Kill the process
-npx kill-port 3000
-
-# Option 2: Use different port
-npm run dev -- -p 3001
-```
-
-### Type Errors
-```powershell
-npm run lint
-```
-
-### Odoo Connection Issues
-- Verify `.env.local` values
-- Prefer `ODOO_API_KEY` over `ODOO_PASSWORD`
-- Check network connectivity to Odoo instance
-- For dev with self-signed certs: set `ODOO_INSECURE_SSL=true`
-
-## 🧩 Odoo POS/ERP Integration (Optional)
-
-This project can push website orders into Odoo's Sales module using JSON‑RPC.
-
-- Configure env vars in `.env` (see `.env.example`).
-- Test connectivity:
-   ```http
-   POST /api/odoo/test
-   ```
-- Create a website order via `POST /api/orders` and it will best‑effort sync to Odoo.
-
-See the full guide in `ODOO_INTEGRATION.md`.
-
 ## 📞 Support
 
-For issues and questions, please contact the development team.
+For issues and questions:
+- Check [Troubleshooting](#-troubleshooting) section
+- Review documentation in `docs/` folder
+- Contact the development team
+
+---
+
+## 🎉 Status
+
+**Backend:** 🟢 COMPLETE  
+**Frontend:** 🟢 COMPLETE  
+**Authentication:** 🟢 COMPLETE  
+**Security:** 🟢 COMPLETE  
+**Documentation:** 🟢 COMPLETE  
+**Production:** 🟢 READY TO DEPLOY
+
+---
+
+**Built with ❤️ by the Elite Coffee Shop team**

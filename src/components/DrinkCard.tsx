@@ -79,8 +79,8 @@ export default function DrinkCard({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": "demo-user",
         },
+        credentials: "include", // Include cookies for NextAuth
         body: JSON.stringify({
           menuItemId,
           quantity: 1,
@@ -93,6 +93,9 @@ export default function DrinkCard({
           () => setAddToOrderState({ adding: false, added: false }),
           2000,
         );
+      } else if (res.status === 401) {
+        // Redirect to sign in if not authenticated
+        window.location.href = "/auth/signin?callbackUrl=" + encodeURIComponent(window.location.pathname);
       }
     } catch (err) {
       console.error("Failed to add to cart:", err);

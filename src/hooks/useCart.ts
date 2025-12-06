@@ -1,7 +1,9 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
-import { API_CONFIG, ERROR_MESSAGES } from "@/lib/constants";
-import { cachedFetch, invalidateCache } from "@/lib/apiCache";
-import type { Cart, CartItem } from "@/types";
+import { useSession } from "next-auth/react";
+import { apiClient } from "@/lib/auth/apiClient";
+import type { Cart } from "@/types";
 
 interface UseCartReturn {
   cart: Cart | null;
@@ -25,52 +27,61 @@ interface UseCartReturn {
 }
 
 /**
- * Custom hook for managing shopping cart
+ * Custom hook for managing shopping cart (with NextAuth authentication)
  *
  * Usage:
  * ```tsx
- * const { cart, addToCart, removeFromCart } = useCart();
+ * const { cart, addToCart, removeFromCart, loading } = useCart();
  *
+ * if (loading) return <Spinner />;
+ * 
  * // Add item to cart
  * await addToCart('item-id', 2, { size: 'Large', flavor: 'Vanilla' });
  * ```
+ * 
+ * Note: Automatically handles authentication via NextAuth session.
+ * Cart is user-specific and persists across sessions.
  */
 export function useCart(): UseCartReturn {
+  const { data: session, status } = useSession();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch cart on mount
+  // Fetch cart from API
   const fetchCart = useCallback(async () => {
+    // Don't fetch if not authenticated
+    if (status !== "authenticated") {
+      setCart(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      const data = await cachedFetch<{ cart: Cart }>(
-        `${API_CONFIG.BASE_URL}/cart`,
-        {
-          headers: {
-            "x-user-id": API_CONFIG.DEFAULT_USER_ID, // TODO: Replace with actual user ID from auth
-          },
-          cacheKey: `cart:${API_CONFIG.DEFAULT_USER_ID}`,
-          cacheTTL: 30 * 1000, // 30 seconds cache for cart data
-        },
-      );
-
-      setCart(data.cart);
+      const response = await apiClient.get<{ cart: Cart }>("/api/cart");
+      setCart(response.cart);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC;
-      setError(errorMessage);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to load cart");
+      }
       console.error("Failed to fetch cart:", err);
+      setCart(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [status]);
 
+  // Fetch cart when session is ready
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (status !== "loading") {
+      fetchCart();
+    }
+  }, [status, fetchCart]);
 
   // Add item to cart
   const addToCart = useCallback(
@@ -83,133 +94,103 @@ export function useCart(): UseCartReturn {
         toppings?: string[];
       },
     ) => {
+      if (status !== "authenticated") {
+        throw new Error("Please sign in to add items to cart");
+      }
+
       try {
         setError(null);
 
-        await cachedFetch(`${API_CONFIG.BASE_URL}/cart`, {
-          method: "POST",
-          headers: {
-            "x-user-id": API_CONFIG.DEFAULT_USER_ID, // TODO: Replace with actual user ID
-          },
-          body: JSON.stringify({
-            menuItemId,
-            quantity,
-            ...options,
-          }),
+        await apiClient.post("/api/cart", {
+          menuItemId,
+          quantity,
+          ...options,
         });
 
-        // Invalidate cart cache and refresh
-        invalidateCache(`cart:${API_CONFIG.DEFAULT_USER_ID}`);
+        // Refresh cart after adding
         await fetchCart();
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC;
+          err instanceof Error ? err.message : "Failed to add item to cart";
         setError(errorMessage);
         console.error("Failed to add item to cart:", err);
         throw err;
       }
     },
-    [fetchCart],
+    [status, fetchCart],
   );
 
   // Remove item from cart
   const removeFromCart = useCallback(
     async (cartItemId: string) => {
+      if (status !== "authenticated") {
+        throw new Error("Please sign in to modify cart");
+      }
+
       try {
         setError(null);
 
-        const response = await fetch(
-          `${API_CONFIG.BASE_URL}/cart/${cartItemId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "x-user-id": API_CONFIG.DEFAULT_USER_ID,
-            },
-          },
-        );
+        await apiClient.delete(`/api/cart/${cartItemId}`);
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || ERROR_MESSAGES.GENERIC);
-        }
-
+        // Refresh cart after removing
         await fetchCart();
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC;
+          err instanceof Error ? err.message : "Failed to remove item";
         setError(errorMessage);
         console.error("Failed to remove item from cart:", err);
         throw err;
       }
     },
-    [fetchCart],
+    [status, fetchCart],
   );
 
   // Update item quantity
   const updateQuantity = useCallback(
     async (cartItemId: string, quantity: number) => {
+      if (status !== "authenticated") {
+        throw new Error("Please sign in to modify cart");
+      }
+
       try {
         setError(null);
 
-        const response = await fetch(
-          `${API_CONFIG.BASE_URL}/cart/${cartItemId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": API_CONFIG.DEFAULT_USER_ID,
-            },
-            body: JSON.stringify({ quantity }),
-          },
-        );
+        await apiClient.patch(`/api/cart/${cartItemId}`, { quantity });
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || ERROR_MESSAGES.GENERIC);
-        }
-
+        // Refresh cart after updating
         await fetchCart();
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC;
+          err instanceof Error ? err.message : "Failed to update quantity";
         setError(errorMessage);
         console.error("Failed to update quantity:", err);
         throw err;
       }
     },
-    [fetchCart],
+    [status, fetchCart],
   );
 
   // Clear entire cart
   const clearCart = useCallback(async () => {
+    if (status !== "authenticated") {
+      throw new Error("Please sign in to modify cart");
+    }
+
     try {
       setError(null);
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/cart`, {
-        method: "DELETE",
-        headers: {
-          "x-user-id": API_CONFIG.DEFAULT_USER_ID,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || ERROR_MESSAGES.GENERIC);
-      }
+      await apiClient.delete("/api/cart");
 
       setCart(null);
       await fetchCart();
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC;
+        err instanceof Error ? err.message : "Failed to clear cart";
       setError(errorMessage);
       console.error("Failed to clear cart:", err);
       throw err;
     }
-  }, [fetchCart]);
+  }, [status, fetchCart]);
 
   // Calculate item count
   const itemCount =

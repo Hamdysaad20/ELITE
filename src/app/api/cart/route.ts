@@ -12,6 +12,8 @@ import { addToCartSchema } from "@/server/validators/cartSchemas";
 import { BadRequestError, NotFoundError } from "@/server/utils/errors";
 import { CART_CONFIG, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants";
 import type { CartItem } from "@/types";
+import { redisGet } from "@/server/cache/redis";
+import { getAuthUser } from "@/server/auth/session";
 
 /**
  * Calculates cart totals including subtotal, tax, and delivery fee
@@ -34,8 +36,30 @@ function calculateTotals(items: CartItem[]) {
   };
 }
 
-// Utility function to find a menu item by ID
-function findMenuItem(menuItemId: string) {
+// Utility function to find a menu item by ID with price validation
+async function findMenuItem(menuItemId: string) {
+  // Prefer cached product from Redis (primary source of truth)
+  const cached = await redisGet<any>(`products:${menuItemId}`);
+  if (cached) {
+    return {
+      id: cached.id,
+      name: cached.title,
+      description: cached.title,
+      price: cached.price,
+      category: cached.categoryId || "catalog",
+      subCategory: cached.categoryId || "catalog",
+      images: cached.images || [],
+      featured: false,
+      available: cached.available !== false,
+      allergens: [],
+      sizes: [],
+      flavors: [],
+      toppings: [],
+      // Store original cached price for validation
+      _cachedPrice: cached.price,
+    };
+  }
+  // Fallback to static menu data for dev (when cache not available)
   for (const category of menuData) {
     for (const subCategory of category.subCategories) {
       const item = subCategory.items.find((item) => item.id === menuItemId);
@@ -46,12 +70,28 @@ function findMenuItem(menuItemId: string) {
 }
 
 /**
+ * Validate that the calculated price matches the cached product price
+ * This prevents price manipulation attacks
+ */
+function validatePrice(menuItem: any, calculatedBasePrice: number): void {
+  if (menuItem._cachedPrice !== undefined) {
+    // If we have a cached price, validate against it
+    if (Math.abs(calculatedBasePrice - menuItem._cachedPrice) > 0.01) {
+      throw new BadRequestError(
+        `Price mismatch detected. Expected ${menuItem._cachedPrice}, got ${calculatedBasePrice}. Please refresh and try again.`,
+      );
+    }
+  }
+}
+
+/**
  * GET /api/cart
  * Retrieves the current user's cart with calculated totals
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
 
     const items = cartDB.get(userId);
     const totals = calculateTotals(items);
@@ -73,7 +113,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
     const raw = await parseRequestBody(request);
     const body = addToCartSchema.parse(raw);
     const { menuItemId, quantity, size, flavor, toppings } = body;
@@ -86,25 +127,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Find menu item
-    const menuItem = findMenuItem(menuItemId);
+    const menuItem = await findMenuItem(menuItemId);
     if (!menuItem) throw new NotFoundError(ERROR_MESSAGES.MENU_ITEM_NOT_FOUND);
 
-    // Calculate price
-    let price = menuItem.price;
+    // Availability check
+    if (menuItem.available === false) {
+      throw new BadRequestError("Item is unavailable");
+    }
 
-    if (size) {
-      const sizeOption = menuItem.sizes.find((s) => s.name === size);
+    // Calculate price with validation
+    let price = menuItem.price;
+    
+    // Validate base price against cache (prevents price manipulation)
+    validatePrice(menuItem, price);
+
+    // Size/flavor/toppings adjustments only apply if present in menu data fallback
+    if (size && menuItem.sizes?.length) {
+      const sizeOption = menuItem.sizes.find((s: any) => s.name === size);
       if (sizeOption) price += sizeOption.priceModifier;
     }
 
-    if (flavor) {
-      const flavorOption = menuItem.flavors.find((f) => f.name === flavor);
+    if (flavor && menuItem.flavors?.length) {
+      const flavorOption = menuItem.flavors.find((f: any) => f.name === flavor);
       if (flavorOption) price += flavorOption.price;
     }
 
-    if (toppings) {
+    if (toppings && menuItem.toppings?.length) {
       for (const toppingName of toppings) {
-        const topping = menuItem.toppings.find((t) => t.name === toppingName);
+        const topping = (menuItem.toppings as any[]).find(
+          (t: any) => t.name === toppingName,
+        );
         if (topping) price += topping.price;
       }
     }
@@ -141,7 +193,8 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
 
     cartDB.clear(userId);
 

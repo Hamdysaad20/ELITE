@@ -38,6 +38,15 @@ type CreatePosOrderBody = {
 
 export async function POST(req: NextRequest) {
   try {
+    // Diagnostic-only: prefer /api/orders with enablePos for production
+    if (req.headers.get("x-diagnostic") !== "true") {
+      return jsonResponse(
+        errorResponse(
+          "This endpoint is diagnostic-only. Use /api/orders with POS enabled for production.",
+        ),
+        400,
+      );
+    }
     if (!isOdooConfigured()) {
       return jsonResponse(errorResponse("Odoo not configured"), 500);
     }

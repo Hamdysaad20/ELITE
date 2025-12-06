@@ -19,6 +19,15 @@ import {
 // - page,pageSize: optional pagination when not using random
 export async function GET(request: NextRequest) {
   try {
+    // Diagnostic-only: prefer /api/products (cache-backed) for production
+    if (request.headers.get("x-diagnostic") !== "true") {
+      return jsonResponse(
+        errorResponse(
+          "This endpoint is diagnostic-only. Use /api/products for production catalog.",
+        ),
+        400,
+      );
+    }
     if (!isOdooConfigured()) {
       return jsonResponse(errorResponse("Odoo is not configured"), 500);
     }

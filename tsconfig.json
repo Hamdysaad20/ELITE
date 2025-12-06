@@ -18,6 +18,7 @@
     "jsx": "preserve",
     "jsxImportSource": "same-runtime/dist",
     "incremental": true,
+    "types": ["node"],
     "plugins": [
       {
         "name": "next"

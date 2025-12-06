@@ -37,6 +37,15 @@ type CreateOrderBody = {
 
 export async function POST(req: NextRequest) {
   try {
+    // Diagnostic-only: prefer /api/orders (DB + queue) for production
+    if (req.headers.get("x-diagnostic") !== "true") {
+      return jsonResponse(
+        errorResponse(
+          "This endpoint is diagnostic-only. Use /api/orders for production orders.",
+        ),
+        400,
+      );
+    }
     if (!isOdooConfigured()) {
       return jsonResponse(errorResponse("Odoo not configured"), 500);
     }
@@ -182,7 +191,10 @@ export async function GET() {
     const configured = isOdooConfigured();
     if (!configured)
       return jsonResponse(
-        successResponse({ configured, hasSale: false }, "Odoo not configured"),
+        successResponse(
+          { configured, hasSale: false },
+          "Odoo not configured (diagnostic endpoint)",
+        ),
       );
 
     const client = createOdooClient();

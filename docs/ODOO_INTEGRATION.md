@@ -9,19 +9,20 @@ This guide explains how this project integrates with Odoo so website orders are 
   - Helpers: `ping`, `searchRead`, `searchCount`, `modelExists`
   - Entities: find/create `res.partner`, find/create `product.product`
   - Orders: `createSaleOrderFromWebsiteOrder`, `confirmSaleOrder` (calls `sale.order.action_confirm`)
-- Odoo endpoints:
+- Odoo endpoints (diagnostic/admin):
   - Diagnostics: `GET /api/odoo/orders` → configured, ping, hasSale, productCount
   - Create order: `POST /api/odoo/orders` → creates quotation; optional confirmation
   - Test order: `POST /api/odoo/order-test` → minimal single-item test
   - List products: `GET /api/odoo/products` → supports random sampling, field selection, expansions
   - POS diagnostics: `GET /api/odoo/pos` → pos.configs and open sessions
   - Create POS order: `POST /api/odoo/pos/orders` → creates `pos.order` via `create_from_ui` so it shows in Kitchen Display
+  - Production endpoints: use `/api/products` (cache-backed) and `/api/orders` (DB + queue + Odoo sync). `/api/odoo/*` is diagnostic-only.
 
 ## Prerequisites
 
 1. Odoo Online or On‑Prem reachable over HTTPS.
 2. Database name (e.g. `mydb`).
-3. A user with permissions for `res.partner`, `product.product`, and `sale.order` (Sales app must be installed).
+3. A user with permissions for `res.partner`, `product.product`, and `sale.order` (Sales app must be installed). On Odoo 19+, prefer API keys over passwords.
 4. For Kitchen Display: install and configure Point of Sale (Restaurant) and open a POS session. Products must be available in POS.
 
 ## Environment variables
