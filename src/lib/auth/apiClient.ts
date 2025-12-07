@@ -1,4 +1,13 @@
 import { getSession } from "next-auth/react";
+import { withRetry, classifyError, type RetryOptions } from "@/lib/errorRecovery";
+
+const DEFAULT_RETRY_OPTIONS: RetryOptions = {
+  maxRetries: 3,
+  initialDelay: 1000,
+  maxDelay: 10000,
+  backoffFactor: 2,
+  retryableStatuses: [408, 429, 500, 502, 503, 504],
+};
 
 /**
  * Authenticated fetch wrapper that automatically includes NextAuth session
@@ -31,87 +40,120 @@ export async function authFetch(
 }
 
 /**
- * Type-safe API client with automatic error handling
+ * Type-safe API client with automatic error handling and retry logic
  * 
  * @example
  * ```typescript
  * const orders = await apiClient.get<Order[]>("/api/orders");
  * const newOrder = await apiClient.post<Order>("/api/orders", { items: [...] });
+ * 
+ * // Disable retry for specific request
+ * const data = await apiClient.get<Data>("/api/data", {}, { maxRetries: 0 });
  * ```
  */
 export const apiClient = {
-  async get<T>(url: string, options?: RequestInit): Promise<T> {
-    const response = await authFetch(url, {
-      ...options,
-      method: "GET",
-    });
+  async get<T>(
+    url: string,
+    options?: RequestInit,
+    retryOptions?: RetryOptions
+  ): Promise<T> {
+    return withRetry(
+      async () => {
+        const response = await authFetch(url, {
+          ...options,
+          method: "GET",
+        });
 
-    if (!response.ok) {
-      throw new ApiError(response.status, await response.text());
-    }
+        if (!response.ok) {
+          throw new ApiError(response.status, await response.text());
+        }
 
-    const data = await response.json();
-    return data.data || data;
+        const data = await response.json();
+        return data.data || data;
+      },
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+    );
   },
 
   async post<T>(
     url: string,
     body?: any,
     options?: RequestInit,
+    retryOptions?: RetryOptions
   ): Promise<T> {
-    const response = await authFetch(url, {
-      ...options,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
+    return withRetry(
+      async () => {
+        const response = await authFetch(url, {
+          ...options,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...options?.headers,
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        if (!response.ok) {
+          throw new ApiError(response.status, await response.text());
+        }
+
+        const data = await response.json();
+        return data.data || data;
       },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      throw new ApiError(response.status, await response.text());
-    }
-
-    const data = await response.json();
-    return data.data || data;
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+    );
   },
 
   async patch<T>(
     url: string,
     body?: any,
     options?: RequestInit,
+    retryOptions?: RetryOptions
   ): Promise<T> {
-    const response = await authFetch(url, {
-      ...options,
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
+    return withRetry(
+      async () => {
+        const response = await authFetch(url, {
+          ...options,
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            ...options?.headers,
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        if (!response.ok) {
+          throw new ApiError(response.status, await response.text());
+        }
+
+        const data = await response.json();
+        return data.data || data;
       },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      throw new ApiError(response.status, await response.text());
-    }
-
-    const data = await response.json();
-    return data.data || data;
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+    );
   },
 
-  async delete<T>(url: string, options?: RequestInit): Promise<T> {
-    const response = await authFetch(url, {
-      ...options,
-      method: "DELETE",
-    });
+  async delete<T>(
+    url: string,
+    options?: RequestInit,
+    retryOptions?: RetryOptions
+  ): Promise<T> {
+    return withRetry(
+      async () => {
+        const response = await authFetch(url, {
+          ...options,
+          method: "DELETE",
+        });
 
-    if (!response.ok) {
-      throw new ApiError(response.status, await response.text());
-    }
+        if (!response.ok) {
+          throw new ApiError(response.status, await response.text());
+        }
 
-    const data = await response.json();
-    return data.data || data;
+        const data = await response.json();
+        return data.data || data;
+      },
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+    );
   },
 };
 
@@ -125,6 +167,9 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = "ApiError";
+    
+    // Ensure proper prototype chain for instanceof checks
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
 
   get isUnauthorized() {
@@ -141,6 +186,14 @@ export class ApiError extends Error {
 
   get isRateLimited() {
     return this.status === 429;
+  }
+  
+  get isServerError() {
+    return this.status >= 500;
+  }
+  
+  get isClientError() {
+    return this.status >= 400 && this.status < 500;
   }
 }
 

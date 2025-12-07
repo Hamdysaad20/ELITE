@@ -9,11 +9,15 @@ import { redisGet } from "@/server/cache/redis";
 
 type Product = {
   id: string;
-  title: string;
+  name: string;              // Standardized naming
+  description?: string | null;
   price: number;
   categoryId?: string;
   available?: boolean;
   images?: string[];
+  sku?: string;
+  stock?: number | null;     // Stock level
+  sequence?: number;         // Sort order
 };
 
 function applyFilters(
@@ -32,7 +36,7 @@ function applyFilters(
     const q = opts.search.toLowerCase();
     result = result.filter(
       (p) =>
-        p.title?.toLowerCase().includes(q) ||
+        p.name?.toLowerCase().includes(q) ||
         p.id?.toLowerCase().includes(q) ||
         p.categoryId?.toLowerCase().includes(q),
     );
@@ -51,6 +55,12 @@ function applyFilters(
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
+    
+    // Support fetching single product by ID
+    const productId = url.searchParams.get("id");
+    const categoryId = url.searchParams.get("categoryId");
+    const limit = url.searchParams.get("limit");
+    
     const page = Number(url.searchParams.get("page") || "1");
     const pageSize = Number(url.searchParams.get("pageSize") || "50");
     const category = url.searchParams.get("category");
@@ -70,7 +80,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const filtered = applyFilters(allProducts, { category, search, availability });
+    // Handle single product fetch
+    if (productId) {
+      const product = allProducts.find((p) => p.id === productId);
+      if (!product) {
+        return jsonResponse(errorResponse("Product not found"), 404);
+      }
+      return jsonResponse(successResponse([product], { lastUpdate }));
+    }
+
+    // Apply filters
+    let filtered = applyFilters(allProducts, { category, search, availability });
+    
+    // Filter by categoryId if provided (for related products)
+    if (categoryId) {
+      filtered = filtered.filter((p) => p.categoryId === categoryId);
+    }
+    
+    // Apply limit if provided (for related products)
+    if (limit) {
+      const limitNum = Number(limit);
+      if (Number.isFinite(limitNum) && limitNum > 0) {
+        filtered = filtered.slice(0, limitNum);
+        return jsonResponse(successResponse(filtered, { lastUpdate }));
+      }
+    }
 
     const p = Number.isFinite(page) && page > 0 ? page : 1;
     const ps = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 50;

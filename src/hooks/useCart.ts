@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useOptimistic, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/auth/apiClient";
-import type { Cart } from "@/types";
+import type { Cart, CartItem } from "@/types";
 
 interface UseCartReturn {
   cart: Cart | null;
   loading: boolean;
   error: string | null;
+  isUpdating: boolean;
   addToCart: (
     menuItemId: string,
     quantity: number,
@@ -42,9 +43,57 @@ interface UseCartReturn {
  * Note: Automatically handles authentication via NextAuth session.
  * Cart is user-specific and persists across sessions.
  */
+type CartAction =
+  | { type: "add"; item: CartItem }
+  | { type: "remove"; itemId: string }
+  | { type: "update"; itemId: string; quantity: number }
+  | { type: "clear" };
+
+function applyOptimisticUpdate(cart: Cart | null, action: CartAction): Cart | null {
+  if (!cart) return cart;
+
+  switch (action.type) {
+    case "add": {
+      const existingItemIndex = cart.items.findIndex(
+        (item) => item.menuItemId === action.item.menuItemId
+      );
+      if (existingItemIndex >= 0) {
+        const newItems = [...cart.items];
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: newItems[existingItemIndex].quantity + action.item.quantity,
+        };
+        return { ...cart, items: newItems };
+      }
+      return { ...cart, items: [...cart.items, action.item] };
+    }
+    case "remove":
+      return {
+        ...cart,
+        items: cart.items.filter((item) => item.id !== action.itemId),
+      };
+    case "update":
+      return {
+        ...cart,
+        items: cart.items.map((item) =>
+          item.id === action.itemId ? { ...item, quantity: action.quantity } : item
+        ),
+      };
+    case "clear":
+      return { ...cart, items: [] };
+    default:
+      return cart;
+  }
+}
+
 export function useCart(): UseCartReturn {
   const { data: session, status } = useSession();
   const [cart, setCart] = useState<Cart | null>(null);
+  const [optimisticCart, setOptimisticCart] = useOptimistic(
+    cart,
+    applyOptimisticUpdate
+  );
+  const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +111,9 @@ export function useCart(): UseCartReturn {
       setError(null);
 
       const response = await apiClient.get<{ cart: Cart }>("/api/cart");
-      setCart(response.cart);
+      startTransition(() => {
+        setCart(response.cart);
+      });
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -70,7 +121,9 @@ export function useCart(): UseCartReturn {
         setError("Failed to load cart");
       }
       console.error("Failed to fetch cart:", err);
-      setCart(null);
+      startTransition(() => {
+        setCart(null);
+      });
     } finally {
       setLoading(false);
     }
@@ -98,6 +151,22 @@ export function useCart(): UseCartReturn {
         throw new Error("Please sign in to add items to cart");
       }
 
+      // Create optimistic cart item
+      const optimisticItem: CartItem = {
+        id: `temp-${Date.now()}`,
+        menuItemId,
+        quantity,
+        size: options?.size,
+        flavor: options?.flavor,
+        toppings: options?.toppings,
+        price: 0, // Will be calculated by server
+      };
+
+      // Apply optimistic update immediately
+      startTransition(() => {
+        setOptimisticCart({ type: "add", item: optimisticItem });
+      });
+
       try {
         setError(null);
 
@@ -107,9 +176,12 @@ export function useCart(): UseCartReturn {
           ...options,
         });
 
-        // Refresh cart after adding
+        // Refresh cart to get accurate data from server
         await fetchCart();
       } catch (err) {
+        // Revert optimistic update on error
+        await fetchCart();
+        
         const errorMessage =
           err instanceof Error ? err.message : "Failed to add item to cart";
         setError(errorMessage);
@@ -127,6 +199,11 @@ export function useCart(): UseCartReturn {
         throw new Error("Please sign in to modify cart");
       }
 
+      // Apply optimistic update immediately
+      startTransition(() => {
+        setOptimisticCart({ type: "remove", itemId: cartItemId });
+      });
+
       try {
         setError(null);
 
@@ -135,6 +212,9 @@ export function useCart(): UseCartReturn {
         // Refresh cart after removing
         await fetchCart();
       } catch (err) {
+        // Revert optimistic update on error
+        await fetchCart();
+        
         const errorMessage =
           err instanceof Error ? err.message : "Failed to remove item";
         setError(errorMessage);
@@ -152,6 +232,11 @@ export function useCart(): UseCartReturn {
         throw new Error("Please sign in to modify cart");
       }
 
+      // Apply optimistic update immediately
+      startTransition(() => {
+        setOptimisticCart({ type: "update", itemId: cartItemId, quantity });
+      });
+
       try {
         setError(null);
 
@@ -160,6 +245,9 @@ export function useCart(): UseCartReturn {
         // Refresh cart after updating
         await fetchCart();
       } catch (err) {
+        // Revert optimistic update on error
+        await fetchCart();
+        
         const errorMessage =
           err instanceof Error ? err.message : "Failed to update quantity";
         setError(errorMessage);
@@ -176,14 +264,24 @@ export function useCart(): UseCartReturn {
       throw new Error("Please sign in to modify cart");
     }
 
+    // Apply optimistic update immediately
+    startTransition(() => {
+      setOptimisticCart({ type: "clear" });
+    });
+
     try {
       setError(null);
 
       await apiClient.delete("/api/cart");
 
-      setCart(null);
+      startTransition(() => {
+        setCart(null);
+      });
       await fetchCart();
     } catch (err) {
+      // Revert optimistic update on error
+      await fetchCart();
+      
       const errorMessage =
         err instanceof Error ? err.message : "Failed to clear cart";
       setError(errorMessage);
@@ -192,17 +290,18 @@ export function useCart(): UseCartReturn {
     }
   }, [status, fetchCart]);
 
-  // Calculate item count
+  // Calculate item count from optimistic cart
   const itemCount =
-    cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+    optimisticCart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
-  // Calculate total
-  const total = cart?.items.reduce((sum, item) => sum + item.price, 0) || 0;
+  // Calculate total from optimistic cart
+  const total = optimisticCart?.items.reduce((sum, item) => sum + item.price, 0) || 0;
 
   return {
-    cart,
+    cart: optimisticCart,
     loading,
     error,
+    isUpdating: isPending,
     addToCart,
     removeFromCart,
     updateQuantity,

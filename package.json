@@ -23,6 +23,7 @@
     "bullmq": "^5.21.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.23.6",
     "gsap": "^3.13.0",
     "jose": "^5.9.3",

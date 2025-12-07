@@ -26,7 +26,9 @@ const EMAIL_SERVER_USER = process.env.EMAIL_SERVER_USER;
 const EMAIL_SERVER_PASSWORD = process.env.EMAIL_SERVER_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@example.com";
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+// Auto-detect environment: use production URL by default, localhost when running locally
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL || 
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.officieleliteeg.com');
 const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 
 if (!NEXTAUTH_SECRET) {

@@ -3,12 +3,14 @@
 import { useEffect } from "react";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import NetworkStatus from "@/components/NetworkStatus";
 import {
   createNavigationState,
   cleanupNavigationState,
   preventLayoutShift,
   resetPageState,
 } from "@/lib/utils";
+import { setupOfflineSupport } from "@/lib/errorRecovery";
 
 export default function ClientBody({
   children,
@@ -26,6 +28,9 @@ export default function ClientBody({
       
       // Prevent layout shifts
       preventLayoutShift();
+      
+      // Setup offline request queue support
+      setupOfflineSupport();
     } catch (error) {
       console.warn("Failed to initialize client state:", error);
     }
@@ -82,6 +87,7 @@ export default function ClientBody({
 
   return (
     <AuthProvider>
+      <NetworkStatus />
       <ToastProvider>{children}</ToastProvider>
     </AuthProvider>
   );

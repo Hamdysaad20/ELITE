@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useTransition } from "react";
 import { apiClient } from "@/lib/auth/apiClient";
 
 export interface Category {
@@ -9,12 +9,14 @@ export interface Category {
   description?: string;
   productCount?: number;
   image?: string;
+  sequence?: number;         // Sort order
+  parentId?: string;         // Parent category
 }
 
 export interface CategoriesResponse {
   categories: Category[];
   lastUpdate?: string;
-  count: number;
+  count?: number;
 }
 
 interface UseCategoriesReturn {
@@ -24,6 +26,8 @@ interface UseCategoriesReturn {
   lastUpdate: string | null;
   refetch: () => Promise<void>;
   getCategoryById: (id: string) => Category | undefined;
+  isEmpty: boolean;
+  isRefetching: boolean;
 }
 
 /**
@@ -46,6 +50,7 @@ export function useCategories(): UseCategoriesReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -54,16 +59,22 @@ export function useCategories(): UseCategoriesReturn {
 
       const response = await apiClient.get<CategoriesResponse>("/api/categories");
       
-      setCategories(response.categories || []);
-      setLastUpdate(response.lastUpdate || null);
+      startTransition(() => {
+        setCategories(response?.categories || []);
+        setLastUpdate(response?.lastUpdate || null);
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load categories";
       setError(errorMessage);
       console.error("Failed to fetch categories:", err);
       
-      // If cache is empty (503), show helpful message
-      if (errorMessage.includes("503")) {
+      // Provide user-friendly error messages
+      if (errorMessage.includes("503") || errorMessage.includes("cache is empty")) {
         setError("Category list is being synchronized. Please try again in a moment.");
+      } else if (errorMessage.includes("Network") || errorMessage.includes("Failed to fetch")) {
+        setError("Unable to connect. Please check your internet connection.");
+      } else if (errorMessage.includes("timeout")) {
+        setError("Request timed out. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -76,9 +87,11 @@ export function useCategories(): UseCategoriesReturn {
   }, [fetchCategories]);
 
   const getCategoryById = useCallback(
-    (id: string) => categories.find((c) => c.id === id),
+    (id: string) => categories.find((c) => c?.id === id),
     [categories],
   );
+
+  const isEmpty = !loading && !error && categories.length === 0;
 
   return {
     categories,
@@ -87,6 +100,8 @@ export function useCategories(): UseCategoriesReturn {
     lastUpdate,
     refetch: fetchCategories,
     getCategoryById,
+    isEmpty,
+    isRefetching: isPending,
   };
 }
 

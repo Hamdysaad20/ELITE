@@ -1,0 +1,78 @@
+═══════════════════════════════════════════════════════════
+  COMPLETE PRODUCT INVENTORY
+═══════════════════════════════════════════════════════════
+
+Total products in database: 36
+
+Active: 36
+Archived: 0
+
+═══════════════════════════════════════════════════════════
+  ACTIVE PRODUCTS (Should show in POS)
+═══════════════════════════════════════════════════════════
+
+
+Coffee (14 products):
+  [641] Raspberry & Pineapple - 95 SAR (SKU: N/A)
+  [724] Cookie - 20 SAR (SKU: N/A)
+  [729] Espresso Double  - 45 SAR (SKU: N/A)
+  [731] French coffee - 50 SAR (SKU: N/A)
+  [733] Turkish Coffee Double - 50 SAR (SKU: N/A)
+  [759] 20% on your order - 0 SAR (SKU: N/A)
+  [762] Espresso Avocado - 60 SAR (SKU: N/A)
+  [770] hazelnut coffee - 55 SAR (SKU: N/A)
+  [775] Chai Flavours  - 1 SAR (SKU: N/A)
+  [776] Ice Flavors - 50 SAR (SKU: N/A)
+  [799] Down Payment (POS) - 0 SAR (SKU: N/A)
+  [800] Settle Due - 1 SAR (SKU: N/A)
+  [801] Deposit - 1 SAR (SKU: N/A)
+  [802] Settle Invoice - 1 SAR (SKU: N/A)
+
+Food (8 products):
+  [725] Molten Cake - 80 SAR (SKU: N/A)
+  [778] Cheese Cake - 70 SAR (SKU: N/A)
+  [793] Honey Cake - 70 SAR (SKU: N/A)
+  [794] red velvet cake - 75 SAR (SKU: N/A)
+  [795] carrot cake - 75 SAR (SKU: N/A)
+  [796] brownies - 65 SAR (SKU: N/A)
+  [797] COFFEE CAKE - 80 SAR (SKU: N/A)
+  [798] Apple pie cake - 75 SAR (SKU: N/A)
+
+Iced (5 products):
+  [632] Iced Macchiato - 80 SAR (SKU: N/A)
+  [774] ✨ Bestie Offer ✨ BOBA SPANISH LATTE - 199 SAR (SKU: N/A)
+  [780] ✨ Bestie Offer ✨ BOBA CHOCOLATE - 150 SAR (SKU: N/A)
+  [782] Morning Bird Offer L/C - 40 SAR (SKU: N/A)
+  [791] KINDER STEAK Single - 15 SAR (SKU: N/A)
+
+NO CATEGORY (1 products):
+  [785] Morning Bird Offer "Turkish/Espresso" D - 25 SAR (SKU: N/A)
+
+Offers (1 products):
+  [784] Morning Bird Offer "Turkish/Espresso" S - 20 SAR (SKU: N/A)
+
+Services (3 products):
+  [716] Gift Card - 50 SAR (SKU: N/A)
+  [717] Top-up eWallet - 50 SAR (SKU: N/A)
+  [718] Gift Card - 0 SAR (SKU: N/A)
+
+Tea (4 products):
+  [680] Classic Teas - 35 SAR (SKU: N/A)
+  [696] Karak Chai - 45 SAR (SKU: N/A)
+  [771] Hibiscus - 40 SAR (SKU: N/A)
+  [783] Morning Bird Offer "Chai Latte" - 25 SAR (SKU: N/A)
+
+
+═══════════════════════════════════════════════════════════
+  ARCHIVED PRODUCTS (Hidden from POS)
+═══════════════════════════════════════════════════════════
+
+
+
+═══════════════════════════════════════════════════════════
+  SUMMARY & RECOMMENDATIONS
+═══════════════════════════════════════════════════════════
+
+You have 0 archived products that could potentially be restored.
+Currently only 36 products are active and available.
+

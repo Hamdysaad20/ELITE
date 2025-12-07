@@ -12,7 +12,9 @@ export default {
       colors: {
         // Elite Coffee theme colors
         'elite-burgundy': '#8B0000',
-        'elite-cream': '#FDF5E6', 
+        'elite-dark-burgundy': '#6B0000',
+        'elite-cream': '#FDF5E6',
+        'elite-dark-cream': '#F5E6D3',
         'elite-white': '#FFFFFF',
         'elite-black': '#000000',
         'elite-gray': '#6B7280',
@@ -67,6 +69,15 @@ export default {
       fontFamily: {
         'cabin': ['var(--font-cabin-condensed)', 'sans-serif'],
         'calistoga': ['var(--font-calistoga)', 'serif'],
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 2s infinite',
       },
       container: {
       center: true,

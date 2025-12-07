@@ -8,6 +8,9 @@ import { useCart } from "@/hooks/useCart";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import EmptyState from "@/components/ui/EmptyState";
 import {
   ShoppingBag,
   ChevronRight,
@@ -27,6 +30,7 @@ export default function OrderPage() {
     cart,
     loading,
     error,
+    isUpdating,
     removeFromCart,
     updateQuantity,
     clearCart,
@@ -137,17 +141,12 @@ export default function OrderPage() {
     return (
       <main className="page-transition loaded">
         <Navigation />
-        <div className="min-h-screen bg-elite-cream">
-          <div className="bg-elite-burgundy text-elite-cream py-12">
-            <div className="max-w-4xl mx-auto px-6">
-              <Skeleton className="h-8 w-48 bg-elite-cream/20 rounded-xl" />
-            </div>
-          </div>
-          <div className="max-w-4xl mx-auto px-6 py-12 space-y-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-2xl" />
-            ))}
-          </div>
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
+          <LoadingState
+            variant="spinner"
+            message="Loading your cart..."
+            size="large"
+          />
         </div>
         <Footer />
       </main>
@@ -157,10 +156,13 @@ export default function OrderPage() {
     return (
       <main className="page-transition loaded">
         <Navigation />
-        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-          <div className="p-8 bg-red-50 border border-red-200 rounded-2xl text-red-700 font-cabin">
-            {String(error)}
-          </div>
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
+          <ErrorState
+            error={error}
+            onRetry={refreshCart}
+            size="large"
+            showDetails
+          />
         </div>
         <Footer />
       </main>
@@ -247,33 +249,30 @@ export default function OrderPage() {
 
           {/* Empty Cart */}
           {!cart || cart.items.length === 0 ? (
-            <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-12 text-center">
-              <div className="w-20 h-20 bg-elite-cream rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShoppingBag className="w-10 h-10 text-elite-burgundy/50" />
-              </div>
-              <h2 className="font-calistoga text-elite-black text-2xl mb-3">
-                Your cart is empty
-              </h2>
-              <p className="font-cabin text-elite-black/70 mb-8">
-                Explore our menu and add some delicious drinks!
-              </p>
-              <Link
-                href="/menu"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-elite-burgundy text-elite-cream rounded-full font-calistoga text-lg transition-all duration-300 hover:bg-elite-dark-burgundy hover:scale-105 hover:shadow-lg"
-              >
-                Browse Menu
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-            </div>
+            <EmptyState
+              variant="no-products"
+              title="Your cart is empty"
+              description="Explore our menu and add some delicious drinks!"
+              actionLabel="Browse Menu"
+              actionHref="/menu"
+            />
           ) : (
             <div className="space-y-6">
               {/* Cart Items */}
               <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 overflow-hidden">
                 <div className="px-6 py-4 border-b border-elite-burgundy/10 bg-elite-cream/30">
-                  <h2 className="font-calistoga text-elite-burgundy text-xl flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5" />
-                    Cart Items ({itemCount})
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-calistoga text-elite-burgundy text-xl flex items-center gap-2">
+                      <ShoppingBag className="w-5 h-5" />
+                      Cart Items ({itemCount})
+                    </h2>
+                    {isUpdating && (
+                      <span className="flex items-center gap-2 text-sm font-cabin text-elite-burgundy/70">
+                        <div className="w-4 h-4 border-2 border-elite-burgundy/30 border-t-elite-burgundy rounded-full animate-spin" />
+                        Updating...
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ul className="divide-y divide-elite-burgundy/10">
                   {cart.items.map((item) => (
@@ -307,13 +306,15 @@ export default function OrderPage() {
                         {/* Quantity Controls */}
                         <div className="flex items-center gap-3">
                           <button
-                            className="w-10 h-10 rounded-full border-2 border-elite-burgundy/20 flex items-center justify-center text-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream transition-all"
+                            className="w-10 h-10 rounded-full border-2 border-elite-burgundy/20 flex items-center justify-center text-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() =>
                               updateQuantity(
                                 item.id,
                                 Math.max(1, item.quantity - 1),
                               )
                             }
+                            disabled={isUpdating}
+                            aria-label="Decrease quantity"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
@@ -321,10 +322,12 @@ export default function OrderPage() {
                             {item.quantity}
                           </span>
                           <button
-                            className="w-10 h-10 rounded-full border-2 border-elite-burgundy/20 flex items-center justify-center text-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream transition-all"
+                            className="w-10 h-10 rounded-full border-2 border-elite-burgundy/20 flex items-center justify-center text-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
+                            disabled={isUpdating}
+                            aria-label="Increase quantity"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -336,8 +339,10 @@ export default function OrderPage() {
                             {item.price.toFixed(2)} EGP
                           </span>
                           <button
-                            className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-100 transition-all"
+                            className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => removeFromCart(item.id)}
+                            disabled={isUpdating}
+                            aria-label="Remove item"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -551,8 +556,9 @@ export default function OrderPage() {
               {/* Actions */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
-                  className="w-full sm:w-auto px-6 py-3 rounded-full border-2 border-elite-burgundy/20 text-elite-burgundy font-cabin font-medium hover:bg-elite-burgundy/5 transition-all"
+                  className="w-full sm:w-auto px-6 py-3 rounded-full border-2 border-elite-burgundy/20 text-elite-burgundy font-cabin font-medium hover:bg-elite-burgundy/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={clearCart}
+                  disabled={isUpdating || submitting}
                 >
                   Clear Cart
                 </button>
@@ -566,7 +572,7 @@ export default function OrderPage() {
                   <button
                     className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-elite-burgundy text-elite-cream rounded-full font-calistoga text-lg tracking-wide shadow-lg transition-all duration-300 hover:bg-elite-dark-burgundy hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     onClick={placeOrder}
-                    disabled={submitting}
+                    disabled={submitting || isUpdating}
                   >
                     <CreditCard className="w-5 h-5" />
                     {submitting ? "Placing Order…" : "Place Order"}

@@ -1,6 +1,3 @@
-# Environment Variables (example)
-
-```
 # ---- Core runtime ----
 NODE_ENV=development
 
@@ -45,5 +42,3 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/xxx/xxx
 # Google OAuth (Social Login)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-```
-

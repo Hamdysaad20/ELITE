@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
-import { getAllCategories } from "@/lib/menuData";
+import { sanitizeImages } from "@/lib/imageUtils";
 import {
   ChevronRight,
   Coffee,
@@ -12,13 +12,15 @@ import {
   Heart,
   Utensils,
   Home,
-  Loader2,
-  AlertCircle,
-  RefreshCw,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import DrinkCard from "@/components/DrinkCard";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import EmptyState from "@/components/ui/EmptyState";
+import ProductGridSkeleton from "@/components/skeletons/ProductGridSkeleton";
+import CategoryPillSkeleton from "@/components/skeletons/CategoryPillSkeleton";
 
 export default function MenuPage() {
   const [animationPlayed, setAnimationPlayed] = useState(false);
@@ -26,47 +28,60 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   
   // Fetch categories and products from API
-  const { categories: apiCategories, loading: categoriesLoading, error: categoriesError, refetch: refetchCategories } = useCategories();
-  const { products: apiProducts, loading: productsLoading, error: productsError, refetch: refetchProducts } = useProducts();
+  const {
+    categories: apiCategories,
+    loading: categoriesLoading,
+    error: categoriesError,
+    refetch: refetchCategories,
+    isEmpty: categoriesEmpty,
+  } = useCategories();
+  
+  const {
+    products: apiProducts,
+    loading: productsLoading,
+    error: productsError,
+    refetch: refetchProducts,
+    isEmpty: productsEmpty,
+  } = useProducts();
 
   const loading = categoriesLoading || productsLoading;
   const error = categoriesError || productsError;
-  
-  // Fallback to static data for development when cache is empty
-  const USE_FALLBACK = error?.includes("503") || error?.includes("cache is empty");
 
-  // Group products by category or use fallback
+  // Group products by category from Odoo data only
   const categories = useMemo(() => {
-    // Use static data as fallback for development when cache is empty
-    if (USE_FALLBACK) {
-      return getAllCategories();
+    if (!apiCategories || !Array.isArray(apiCategories) || apiCategories.length === 0) {
+      return [];
     }
     
-    if (!apiCategories.length) return [];
-    
     return apiCategories.map(cat => {
-      const categoryProducts = apiProducts.filter(p => p.categoryId === cat.id);
+      if (!cat || !cat.id) return null;
+      
+      const categoryProducts = (apiProducts || []).filter(p => p?.categoryId === cat.id);
       
       return {
         id: cat.id,
-        name: cat.name,
+        name: cat.name || "Unknown Category",
         description: cat.description || "Explore our selection",
-        icon: "coffee", // Default icon
+        icon: "coffee",
         comingSoon: categoryProducts.length === 0,
         subCategories: categoryProducts.length > 0 ? [{
           id: cat.id,
-          name: cat.name,
-          items: categoryProducts.map(p => ({
-            id: p.id,
-            name: p.name,
-            description: p.description || "",
-            price: p.price,
-            images: p.image ? [p.image] : ["/images/placeholder.svg"],
-          }))
+          name: cat.name || "Unknown Category",
+          items: categoryProducts.map(p => {
+            if (!p || !p.id) return null;
+            return {
+              id: p.id,
+              name: p.name || "Unnamed Product",
+              description: p.description || "",
+              price: typeof p.price === "number" ? p.price : 0,
+              images: sanitizeImages(p.images),
+              available: p.available !== false,
+            };
+          }).filter(Boolean)
         }] : []
       };
-    });
-  }, [apiCategories, apiProducts, USE_FALLBACK]);
+    }).filter(Boolean);
+  }, [apiCategories, apiProducts]);
 
   // Using useMemo for hero images to prevent re-creation on every render
   const heroImages = useMemo(
@@ -172,43 +187,36 @@ export default function MenuPage() {
 
         <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8 overflow-hidden">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
-            {/* Loading State */}
+            {/* Loading State with Skeletons */}
             {loading && (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
-                <p className="text-elite-black/70 font-cabin text-lg">Loading menu...</p>
+              <div className="space-y-8">
+                <CategoryPillSkeleton count={6} />
+                <ProductGridSkeleton count={8} />
               </div>
             )}
 
-            {/* Error State - Show warning if cache empty, but use fallback */}
-            {error && !loading && !USE_FALLBACK && (
-              <div className="flex flex-col items-center justify-center py-20">
-                <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md text-center">
-                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                  <h3 className="text-red-900 font-calistoga text-xl mb-2">Unable to Load Menu</h3>
-                  <p className="text-red-700 font-cabin mb-4">{error}</p>
-                  <button
-                    onClick={handleRetry}
-                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Try Again
-                  </button>
-                </div>
-              </div>
+            {/* Error State */}
+            {error && !loading && (
+              <ErrorState
+                error={error}
+                onRetry={handleRetry}
+                size="large"
+              />
             )}
             
-            {/* Fallback Notice */}
-            {USE_FALLBACK && (
-              <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <p className="text-amber-800 text-sm font-cabin">
-                  <strong>Development Mode:</strong> Showing local menu data. Run product sync to use live catalog.
-                </p>
-              </div>
+            {/* Empty State - No Categories */}
+            {!loading && !error && (categoriesEmpty || categories.length === 0) && (
+              <EmptyState
+                variant="no-products"
+                title="Catalog Not Synced"
+                description="The product catalog needs to be synchronized from Odoo. Please contact an administrator or try refreshing."
+                actionLabel="Refresh"
+                onAction={handleRetry}
+              />
             )}
 
             {/* Menu Content */}
-            {!loading && (USE_FALLBACK || !error) && categories.length > 0 && (
+            {!loading && !error && categories.length > 0 && (
               <>
                 {/* Mobile Category Pills - Horizontal Scrollable */}
                 <div className="lg:hidden mb-6">
@@ -384,15 +392,17 @@ export default function MenuPage() {
                                                   className="w-56 sm:w-64 md:w-72 flex-shrink-0"
                                                 >
                                                   <DrinkCard
-                                                    image={item.images[0]}
+                                                    id={item.id}
+                                                    images={item.images}
                                                     name={item.name}
-                                                    price={`${item.price} EGP`}
+                                                    price={item.price}
                                                     description={item.description}
+                                                    available={item.available}
                                                     size="small"
                                                     href={`/menu/${category.id}/${sub.id}/${item.id}`}
                                                     menuItemId={item.id}
-                                                    numericPrice={item.price}
                                                     showAddToOrder={true}
+                                                    categoryId={category.id}
                                                   />
                                                 </div>
                                               ))}

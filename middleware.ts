@@ -62,6 +62,15 @@ export async function middleware(request: NextRequest) {
     return addSecurityHeaders(NextResponse.next());
   }
 
+  // Special handling for sync routes with x-admin-token
+  if (pathname.startsWith("/api/sync/")) {
+    const adminToken = request.headers.get("x-admin-token");
+    if (adminToken === process.env.ADMIN_TOKEN) {
+      return addSecurityHeaders(NextResponse.next());
+    }
+    // If no valid admin token, fall through to regular auth check
+  }
+
   // Get session token
   try {
     const token = await getToken({
