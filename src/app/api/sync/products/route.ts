@@ -302,16 +302,19 @@ export async function POST(request: NextRequest) {
       .digest("hex");
     const lastUpdate = new Date().toISOString();
 
-    // Write categories
-    await redisSet("categories:list", categories);
+    // Set cache TTL to 5 minutes (300 seconds) for auto-refresh
+    const cacheTTL = 300;
 
-    // Write individual products
+    // Write categories with TTL
+    await redisSet("categories:list", categories, cacheTTL);
+
+    // Write individual products with TTL
     for (const p of products) {
-      await redisSet(`products:${p.id}`, p);
+      await redisSet(`products:${p.id}`, p, cacheTTL);
     }
 
-    // Store full list for API consumption (small/medium catalogs)
-    await redisSet("products:all", products);
+    // Store full list for API consumption (small/medium catalogs) with TTL
+    await redisSet("products:all", products, cacheTTL);
 
     // Write first page summary
     const pageSize = 50;
@@ -323,10 +326,10 @@ export async function POST(request: NextRequest) {
       available: p.available,
       images: p.images?.slice(0, 1) || [],
     }));
-    await redisSet(`products:list:1:${pageSize}:all`, summaries);
+    await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
 
-    await redisSet("sync:last_update", lastUpdate);
-    await redisSet("sync:etag", etag);
+    await redisSet("sync:last_update", lastUpdate, cacheTTL);
+    await redisSet("sync:etag", etag, cacheTTL);
 
     return jsonResponse(
       successResponse(

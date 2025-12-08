@@ -52,6 +52,11 @@ function applyFilters(
   return result;
 }
 
+function isStale(lastUpdate: string): boolean {
+  const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+  return new Date(lastUpdate).getTime() < fiveMinutesAgo;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
@@ -71,13 +76,29 @@ export async function GET(request: NextRequest) {
       redisGet<Product[]>("products:all"),
       redisGet<string>("sync:last_update"),
     ]);
-    if (!allProducts) {
-      return jsonResponse(
-        errorResponse(
-          "Catalog cache is empty. Run /api/sync/products to populate.",
-        ),
-        503,
-      );
+    
+    // Auto-sync if cache is empty or stale (older than 5 minutes)
+    if (!allProducts || !lastUpdate || isStale(lastUpdate)) {
+      console.log('Cache miss or stale, triggering auto-sync...');
+      try {
+        // Trigger sync in background
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sync/products`, {
+          method: 'POST',
+          headers: { 'x-admin-token': process.env.ADMIN_TOKEN || 'change-me' }
+        }).catch(err => console.error('Background sync failed:', err));
+      } catch (err) {
+        console.error('Failed to trigger sync:', err);
+      }
+      
+      // If no data at all, return error
+      if (!allProducts) {
+        return jsonResponse(
+          errorResponse(
+            "Catalog cache is empty. Sync in progress, please retry in a few seconds.",
+          ),
+          503,
+        );
+      }
     }
 
     // Handle single product fetch
