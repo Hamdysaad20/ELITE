@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import NetworkStatus from "@/components/NetworkStatus";
+import CartButton from "@/components/Cart/CartButton";
 import {
   createNavigationState,
   cleanupNavigationState,
@@ -88,6 +89,7 @@ export default function ClientBody({
   return (
     <AuthProvider>
       <NetworkStatus />
+      <CartButton />
       <ToastProvider>{children}</ToastProvider>
     </AuthProvider>
   );

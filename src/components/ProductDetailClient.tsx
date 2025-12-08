@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, Package, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check } from "lucide-react";
 import Image from "next/image";
+import AttributeSelector from "./AttributeSelector";
+import QuantitySelector from "./QuantitySelector";
+import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
+
+interface AttributeValue {
+  id: number;
+  name: string;
+  priceExtra: number;
+}
 
 interface Product {
   id: string;
@@ -18,6 +27,7 @@ interface Product {
   uom?: { id: number; name: string };
   taxes?: number[];
   category?: { id: string; name: string };
+  attributes?: Record<string, AttributeValue[]>;
 }
 
 interface ProductDetailClientProps {
@@ -30,6 +40,126 @@ export default function ProductDetailClient({
   relatedProducts,
 }: ProductDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, number | number[]>>({});
+  const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const { addItem } = useLocalCart();
+
+  // Detect multi-select attributes
+  const isMultiSelect = (attributeName: string): boolean => {
+    const multiSelectKeywords = [
+      'topping', 'toppings',
+      'extra', 'extras',
+      'sauce', 'sauces',
+      'vegetable', 'vegetables',
+      'ingredient', 'ingredients',
+      'addition', 'additions',
+      'protein', 'cheese', 'bread'
+    ];
+    const lower = attributeName.toLowerCase();
+    return multiSelectKeywords.some(keyword => lower.includes(keyword));
+  };
+
+  // Calculate total price
+  const calculateTotalPrice = (): number => {
+    let total = product.price;
+    
+    if (product.attributes) {
+      Object.entries(selectedAttributes).forEach(([attrName, selected]) => {
+        const attribute = product.attributes?.[attrName];
+        if (!attribute) return;
+        
+        if (Array.isArray(selected)) {
+          // Multi-select: sum all selected
+          selected.forEach(valueId => {
+            const value = attribute.find(v => v.id === valueId);
+            if (value) total += value.priceExtra;
+          });
+        } else {
+          // Single-select: add priceExtra
+          const value = attribute.find(v => v.id === selected);
+          if (value) total += value.priceExtra;
+        }
+      });
+    }
+    
+    return total * quantity;
+  };
+
+  // Validate selections (check required attributes)
+  const validateSelections = (): { valid: boolean; message?: string } => {
+    if (!product.attributes) return { valid: true };
+    
+    // Size is typically required if present
+    const hasSize = product.attributes['Size'];
+    if (hasSize && !selectedAttributes['Size']) {
+      return { valid: false, message: 'Please select a size' };
+    }
+    
+    return { valid: true };
+  };
+
+  // Handle add to cart
+  const handleAddToCart = () => {
+    const validation = validateSelections();
+    
+    if (!validation.valid) {
+      alert(validation.message || 'Please select all required options');
+      return;
+    }
+    
+    // Transform selected attributes to cart format
+    const cartAttributes: LocalCartItem['attributes'] = {};
+    
+    if (product.attributes) {
+      Object.entries(selectedAttributes).forEach(([attrName, selected]) => {
+        const attribute = product.attributes?.[attrName];
+        if (!attribute) return;
+        
+        if (Array.isArray(selected)) {
+          // Multi-select
+          cartAttributes[attrName] = selected.map(valueId => {
+            const value = attribute.find(v => v.id === valueId);
+            return {
+              valueId,
+              valueName: value?.name || '',
+              priceExtra: value?.priceExtra || 0,
+            };
+          }).filter(v => v.valueName);
+        } else {
+          // Single-select
+          const value = attribute.find(v => v.id === selected);
+          if (value) {
+            cartAttributes[attrName] = [{
+              valueId: value.id,
+              valueName: value.name,
+              priceExtra: value.priceExtra,
+            }];
+          }
+        }
+      });
+    }
+    
+    // Calculate unit price (price for 1 item with selected attributes)
+    const unitPrice = Object.values(cartAttributes).reduce((sum, values) => {
+      return sum + values.reduce((s, v) => s + v.priceExtra, 0);
+    }, product.price);
+    
+    // Add to cart
+    addItem({
+      productId: product.id,
+      name: product.name,
+      basePrice: product.price,
+      quantity,
+      attributes: cartAttributes,
+      totalPrice: unitPrice * quantity,
+      image: product.images?.[0],
+    });
+    
+    // Show success feedback
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  };
 
   const nextImage = () => {
     if (product.images.length > 0) {
@@ -202,12 +332,33 @@ export default function ProductDetailClient({
             <div className="bg-white rounded-2xl p-6 shadow-lg">
               <div className="flex items-baseline justify-between">
                 <div>
+                  <div className="font-cabin text-elite-black/60 text-sm mb-1">
+                    {product.attributes && Object.keys(product.attributes).length > 0 
+                      ? 'Starting from'
+                      : 'Price'}
+                  </div>
                   <div className="font-calistoga text-elite-burgundy text-4xl font-bold">
-                    {product.price} EGP
+                    {calculateTotalPrice()} EGP
                   </div>
                   {product.uom && (
                     <p className="font-cabin text-elite-black/60 text-sm mt-1">
                       per {product.uom.name}
+                    </p>
+                  )}
+                  {product.attributes && Object.keys(product.attributes).length > 0 && quantity > 1 && (
+                    <p className="font-cabin text-elite-burgundy/70 text-sm mt-2">
+                      {product.price + Object.entries(selectedAttributes).reduce((sum, [attrName, selected]) => {
+                        const attribute = product.attributes?.[attrName];
+                        if (!attribute) return sum;
+                        if (Array.isArray(selected)) {
+                          return sum + selected.reduce((s, valueId) => {
+                            const value = attribute.find(v => v.id === valueId);
+                            return s + (value?.priceExtra || 0);
+                          }, 0);
+                        }
+                        const value = attribute.find(v => v.id === selected);
+                        return sum + (value?.priceExtra || 0);
+                      }, 0)} EGP × {quantity}
                     </p>
                   )}
                 </div>
@@ -222,6 +373,37 @@ export default function ProductDetailClient({
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Attributes */}
+            {product.attributes && Object.keys(product.attributes).length > 0 && (
+              <>
+                {Object.entries(product.attributes).map(([attributeName, values]) => (
+                  <AttributeSelector
+                    key={attributeName}
+                    label={attributeName}
+                    values={values}
+                    selected={selectedAttributes[attributeName]}
+                    multiSelect={isMultiSelect(attributeName)}
+                    onChange={(selected) => setSelectedAttributes(prev => ({
+                      ...prev,
+                      [attributeName]: selected
+                    }))}
+                    required={attributeName === 'Size'}
+                  />
+                ))}
+              </>
+            )}
+
+            {/* Quantity Selector */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg">
+              <QuantitySelector
+                value={quantity}
+                onChange={setQuantity}
+                min={1}
+                max={50}
+                disabled={!product.available}
+              />
             </div>
 
             {/* Description */}
@@ -269,28 +451,32 @@ export default function ProductDetailClient({
               </dl>
             </div>
 
-            {/* Call to Action */}
-            <div className="bg-gradient-to-r from-elite-burgundy/10 to-elite-burgundy/5 rounded-2xl p-6 border border-elite-burgundy/20">
-              <div className="flex items-start gap-4">
-                <div className="bg-elite-burgundy/20 rounded-full p-3">
-                  <TrendingUp className="w-6 h-6 text-elite-burgundy" />
-                </div>
-                <div>
-                  <h4 className="font-calistoga text-elite-burgundy text-lg mb-2">
-                    Want to order?
-                  </h4>
-                  <p className="font-cabin text-elite-black/70 text-sm mb-4">
-                    Visit us at our location or contact us to place your order
-                  </p>
-                  <Link
-                    href="/contact"
-                    className="inline-block bg-elite-burgundy text-elite-cream px-6 py-2 rounded-full font-cabin font-medium hover:bg-elite-dark-burgundy transition-colors"
-                  >
-                    Contact Us
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.available || addedToCart}
+              className={`w-full py-6 rounded-2xl font-cabin font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 ${
+                !product.available
+                  ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
+                  : addedToCart
+                    ? 'bg-green-600 text-white scale-105'
+                    : 'bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream hover:scale-105 hover:shadow-xl shadow-lg active:scale-100'
+              }`}
+            >
+              {!product.available ? (
+                'Temporarily Unavailable'
+              ) : addedToCart ? (
+                <>
+                  <Check className="w-6 h-6" />
+                  Added to Cart!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-6 h-6" />
+                  Add to Cart - {calculateTotalPrice()} EGP
+                </>
+              )}
+            </button>
           </div>
         </div>
 

@@ -1,0 +1,43 @@
+"use client";
+
+import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
+import { useLocalCart } from "@/hooks/useLocalCart";
+import CartDrawer from "./CartDrawer";
+
+export default function CartButton() {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { itemCount } = useLocalCart();
+
+  return (
+    <>
+      {/* Floating Cart Button */}
+      <button
+        onClick={() => setIsDrawerOpen(true)}
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 z-30 group"
+        aria-label="Open cart"
+      >
+        <div className="relative">
+          <ShoppingCart className="w-6 h-6" />
+          {itemCount > 0 && (
+            <>
+              {/* Badge */}
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
+              
+              {/* Pulse ring animation */}
+              <span className="absolute inset-0 rounded-full bg-elite-burgundy animate-ping opacity-20"></span>
+            </>
+          )}
+        </div>
+      </button>
+
+      {/* Cart Drawer */}
+      <CartDrawer 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+      />
+    </>
+  );
+}
