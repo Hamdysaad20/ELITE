@@ -289,7 +289,7 @@ export default function CategoryPage() {
                               price={`${item.price} EGP`}
                               description={item.description}
                               size="medium"
-                              href={`/menu/${categoryId}/${sub.id}/${item.id}`}
+                              href={`/products/${item.id}`}
                               menuItemId={item.id}
                               numericPrice={item.price}
                               showAddToOrder={true}

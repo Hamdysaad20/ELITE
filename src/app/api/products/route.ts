@@ -13,12 +13,22 @@ type Product = {
   description?: string | null;
   price: number;
   categoryId?: string;
+  category?: {               // Category object
+    id: string;
+    name: string;
+  };
   available?: boolean;
   images?: string[];
   sku?: string;
   stock?: number | null;     // Stock level
   sequence?: number;         // Sort order
 };
+
+// Categories that should not be displayed on the website
+const EXCLUDED_CATEGORIES = [
+  'Extras',     // Add-ons and extras (these are attributes, not products)
+  'Services',   // Administrative items like "OPEN REGISTER"
+];
 
 function applyFilters(
   items: Product[],
@@ -77,33 +87,30 @@ export async function GET(request: NextRequest) {
       redisGet<string>("sync:last_update"),
     ]);
     
-    // Auto-sync if cache is empty or stale (older than 5 minutes)
-    if (!allProducts || !lastUpdate || isStale(lastUpdate)) {
-      console.log('Cache miss or stale, triggering auto-sync...');
-      try {
-        // Trigger sync in background
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sync/products`, {
-          method: 'POST',
-          headers: { 'x-admin-token': process.env.ADMIN_TOKEN || 'change-me' }
-        }).catch(err => console.error('Background sync failed:', err));
-      } catch (err) {
-        console.error('Failed to trigger sync:', err);
-      }
-      
-      // If no data at all, return error
-      if (!allProducts) {
-        return jsonResponse(
-          errorResponse(
-            "Catalog cache is empty. Sync in progress, please retry in a few seconds.",
-          ),
-          503,
-        );
-      }
+    // Check if cache is empty
+    if (!allProducts) {
+      return jsonResponse(
+        errorResponse(
+          "Product catalog not synced yet. Please run: POST /api/sync/products with x-admin-token header",
+        ),
+        503,
+      );
     }
+    
+    // Warn if cache is stale (older than 5 minutes) but still return data
+    if (lastUpdate && isStale(lastUpdate)) {
+      console.warn('Product cache is stale (>5 min old). Consider running sync.');
+    }
+
+    // Filter out excluded categories (Extras, Services, etc.)
+    const websiteProducts = allProducts.filter(product => {
+      if (!product.category) return true; // Include products without category
+      return !EXCLUDED_CATEGORIES.includes(product.category.name);
+    });
 
     // Handle single product fetch
     if (productId) {
-      const product = allProducts.find((p) => p.id === productId);
+      const product = websiteProducts.find((p) => p.id === productId);
       if (!product) {
         return jsonResponse(errorResponse("Product not found"), 404);
       }
@@ -111,7 +118,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply filters
-    let filtered = applyFilters(allProducts, { category, search, availability });
+    let filtered = applyFilters(websiteProducts, { category, search, availability });
     
     // Filter by categoryId if provided (for related products)
     if (categoryId) {

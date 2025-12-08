@@ -58,13 +58,18 @@ export default function MenuPage() {
       
       const categoryProducts = (apiProducts || []).filter(p => p?.categoryId === cat.id);
       
+      // Skip empty categories entirely
+      if (categoryProducts.length === 0) {
+        return null;
+      }
+      
       return {
         id: cat.id,
         name: cat.name || "Unknown Category",
         description: cat.description || "Explore our selection",
         icon: "coffee",
-        comingSoon: categoryProducts.length === 0,
-        subCategories: categoryProducts.length > 0 ? [{
+        comingSoon: false, // Never show coming soon since we filter empty ones
+        subCategories: [{
           id: cat.id,
           name: cat.name || "Unknown Category",
           items: categoryProducts.map(p => {
@@ -78,7 +83,7 @@ export default function MenuPage() {
               available: p.available !== false,
             };
           }).filter(Boolean)
-        }] : []
+        }]
       };
     }).filter(Boolean);
   }, [apiCategories, apiProducts]);
@@ -399,7 +404,7 @@ export default function MenuPage() {
                                                     description={item.description}
                                                     available={item.available}
                                                     size="small"
-                                                    href={`/menu/${category.id}/${sub.id}/${item.id}`}
+                                                    href={`/products/${item.id}`}
                                                     menuItemId={item.id}
                                                     showAddToOrder={true}
                                                     categoryId={category.id}

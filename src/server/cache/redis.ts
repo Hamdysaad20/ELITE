@@ -8,10 +8,22 @@ function getClient(): RedisClientType {
   if (!url) {
     throw new Error("REDIS_URL is not set");
   }
-  client = createClient({ url });
+  client = createClient({ 
+    url,
+    socket: {
+      connectTimeout: 5000, // 5 seconds timeout
+      reconnectStrategy: (retries) => {
+        if (retries > 3) {
+          console.error('Redis max retries reached');
+          return new Error('Redis connection failed');
+        }
+        return Math.min(retries * 100, 3000);
+      }
+    }
+  });
   client.on("error", (err) => {
     // Only log Redis errors once, not repeatedly
-    if (err.code === "ECONNRESET" || err.code === "ECONNREFUSED") {
+    if (err.code === "ECONNRESET" || err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT") {
       // Silently handle connection issues in development
       if (process.env.NODE_ENV === "development") {
         // Don't spam console
@@ -28,7 +40,10 @@ function getClient(): RedisClientType {
 async function ensureConnected(): Promise<RedisClientType> {
   const c = getClient();
   if (!c.isOpen) {
-    await c.connect();
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
+    );
+    await Promise.race([c.connect(), timeout]);
   }
   return c;
 }

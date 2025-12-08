@@ -243,7 +243,7 @@ export default async function SubCategoryPage({
                     price={`${item.price} EGP`}
                     description={item.description}
                     size="large"
-                    href={`/menu/${category.id}/${subCategory.id}/${item.id}`}
+                    href={`/products/${item.id}`}
                     menuItemId={item.id}
                     numericPrice={item.price}
                     showAddToOrder={true}
