@@ -25,14 +25,18 @@ const EMAIL_SERVER_PORT = Number(process.env.EMAIL_SERVER_PORT || "587");
 const EMAIL_SERVER_USER = process.env.EMAIL_SERVER_USER;
 const EMAIL_SERVER_PASSWORD = process.env.EMAIL_SERVER_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@example.com";
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 // Auto-detect environment: use production URL by default, localhost when running locally
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL || 
   (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.officieleliteeg.com');
 const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 
-if (!NEXTAUTH_SECRET) {
-  throw new Error("NEXTAUTH_SECRET must be set in environment variables");
+// Don't throw at module load (build time), check at runtime
+function getNextAuthSecret() {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET must be set in environment variables");
+  }
+  return secret;
 }
 
 // Create email transporter only if all credentials are provided
@@ -60,7 +64,7 @@ if (transporter && process.env.NODE_ENV === "development") {
 }
 
 const authOptions: NextAuthOptions = {
-  secret: NEXTAUTH_SECRET,
+  secret: getNextAuthSecret(),
   adapter: PrismaAdapter(prisma),
   
   // Use JWT strategy for better performance in serverless

@@ -10,10 +10,13 @@ export type AuthUser = {
   status?: string;
 };
 
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
-
-if (!NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
-  throw new Error("NEXTAUTH_SECRET must be set in production");
+// Don't check at module load time (build), check at runtime
+function getNextAuthSecret() {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error("NEXTAUTH_SECRET must be set in production");
+  }
+  return secret;
 }
 
 /**
@@ -24,7 +27,7 @@ export async function getAuthUser(
   req: NextRequest,
 ): Promise<AuthUser | null> {
   try {
-    const token = await getToken({ req, secret: NEXTAUTH_SECRET });
+    const token = await getToken({ req, secret: getNextAuthSecret() });
     
     if (!token || !token.sub) {
       return null;
