@@ -11,10 +11,10 @@ export default function CartButton() {
 
   return (
     <>
-      {/* Floating Cart Button */}
+      {/* Floating Cart Button - Hidden on mobile (we have bottom nav) */}
       <button
         onClick={() => setIsDrawerOpen(true)}
-        className="fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
+        className="hidden md:flex fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
         aria-label="Open cart"
       >
         <div className="relative">
