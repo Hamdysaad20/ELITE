@@ -85,7 +85,8 @@ export function logAuthEvent(
           Sentry.captureException(new Error(event), {
             level: severity === "critical" ? "fatal" : "error",
             contexts: {
-              auth: context,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              auth: context as Record<string, any>,
             },
             tags: {
               event_type: event,
@@ -96,7 +97,8 @@ export function logAuthEvent(
           Sentry.captureMessage(event, {
             level: severity === "warning" ? "warning" : "info",
             contexts: {
-              auth: context,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              auth: context as Record<string, any>,
             },
             tags: {
               event_type: event,

@@ -9,7 +9,7 @@ import {
   parseRequestBody,
   getQueryParams,
 } from "@/server/utils/apiHelpers";
-import { OrderStatus, PaymentStatus, type Order } from "@/types";
+import { OrderStatus, PaymentStatus, OrderType, PaymentMethod, type Order } from "@/types";
 import { createOrderSchema } from "@/server/validators/orderSchemas";
 import { BadRequestError } from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
@@ -22,10 +22,10 @@ function serializeOrder(dbOrder: DbOrderWithItems) {
     id: dbOrder.id,
     orderNumber: dbOrder.id,
     userId: dbOrder.userId || "demo-user",
-    status: dbOrder.status,
-    paymentStatus: dbOrder.paymentStatus,
-    paymentMethod: dbOrder.paymentMethod,
-    orderType: dbOrder.orderType,
+    status: dbOrder.status as OrderStatus,
+    paymentStatus: dbOrder.paymentStatus as PaymentStatus,
+    paymentMethod: dbOrder.paymentMethod as PaymentMethod,
+    orderType: dbOrder.orderType as OrderType,
     subtotal: Number(dbOrder.subtotal),
     deliveryFee: Number(dbOrder.deliveryFee),
     discount: Number(dbOrder.discount),

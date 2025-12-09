@@ -238,14 +238,13 @@ export default async function SubCategoryPage({
                 {subCategory.items.map((item) => (
                   <DrinkCard
                     key={item.id}
-                    image={item.images[0]}
+                    images={[item.images[0]]}
                     name={item.name}
-                    price={`${item.price} EGP`}
+                    price={item.price}
                     description={item.description}
                     size="large"
                     href={`/products/${item.id}`}
                     menuItemId={item.id}
-                    numericPrice={item.price}
                     showAddToOrder={true}
                   />
                 ))}

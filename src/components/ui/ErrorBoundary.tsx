@@ -34,11 +34,9 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
 }) => {
   return (
     <ErrorState
-      title="Oops! Something went wrong"
-      message="We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists."
+      error={error || new Error("An unexpected error occurred")}
       onRetry={resetError}
       className="min-h-screen bg-elite-cream"
-      errorStack={error ? `${error.message}\n\n${error.stack || ''}` : undefined}
       showDetails={process.env.NODE_ENV === "development"}
     />
   );

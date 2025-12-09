@@ -2,11 +2,12 @@
 
 import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Coffee, Mail, ArrowLeft, Info } from "lucide-react";
 
-export default function SignInPage() {
+function SignInContent() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -184,4 +185,10 @@ export default function SignInPage() {
   );
 }
 
-
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
+  );
+}

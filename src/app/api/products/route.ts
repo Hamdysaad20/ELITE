@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       if (!product) {
         return jsonResponse(errorResponse("Product not found"), 404);
       }
-      return jsonResponse(successResponse([product], { lastUpdate }));
+      return jsonResponse(successResponse([product], lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
     }
 
     // Apply filters
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
       const limitNum = Number(limit);
       if (Number.isFinite(limitNum) && limitNum > 0) {
         filtered = filtered.slice(0, limitNum);
-        return jsonResponse(successResponse(filtered, { lastUpdate }));
+        return jsonResponse(successResponse(filtered, lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
       }
     }
 

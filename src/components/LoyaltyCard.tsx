@@ -168,6 +168,12 @@ interface LoyaltyActivityProps {
   }>;
 }
 
+interface LoyaltyTier {
+  level: string;
+  minPoints: number;
+  benefits: string[];
+}
+
 export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
   if (activity.length === 0) {
     return (

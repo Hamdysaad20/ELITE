@@ -232,7 +232,7 @@ export default function MenuPage() {
                 <div className="lg:hidden mb-8">
                   <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
                     <div className="flex gap-3 py-4 min-w-max">
-                      {categories.map((cat) => (
+                      {categories.filter((cat) => cat !== null && cat !== undefined).map((cat) => (
                         <button
                           key={cat.id}
                           onClick={() =>
@@ -286,7 +286,7 @@ export default function MenuPage() {
 
                       {/* Categories List */}
                       <div className="space-y-1">
-                        {categories.map((cat, index) => (
+                        {categories.filter((cat) => cat !== null && cat !== undefined).map((cat, index) => (
                           <div key={cat.id}>
                             <Link
                               href={cat.comingSoon ? "#" : `/menu/${cat.id}`}
@@ -335,6 +335,7 @@ export default function MenuPage() {
                   <div className="flex-1 min-w-0">
                     <div className="space-y-6 sm:space-y-8">
                       {categories
+                        .filter((cat) => cat !== null && cat !== undefined)
                         .filter(
                           (category) =>
                             !activeCategory || category.id === activeCategory,
@@ -387,7 +388,7 @@ export default function MenuPage() {
                                           {/* Items Preview - Horizontal Scrollable on All Screens */}
                                           <div className="overflow-x-auto menu-items-scroll -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
                                             <div className="flex gap-5 sm:gap-6 pb-4">
-                                              {sub.items.map((item) => (
+                                              {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
                                                 <div
                                                   key={item.id}
                                                   className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0">
@@ -422,10 +423,12 @@ export default function MenuPage() {
                               </div>
                             </div>
                             {index <
-                              categories.filter(
-                                (cat) =>
-                                  !activeCategory || cat.id === activeCategory,
-                              ).length -
+                              categories
+                                .filter((cat) => cat !== null && cat !== undefined)
+                                .filter(
+                                  (cat) =>
+                                    !activeCategory || cat.id === activeCategory,
+                                ).length -
                                 1 && (
                               <div className="h-px bg-elite-burgundy/10 mt-8 sm:mt-12"></div>
                             )}

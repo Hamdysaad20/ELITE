@@ -164,8 +164,8 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
     total: number;
     createdAt: string;
     integrationStatus?: {
-      sale?: { synced: boolean; id?: number };
-      pos?: { synced: boolean; id?: number };
+      sale?: { synced: boolean; orderId?: number; status: string; url?: string };
+      pos?: { synced: boolean; orderId?: number; status: string };
     };
   }>>([]);
   const [loading, setLoading] = useState(true);
@@ -187,8 +187,8 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
         total: number;
         createdAt: string;
         integrationStatus?: {
-          sale?: { synced: boolean; id?: number };
-          pos?: { synced: boolean; id?: number };
+          sale?: { synced: boolean; orderId?: number; status: string; url?: string };
+          pos?: { synced: boolean; orderId?: number; status: string };
         };
       }> }>(`/api/orders?${params.toString()}`);
       setOrders(response.orders || []);

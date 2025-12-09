@@ -41,6 +41,11 @@ export default function CategoryPage() {
   // Use fallback when cache is empty
   const USE_FALLBACK = error?.includes("503") || error?.includes("cache is empty");
   
+  const handleRetry = () => {
+    refetchCategories();
+    refetchProducts();
+  };
+  
   const category = USE_FALLBACK ? getCategoryById(categoryId) : getApiCategory(categoryId);
   const allCats = USE_FALLBACK ? getAllCategories() : allCategories;
 
@@ -51,7 +56,7 @@ export default function CategoryPage() {
 
   // Group products into subcategories (for now, just use one subcategory per category)
   const subCategories = useMemo(() => {
-    if (USE_FALLBACK && category) {
+    if (USE_FALLBACK && category && 'subCategories' in category) {
       return category.subCategories;
     }
     
@@ -61,12 +66,12 @@ export default function CategoryPage() {
       id: category.id,
       name: category.name,
       description: category.description || `Explore our ${category.name} selection`,
-      items: products.map((p: { id: string; name: string; description?: string; price: number; image?: string; images?: string[] }) => ({
+      items: products.map((p) => ({
         id: p.id,
         name: p.name,
         description: p.description || "",
         price: p.price,
-        images: p.image ? [p.image] : p.images || ["/images/placeholder.svg"],
+        images: p.images || ["/images/placeholder.svg"],
       }))
     }];
   }, [products, category, USE_FALLBACK]);
@@ -84,7 +89,7 @@ export default function CategoryPage() {
     }
   };
 
-  const handleQuickAdd = (product: any) => {
+  const handleQuickAdd = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };

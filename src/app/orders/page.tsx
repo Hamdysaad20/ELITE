@@ -117,9 +117,9 @@ export default function OrdersPage() {
                   <div className="p-6">
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Items</p>
+                        <p className="text-xs text-gray-500 mb-1">Order Number</p>
                         <p className="font-cabin font-semibold text-elite-black">
-                          {order.items?.length || 0} items
+                          {order.orderNumber}
                         </p>
                       </div>
                       <div>
@@ -134,14 +134,6 @@ export default function OrdersPage() {
                     {order.integrationStatus && (
                       <div className="pt-4 border-t border-gray-200">
                         <OrderIntegrationStatus integrationStatus={order.integrationStatus} />
-                      </div>
-                    )}
-
-                    {/* Polling Indicator */}
-                    {isPolling && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 flex items-center gap-2 text-xs text-gray-500">
-                        <Clock className="w-3 h-3 animate-pulse" />
-                        <span>Checking for updates...</span>
                       </div>
                     )}
                   </div>

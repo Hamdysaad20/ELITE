@@ -78,7 +78,7 @@ export async function PATCH(request: NextRequest) {
     const validation = UpdateProfileSchema.safeParse(body);
     if (!validation.success) {
       return jsonResponse(
-        errorResponse("Invalid input", validation.error.errors),
+        errorResponse("Invalid input", JSON.stringify(validation.error.errors)),
         400,
       );
     }

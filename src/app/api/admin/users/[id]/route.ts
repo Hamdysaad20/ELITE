@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
 import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
@@ -10,18 +10,23 @@ const UpdateUserSchema = z.object({
   status: z.enum(["active", "suspended", "deleted"]).optional(),
 });
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 /**
  * GET /api/admin/users/:id - Get user details (admin only)
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: RouteParams,
 ) {
   try {
     await requireRole(request, ["admin"]);
 
+    const { id } = await params;
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         loyalty: true,
         orders: {
@@ -64,17 +69,18 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: RouteParams,
 ) {
   try {
     const admin = await requireRole(request, ["admin"]);
     const body = await request.json();
+    const { id } = await params;
 
     // Validate input
     const validation = UpdateUserSchema.safeParse(body);
     if (!validation.success) {
       return jsonResponse(
-        errorResponse("Invalid input", validation.error.errors),
+        errorResponse("Invalid input", JSON.stringify(validation.error.errors)),
         400,
       );
     }
@@ -82,7 +88,7 @@ export async function PATCH(
     const { role, status } = validation.data;
 
     // Prevent admin from suspending themselves
-    if (params.id === admin.id && status === "suspended") {
+    if (id === admin.id && status === "suspended") {
       return jsonResponse(
         errorResponse("You cannot suspend your own account"),
         400,
@@ -91,7 +97,7 @@ export async function PATCH(
 
     // Update user
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(role !== undefined && { role }),
         ...(status !== undefined && { status }),
@@ -112,7 +118,7 @@ export async function PATCH(
       logAuthEvent(
         AuthEvent.ACCOUNT_SUSPENDED,
         {
-          userId: params.id,
+          userId: id,
           email: updatedUser.email,
           reason: `Suspended by admin ${admin.id}`,
         },
@@ -122,7 +128,7 @@ export async function PATCH(
       logAuthEvent(
         AuthEvent.ACCOUNT_UPDATED,
         {
-          userId: params.id,
+          userId: id,
           email: updatedUser.email,
           metadata: { updatedBy: admin.id, changes: validation.data },
         },
@@ -146,13 +152,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: RouteParams,
 ) {
   try {
     const admin = await requireRole(request, ["admin"]);
+    const { id } = await params;
 
     // Prevent admin from deleting themselves
-    if (params.id === admin.id) {
+    if (id === admin.id) {
       return jsonResponse(
         errorResponse("You cannot delete your own account"),
         400,
@@ -161,7 +168,7 @@ export async function DELETE(
 
     // Get user email for logging
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { email: true },
     });
 
@@ -171,10 +178,10 @@ export async function DELETE(
 
     // Soft delete
     await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "deleted",
-        email: `deleted_${params.id}@deleted.local`,
+        email: `deleted_${id}@deleted.local`,
         updatedAt: new Date(),
       },
     });
@@ -182,7 +189,7 @@ export async function DELETE(
     logAuthEvent(
       AuthEvent.ACCOUNT_DELETED,
       {
-        userId: params.id,
+        userId: id,
         email: user.email,
         reason: `Deleted by admin ${admin.id}`,
       },

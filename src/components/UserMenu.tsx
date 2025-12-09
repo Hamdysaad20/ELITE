@@ -36,7 +36,7 @@ export function UserMenu() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return (
       <Link
         href="/auth/signin"

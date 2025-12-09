@@ -59,7 +59,7 @@ if (transporter && process.env.NODE_ENV === "development") {
   });
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   
@@ -193,7 +193,7 @@ export const authOptions: NextAuthOptions = {
             AuthEvent.MAGIC_LINK_SENT,
             {
               email: identifier,
-              reason: error.message,
+              reason: error instanceof Error ? error.message : String(error),
             },
             "error",
           );

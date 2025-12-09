@@ -13,10 +13,7 @@ if (SENTRY_DSN) {
     environment: process.env.NODE_ENV || "development",
     
     // Server-specific configuration
-    integrations: [
-      // Prisma integration
-      new Sentry.Integrations.Prisma({ client: undefined }),
-    ],
+    integrations: [],
     
     // Filter sensitive data
     beforeSend(event, hint) {
@@ -30,7 +27,7 @@ if (SENTRY_DSN) {
       
       // Remove sensitive env vars
       if (event.contexts?.runtime?.env) {
-        const env = { ...event.contexts.runtime.env };
+        const env = { ...(event.contexts.runtime.env as Record<string, any>) };
         delete env.DATABASE_URL;
         delete env.REDIS_URL;
         delete env.NEXTAUTH_SECRET;
