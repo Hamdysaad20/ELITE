@@ -16,7 +16,10 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import MobileNavigation from "@/components/MobileNavigation";
+import MobileHeader from "@/components/MobileHeader";
+import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
@@ -31,6 +34,9 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Enable swipe-back gesture
+  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
   
   // Fetch categories and products from API
   const {
@@ -157,10 +163,12 @@ export default function MenuPage() {
 
   return (
     <>
+      <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
         <Navigation />
       </div>
-      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0">
+      <MobileHeader title="Menu" showBack={true} transparent={true} />
+      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-14 md:pt-0">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy opacity-90"></div>
 

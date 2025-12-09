@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation";
 import { User, Mail, LogOut, ShoppingBag, Heart, Settings, ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 import MobileNavigation from "@/components/MobileNavigation";
+import MobileHeader from "@/components/MobileHeader";
+import SwipeIndicator from "@/components/SwipeIndicator";
 import Navigation from "@/components/Navigation";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  // Enable swipe-back gesture
+  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -54,11 +60,13 @@ export default function ProfilePage() {
 
   return (
     <>
+      <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
         <Navigation />
       </div>
+      <MobileHeader title="Profile" showBack={true} />
       
-      <main className="min-h-screen bg-elite-cream pb-20 md:pb-8">
+      <main className="min-h-screen bg-elite-cream pb-20 md:pb-8 pt-14 md:pt-0">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-12">
           {/* Profile Header */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-2 border-elite-burgundy/10 mb-6">

@@ -5,13 +5,19 @@ import { useOrders } from "@/hooks/useOrderStatus";
 import { OrderStatusBadge, OrderIntegrationStatus } from "@/components/OrderStatusBadge";
 import Navigation from "@/components/Navigation";
 import MobileNavigation from "@/components/MobileNavigation";
+import MobileHeader from "@/components/MobileHeader";
+import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Loader2, AlertCircle, Package, RefreshCw, ShoppingBag, Clock } from "lucide-react";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { orders, loading, error, refetch } = useOrders();
+
+  // Enable swipe-back gesture
+  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   if (authLoading || loading) {
     return (
@@ -30,10 +36,12 @@ export default function OrdersPage() {
 
   return (
     <>
+      <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
         <Navigation />
       </div>
-      <div className="min-h-screen bg-elite-cream pb-20 md:pb-0">
+      <MobileHeader title="My Orders" showBack={true} />
+      <div className="min-h-screen bg-elite-cream pb-20 md:pb-0 pt-14 md:pt-0">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-8 md:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
