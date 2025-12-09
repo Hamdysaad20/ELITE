@@ -116,14 +116,14 @@ export default function ProductModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Customize Your Order"
-      className="max-w-2xl"
+      className="max-w-2xl md:max-w-3xl"
     >
-      <div className="p-6">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Image */}
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+          {/* Image - Optimized for mobile */}
           <div className="w-full md:w-1/3 flex-shrink-0">
-            <div className="relative w-full pt-[100%]">
-              <div className="absolute inset-0 p-2">
+            <div className="relative w-full aspect-square md:pt-[100%] md:aspect-auto">
+              <div className="md:absolute md:inset-0 p-2">
                 <div
                   className={cn(
                     "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl transition-transform duration-500 relative overflow-hidden flex items-center justify-center w-full h-full"
@@ -142,33 +142,33 @@ export default function ProductModal({
             </div>
           </div>
 
-          {/* Details */}
-          <div className="flex-1 space-y-6">
+          {/* Details - Enhanced mobile layout */}
+          <div className="flex-1 space-y-4 md:space-y-6">
             <div>
-              <h2 className="font-calistoga text-2xl text-elite-black mb-2">
+              <h2 className="font-calistoga text-xl sm:text-2xl md:text-3xl text-elite-black mb-2">
                 {product.name}
               </h2>
-              <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
+              <p className="font-cabin text-elite-black/70 text-sm sm:text-base leading-relaxed">
                 {product.description || "No description available."}
               </p>
             </div>
 
-            {/* Attributes / Options */}
+            {/* Attributes / Options - Enhanced touch targets */}
             {product.attributes && Object.entries(product.attributes).map(([attrName, options]) => (
-              <div key={attrName} className="space-y-3">
-                <h3 className="font-cabin font-semibold text-elite-black text-sm uppercase tracking-wider">
+              <div key={attrName} className="space-y-2 md:space-y-3">
+                <h3 className="font-cabin font-semibold text-elite-black text-xs sm:text-sm uppercase tracking-wider">
                   {attrName}
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 md:gap-2.5">
                   {options.map((option) => (
                     <button
                       key={option.id}
                       onClick={() => handleOptionSelect(attrName, option.id)}
                       className={cn(
-                        "px-6 py-3 rounded-xl text-base font-medium transition-all border min-w-[80px]",
+                        "px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all border min-w-[72px] sm:min-w-[80px] touch-manipulation active:scale-95",
                         selectedOptions[attrName] === option.id
                           ? "bg-elite-burgundy text-elite-cream border-elite-burgundy shadow-lg scale-105"
-                          : "bg-white text-elite-black border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:bg-elite-cream/20"
+                          : "bg-white text-elite-black border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:bg-elite-cream/20 active:bg-elite-cream/30"
                       )}
                     >
                       {option.name}
@@ -183,24 +183,26 @@ export default function ProductModal({
               </div>
             ))}
 
-            {/* Quantity & Add Button */}
-            <div className="pt-6 border-t border-elite-burgundy/10 space-y-4">
+            {/* Quantity & Add Button - Mobile optimized */}
+            <div className="pt-4 md:pt-6 border-t border-elite-burgundy/10 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-cabin font-semibold text-elite-black">Quantity</span>
-                <div className="flex items-center gap-3 bg-elite-cream/50 rounded-lg p-1">
+                <span className="font-cabin font-semibold text-elite-black text-sm sm:text-base">Quantity</span>
+                <div className="flex items-center gap-2 sm:gap-3 bg-elite-cream/50 rounded-xl p-1.5">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 hover:bg-white rounded-md transition-colors text-elite-burgundy"
+                    className="p-2 sm:p-2.5 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30"
                     disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
                   >
-                    <Minus className="w-4 h-4" />
+                    <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <span className="font-calistoga text-lg w-8 text-center">{quantity}</span>
+                  <span className="font-calistoga text-base sm:text-lg w-10 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 hover:bg-white rounded-md transition-colors text-elite-burgundy"
+                    className="p-2 sm:p-2.5 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90"
+                    aria-label="Increase quantity"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
@@ -208,7 +210,7 @@ export default function ProductModal({
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className="w-full bg-elite-burgundy text-elite-cream py-4 rounded-xl font-cabin font-bold text-lg shadow-lg hover:bg-elite-dark-burgundy hover:shadow-xl transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 rounded-xl font-cabin font-bold text-base sm:text-lg shadow-lg hover:bg-elite-dark-burgundy hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed touch-manipulation min-h-[56px]"
               >
                 {isAdding ? (
                   <span className="animate-pulse">Adding to Order...</span>

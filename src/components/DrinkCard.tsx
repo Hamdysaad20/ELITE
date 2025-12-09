@@ -110,7 +110,7 @@ export default function DrinkCard({
   const CardContent = () => (
     <div
       className={cn(
-        "bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 transition-all duration-300 hover:shadow-2xl hover:border-elite-burgundy/20 group h-full flex flex-col overflow-hidden",
+        "bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 transition-all duration-300 hover:shadow-2xl hover:border-elite-burgundy/20 active:scale-[0.98] group h-full flex flex-col overflow-hidden touch-manipulation",
         !isAvailable && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -119,7 +119,7 @@ export default function DrinkCard({
         <div className="absolute inset-0 p-3 sm:p-4">
           <div
             className={cn(
-              "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl sm:rounded-3xl transition-transform duration-500 group-hover:scale-105 relative overflow-hidden flex items-center justify-center w-full h-full"
+              "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl sm:rounded-3xl transition-transform duration-500 group-hover:scale-105 group-active:scale-100 relative overflow-hidden flex items-center justify-center w-full h-full"
             )}
           >
             <ImageWithFallback
@@ -134,7 +134,7 @@ export default function DrinkCard({
           
           {/* Unavailable badge */}
           {!isAvailable && (
-            <div className="absolute top-6 right-6 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-cabin font-semibold z-10">
+            <div className="absolute top-6 right-6 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-cabin font-semibold z-10 shadow-lg">
               Unavailable
             </div>
           )}
@@ -142,7 +142,7 @@ export default function DrinkCard({
       </div>
 
       <div className="text-center space-y-2 sm:space-y-3 px-4 sm:px-6 pb-3 sm:pb-4 flex-1 flex flex-col">
-        <h4 className="font-calistoga text-elite-black font-bold text-xl sm:text-2xl leading-tight truncate w-full" title={displayName}>
+        <h4 className="font-calistoga text-elite-black font-bold text-lg sm:text-xl md:text-2xl leading-tight line-clamp-2 w-full min-h-[2.5rem] sm:min-h-[3rem]" title={displayName}>
           {displayName}
         </h4>
         {displayPrice !== null && (
@@ -160,7 +160,7 @@ export default function DrinkCard({
                   e.stopPropagation();
                   if (href) window.location.href = href;
                 }}
-                className="px-4 py-3 rounded-full text-sm tracking-wide transition-all duration-300 bg-transparent text-elite-black/50 hover:text-elite-burgundy font-cabin font-bold uppercase"
+                className="px-3 sm:px-4 py-3 rounded-full text-xs sm:text-sm tracking-wide transition-all duration-300 bg-transparent text-elite-black/50 hover:text-elite-burgundy active:text-elite-burgundy/80 font-cabin font-bold uppercase touch-manipulation active:scale-95 min-h-[44px]"
               >
                 Details
               </button>
@@ -168,24 +168,24 @@ export default function DrinkCard({
                 onClick={handleAddToOrder}
                 disabled={addToOrderState.adding}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300",
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full text-sm sm:text-base tracking-wide shadow-md transition-all duration-300 touch-manipulation active:scale-95 min-h-[44px]",
                   addToOrderState.added
                     ? "bg-emerald-600 text-white font-calistoga"
-                    : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy hover:scale-105 hover:shadow-lg",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy active:bg-elite-dark-burgundy hover:shadow-lg",
+                  "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                 )}
                 aria-live="polite"
               >
                 {addToOrderState.added ? (
                   <>
-                    <Check className="w-5 h-5" />
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Added</span>
                   </>
                 ) : addToOrderState.adding ? (
                   <span className="font-cabin">...</span>
                 ) : (
                   <>
-                    <ShoppingCart className="w-5 h-5" />
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Add</span>
                   </>
                 )}
