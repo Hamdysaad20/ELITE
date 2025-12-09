@@ -15,6 +15,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import MobileNavigation from "@/components/MobileNavigation";
 import Footer from "@/components/Footer";
 import DrinkCard from "@/components/DrinkCard";
 import LoadingState from "@/components/ui/LoadingState";
@@ -155,15 +156,17 @@ export default function MenuPage() {
   };
 
   return (
-    <main>
-      <Navigation />
-      <div className="min-h-screen bg-elite-burgundy">
+    <>
+      <div className="hidden md:block">
+        <Navigation />
+      </div>
+      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy opacity-90"></div>
 
-          <div className="relative min-h-[40vh] md:min-h-[60vh] w-full overflow-hidden">
+          <div className="relative min-h-[30vh] md:min-h-[60vh] w-full overflow-hidden">
             <div className="absolute inset-0 z-[1]">
-              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold text-elite-cream select-none pointer-events-none opacity-90">
+              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl sm:text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold text-elite-cream select-none pointer-events-none opacity-90">
                 MENU
               </h1>
             </div>
@@ -465,7 +468,10 @@ export default function MenuPage() {
         onClose={() => setIsModalOpen(false)}
       />
       
-      <Footer />
-    </main>
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+      <MobileNavigation />
+    </>
   );
 }
