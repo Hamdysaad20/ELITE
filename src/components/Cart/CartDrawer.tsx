@@ -100,8 +100,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     className="bg-white rounded-2xl lg:rounded-3xl p-3 sm:p-4 lg:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-elite-burgundy/10 active:scale-[0.99]"
                   >
                     <div className="flex gap-3 sm:gap-4">
-                      {/* Image - Optimized sizing */}
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5">
+                      {/* Image - Optimized sizing with aspect ratio */}
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5 aspect-square">
                         {item.image ? (
                           <Image
                             src={item.image}
@@ -111,7 +111,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-elite-burgundy/5 to-elite-burgundy/10 flex items-center justify-center">
+                          <div className="w-full h-full bg-gradient-to-br from-elite-burgundy/5 to-elite-burgundy/10 flex items-center justify-center aspect-square">
                             <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-elite-burgundy/20" />
                           </div>
                         )}
