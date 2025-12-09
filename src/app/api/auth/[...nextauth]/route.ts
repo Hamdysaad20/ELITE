@@ -63,9 +63,10 @@ if (transporter && process.env.NODE_ENV === "development") {
   });
 }
 
-const authOptions: NextAuthOptions = {
-  secret: getNextAuthSecret(),
-  adapter: PrismaAdapter(prisma),
+function getAuthOptions(): NextAuthOptions {
+  return {
+    secret: getNextAuthSecret(),
+    adapter: PrismaAdapter(prisma),
   
   // Use JWT strategy for better performance in serverless
   session: {
@@ -388,7 +389,22 @@ const authOptions: NextAuthOptions = {
     },
   },
 };
+}
 
-const handler = NextAuth(authOptions);
+// Lazy-initialize handler only when routes are called
+let handler: ReturnType<typeof NextAuth> | null = null;
 
-export { handler as GET, handler as POST };
+function getHandler() {
+  if (!handler) {
+    handler = NextAuth(getAuthOptions());
+  }
+  return handler;
+}
+
+export async function GET(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
+  return getHandler().handlers.GET(req, context);
+}
+
+export async function POST(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
+  return getHandler().handlers.POST(req, context);
+}

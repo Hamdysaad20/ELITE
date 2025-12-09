@@ -344,7 +344,7 @@ export default function MenuPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="space-y-6 sm:space-y-8">
+                    <div className="space-y-4 sm:space-y-6">
                       {categories
                         .filter((cat) => cat !== null && cat !== undefined)
                         .filter(
@@ -361,8 +361,8 @@ export default function MenuPage() {
                               <div
                                 className={`${category.comingSoon ? "opacity-40" : ""}`}
                               >
-                                <div className="mb-6 sm:mb-8">
-                                  <div className="flex items-center gap-3 sm:gap-4 mb-4">
+                                <div className="mb-4 sm:mb-6">
+                                  <div className="flex items-center gap-3 sm:gap-4 mb-3">
                                     <div
                                       className={`p-3 sm:p-4 rounded-xl ${
                                         category.comingSoon
@@ -383,9 +383,6 @@ export default function MenuPage() {
                                       )}
                                     </div>
                                   </div>
-                                  <p className="font-cabin text-elite-black/90 text-base sm:text-lg md:text-xl">
-                                    {category.description}
-                                  </p>
                                 </div>
 
                                 {!category.comingSoon &&
@@ -441,7 +438,7 @@ export default function MenuPage() {
                                     !activeCategory || cat.id === activeCategory,
                                 ).length -
                                 1 && (
-                              <div className="h-px bg-elite-burgundy/10 mt-8 sm:mt-12"></div>
+                              <div className="h-px bg-elite-burgundy/10 mt-4 sm:mt-6"></div>
                             )}
                           </div>
                         ))}
