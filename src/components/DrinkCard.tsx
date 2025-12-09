@@ -5,7 +5,7 @@ import { ShoppingCart, Check } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages, getFirstValidImage } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
-import { useCart } from "@/hooks/useCart";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 interface DrinkCardProps {
   id?: string;
@@ -20,20 +20,21 @@ interface DrinkCardProps {
   menuItemId?: string;
   showAddToOrder?: boolean;
   categoryId?: string;
+  onQuickAdd?: () => void;
 }
 
 const sizeClasses = {
   small: {
     container: "aspect-square",
-    imageContainer: "h-52",
+    imageContainer: "h-64",
   },
   medium: {
     container: "aspect-square",
-    imageContainer: "h-60",
+    imageContainer: "h-72",
   },
   large: {
     container: "aspect-square",
-    imageContainer: "h-68",
+    imageContainer: "h-80",
   },
 };
 
@@ -50,8 +51,9 @@ export default function DrinkCard({
   menuItemId,
   showAddToOrder = false,
   categoryId,
+  onQuickAdd,
 }: DrinkCardProps) {
-  const { addToCart, isUpdating } = useCart();
+  const { addItem } = useLocalCart();
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
     added: false,
@@ -71,12 +73,26 @@ export default function DrinkCard({
   const handleAddToOrder = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (onQuickAdd) {
+      onQuickAdd();
+      return;
+    }
+
     if (!menuItemId || addToOrderState.adding || !isAvailable) return;
 
     setAddToOrderState({ adding: true, added: false });
     try {
-      // Use optimistic cart hook - instant UI update
-      await addToCart(menuItemId, 1, { size: "Medium" });
+      // Add to local cart
+      addItem({
+        productId: menuItemId,
+        name: displayName,
+        basePrice: displayPrice || 0,
+        quantity: 1,
+        attributes: {},
+        totalPrice: displayPrice || 0,
+        image: validImages[0],
+      });
       
       setAddToOrderState({ adding: false, added: true });
       setTimeout(
@@ -86,92 +102,97 @@ export default function DrinkCard({
     } catch (err) {
       console.error("Failed to add to cart:", err);
       setAddToOrderState({ adding: false, added: false });
-      
-      // Handle auth error
-      if (err instanceof Error && err.message.includes("sign in")) {
-        window.location.href =
-          "/auth/signin?callbackUrl=" +
-          encodeURIComponent(window.location.pathname);
-      }
     }
-  }, [menuItemId, addToOrderState.adding, isAvailable, addToCart]);
+  }, [menuItemId, addToOrderState.adding, isAvailable, onQuickAdd, addItem, displayName, displayPrice, validImages]);
 
   const classes = sizeClasses[size];
 
   const CardContent = () => (
     <div
       className={cn(
-        "bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:scale-105 group",
+        "bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 transition-all duration-300 hover:shadow-2xl hover:border-elite-burgundy/20 group h-full flex flex-col overflow-hidden",
         !isAvailable && "opacity-60 cursor-not-allowed",
         className
       )}
     >
-      <div className={`relative ${classes.container} p-4 sm:p-6`}>
-        <div
-          className={cn(
-            "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl sm:rounded-3xl transition-transform group-hover:scale-110 relative overflow-hidden",
-            classes.imageContainer
-          )}
-        >
-          <ImageWithFallback
-            src={validImages}
-            alt={displayName}
-            className="w-full h-full rounded-2xl sm:rounded-3xl"
-            objectFit="contain"
-            showErrorIcon={true}
-          />
-        </div>
-        
-        {/* Unavailable badge */}
-        {!isAvailable && (
-          <div className="absolute top-6 right-6 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-cabin font-semibold">
-            Unavailable
+      <div className="relative w-full pt-[100%]">
+        <div className="absolute inset-0 p-3 sm:p-4">
+          <div
+            className={cn(
+              "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl sm:rounded-3xl transition-transform duration-500 group-hover:scale-105 relative overflow-hidden flex items-center justify-center w-full h-full"
+            )}
+          >
+            <ImageWithFallback
+              src={validImages}
+              alt={displayName}
+              className="w-full h-full object-cover"
+              objectFit="cover"
+              showErrorIcon={true}
+              fill={true}
+            />
           </div>
-        )}
+          
+          {/* Unavailable badge */}
+          {!isAvailable && (
+            <div className="absolute top-6 right-6 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-cabin font-semibold z-10">
+              Unavailable
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="text-center space-y-2 sm:space-y-3 px-4 sm:px-6 pb-4 sm:pb-6">
-        <h4 className="font-calistoga text-elite-black font-bold text-xl sm:text-2xl lg:text-3xl leading-tight h-16 sm:h-20 flex items-center justify-center line-clamp-2">
+      <div className="text-center space-y-2 sm:space-y-3 px-4 sm:px-6 pb-3 sm:pb-4 flex-1 flex flex-col">
+        <h4 className="font-calistoga text-elite-black font-bold text-xl sm:text-2xl leading-tight truncate w-full" title={displayName}>
           {displayName}
         </h4>
         {displayPrice !== null && (
-          <p className="font-cabin text-elite-burgundy font-bold text-xl sm:text-2xl lg:text-3xl pt-2">
+          <p className="font-cabin text-elite-burgundy font-bold text-xl sm:text-2xl pt-1">
             EGP {displayPrice.toFixed(2)}
           </p>
         )}
-        {description && (
-          <p className="font-cabin text-elite-black/70 text-sm leading-relaxed line-clamp-2">
-            {description}
-          </p>
-        )}
-        {showAddToOrder && menuItemId && isAvailable && (
-          <button
-            onClick={handleAddToOrder}
-            disabled={addToOrderState.adding}
-            className={cn(
-              "mt-4 w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300",
-              addToOrderState.added
-                ? "bg-emerald-600 text-white font-calistoga"
-                : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy hover:scale-105 hover:shadow-lg",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-            aria-live="polite"
-          >
-            {addToOrderState.added ? (
-              <>
-                <Check className="w-5 h-5" />
-                <span>Added!</span>
-              </>
-            ) : addToOrderState.adding ? (
-              <span className="font-cabin">Adding...</span>
-            ) : (
-              <>
-                <ShoppingCart className="w-5 h-5" />
-                <span>Add to Order</span>
-              </>
-            )}
-          </button>
-        )}
+        
+        <div className="mt-auto w-full pt-2 flex gap-2">
+          {showAddToOrder && menuItemId && isAvailable && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (href) window.location.href = href;
+                }}
+                className="px-4 py-3 rounded-full text-sm tracking-wide transition-all duration-300 bg-transparent text-elite-black/50 hover:text-elite-burgundy font-cabin font-bold uppercase"
+              >
+                Details
+              </button>
+              <button
+                onClick={handleAddToOrder}
+                disabled={addToOrderState.adding}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300",
+                  addToOrderState.added
+                    ? "bg-emerald-600 text-white font-calistoga"
+                    : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy hover:scale-105 hover:shadow-lg",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
+                aria-live="polite"
+              >
+                {addToOrderState.added ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    <span>Added</span>
+                  </>
+                ) : addToOrderState.adding ? (
+                  <span className="font-cabin">...</span>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>Add</span>
+                  </>
+                )}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -69,10 +69,11 @@ export async function GET(request: NextRequest) {
         },
       }),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Loyalty fetch error:", error);
-    const message = error?.message || "Failed to fetch loyalty information";
-    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+    const message = error instanceof Error ? error.message : "Failed to fetch loyalty information";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
 

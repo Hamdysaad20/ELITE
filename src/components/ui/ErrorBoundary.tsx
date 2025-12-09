@@ -6,6 +6,7 @@
 import React from "react";
 import { Button } from "./Button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import ErrorState from "./ErrorState";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -32,38 +33,14 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
 }) => {
   return (
-    <div className="min-h-[400px] flex items-center justify-center p-6">
-      <div className="text-center max-w-md">
-        <div className="mb-4 flex justify-center">
-          <AlertTriangle className="h-12 w-12 text-red-500" />
-        </div>
-        <h2 className="text-2xl font-bold text-elite-black mb-2">
-          Oops! Something went wrong
-        </h2>
-        <p className="text-elite-gray mb-6">
-          We encountered an unexpected error. Please try refreshing the page or
-          contact support if the problem persists.
-        </p>
-        {process.env.NODE_ENV === "development" && error && (
-          <details className="mb-6 p-4 bg-gray-100 rounded-lg text-left">
-            <summary className="cursor-pointer font-medium">
-              Error Details (Development)
-            </summary>
-            <pre className="mt-2 text-sm text-red-600 whitespace-pre-wrap">
-              {error.message}
-              {error.stack && `\n${error.stack}`}
-            </pre>
-          </details>
-        )}
-        <Button
-          variant="primary"
-          onClick={resetError}
-          leftIcon={<RefreshCw className="h-4 w-4" />}
-        >
-          Try Again
-        </Button>
-      </div>
-    </div>
+    <ErrorState
+      title="Oops! Something went wrong"
+      message="We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists."
+      onRetry={resetError}
+      className="min-h-screen bg-elite-cream"
+      errorStack={error ? `${error.message}\n\n${error.stack || ''}` : undefined}
+      showDetails={process.env.NODE_ENV === "development"}
+    />
   );
 };
 

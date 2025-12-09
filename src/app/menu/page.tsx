@@ -12,6 +12,7 @@ import {
   Heart,
   Utensils,
   Home,
+  RefreshCw,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -19,13 +20,16 @@ import DrinkCard from "@/components/DrinkCard";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
-import ProductGridSkeleton from "@/components/skeletons/ProductGridSkeleton";
-import CategoryPillSkeleton from "@/components/skeletons/CategoryPillSkeleton";
+import MenuPageSkeleton from "@/components/skeletons/MenuPageSkeleton";
+import ProductModal from "@/components/menu/ProductModal";
+import { Product } from "@/hooks/useProducts";
 
 export default function MenuPage() {
   const [animationPlayed, setAnimationPlayed] = useState(false);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Fetch categories and products from API
   const {
@@ -53,39 +57,45 @@ export default function MenuPage() {
       return [];
     }
     
-    return apiCategories.map(cat => {
-      if (!cat || !cat.id) return null;
-      
-      const categoryProducts = (apiProducts || []).filter(p => p?.categoryId === cat.id);
-      
-      // Skip empty categories entirely
-      if (categoryProducts.length === 0) {
-        return null;
-      }
-      
-      return {
-        id: cat.id,
-        name: cat.name || "Unknown Category",
-        description: cat.description || "Explore our selection",
-        icon: "coffee",
-        comingSoon: false, // Never show coming soon since we filter empty ones
-        subCategories: [{
+    return apiCategories
+      .filter(cat => {
+        // Filter out "Offers" category
+        const categoryName = cat?.name?.toLowerCase() || "";
+        return !categoryName.includes("offer");
+      })
+      .map(cat => {
+        if (!cat || !cat.id) return null;
+        
+        const categoryProducts = (apiProducts || []).filter(p => p?.categoryId === cat.id);
+        
+        // Skip empty categories entirely
+        if (categoryProducts.length === 0) {
+          return null;
+        }
+        
+        return {
           id: cat.id,
           name: cat.name || "Unknown Category",
-          items: categoryProducts.map(p => {
-            if (!p || !p.id) return null;
-            return {
-              id: p.id,
-              name: p.name || "Unnamed Product",
-              description: p.description || "",
-              price: typeof p.price === "number" ? p.price : 0,
-              images: sanitizeImages(p.images),
-              available: p.available !== false,
-            };
-          }).filter(Boolean)
-        }]
-      };
-    }).filter(Boolean);
+          description: cat.description || "Explore our selection",
+          icon: "coffee",
+          comingSoon: false, // Never show coming soon since we filter empty ones
+          subCategories: [{
+            id: cat.id,
+            name: cat.name || "Unknown Category",
+            items: categoryProducts.map(p => {
+              if (!p || !p.id) return null;
+              return {
+                id: p.id,
+                name: p.name || "Unnamed Product",
+                description: p.description || "",
+                price: typeof p.price === "number" ? p.price : 0,
+                images: sanitizeImages(p.images),
+                available: p.available !== false,
+              };
+            }).filter(Boolean)
+          }]
+        };
+      }).filter(Boolean);
   }, [apiCategories, apiProducts]);
 
   // Using useMemo for hero images to prevent re-creation on every render
@@ -191,14 +201,9 @@ export default function MenuPage() {
         </div>
 
         <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8 overflow-hidden">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          <div className="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
             {/* Loading State with Skeletons */}
-            {loading && (
-              <div className="space-y-8">
-                <CategoryPillSkeleton count={6} />
-                <ProductGridSkeleton count={8} />
-              </div>
-            )}
+            {loading && <MenuPageSkeleton />}
 
             {/* Error State */}
             {error && !loading && (
@@ -224,9 +229,9 @@ export default function MenuPage() {
             {!loading && !error && categories.length > 0 && (
               <>
                 {/* Mobile Category Pills - Horizontal Scrollable */}
-                <div className="lg:hidden mb-6">
-                  <div className="overflow-x-auto scrollbar-hide">
-                    <div className="flex gap-3 py-4 px-2 min-w-max">
+                <div className="lg:hidden mb-8">
+                  <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
+                    <div className="flex gap-3 py-4 min-w-max">
                       {categories.map((cat) => (
                         <button
                           key={cat.id}
@@ -265,16 +270,16 @@ export default function MenuPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-8 min-w-0">
+                <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 min-w-0">
                   {/* Desktop Sidebar - Hidden on Mobile */}
-                  <div className="hidden lg:block lg:w-64 flex-shrink-0">
-                    <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+                  <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
+                    <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto sidebar-scroll">
                       {/* Sidebar Header */}
                       <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
-                        <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
+                        <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
                           Categories
                         </h2>
-                        <p className="font-cabin text-elite-black/70 text-xs">
+                        <p className="font-cabin text-elite-black/70 text-sm">
                           Explore our menu
                         </p>
                       </div>
@@ -285,21 +290,21 @@ export default function MenuPage() {
                           <div key={cat.id}>
                             <Link
                               href={cat.comingSoon ? "#" : `/menu/${cat.id}`}
-                              className={`group sidebar-item flex items-center justify-between p-3 rounded-xl transition-all duration-300 border ${
+                              className={`group sidebar-item flex items-center justify-between p-4 rounded-xl transition-all duration-300 border ${
                                 cat.comingSoon
                                   ? "bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream"
                                   : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
                               }`}
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-3">
                                 <div
-                                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                     cat.comingSoon
                                       ? "bg-elite-black/20"
                                       : "bg-elite-burgundy group-hover:bg-elite-cream"
                                   }`}
                                 ></div>
-                                <span className="font-cabin font-medium text-sm">
+                                <span className="font-cabin font-semibold text-base">
                                   {cat.name}
                                 </span>
                               </div>
@@ -328,7 +333,7 @@ export default function MenuPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="space-y-8 sm:space-y-12">
+                    <div className="space-y-6 sm:space-y-8">
                       {categories
                         .filter(
                           (category) =>
@@ -336,7 +341,7 @@ export default function MenuPage() {
                         )
                         .map((category, index) => (
                           <div key={category.id} className="relative">
-                            <div className="bg-elite-cream rounded-2xl p-4 sm:p-6 md:p-8 w-full relative">
+                            <div className="bg-elite-cream rounded-2xl p-5 sm:p-6 lg:p-8 w-full relative">
                               {category.comingSoon && (
                                 <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10"></div>
                               )}
@@ -345,9 +350,9 @@ export default function MenuPage() {
                                 className={`${category.comingSoon ? "opacity-40" : ""}`}
                               >
                                 <div className="mb-6 sm:mb-8">
-                                  <div className="flex items-center gap-3 sm:gap-4 mb-3">
+                                  <div className="flex items-center gap-3 sm:gap-4 mb-4">
                                     <div
-                                      className={`p-2 sm:p-3 rounded-xl ${
+                                      className={`p-3 sm:p-4 rounded-xl ${
                                         category.comingSoon
                                           ? "bg-elite-dark-cream text-elite-burgundy"
                                           : "bg-elite-burgundy text-elite-cream"
@@ -356,7 +361,7 @@ export default function MenuPage() {
                                       {renderIcon(category.icon)}
                                     </div>
                                     <div className="flex items-center gap-2 sm:gap-3">
-                                      <h3 className="font-calistoga text-elite-black text-xl sm:text-2xl md:text-3xl font-bold">
+                                      <h3 className="font-calistoga text-elite-black text-2xl sm:text-3xl md:text-4xl font-bold">
                                         {category.name}
                                       </h3>
                                       {category.comingSoon && (
@@ -366,7 +371,7 @@ export default function MenuPage() {
                                       )}
                                     </div>
                                   </div>
-                                  <p className="font-cabin text-elite-black/90 text-sm sm:text-base md:text-lg">
+                                  <p className="font-cabin text-elite-black/90 text-base sm:text-lg md:text-xl">
                                     {category.description}
                                   </p>
                                 </div>
@@ -379,23 +384,13 @@ export default function MenuPage() {
                                           key={sub.id}
                                           className="space-y-3 sm:space-y-4"
                                         >
-                                          <div className="flex items-center justify-between">
-                                            <h4 className="font-calistoga text-elite-black text-lg sm:text-xl md:text-2xl font-bold">
-                                              {sub.name}
-                                            </h4>
-                                            <span className="hidden md:block text-elite-black/60 text-sm font-cabin">
-                                              Scroll to see all items
-                                            </span>
-                                          </div>
-
                                           {/* Items Preview - Horizontal Scrollable on All Screens */}
-                                          <div className="overflow-x-auto menu-items-scroll">
-                                            <div className="flex gap-3 sm:gap-4 pb-4">
+                                          <div className="overflow-x-auto menu-items-scroll -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
+                                            <div className="flex gap-5 sm:gap-6 pb-4">
                                               {sub.items.map((item) => (
                                                 <div
                                                   key={item.id}
-                                                  className="w-56 sm:w-64 md:w-72 flex-shrink-0"
-                                                >
+                                                  className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0">
                                                   <DrinkCard
                                                     id={item.id}
                                                     images={item.images}
@@ -408,6 +403,13 @@ export default function MenuPage() {
                                                     menuItemId={item.id}
                                                     showAddToOrder={true}
                                                     categoryId={category.id}
+                                                    onQuickAdd={() => {
+                                                      const product = apiProducts.find(p => p.id === item.id);
+                                                      if (product) {
+                                                        setSelectedProduct(product);
+                                                        setIsModalOpen(true);
+                                                      }
+                                                    }}
                                                   />
                                                 </div>
                                               ))}
@@ -453,6 +455,13 @@ export default function MenuPage() {
           </div>
         </div>
       </div>
+      
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+      
       <Footer />
     </main>
   );

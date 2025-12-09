@@ -4,25 +4,15 @@ import {
   successResponse,
   errorResponse,
 } from "@/server/utils/apiHelpers";
-import { redisGet } from "@/server/cache/redis";
+import { getCatalogSafe } from "@/server/services/product.service";
 
 // GET /api/menu/proxy
 // Returns cached categories + products for the UI to migrate off static menuData
 export async function GET(_req: NextRequest) {
   try {
-    const [categories, products, lastUpdate] = await Promise.all([
-      redisGet<any[]>("categories:list"),
-      redisGet<any[]>("products:all"),
-      redisGet<string>("sync:last_update"),
-    ]);
-    if (!categories || !products) {
-      return jsonResponse(
-        errorResponse(
-          "Catalog cache is empty. Run /api/sync/products to populate.",
-        ),
-        503,
-      );
-    }
+    // Use safe catalog fetching with SWR strategy
+    const { categories, products, lastUpdate } = await getCatalogSafe();
+    
     return jsonResponse(
       successResponse({
         categories,
@@ -30,8 +20,8 @@ export async function GET(_req: NextRequest) {
         lastUpdate: lastUpdate || null,
       }),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to fetch menu";
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to fetch menu";
     return jsonResponse(errorResponse(msg), 500);
   }
 }

@@ -7,6 +7,9 @@ import Image from "next/image";
 import AttributeSelector from "./AttributeSelector";
 import QuantitySelector from "./QuantitySelector";
 import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
+import { useToast } from "@/components/ToastProvider";
+import DrinkCard from "@/components/DrinkCard";
+import { cn } from "@/lib/utils";
 
 interface AttributeValue {
   id: number;
@@ -44,6 +47,7 @@ export default function ProductDetailClient({
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
+  const { error: toastError, success: toastSuccess } = useToast();
 
   // Detect multi-select attributes
   const isMultiSelect = (attributeName: string): boolean => {
@@ -104,7 +108,7 @@ export default function ProductDetailClient({
     const validation = validateSelections();
     
     if (!validation.valid) {
-      alert(validation.message || 'Please select all required options');
+      toastError(validation.message || 'Please select all required options');
       return;
     }
     
@@ -158,6 +162,7 @@ export default function ProductDetailClient({
     
     // Show success feedback
     setAddedToCart(true);
+    toastSuccess(`${product.name} added to cart!`);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -186,9 +191,9 @@ export default function ProductDetailClient({
   const hasMultipleImages = product.images.length > 1;
 
   return (
-    <div className="min-h-screen bg-elite-cream">
+    <div className="min-h-screen flex flex-col">
       {/* Header with Back Button */}
-      <div className="bg-elite-burgundy text-elite-cream py-8">
+      <div className="bg-elite-burgundy text-elite-cream py-8 pb-16">
         <div className="max-w-7xl mx-auto px-6">
           <Link
             href="/menu"
@@ -201,10 +206,11 @@ export default function ProductDetailClient({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="flex-1 bg-elite-cream rounded-t-[2.5rem] -mt-8">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Section */}
-          <div className="relative">
+          <div className="relative lg:sticky lg:top-32 h-fit">
             <div className="aspect-square bg-elite-cream relative rounded-3xl overflow-hidden">
               {/* Main Image Container */}
               <div className="absolute inset-0 bg-gradient-to-b from-elite-burgundy/5 to-elite-burgundy/10 rounded-3xl flex items-center justify-center">
@@ -229,8 +235,8 @@ export default function ProductDetailClient({
               {/* Stock Badge */}
               <div className="absolute top-6 right-6 z-10">
                 {product.available ? (
-                  <div className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg flex items-center gap-2">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <div className="bg-elite-burgundy text-elite-cream px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg flex items-center gap-2">
+                    <div className="w-2 h-2 bg-elite-cream rounded-full animate-pulse"></div>
                     In Stock
                   </div>
                 ) : (
@@ -306,177 +312,117 @@ export default function ProductDetailClient({
           </div>
 
           {/* Product Information */}
-          <div className="space-y-6">
-            {/* Title and Category */}
-            <div>
+          <div className="space-y-8">
+            {/* Header Section */}
+            <div className="space-y-4">
               {product.category && (
                 <Link
                   href={`/menu?category=${product.category.id}`}
-                  className="inline-block text-elite-burgundy/70 hover:text-elite-burgundy font-cabin text-sm mb-2 transition-colors"
+                  className="inline-flex items-center gap-1 text-elite-burgundy/60 hover:text-elite-burgundy font-cabin text-base font-medium uppercase tracking-wider transition-colors"
                 >
                   {product.category.name}
                 </Link>
               )}
-              <h1 className="font-calistoga text-elite-burgundy text-4xl lg:text-5xl font-bold mb-4">
+              
+              <h1 className="font-calistoga text-elite-burgundy text-4xl lg:text-5xl font-bold leading-tight">
                 {product.name}
               </h1>
-              
-              {product.sku && (
-                <p className="font-cabin text-elite-black/50 text-sm">
-                  SKU: {product.sku}
-                </p>
-              )}
-            </div>
 
-            {/* Price Display */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <div className="font-cabin text-elite-black/60 text-sm mb-1">
-                    {product.attributes && Object.keys(product.attributes).length > 0 
-                      ? 'Starting from'
-                      : 'Price'}
-                  </div>
-                  <div className="font-calistoga text-elite-burgundy text-4xl font-bold">
-                    {calculateTotalPrice()} EGP
-                  </div>
-                  {product.uom && (
-                    <p className="font-cabin text-elite-black/60 text-sm mt-1">
-                      per {product.uom.name}
-                    </p>
-                  )}
-                  {product.attributes && Object.keys(product.attributes).length > 0 && quantity > 1 && (
-                    <p className="font-cabin text-elite-burgundy/70 text-sm mt-2">
-                      {product.price + Object.entries(selectedAttributes).reduce((sum, [attrName, selected]) => {
-                        const attribute = product.attributes?.[attrName];
-                        if (!attribute) return sum;
-                        if (Array.isArray(selected)) {
-                          return sum + selected.reduce((s, valueId) => {
-                            const value = attribute.find(v => v.id === valueId);
-                            return s + (value?.priceExtra || 0);
-                          }, 0);
-                        }
-                        const value = attribute.find(v => v.id === selected);
-                        return sum + (value?.priceExtra || 0);
-                      }, 0)} EGP × {quantity}
-                    </p>
-                  )}
-                </div>
-                {product.stock !== null && product.stock !== undefined && (
-                  <div className="text-right">
-                    <p className="font-cabin text-elite-black/50 text-xs">Stock</p>
-                    <p className={`font-cabin font-bold text-lg ${
-                      product.stock > 0 ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {product.stock > 0 ? product.stock : "0"}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Attributes */}
-            {product.attributes && Object.keys(product.attributes).length > 0 && (
-              <>
-                {Object.entries(product.attributes).map(([attributeName, values]) => (
-                  <AttributeSelector
-                    key={attributeName}
-                    label={attributeName}
-                    values={values}
-                    selected={selectedAttributes[attributeName]}
-                    multiSelect={isMultiSelect(attributeName)}
-                    onChange={(selected) => setSelectedAttributes(prev => ({
-                      ...prev,
-                      [attributeName]: selected
-                    }))}
-                    required={attributeName === 'Size'}
-                  />
-                ))}
-              </>
-            )}
-
-            {/* Quantity Selector */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <QuantitySelector
-                value={quantity}
-                onChange={setQuantity}
-                min={1}
-                max={50}
-                disabled={!product.available}
-              />
-            </div>
-
-            {/* Description */}
-            {product.description && (
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h3 className="font-calistoga text-elite-burgundy text-xl mb-3">
-                  About this Product
-                </h3>
-                <p className="font-cabin text-elite-black/80 text-base leading-relaxed whitespace-pre-line">
+              {/* Description - Moved up for better context */}
+              {product.description && (
+                <p className="font-cabin text-elite-black/70 text-lg leading-relaxed">
                   {product.description}
                 </p>
-              </div>
-            )}
+              )}
 
-            {/* Product Details */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="font-calistoga text-elite-burgundy text-xl mb-4">
-                Product Details
-              </h3>
-              <dl className="space-y-3">
-                <div className="flex justify-between">
-                  <dt className="font-cabin text-elite-black/60">Availability</dt>
-                  <dd className={`font-cabin font-medium ${
-                    product.available ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {product.available ? "In Stock" : "Out of Stock"}
-                  </dd>
-                </div>
-                {product.uom && (
-                  <div className="flex justify-between">
-                    <dt className="font-cabin text-elite-black/60">Unit</dt>
-                    <dd className="font-cabin font-medium text-elite-black">
-                      {product.uom.name}
-                    </dd>
-                  </div>
+              {/* Base Price */}
+              <div className="flex items-baseline gap-2 pt-2">
+                <span className="font-calistoga text-elite-burgundy text-3xl">
+                  {product.price} EGP
+                </span>
+                {product.attributes && Object.keys(product.attributes).length > 0 && (
+                  <span className="font-cabin text-elite-black/40 text-base">
+                    Base Price
+                  </span>
                 )}
-                {product.sku && (
-                  <div className="flex justify-between">
-                    <dt className="font-cabin text-elite-black/60">SKU</dt>
-                    <dd className="font-mono font-medium text-elite-black text-sm">
-                      {product.sku}
-                    </dd>
-                  </div>
-                )}
-              </dl>
+              </div>
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              disabled={!product.available || addedToCart}
-              className={`w-full py-6 rounded-2xl font-cabin font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 ${
-                !product.available
-                  ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
-                  : addedToCart
-                    ? 'bg-green-600 text-white scale-105'
-                    : 'bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream hover:scale-105 hover:shadow-xl shadow-lg active:scale-100'
-              }`}
-            >
-              {!product.available ? (
-                'Temporarily Unavailable'
-              ) : addedToCart ? (
-                <>
-                  <Check className="w-6 h-6" />
-                  Added to Cart!
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="w-6 h-6" />
-                  Add to Cart - {calculateTotalPrice()} EGP
-                </>
+            <div className="h-px bg-elite-burgundy/10 w-full" />
+
+            {/* Configuration Section */}
+            <div className="space-y-8">
+              {/* Attributes */}
+              {product.attributes && Object.keys(product.attributes).length > 0 && (
+                <div className="space-y-6">
+                  {Object.entries(product.attributes).map(([attributeName, values]) => (
+                    <AttributeSelector
+                      key={attributeName}
+                      label={attributeName}
+                      values={values}
+                      selected={selectedAttributes[attributeName]}
+                      multiSelect={isMultiSelect(attributeName)}
+                      onChange={(selected) => setSelectedAttributes(prev => ({
+                        ...prev,
+                        [attributeName]: selected
+                      }))}
+                      required={attributeName === 'Size'}
+                    />
+                  ))}
+                  <div className="h-px bg-elite-black/5 w-full" />
+                </div>
               )}
-            </button>
+
+              {/* Quantity & Total & Action - Grouped in a card for better UX */}
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="w-full sm:w-auto">
+                    <QuantitySelector
+                      value={quantity}
+                      onChange={setQuantity}
+                      min={1}
+                      max={50}
+                      disabled={!product.available}
+                    />
+                  </div>
+                  
+                  <div className="text-center sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
+                    <p className="font-cabin text-lg text-elite-black/50 mb-1">Total Price</p>
+                    <p className="font-calistoga text-4xl text-elite-burgundy">
+                      {calculateTotalPrice()} EGP
+                    </p>
+                  </div>
+                </div>
+
+                {/* Add to Cart Button */}
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!product.available || addedToCart}
+                  className={cn(
+                    "w-full py-4 rounded-xl font-calistoga text-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform active:scale-[0.98]",
+                    !product.available
+                      ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
+                      : addedToCart
+                        ? 'bg-green-600 text-white'
+                        : 'bg-elite-burgundy text-elite-cream hover:bg-elite-dark-burgundy'
+                  )}
+                >
+                  {!product.available ? (
+                    'Temporarily Unavailable'
+                  ) : addedToCart ? (
+                    <>
+                      <Check className="w-6 h-6" />
+                      Added to Cart
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-6 h-6" />
+                      Add to Order
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -492,56 +438,25 @@ export default function ProductDetailClient({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {relatedProducts.map((relatedProduct) => (
-                <Link
+                <DrinkCard
                   key={relatedProduct.id}
+                  id={relatedProduct.id}
+                  name={relatedProduct.name}
+                  price={relatedProduct.price}
+                  images={relatedProduct.images}
+                  available={relatedProduct.available}
                   href={`/products/${relatedProduct.id}`}
-                  className="block group"
-                >
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                    {/* Image */}
-                    <div className="relative aspect-square bg-gradient-to-b from-elite-burgundy/5 to-elite-burgundy/10">
-                      {relatedProduct.images.length > 0 ? (
-                        <Image
-                          src={relatedProduct.images[0]}
-                          alt={relatedProduct.name}
-                          fill
-                          className="object-contain p-6 group-hover:scale-110 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Package className="w-16 h-16 text-elite-burgundy/30" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 space-y-2">
-                      <h3 className="font-calistoga text-elite-black font-bold text-lg line-clamp-2 group-hover:text-elite-burgundy transition-colors">
-                        {relatedProduct.name}
-                      </h3>
-                      <div className="flex items-baseline justify-between">
-                        <p className="font-cabin text-elite-burgundy font-bold text-xl">
-                          {relatedProduct.price} EGP
-                        </p>
-                        {relatedProduct.available ? (
-                          <span className="text-xs font-cabin text-green-600 font-medium">
-                            In Stock
-                          </span>
-                        ) : (
-                          <span className="text-xs font-cabin text-red-600 font-medium">
-                            Out of Stock
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                  menuItemId={relatedProduct.id}
+                  showAddToOrder={true}
+                  className="h-full"
+                />
               ))}
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import {
   successResponse,
   errorResponse,
 } from "@/server/utils/apiHelpers";
-import { redisGet } from "@/server/cache/redis";
+import { getProductsSafe } from "@/server/services/product.service";
 
 type Product = {
   id: string;
@@ -82,25 +82,9 @@ export async function GET(request: NextRequest) {
     const search = url.searchParams.get("search");
     const availability = url.searchParams.get("availability");
 
-    const [allProducts, lastUpdate] = await Promise.all([
-      redisGet<Product[]>("products:all"),
-      redisGet<string>("sync:last_update"),
-    ]);
-    
-    // Check if cache is empty
-    if (!allProducts) {
-      return jsonResponse(
-        errorResponse(
-          "Product catalog not synced yet. Please run: POST /api/sync/products with x-admin-token header",
-        ),
-        503,
-      );
-    }
-    
-    // Warn if cache is stale (older than 5 minutes) but still return data
-    if (lastUpdate && isStale(lastUpdate)) {
-      console.warn('Product cache is stale (>5 min old). Consider running sync.');
-    }
+    // Use safe product fetching with SWR (Stale-While-Revalidate) strategy
+    // This prevents blocking the user while cache is refreshing
+    const { products: allProducts, lastUpdate } = await getProductsSafe();
 
     // Filter out excluded categories (Extras, Services, etc.)
     const websiteProducts = allProducts.filter(product => {

@@ -77,7 +77,7 @@ export const apiClient = {
 
   async post<T>(
     url: string,
-    body?: any,
+    body?: unknown,
     options?: RequestInit,
     retryOptions?: RetryOptions
   ): Promise<T> {
@@ -106,7 +106,7 @@ export const apiClient = {
 
   async patch<T>(
     url: string,
-    body?: any,
+    body?: unknown,
     options?: RequestInit,
     retryOptions?: RetryOptions
   ): Promise<T> {

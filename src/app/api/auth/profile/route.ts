@@ -59,9 +59,10 @@ export async function GET(request: NextRequest) {
       },
       orderCount: profile._count.orders,
     }));
-  } catch (error: any) {
-    const message = error?.message || "Failed to fetch profile";
-    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch profile";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
 
@@ -110,10 +111,11 @@ export async function PATCH(request: NextRequest) {
     return jsonResponse(
       successResponse(updatedUser, "Profile updated successfully"),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Profile update error:", error);
-    const message = error?.message || "Failed to update profile";
-    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+    const message = error instanceof Error ? error.message : "Failed to update profile";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
 
@@ -143,10 +145,11 @@ export async function DELETE(request: NextRequest) {
     return jsonResponse(
       successResponse(null, "Account deleted successfully"),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Account deletion error:", error);
-    const message = error?.message || "Failed to delete account";
-    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+    const message = error instanceof Error ? error.message : "Failed to delete account";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
 

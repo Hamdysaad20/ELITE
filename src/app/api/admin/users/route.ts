@@ -19,7 +19,10 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: {
+      status?: string;
+      OR?: Array<{ email: { contains: string; mode: "insensitive" } } | { name: { contains: string; mode: "insensitive" } }>;
+    } = {};
     
     if (status) {
       where.status = status;
@@ -76,11 +79,11 @@ export async function GET(request: NextRequest) {
         },
       }),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin users list error:", error);
-    const message = error?.message || "Failed to fetch users";
-    const status = error?.message?.includes("required") ? 403 : 500;
-    return jsonResponse(errorResponse(message), status);
+    const message = error instanceof Error ? error.message : "Failed to fetch users";
+    const isAuthError = error instanceof Error && error.message.includes("required");
+    return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
 

@@ -157,7 +157,17 @@ export function useOrderStatus(options: UseOrderStatusOptions): UseOrderStatusRe
  */
 export function useOrders(options: { limit?: number; offset?: number } = {}) {
   const { limit = 20, offset = 0 } = options;
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Array<{
+    id: string;
+    orderNumber: string;
+    status: string;
+    total: number;
+    createdAt: string;
+    integrationStatus?: {
+      sale?: { synced: boolean; id?: number };
+      pos?: { synced: boolean; id?: number };
+    };
+  }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -170,7 +180,17 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
       params.append("limit", String(limit));
       params.append("offset", String(offset));
 
-      const response = await apiClient.get<{ orders: any[] }>(`/api/orders?${params.toString()}`);
+      const response = await apiClient.get<{ orders: Array<{
+        id: string;
+        orderNumber: string;
+        status: string;
+        total: number;
+        createdAt: string;
+        integrationStatus?: {
+          sale?: { synced: boolean; id?: number };
+          pos?: { synced: boolean; id?: number };
+        };
+      }> }>(`/api/orders?${params.toString()}`);
       setOrders(response.orders || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load orders";

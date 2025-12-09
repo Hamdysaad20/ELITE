@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { cartDB } from "@/server/utils/jsonDatabase";
 import { prisma } from "@/server/db/client";
+import type { Order as PrismaOrder, OrderItem as PrismaOrderItem } from "@prisma/client";
 import {
   successResponse,
   jsonResponse,
@@ -14,7 +15,9 @@ import { BadRequestError } from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
 import { getAuthUser } from "@/server/auth/session";
 
-function serializeOrder(dbOrder: any) {
+type DbOrderWithItems = PrismaOrder & { items: PrismaOrderItem[] };
+
+function serializeOrder(dbOrder: DbOrderWithItems) {
   return {
     id: dbOrder.id,
     orderNumber: dbOrder.id,
@@ -35,7 +38,7 @@ function serializeOrder(dbOrder: any) {
         url: dbOrder.odooWebUrl || undefined,
       },
     },
-    items: (dbOrder.items || []).map((it: any) => ({
+    items: (dbOrder.items || []).map((it) => ({
       id: it.id,
       menuItemId: it.productId,
       quantity: it.quantity,

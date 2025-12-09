@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
         loyalty: { points: 0, level: "bronze", totalSpent: 0 },
       }),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to fetch profile";
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to fetch profile";
     return jsonResponse(errorResponse(msg), 401);
   }
 }

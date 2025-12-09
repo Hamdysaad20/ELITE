@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star, CheckCircle, ThumbsUp } from "lucide-react";
 import { Review } from "@/hooks/useReviews";
+import { useToast } from "@/components/ToastProvider";
 
 interface ReviewCardProps {
   review: Review;
@@ -81,12 +82,13 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const { error: toastError } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (rating === 0) {
-      alert("Please select a rating");
+      toastError("Please select a rating");
       return;
     }
 

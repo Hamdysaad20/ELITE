@@ -50,8 +50,8 @@ export async function GET(
         createdAt: order.createdAt,
       }),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to fetch order status";
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to fetch order status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }

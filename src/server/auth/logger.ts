@@ -42,7 +42,7 @@ export interface AuthLogContext {
   provider?: string;
   sessionId?: string;
   reason?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AuthLog {
@@ -77,8 +77,9 @@ export function logAuthEvent(
     
     // Send to Sentry if configured
     if (typeof window === "undefined" && process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      try {
-        const Sentry = require("@sentry/nextjs");
+      // Dynamic import to avoid require()
+      import("@sentry/nextjs").then((SentryModule) => {
+        const Sentry = SentryModule.default || SentryModule;
         
         if (severity === "error" || severity === "critical") {
           Sentry.captureException(new Error(event), {
@@ -102,10 +103,9 @@ export function logAuthEvent(
             },
           });
         }
-      } catch (err) {
+      }).catch(() => {
         // Fail silently if Sentry is not available
-        console.warn("Sentry logging failed:", err);
-      }
+      });
     }
   } else {
     // In development, pretty print

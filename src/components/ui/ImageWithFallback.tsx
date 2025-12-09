@@ -108,7 +108,7 @@ export default function ImageWithFallback({
   const isBase64 = currentSrc.startsWith("data:");
 
   return (
-    <div className="relative">
+    <div className={cn("relative", fill && "w-full h-full")}>
       {/* Loading placeholder */}
       {isLoading && (
         <div

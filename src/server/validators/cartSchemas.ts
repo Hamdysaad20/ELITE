@@ -6,6 +6,7 @@ export const addToCartSchema = z.object({
   size: z.string().min(1).optional(),
   flavor: z.string().min(1).optional(),
   toppings: z.array(z.string().min(1)).optional(),
+  attributes: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const updateCartItemSchema = z.object({

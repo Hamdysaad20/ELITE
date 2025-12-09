@@ -31,8 +31,9 @@ export async function GET(_req: NextRequest) {
       return jsonResponse(errorResponse("Unhealthy", JSON.stringify(data)), 503);
     }
     return jsonResponse(successResponse(data, "Healthy"));
-  } catch (err: any) {
-    return jsonResponse(errorResponse(err?.message || "Health check failed"), 500);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Health check failed";
+    return jsonResponse(errorResponse(message), 500);
   }
 }
 

@@ -78,8 +78,8 @@ export default function QuantitySelector({
 
   return (
     <div className="flex items-center gap-3">
-      <span className="font-cabin text-elite-black/70 font-medium">Quantity:</span>
-      <div className="flex items-center gap-2 bg-white rounded-xl shadow-md overflow-hidden border border-elite-burgundy/10">
+      <span className="font-cabin text-elite-black/70 font-medium text-lg">Quantity:</span>
+      <div className="flex items-center gap-2 bg-transparent rounded-xl border border-elite-burgundy/20 overflow-hidden">
         <button
           onClick={handleDecrement}
           disabled={disabled || value <= min}
@@ -100,7 +100,7 @@ export default function QuantitySelector({
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
           disabled={disabled}
-          className="w-16 text-center font-cabin font-bold text-lg text-elite-burgundy bg-transparent focus:outline-none focus:bg-elite-cream/50 transition-colors disabled:text-elite-black/30"
+          className="w-16 text-center font-cabin font-bold text-xl text-elite-burgundy bg-transparent focus:outline-none focus:bg-elite-cream/50 transition-colors disabled:text-elite-black/30"
           aria-label="Quantity"
         />
         
@@ -119,7 +119,7 @@ export default function QuantitySelector({
       </div>
       
       {max && (
-        <span className="font-cabin text-elite-black/40 text-sm">
+        <span className="font-cabin text-elite-black/40 text-base">
           Max: {max}
         </span>
       )}

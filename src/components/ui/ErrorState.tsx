@@ -98,35 +98,39 @@ export default function ErrorState({
   return (
     <div className={cn("flex flex-col items-center justify-center py-12", className)}>
       <div className={cn(
-        "bg-red-50 border border-red-200 rounded-2xl max-w-md text-center",
+        "bg-white border border-elite-burgundy/10 rounded-3xl shadow-xl max-w-md text-center",
         sizes.padding
       )}>
-        <Icon className={cn("text-red-500 mx-auto mb-4", sizes.icon)} />
+        <div className="mb-6 flex justify-center">
+          <div className="w-20 h-20 bg-elite-burgundy/5 rounded-full flex items-center justify-center">
+            <Icon className={cn("text-elite-burgundy", sizes.icon)} />
+          </div>
+        </div>
         
-        <h3 className={cn("text-red-900 font-calistoga mb-2", sizes.title)}>
+        <h3 className={cn("text-elite-burgundy font-calistoga mb-3", sizes.title)}>
           {errorType.title}
         </h3>
         
-        <p className={cn("text-red-700 font-cabin mb-1", sizes.text)}>
+        <p className={cn("text-elite-black/80 font-cabin mb-2", sizes.text)}>
           {errorMessage}
         </p>
         
         {errorType.suggestion && (
-          <p className={cn("text-red-600/80 font-cabin mb-4", sizes.text)}>
+          <p className={cn("text-elite-black/60 font-cabin mb-8", sizes.text)}>
             {errorType.suggestion}
           </p>
         )}
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4 items-center">
           {onRetry && (
             <button
               onClick={handleRetry}
               disabled={isRetrying}
               className={cn(
-                "inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream rounded-full font-cabin font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-elite-dark-burgundy",
-                size === "small" && "px-4 py-2 text-sm",
-                size === "medium" && "px-6 py-3 text-base",
-                size === "large" && "px-8 py-4 text-lg"
+                "inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream rounded-full font-calistoga transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-elite-dark-burgundy shadow-lg hover:shadow-xl hover:scale-105",
+                size === "small" && "px-6 py-2 text-sm",
+                size === "medium" && "px-8 py-3 text-lg",
+                size === "large" && "px-10 py-4 text-xl"
               )}
             >
               <RefreshCw className={cn(
@@ -143,7 +147,7 @@ export default function ErrorState({
             <button
               onClick={() => setShowDetailsExpanded(!showDetailsExpanded)}
               className={cn(
-                "inline-flex items-center justify-center gap-1 text-red-600 hover:text-red-800 font-cabin text-sm transition-colors",
+                "inline-flex items-center justify-center gap-1 text-elite-burgundy/60 hover:text-elite-burgundy font-cabin text-sm transition-colors",
                 sizes.text
               )}
             >
@@ -151,13 +155,13 @@ export default function ErrorState({
                 "w-4 h-4 transition-transform",
                 showDetailsExpanded && "rotate-180"
               )} />
-              {showDetailsExpanded ? "Hide" : "Show"} Details
+              {showDetailsExpanded ? "Hide Details" : "Show Details"}
             </button>
           )}
         </div>
 
         {showDetailsExpanded && errorStack && (
-          <pre className="mt-4 p-3 bg-red-100 rounded-lg text-left text-xs text-red-900 overflow-x-auto font-mono">
+          <pre className="mt-6 p-4 bg-elite-burgundy/5 rounded-xl border border-elite-burgundy/10 text-left text-xs text-red-600 overflow-x-auto font-mono">
             {errorStack}
           </pre>
         )}

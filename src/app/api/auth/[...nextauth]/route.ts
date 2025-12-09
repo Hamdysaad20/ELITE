@@ -186,7 +186,7 @@ export const authOptions: NextAuthOptions = {
           );
 
           console.log(`✅ Magic link sent to ${identifier}`);
-        } catch (error: any) {
+        } catch (error) {
           console.error("❌ Failed to send magic link:", error);
           
           logAuthEvent(

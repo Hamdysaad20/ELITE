@@ -51,11 +51,11 @@ export async function GET(
     }
 
     return jsonResponse(successResponse(user));
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin user fetch error:", error);
-    const message = error?.message || "Failed to fetch user";
-    const status = error?.message?.includes("required") ? 403 : 500;
-    return jsonResponse(errorResponse(message), status);
+    const message = error instanceof Error ? error.message : "Failed to fetch user";
+    const isAuthError = error instanceof Error && error.message.includes("required");
+    return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
 
@@ -133,11 +133,11 @@ export async function PATCH(
     return jsonResponse(
       successResponse(updatedUser, "User updated successfully"),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin user update error:", error);
-    const message = error?.message || "Failed to update user";
-    const status = error?.message?.includes("required") ? 403 : 500;
-    return jsonResponse(errorResponse(message), status);
+    const message = error instanceof Error ? error.message : "Failed to update user";
+    const isAuthError = error instanceof Error && error.message.includes("required");
+    return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
 
@@ -192,11 +192,11 @@ export async function DELETE(
     return jsonResponse(
       successResponse(null, "User deleted successfully"),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin user deletion error:", error);
-    const message = error?.message || "Failed to delete user";
-    const status = error?.message?.includes("required") ? 403 : 500;
-    return jsonResponse(errorResponse(message), status);
+    const message = error instanceof Error ? error.message : "Failed to delete user";
+    const isAuthError = error instanceof Error && error.message.includes("required");
+    return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
 

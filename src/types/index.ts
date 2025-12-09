@@ -85,6 +85,7 @@ export interface CartItem {
   size?: string;
   flavor?: string;
   toppings?: string[];
+  attributes?: Record<string, unknown>;
   price: number;
   menuItem?: MenuItemType;
 }

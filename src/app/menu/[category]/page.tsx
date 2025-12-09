@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { getCategoryById, getAllCategories } from "@/lib/menuData";
+import { MenuItem } from "@/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,10 +20,16 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import DrinkCard from "@/components/DrinkCard";
+import CategoryPageSkeleton from "@/components/skeletons/CategoryPageSkeleton";
+import { useState } from "react";
+import ProductModal from "@/components/menu/ProductModal";
+import { Product } from "@/hooks/useProducts";
 
 export default function CategoryPage() {
   const params = useParams();
   const categoryId = params?.category as string;
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch categories and products from API
   const { categories: allCategories, loading: categoriesLoading, error: categoriesError, refetch: refetchCategories, getCategoryById: getApiCategory } = useCategories();
@@ -36,7 +43,11 @@ export default function CategoryPage() {
   
   const category = USE_FALLBACK ? getCategoryById(categoryId) : getApiCategory(categoryId);
   const allCats = USE_FALLBACK ? getAllCategories() : allCategories;
-  const products = USE_FALLBACK ? (getCategoryById(categoryId)?.subCategories.flatMap(sub => sub.items) || []) : categoryProducts;
+
+  // Memoize products to prevent dependency issues
+  const products = useMemo(() => {
+    return USE_FALLBACK ? (getCategoryById(categoryId)?.subCategories.flatMap(sub => sub.items) || []) : categoryProducts;
+  }, [USE_FALLBACK, categoryId, categoryProducts]);
 
   // Group products into subcategories (for now, just use one subcategory per category)
   const subCategories = useMemo(() => {
@@ -50,7 +61,7 @@ export default function CategoryPage() {
       id: category.id,
       name: category.name,
       description: category.description || `Explore our ${category.name} selection`,
-      items: products.map((p: any) => ({
+      items: products.map((p: { id: string; name: string; description?: string; price: number; image?: string; images?: string[] }) => ({
         id: p.id,
         name: p.name,
         description: p.description || "",
@@ -73,9 +84,9 @@ export default function CategoryPage() {
     }
   };
 
-  const handleRetry = () => {
-    refetchCategories();
-    refetchProducts();
+  const handleQuickAdd = (product: any) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
   };
 
   // Loading State
@@ -83,12 +94,7 @@ export default function CategoryPage() {
     return (
       <main>
         <Navigation />
-        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
-            <p className="text-elite-black/70 font-cabin text-lg">Loading category...</p>
-          </div>
-        </div>
+        <CategoryPageSkeleton />
         <Footer />
       </main>
     );
@@ -269,30 +275,52 @@ export default function CategoryPage() {
                   {subCategories.map((sub, index) => (
                     <div key={sub.id} className="relative">
                       <div className="bg-elite-cream rounded-2xl shadow-md p-8 border border-elite-burgundy/10">
-                        {/* Subcategory Header */}
-                        <div className="mb-8">
-                          <h3 className="font-calistoga text-elite-black text-3xl font-bold mb-3">
-                            {sub.name}
-                          </h3>
-                          <p className="font-cabin text-elite-black/90 text-lg">
-                            {sub.description}
-                          </p>
-                        </div>
-
+                        
                         {/* Items List - Enhanced Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                           {sub.items.map((item) => (
                             <DrinkCard
                               key={item.id}
-                              image={item.images[0]}
+                              images={item.images}
                               name={item.name}
-                              price={`${item.price} EGP`}
+                              price={item.price}
                               description={item.description}
                               size="medium"
                               href={`/products/${item.id}`}
                               menuItemId={item.id}
-                              numericPrice={item.price}
                               showAddToOrder={true}
+                              onQuickAdd={() => {
+                                if (USE_FALLBACK) {
+                                  // Map MenuItem to Product structure for fallback data
+                                  const menuItem = item as MenuItem; 
+                                  const mappedProduct: Product = {
+                                    id: menuItem.id,
+                                    name: menuItem.name,
+                                    description: menuItem.description,
+                                    price: menuItem.price,
+                                    images: menuItem.images,
+                                    attributes: {}
+                                  };
+                                  
+                                  // Map sizes to attributes
+                                  if (menuItem.sizes && menuItem.sizes.length > 0) {
+                                    mappedProduct.attributes = mappedProduct.attributes || {};
+                                    mappedProduct.attributes["Size"] = menuItem.sizes.map((s, idx) => ({
+                                      id: idx,
+                                      name: s.name,
+                                      priceExtra: s.priceModifier
+                                    }));
+                                  }
+                                  
+                                  setSelectedProduct(mappedProduct);
+                                } else {
+                                  const product = categoryProducts.find(p => p.id === item.id);
+                                  if (product) {
+                                    setSelectedProduct(product);
+                                  }
+                                }
+                                setIsModalOpen(true);
+                              }}
                             />
                           ))}
                         </div>
@@ -308,6 +336,13 @@ export default function CategoryPage() {
           </div>
         </div>
       </div>
+      
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+      
       <Footer />
     </main>
   );

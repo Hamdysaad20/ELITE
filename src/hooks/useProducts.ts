@@ -15,7 +15,7 @@ export interface Product {
   sku?: string;
   stock?: number | null;     // Stock level
   sequence?: number;         // Sort order
-  attributes?: Record<string, any>;
+  attributes?: Record<string, Array<{ id: number; name: string; priceExtra: number }>>;
   uom?: { id: number; name: string };
   taxes?: number[];
 }

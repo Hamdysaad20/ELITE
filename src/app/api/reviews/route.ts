@@ -48,12 +48,12 @@ export async function GET(request: NextRequest) {
 
     // Calculate average rating
     const avgRating = reviews.length > 0
-      ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
+      ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
       : 0;
 
     return jsonResponse(
       successResponse({
-        reviews: reviews.map((r: any) => ({
+        reviews: reviews.map((r) => ({
           id: r.id,
           rating: r.rating,
           comment: r.comment,
@@ -71,9 +71,10 @@ export async function GET(request: NextRequest) {
         },
       }),
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Reviews fetch error:", error);
-    return jsonResponse(errorResponse(error?.message || "Failed to fetch reviews"), 500);
+    const message = error instanceof Error ? error.message : "Failed to fetch reviews";
+    return jsonResponse(errorResponse(message), 500);
   }
 }
 
@@ -146,15 +147,16 @@ export async function POST(request: NextRequest) {
       }, "Review submitted successfully"),
       201,
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Review creation error:", error);
     
-    if (error.name === "ZodError") {
+    if (error && typeof error === "object" && "name" in error && error.name === "ZodError") {
       return jsonResponse(errorResponse("Invalid review data"), 400);
     }
     
-    const message = error?.message || "Failed to create review";
-    return jsonResponse(errorResponse(message), error?.message === "Authentication required" ? 401 : 500);
+    const message = error instanceof Error ? error.message : "Failed to create review";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
 

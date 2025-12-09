@@ -43,14 +43,10 @@ export async function PATCH(
     const raw = await parseRequestBody(request);
     const { quantity } = updateCartItemSchema.parse(raw);
 
-    console.log("PATCH request received:", { userId, itemId, quantity }); // Debug log
-
     cartDB.updateQuantity(userId, itemId, quantity);
 
-    console.log("Cart item updated successfully"); // Debug log
     return jsonResponse(successResponse(null, "Cart item updated"));
   } catch (error) {
-    console.error("Error in PATCH method:", error); // Debug log
     if (error instanceof Error && "issues" in error) {
       return handleApiError(new BadRequestError("Invalid request body"));
     }

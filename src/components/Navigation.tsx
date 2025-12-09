@@ -8,20 +8,8 @@ import { useRouter, usePathname } from "next/navigation";
 export default function Navigation() {
   const [showPromo, setShowPromo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Handle scroll detection
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Handle hash navigation when page loads
   useEffect(() => {
@@ -72,33 +60,17 @@ export default function Navigation() {
       )}
 
       {/* Main Navigation */}
-      <nav
-        className={`sticky top-0 z-50 transition-all duration-500 ease-in-out ${
-          isScrolled ? "" : ""
-        }`}
-      >
+      <nav className="sticky top-0 z-50">
         {/* Desktop Navigation */}
-        <div className="hidden md:block transition-all duration-500 ease-in-out">
-          <div
-            className={`max-w-7xl mx-auto flex items-center justify-center transition-all duration-500 ease-in-out ${
-              isScrolled ? "py-3 px-6" : "py-8 px-8"
-            }`}
-          >
+        <div className="hidden md:block">
+          <div className="max-w-7xl mx-auto flex items-center justify-center py-3 px-6">
             {/* Pilled Navigation Container */}
-            <div
-              className={`bg-elite-cream rounded-full flex items-center space-x-10 shadow-2xl transition-all duration-500 ease-in-out ${
-                isScrolled ? "px-10 py-4" : "px-16 py-6"
-              }`}
-            >
+            <div className="bg-elite-cream rounded-full flex items-center space-x-10 shadow-2xl px-10 py-4">
               <Link
                 href="/menu"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   Menu
                 </span>
               </Link>
@@ -107,11 +79,7 @@ export default function Navigation() {
                 onClick={handleLocationClick}
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   Location
                 </span>
               </a>
@@ -119,16 +87,12 @@ export default function Navigation() {
               {/* Center Logo */}
               <Link
                 href="/"
-                className={`rounded-lg flex items-center justify-center px-10 transition-all duration-500 ease-in-out hover:scale-105 ${
-                  isScrolled ? "h-20 -my-3" : "h-32 -my-8"
-                }`}
+                className="rounded-lg flex items-center justify-center px-10 h-20 -my-3 hover:scale-105 transition-transform duration-300"
               >
                 <img
                   src="/images/logo_noBG.png"
                   alt="Elite Coffee Logo - Navigate to Home"
-                  className={`w-auto object-contain transition-all duration-500 ease-in-out ${
-                    isScrolled ? "h-16" : "h-24"
-                  }`}
+                  className="w-auto h-16 object-contain"
                 />
               </Link>
 
@@ -136,11 +100,7 @@ export default function Navigation() {
                 href="/order"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   Order
                 </span>
               </Link>
@@ -148,11 +108,7 @@ export default function Navigation() {
                 href="/rewards"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   Rewards
                 </span>
               </Link>
@@ -160,11 +116,7 @@ export default function Navigation() {
                 href="/suggest"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   AI Suggest
                 </span>
               </Link>
@@ -172,11 +124,7 @@ export default function Navigation() {
                 href="/shop"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
               >
-                <span
-                  className={`transition-all duration-300 uppercase ${
-                    isScrolled ? "text-base" : "text-lg"
-                  }`}
-                >
+                <span className="text-base uppercase">
                   Shop
                 </span>
                 <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
@@ -188,45 +136,29 @@ export default function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        <div
-          className={`md:hidden bg-elite-cream transition-all duration-500 ease-in-out ${
-            isScrolled ? "py-3 px-4" : "py-6 px-6"
-          }`}
-        >
+        <div className="md:hidden py-3 px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link
               href="/"
-              className={`rounded-lg flex items-center justify-center px-4 transition-all duration-500 ease-in-out hover:scale-105 ${
-                isScrolled ? "h-16 -my-2" : "h-20 -my-3"
-              }`}
+              className="rounded-lg flex items-center justify-center px-4 h-16 -my-2 hover:scale-105 transition-transform duration-300"
             >
               <img
                 src="/images/logo_noBG.png"
                 alt="Elite Coffee Logo - Navigate to Home"
-                className={`w-auto object-contain transition-all duration-500 ease-in-out ${
-                  isScrolled ? "h-12" : "h-16"
-                }`}
+                className="w-auto h-12 object-contain"
               />
             </Link>
 
             {/* Hamburger Menu */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`bg-elite-cream rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-95 border-2 border-elite-burgundy/20 ${
-                isScrolled ? "w-10 h-10" : "w-12 h-12"
-              }`}
+              className="bg-elite-cream rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-95 border-2 border-elite-burgundy/20 w-10 h-10"
             >
               {mobileMenuOpen ? (
-                <X
-                  size={isScrolled ? 20 : 24}
-                  className="text-elite-black transition-all duration-300"
-                />
+                <X size={20} className="text-elite-black" />
               ) : (
-                <Menu
-                  size={isScrolled ? 20 : 24}
-                  className="text-elite-black transition-all duration-300"
-                />
+                <Menu size={20} className="text-elite-black" />
               )}
             </button>
           </div>

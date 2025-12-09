@@ -22,8 +22,8 @@ export async function GET(_req: NextRequest) {
         queue: queueCounts,
       }),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to fetch sync status";
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to fetch sync status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }

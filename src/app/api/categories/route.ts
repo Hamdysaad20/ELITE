@@ -6,6 +6,7 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { redisGet } from "@/server/cache/redis";
+import { syncProductsFromOdoo } from "@/server/utils/syncProducts";
 
 type Category = { id: string; name: string; parentId?: string };
 
@@ -17,17 +18,39 @@ const EXCLUDED_CATEGORIES = [
 
 export async function GET(_request: NextRequest) {
   try {
-    const [allCategories, lastUpdate] = await Promise.all([
+    let [allCategories, lastUpdate] = await Promise.all([
       redisGet<Category[]>("categories:list"),
       redisGet<string>("sync:last_update"),
     ]);
+    
+    // Check if cache is empty - auto-sync if needed
     if (!allCategories) {
-      return jsonResponse(
-        errorResponse(
-          "Category cache is empty. Run /api/sync/products to populate.",
-        ),
-        503,
-      );
+      console.log('[CATEGORIES] Cache empty, triggering auto-sync...');
+      const syncResult = await syncProductsFromOdoo();
+      
+      if (!syncResult.success) {
+        return jsonResponse(
+          errorResponse(
+            "Category list is being synchronized. Please refresh the page in a moment.",
+          ),
+          503,
+        );
+      }
+      
+      // Fetch again after sync
+      const freshCategories = await redisGet<Category[]>("categories:list");
+      const freshLastUpdate = await redisGet<string>("sync:last_update");
+      
+      if (!freshCategories) {
+        return jsonResponse(
+          errorResponse("Failed to load categories after sync. Please try again."),
+          503,
+        );
+      }
+      
+      // Update variables
+      allCategories = freshCategories;
+      lastUpdate = freshLastUpdate;
     }
     
     // Filter out excluded categories

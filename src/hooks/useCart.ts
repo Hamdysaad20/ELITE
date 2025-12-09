@@ -17,6 +17,7 @@ interface UseCartReturn {
       size?: string;
       flavor?: string;
       toppings?: string[];
+      attributes?: Record<string, unknown>;
     },
   ) => Promise<void>;
   removeFromCart: (cartItemId: string) => Promise<void>;
@@ -145,6 +146,7 @@ export function useCart(): UseCartReturn {
         size?: string;
         flavor?: string;
         toppings?: string[];
+        attributes?: Record<string, unknown>;
       },
     ) => {
       if (status !== "authenticated") {
@@ -189,6 +191,7 @@ export function useCart(): UseCartReturn {
         throw err;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [status, fetchCart],
   );
 
@@ -222,6 +225,7 @@ export function useCart(): UseCartReturn {
         throw err;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [status, fetchCart],
   );
 
@@ -255,6 +259,7 @@ export function useCart(): UseCartReturn {
         throw err;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [status, fetchCart],
   );
 
@@ -288,6 +293,7 @@ export function useCart(): UseCartReturn {
       console.error("Failed to clear cart:", err);
       throw err;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, fetchCart]);
 
   // Calculate item count from optimistic cart

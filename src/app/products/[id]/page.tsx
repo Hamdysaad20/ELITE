@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ProductDetailClient from "@/components/ProductDetailClient";
@@ -100,12 +101,12 @@ export default function ProductDetailPage() {
             <p className="font-cabin text-elite-black/70 mb-6">
               {error || "The product you're looking for doesn't exist."}
             </p>
-            <a
+            <Link
               href="/menu"
               className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:bg-elite-dark-burgundy transition-colors"
             >
               Browse Menu
-            </a>
+            </Link>
           </div>
         </div>
         <Footer />
@@ -114,7 +115,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <main className="page-transition loaded min-h-screen bg-elite-cream">
+    <main className="page-transition loaded min-h-screen bg-elite-burgundy">
       <Navigation />
       <ProductDetailClient 
         product={product} 

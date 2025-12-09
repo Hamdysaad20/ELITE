@@ -2,11 +2,11 @@
 
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { useOrders } from "@/hooks/useOrderStatus";
-import { OrderStatusBadge } from "@/components/OrderStatusBadge";
+import { OrderStatusBadge, OrderIntegrationStatus } from "@/components/OrderStatusBadge";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { Loader2, AlertCircle, Package, RefreshCw, ShoppingBag } from "lucide-react";
+import { Loader2, AlertCircle, Package, RefreshCw, ShoppingBag, Clock } from "lucide-react";
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useRequireAuth();

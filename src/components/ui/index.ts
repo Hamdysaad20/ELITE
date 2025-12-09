@@ -18,6 +18,10 @@ export {
   ErrorBoundary,
   useErrorHandler,
 } from "./ErrorBoundary";
+export { default as ErrorState } from "./ErrorState";
+export { default as EmptyState } from "./EmptyState";
+export { default as ImageWithFallback } from "./ImageWithFallback";
+export { default as Modal } from "./Modal";
 
 // Re-export component types
 export type { ButtonProps } from "./Button";
