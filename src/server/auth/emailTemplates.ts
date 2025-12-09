@@ -12,7 +12,7 @@ export interface EmailTemplateData {
 
 /**
  * Generate HTML email for magic link sign-in
- * Branded with Elite Coffee Shop design system
+ * Lightweight, clean design with focus on accessibility and clear CTA
  */
 export function generateMagicLinkHtml(data: EmailTemplateData): string {
   const brandName = data.brandName || data.host;
@@ -35,249 +35,182 @@ export function generateMagicLinkHtml(data: EmailTemplateData): string {
     }
     
     body {
-      font-family: 'Cabin Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      line-height: 1.6;
-      color: #2C2C2C;
-      background-color: #FDF5E6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Cabin Condensed', sans-serif;
+      line-height: 1.5;
+      color: #3C3C3C;
+      background-color: #FAFAF8;
       padding: 20px;
     }
     
     .email-wrapper {
-      max-width: 600px;
+      max-width: 520px;
       margin: 0 auto;
     }
     
     .email-container {
       background-color: #FFFFFF;
-      border-radius: 20px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(107, 0, 0, 0.15);
-      border: 2px solid rgba(139, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
     
-    /* Header Section */
+    /* Header Section - Light & Clean */
     .header {
-      background: linear-gradient(135deg, #8B0000 0%, #6B0000 100%);
-      padding: 50px 30px;
+      background: linear-gradient(135deg, #F5F3F0 0%, #F9F7F4 100%);
+      padding: 40px 30px;
       text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="1000" height="1000" fill="url(%23grid)"/></svg>');
-      pointer-events: none;
-      opacity: 0.5;
-    }
-    
-    .header-content {
-      position: relative;
-      z-index: 1;
+      border-bottom: 1px solid rgba(139, 0, 0, 0.06);
     }
     
     .header h1 {
       font-family: 'Calistoga', serif;
-      font-size: 36px;
+      font-size: 28px;
       font-weight: 400;
-      color: #FDF5E6;
-      margin-bottom: 12px;
-      letter-spacing: 0.5px;
+      color: #6B0000;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
     }
     
     .header-subtitle {
-      font-size: 14px;
-      color: #FDF5E6;
-      opacity: 0.9;
+      font-size: 13px;
+      color: #8B6F6F;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
     
-    /* Content Section */
+    /* Content Section - Minimal & Focused */
     .content {
-      padding: 50px 40px;
+      padding: 40px 30px;
       background-color: #FFFFFF;
     }
     
     .content p {
-      margin-bottom: 16px;
-      font-size: 16px;
-      color: #2C2C2C;
-      line-height: 1.7;
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: #3C3C3C;
+      line-height: 1.6;
     }
     
     .greeting {
       font-family: 'Calistoga', serif;
-      font-size: 20px;
-      color: #8B0000;
-      margin-bottom: 20px;
+      font-size: 18px;
+      color: #6B0000;
+      margin-bottom: 24px;
       font-weight: 400;
     }
     
-    .email-highlight {
-      background-color: #FDF5E6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      color: #6B0000;
-      font-family: 'Cabin Condensed', sans-serif;
-    }
-    
-    /* Button Section */
+    /* Main CTA Button - Large & Prominent */
     .button-container {
       text-align: center;
-      margin: 40px 0;
+      margin: 36px 0;
     }
     
     .button {
       display: inline-block;
-      padding: 18px 50px;
+      width: 100%;
+      max-width: 100%;
+      padding: 18px 30px;
       background: linear-gradient(135deg, #8B0000 0%, #6B0000 100%);
-      color: #FDF5E6 !important;
+      color: #FFFFFF !important;
       text-decoration: none;
-      border-radius: 12px;
-      font-weight: 700;
+      border-radius: 8px;
+      font-weight: 600;
       font-size: 16px;
-      letter-spacing: 0.5px;
-      border: 2px solid #8B0000;
-      transition: all 0.3s ease;
-      font-family: 'Cabin Condensed', sans-serif;
-      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-transform: none;
+      box-shadow: 0 4px 12px rgba(139, 0, 0, 0.15);
     }
     
     .button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(139, 0, 0, 0.3);
       background: linear-gradient(135deg, #6B0000 0%, #8B0000 100%);
+      box-shadow: 0 6px 16px rgba(139, 0, 0, 0.25);
+      transform: translateY(-2px);
     }
     
-    .button:active {
-      transform: translateY(-1px);
-    }
-    
-    /* Info Cards */
-    .info-card {
-      margin: 30px 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #FDF5E6 0%, #F5E6D3 100%);
-      border-radius: 12px;
-      border: 2px solid rgba(139, 0, 0, 0.1);
-    }
-    
-    .info-card-title {
-      font-family: 'Calistoga', serif;
-      font-size: 14px;
-      color: #6B0000;
-      font-weight: 400;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-    
-    .info-card p {
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: #2C2C2C;
-    }
-    
-    /* Security Notice */
-    .security-notice {
-      margin: 30px 0;
-      padding: 20px;
-      background: linear-gradient(135deg, rgba(139, 0, 0, 0.08) 0%, rgba(107, 0, 0, 0.08) 100%);
-      border-left: 4px solid #8B0000;
+    /* Security Info - Subtle */
+    .security-badge {
+      margin: 24px 0;
+      padding: 14px;
+      background: #FDF5E6;
       border-radius: 8px;
-    }
-    
-    .security-notice p {
-      margin: 0;
-      font-size: 14px;
-      color: #2C2C2C;
-      font-weight: 600;
-    }
-    
-    .security-icon {
-      font-size: 16px;
-      margin-right: 8px;
-    }
-    
-    /* Alternative Link */
-    .alternative-link {
-      margin: 30px 0;
-      padding: 20px;
-      background-color: #F8F8F8;
-      border-radius: 12px;
-      border: 2px dashed rgba(139, 0, 0, 0.2);
-    }
-    
-    .alternative-link-title {
+      border-left: 3px solid #8B0000;
       font-size: 13px;
-      color: #6B0000;
-      font-weight: 600;
-      margin-bottom: 10px;
-      font-family: 'Cabin Condensed', sans-serif;
+      color: #3C3C3C;
+      line-height: 1.5;
     }
     
-    .alternative-link a {
-      color: #8B0000;
+    .security-badge strong {
+      color: #6B0000;
+    }
+    
+    /* Backup Link - Hidden but accessible */
+    .backup-link {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #EFEFEF;
+      text-align: center;
+      font-size: 12px;
+      color: #8B6F6F;
+    }
+    
+    .backup-link-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .backup-link a {
+      color: #6B0000;
       word-break: break-all;
       text-decoration: none;
-      font-size: 12px;
-      font-family: monospace;
-      background-color: #FFFFFF;
-      padding: 10px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      background: #F9F7F4;
+      padding: 8px;
       border-radius: 6px;
       display: block;
-      border-left: 3px solid #8B0000;
+      margin-top: 8px;
+      border: 1px solid #EFEFEF;
     }
     
-    .alternative-link a:hover {
-      background-color: #FDF5E6;
+    .backup-link a:hover {
+      background: #FDF5E6;
+      border-color: #EFEFEF;
     }
     
-    /* Footer Section */
+    /* Footer - Minimal */
     .footer {
-      padding: 30px 40px;
-      background-color: #F8F8F8;
+      padding: 24px 30px;
+      background: #FAFAF8;
       text-align: center;
-      font-size: 13px;
-      color: #6B7280;
+      font-size: 12px;
+      color: #8B6F6F;
+      border-top: 1px solid #EFEFEF;
     }
     
     .footer p {
-      margin: 8px 0;
-    }
-    
-    .footer-divider {
-      height: 1px;
-      background: rgba(139, 0, 0, 0.1);
-      margin: 15px 0;
+      margin: 4px 0;
     }
     
     .footer-brand {
       font-family: 'Calistoga', serif;
-      font-size: 14px;
-      color: #8B0000;
+      font-size: 13px;
+      color: #6B0000;
       font-weight: 400;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      .email-container {
-        border-radius: 16px;
-      }
-      
+    /* Responsive */
+    @media (max-width: 480px) {
       .header {
-        padding: 40px 20px;
+        padding: 30px 20px;
       }
       
       .header h1 {
-        font-size: 28px;
+        font-size: 24px;
       }
       
       .content {
@@ -285,13 +218,13 @@ export function generateMagicLinkHtml(data: EmailTemplateData): string {
       }
       
       .button {
-        padding: 16px 40px;
-        font-size: 14px;
+        padding: 16px 24px;
+        font-size: 15px;
       }
       
       .footer {
         padding: 20px;
-        font-size: 12px;
+        font-size: 11px;
       }
     }
   </style>
@@ -301,50 +234,38 @@ export function generateMagicLinkHtml(data: EmailTemplateData): string {
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <div class="header-content">
-          <h1>Elite Coffee Shop</h1>
-          <div class="header-subtitle">YOUR AUTHENTICATION GATEWAY</div>
-        </div>
+        <h1>Elite Coffee Shop</h1>
+        <div class="header-subtitle">Sign in to your account</div>
       </div>
       
       <!-- Content -->
       <div class="content">
-        <p class="greeting">Welcome Back! ☕</p>
+        <p class="greeting">Welcome back! ☕</p>
         
-        <p>You requested a sign-in link for:</p>
-        <p><span class="email-highlight">${data.email}</span></p>
+        <p>Click the button below to sign in securely:</p>
         
-        <p style="margin-top: 24px;">Click the button below to securely access your account:</p>
-        
-        <!-- CTA Button -->
+        <!-- Main CTA Button -->
         <div class="button-container">
-          <a href="${data.url}" class="button">Unlock Your Access</a>
+          <a href="${data.url}" class="button">Sign In Now</a>
         </div>
         
-        <!-- Security Notice -->
-        <div class="security-notice">
-          <p><span class="security-icon">🔒</span> This link expires in <strong>${expiresIn}</strong> and can only be used once.</p>
+        <!-- Security Info -->
+        <div class="security-badge">
+          🔒 <strong>This link expires in ${expiresIn}</strong> and works only once. Never share it.
         </div>
         
-        <!-- Alternative Link -->
-        <div class="alternative-link">
-          <div class="alternative-link-title">Button not responding? Use this link:</div>
-          <a href="${data.url}" style="color: #8B0000; word-break: break-all;">${data.url}</a>
+        <!-- Backup Link -->
+        <div class="backup-link">
+          <span class="backup-link-label">Button not working?</span>
+          <a href="${data.url}">${data.url}</a>
         </div>
-        
-        <!-- Safety Message -->
-        <p style="margin-top: 30px; font-size: 13px; color: #6B7280; font-style: italic;">
-          Didn't request this email? No worries – just delete it. This link was sent because someone used your email address to sign in. If that wasn't you, your account remains secure.
-        </p>
       </div>
       
       <!-- Footer -->
       <div class="footer">
         <div class="footer-brand">Elite Coffee Shop</div>
-        <div class="footer-divider"></div>
-        <p>Faiyum, Governorate Club | Premium Coffee Experience</p>
-        <p style="margin-top: 12px;">© 2025 Elite Coffee Shop. All rights reserved.</p>
-        <p style="margin-top: 8px; font-size: 11px; color: #9CA3AF;">This is an automated message, please do not reply.</p>
+        <p>Faiyum, Egypt • Premium Coffee Experience</p>
+        <p style="margin-top: 8px; font-size: 11px; color: #AAAAAA;">© 2025 Elite Coffee Shop. This is an automated message.</p>
       </div>
     </div>
   </div>
@@ -355,45 +276,33 @@ export function generateMagicLinkHtml(data: EmailTemplateData): string {
 
 /**
  * Generate plain text email for magic link sign-in
- * Branded with Elite Coffee Shop design standards
+ * Simple and clean text version
  */
 export function generateMagicLinkText(data: EmailTemplateData): string {
   const brandName = data.brandName || data.host;
   const expiresIn = data.expiresIn || "24 hours";
 
   return `
-╔════════════════════════════════════════════════════════════════╗
-║                   ELITE COFFEE SHOP                            ║
-║                 Your Authentication Gateway                    ║
-╚════════════════════════════════════════════════════════════════╝
+ELITE COFFEE SHOP
+Sign in to your account
 
-Welcome Back! ☕
+Welcome back! ☕
 
-You requested a sign-in link for: ${data.email}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-SIGN IN TO YOUR ACCOUNT:
+Click this link to sign in:
 
 ${data.url}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-🔒 SECURITY INFORMATION:
-• This link expires in ${expiresIn}
-• This link can only be used once
-• Never share this link with anyone
+🔒 This link expires in ${expiresIn} and works only once.
+Never share it with anyone.
 
-If you didn't request this email, you can safely delete it. 
-Your account remains secure.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
 Elite Coffee Shop
-Faiyum, Governorate Club
-Premium Coffee Experience
+Faiyum, Egypt • Premium Coffee Experience
 
-© ${new Date().getFullYear()} Elite Coffee Shop. All rights reserved.
+© ${new Date().getFullYear()} Elite Coffee Shop
 This is an automated message. Please do not reply to this email.
   `.trim();
 }
