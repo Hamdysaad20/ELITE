@@ -120,10 +120,10 @@ export default function ProductModal({
     >
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          {/* Image - Optimized for mobile */}
+          {/* Image - Optimized for mobile with fixed aspect ratio */}
           <div className="w-full md:w-1/3 flex-shrink-0">
-            <div className="relative w-full aspect-square md:pt-[100%] md:aspect-auto">
-              <div className="md:absolute md:inset-0 p-2">
+            <div className="relative w-full aspect-square">
+              <div className="absolute inset-0 p-2">
                 <div
                   className={cn(
                     "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl transition-transform duration-500 relative overflow-hidden flex items-center justify-center w-full h-full"
