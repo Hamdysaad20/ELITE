@@ -190,6 +190,7 @@ export default function ProductDetailClient({
   const hasImages = product.images.length > 0;
   const hasMultipleImages = product.images.length > 1;
 
+  // Render component
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header with Back Button */}

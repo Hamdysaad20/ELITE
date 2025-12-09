@@ -157,7 +157,7 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     const limitEnv = Number(process.env.SYNC_PRODUCTS_LIMIT || "0");
     const limit = Number.isFinite(limitEnv) && limitEnv > 0 ? limitEnv : undefined;
 
-    const fields = [
+    const productFields = [
       "id", "name", "default_code", "list_price", "categ_id", "active", "sale_ok",
       "image_128", "image_1024", "image_1920", "uom_id", "taxes_id", "product_tmpl_id",
       "description_sale", "qty_available", "virtual_available", "sequence",
@@ -168,7 +168,7 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
       client.searchRead<ProductRecord>(
         "product.product",
         [["sale_ok", "=", true]],
-        fields,
+        productFields,
         limit ? { limit } : {},
       ),
       client.searchRead<CategoryRecord>(
