@@ -66,7 +66,7 @@ export default function ProfilePage() {
       </div>
       <MobileHeader title="Profile" showBack={true} />
       
-      <main className="min-h-screen bg-elite-cream pb-20 md:pb-8 pt-14 md:pt-0">
+      <main className="min-h-screen bg-elite-cream pb-20 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-12">
           {/* Profile Header */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-2 border-elite-burgundy/10 mb-6">

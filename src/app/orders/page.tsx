@@ -41,7 +41,7 @@ export default function OrdersPage() {
         <Navigation />
       </div>
       <MobileHeader title="My Orders" showBack={true} />
-      <div className="min-h-screen bg-elite-cream pb-20 md:pb-0 pt-14 md:pt-0">
+      <div className="min-h-screen bg-elite-cream pb-20 md:pb-0 pt-16 md:pt-0">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-8 md:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">

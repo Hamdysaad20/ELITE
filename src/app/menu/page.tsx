@@ -168,7 +168,7 @@ export default function MenuPage() {
         <Navigation />
       </div>
       <MobileHeader title="Menu" showBack={true} transparent={true} />
-      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-14 md:pt-0">
+      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-16 md:pt-0">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy opacity-90"></div>
 
