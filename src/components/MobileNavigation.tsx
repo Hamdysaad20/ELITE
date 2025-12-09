@@ -77,8 +77,9 @@ export default function MobileNavigation() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-white via-white to-white/95 backdrop-blur-xl border-t border-elite-burgundy/10 shadow-[0_-8px_24px_rgba(139,0,0,0.08)] safe-area-inset-bottom">
-        <div className="flex items-center justify-around px-3 py-2.5 gap-1.5">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-2 safe-area-inset-bottom">
+        <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-[0_-8px_24px_rgba(139,0,0,0.12),0_4px_12px_rgba(139,0,0,0.08)] border border-elite-burgundy/10">
+          <div className="flex items-center justify-around px-2 py-2.5 gap-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -150,6 +151,7 @@ export default function MobileNavigation() {
               </button>
             );
           })}
+        </div>
         </div>
       </nav>
 
