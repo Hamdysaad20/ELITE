@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check } from "lucide-react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import AttributeSelector from "./AttributeSelector";
 import QuantitySelector from "./QuantitySelector";
 import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
 import { useToast } from "@/components/ToastProvider";
 import DrinkCard from "@/components/DrinkCard";
-import { ReviewCard, ReviewForm } from "@/components/ReviewCard";
+import { ReviewCard } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
-import { useUserPurchases } from "@/hooks/useUserPurchases";
 import { cn } from "@/lib/utils";
 
 interface AttributeValue {
@@ -52,22 +50,15 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
-  const { data: session } = useSession();
   
   // Fetch reviews for this product
   const { 
     reviews, 
     stats, 
-    loading: reviewsLoading, 
-    submitReview, 
-    submitting: submittingReview 
+    loading: reviewsLoading,
   } = useReviews({
     productId: product.id,
   });
-
-  // Check if user has purchased this product
-  const { hasPurchased, loading: purchaseLoading } = useUserPurchases();
-  const userHasPurchased = hasPurchased(product.id);
 
   // Detect multi-select attributes
   const isMultiSelect = (attributeName: string): boolean => {
@@ -475,57 +466,6 @@ export default function ProductDetailClient({
                     ({stats.total} {stats.total === 1 ? 'review' : 'reviews'})
                   </span>
                 </div>
-              )}
-            </div>
-
-            {/* Review Form */}
-            <div className="mb-8 bg-white rounded-3xl p-6 sm:p-8 border-2 border-elite-burgundy/10 shadow-lg">
-              <h3 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl mb-6">
-                Share Your Experience
-              </h3>
-              
-              {!session ? (
-                // Not logged in
-                <div className="text-center py-6 bg-elite-cream/30 rounded-xl">
-                  <p className="font-cabin text-elite-black/70 text-sm mb-3">
-                    Sign in to leave a review
-                  </p>
-                  <Link
-                    href={`/auth/signin?callbackUrl=/products/${product.id}`}
-                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-5 py-2 rounded-full font-cabin font-medium text-sm hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
-                  >
-                    Sign In
-                  </Link>
-                </div>
-              ) : purchaseLoading ? (
-                // Loading purchase history
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-elite-burgundy border-t-transparent mx-auto"></div>
-                </div>
-              ) : !userHasPurchased ? (
-                // Not purchased - compact message
-                <div className="text-center py-4 bg-elite-cream/30 rounded-xl">
-                  <p className="font-cabin text-elite-black/70 text-sm">
-                    Purchase required to review
-                  </p>
-                </div>
-              ) : (
-                // Can review
-                <ReviewForm
-                  productId={product.id}
-                  productName={product.name}
-                  onSubmit={async (rating, comment) => {
-                    try {
-                      await submitReview(rating, comment);
-                      toastSuccess("Review submitted successfully!");
-                    } catch (err) {
-                      toastError(
-                        err instanceof Error ? err.message : "Failed to submit review"
-                      );
-                    }
-                  }}
-                  submitting={submittingReview}
-                />
               )}
             </div>
 
