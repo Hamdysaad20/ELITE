@@ -391,20 +391,7 @@ function getAuthOptions(): NextAuthOptions {
 };
 }
 
-// Lazy-initialize handler only when routes are called
-let handler: ReturnType<typeof NextAuth> | null = null;
+// Create handler
+const handler = NextAuth(getAuthOptions());
 
-function getHandler() {
-  if (!handler) {
-    handler = NextAuth(getAuthOptions());
-  }
-  return handler;
-}
-
-export async function GET(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
-  return getHandler().handlers.GET(req, context);
-}
-
-export async function POST(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
-  return getHandler().handlers.POST(req, context);
-}
+export { handler as GET, handler as POST };
