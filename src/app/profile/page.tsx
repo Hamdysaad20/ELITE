@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, LogOut, ShoppingBag, Heart, Settings, ChevronRight, MapPin } from "lucide-react";
+import { User, Mail, LogOut, ShoppingBag, Heart, Settings, ChevronRight, MapPin, Package } from "lucide-react";
 import { useEffect, useState } from "react";
 import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
@@ -10,11 +10,14 @@ import SwipeIndicator from "@/components/SwipeIndicator";
 import Navigation from "@/components/Navigation";
 import AddressManager from "@/components/AddressManager";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { useUserPurchases } from "@/hooks/useUserPurchases";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [showAddresses, setShowAddresses] = useState(false);
+  const [showPurchases, setShowPurchases] = useState(false);
+  const { purchases, loading: purchasesLoading } = useUserPurchases();
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -36,8 +39,6 @@ export default function ProfilePage() {
   if (!session) {
     return null;
   }
-
-  const menuItems = [
     {
       icon: ShoppingBag,
       label: "My Orders",
@@ -45,10 +46,20 @@ export default function ProfilePage() {
       description: "View order history",
     },
     {
+      icon: Package,
+      label: "Purchase History",
+      onClick: () => setShowPurchases(!showPurchases),
+      description: "Products you've bought",
+      isExpanded: showPurchases,
+      badge: purchases.length > 0 ? purchases.length : undefined,
+    },
+    {
       icon: MapPin,
       label: "Delivery Addresses",
       onClick: () => setShowAddresses(!showAddresses),
       description: "Manage delivery locations",
+      isExpanded: showAddresses,
+    },description: "Manage delivery locations",
       isExpanded: showAddresses,
     },
     {
@@ -145,6 +156,60 @@ export default function ProfilePage() {
                   {item.label === "Delivery Addresses" && showAddresses && (
                     <div className="mt-3 bg-white rounded-2xl p-5 sm:p-6 shadow-md border-2 border-elite-burgundy/10">
                       <AddressManager />
+                    </div>
+                  )}
+
+                  {/* Purchase History - Expanded Section */}
+                  {item.label === "Purchase History" && showPurchases && (
+                    <div className="mt-3 bg-white rounded-2xl p-5 sm:p-6 shadow-md border-2 border-elite-burgundy/10">
+                      {purchasesLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-elite-burgundy border-t-transparent mx-auto"></div>
+                          <p className="mt-4 font-cabin text-elite-black/60 text-sm">Loading purchases...</p>
+                        </div>
+                      ) : purchases.length === 0 ? (
+                        <div className="text-center py-8">
+                          <Package className="w-12 h-12 text-elite-burgundy/40 mx-auto mb-4" />
+                          <p className="font-cabin text-elite-black/60">No purchases yet</p>
+                          <p className="font-cabin text-elite-black/40 text-sm mt-2">Products you buy will appear here</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-calistoga text-elite-burgundy text-lg">
+                              Purchased Products
+                            </h4>
+                            <span className="text-sm font-cabin text-elite-black/60">
+                              {purchases.length} {purchases.length === 1 ? 'product' : 'products'}
+                            </span>
+                          </div>
+                          {purchases.map((purchase) => (
+                            <div
+                              key={purchase.productId}
+                              className="flex items-center gap-4 p-4 bg-elite-cream/50 rounded-xl border border-elite-burgundy/10 hover:border-elite-burgundy/20 transition-all"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center flex-shrink-0">
+                                <Package className="w-5 h-5 text-elite-burgundy" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-cabin font-semibold text-elite-black text-sm truncate">
+                                  {purchase.productName}
+                                </p>
+                                <p className="font-cabin text-xs text-elite-black/60">
+                                  Purchased {new Date(purchase.purchaseDate).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                              <span className="flex-shrink-0 text-xs font-semibold text-elite-burgundy bg-elite-burgundy/10 px-3 py-1 rounded-full">
+                                Can Review
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

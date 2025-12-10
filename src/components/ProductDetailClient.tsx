@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import AttributeSelector from "./AttributeSelector";
 import QuantitySelector from "./QuantitySelector";
 import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
@@ -11,6 +12,7 @@ import { useToast } from "@/components/ToastProvider";
 import DrinkCard from "@/components/DrinkCard";
 import { ReviewCard, ReviewForm } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
+import { useUserPurchases } from "@/hooks/useUserPurchases";
 import { cn } from "@/lib/utils";
 
 interface AttributeValue {
@@ -50,6 +52,7 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
+  const { data: session } = useSession();
   
   // Fetch reviews for this product
   const { 
@@ -61,6 +64,10 @@ export default function ProductDetailClient({
   } = useReviews({
     productId: product.id,
   });
+
+  // Check if user has purchased this product
+  const { hasPurchased, loading: purchaseLoading } = useUserPurchases();
+  const userHasPurchased = hasPurchased(product.id);
 
   // Detect multi-select attributes
   const isMultiSelect = (attributeName: string): boolean => {
@@ -441,30 +448,30 @@ export default function ProductDetailClient({
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-16 bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-8">
+        <div className="mt-16 bg-elite-cream rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-6 sm:p-8 lg:p-10">
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-calistoga text-elite-burgundy text-3xl font-bold">
+            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+              <h2 className="font-calistoga text-elite-burgundy text-3xl sm:text-4xl font-bold">
                 Customer Reviews
               </h2>
-              {stats && (
-                <div className="flex items-center gap-2">
+              {stats && stats.total > 0 && (
+                <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-5 h-5 ${
+                        className={`w-4 h-4 sm:w-5 sm:h-5 ${
                           star <= Math.round(stats.averageRating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-gray-300"
+                            ? "fill-elite-burgundy text-elite-burgundy"
+                            : "text-elite-burgundy/20"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="font-cabin text-elite-black font-semibold text-lg">
+                  <span className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
                     {stats.averageRating.toFixed(1)}
                   </span>
-                  <span className="font-cabin text-elite-black/60 text-sm">
+                  <span className="font-cabin text-elite-black/60 text-sm font-medium">
                     ({stats.total} {stats.total === 1 ? 'review' : 'reviews'})
                   </span>
                 </div>
@@ -472,42 +479,89 @@ export default function ProductDetailClient({
             </div>
 
             {/* Review Form */}
-            <div className="mb-8 bg-elite-cream/50 rounded-2xl p-6">
-              <h3 className="font-calistoga text-elite-black text-xl mb-4">
+            <div className="mb-8 bg-white rounded-3xl p-6 sm:p-8 border-2 border-elite-burgundy/10 shadow-lg">
+              <h3 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl mb-6">
                 Share Your Experience
               </h3>
-              <ReviewForm
-                productId={product.id}
-                productName={product.name}
-                onSubmit={async (rating, comment) => {
-                  try {
-                    await submitReview(rating, comment);
-                    toastSuccess("Review submitted successfully!");
-                  } catch (err) {
-                    toastError(
-                      err instanceof Error ? err.message : "Failed to submit review"
-                    );
-                  }
-                }}
-                submitting={submittingReview}
-              />
+              
+              {!session ? (
+                // Not logged in
+                <div className="text-center py-8 bg-elite-cream/50 rounded-2xl border-2 border-elite-burgundy/10">
+                  <ShieldCheck className="w-12 h-12 text-elite-burgundy/60 mx-auto mb-4" />
+                  <p className="font-cabin text-elite-black/80 mb-4">
+                    Please sign in to leave a review
+                  </p>
+                  <Link
+                    href={`/auth/signin?callbackUrl=/products/${product.id}`}
+                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              ) : purchaseLoading ? (
+                // Loading purchase history
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-elite-burgundy border-t-transparent mx-auto"></div>
+                  <p className="mt-4 font-cabin text-elite-black/60 text-sm">Checking purchase history...</p>
+                </div>
+              ) : !userHasPurchased ? (
+                // Not purchased
+                <div className="text-center py-8 bg-elite-cream/50 rounded-2xl border-2 border-elite-burgundy/10">
+                  <ShieldCheck className="w-12 h-12 text-elite-burgundy/60 mx-auto mb-4" />
+                  <p className="font-cabin text-elite-black/80 font-semibold mb-2">
+                    Purchase Required to Review
+                  </p>
+                  <p className="font-cabin text-elite-black/60 text-sm mb-4">
+                    Only customers who have purchased this product can leave a review
+                  </p>
+                  <button
+                    onClick={handleAddToCart}
+                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Add to Cart
+                  </button>
+                </div>
+              ) : (
+                // Can review
+                <ReviewForm
+                  productId={product.id}
+                  productName={product.name}
+                  onSubmit={async (rating, comment) => {
+                    try {
+                      await submitReview(rating, comment);
+                      toastSuccess("Review submitted successfully!");
+                    } catch (err) {
+                      toastError(
+                        err instanceof Error ? err.message : "Failed to submit review"
+                      );
+                    }
+                  }}
+                  submitting={submittingReview}
+                />
+              )}
             </div>
 
             {/* Reviews List */}
-            <div className="space-y-4">
+            <div className="space-y-5">
+              <h3 className="font-calistoga text-elite-black text-xl sm:text-2xl mb-4">
+                {reviews.length > 0 ? `All Reviews (${reviews.length})` : 'Reviews'}
+              </h3>
               {reviewsLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
-                  <p className="mt-4 font-cabin text-elite-burgundy">Loading reviews...</p>
+                <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10">
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-elite-burgundy border-t-transparent mx-auto"></div>
+                  <p className="mt-6 font-cabin text-elite-burgundy font-semibold text-lg">Loading reviews...</p>
                 </div>
               ) : reviews.length === 0 ? (
-                <div className="text-center py-12 bg-elite-cream/30 rounded-2xl">
-                  <Star className="w-16 h-16 text-elite-burgundy/40 mx-auto mb-4" />
-                  <h4 className="font-calistoga text-elite-black text-xl mb-2">
+                <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10 shadow-md">
+                  <div className="w-20 h-20 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
+                    <Star className="w-10 h-10 text-elite-burgundy" />
+                  </div>
+                  <h4 className="font-calistoga text-elite-black text-2xl mb-3">
                     No Reviews Yet
                   </h4>
-                  <p className="font-cabin text-elite-black/60">
-                    Be the first to review this product!
+                  <p className="font-cabin text-elite-black/60 text-base">
+                    Be the first to share your experience with this product!
                   </p>
                 </div>
               ) : (

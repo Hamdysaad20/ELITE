@@ -11,24 +11,24 @@ interface ReviewCardProps {
 
 export function ReviewCard({ review }: ReviewCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl border-2 border-elite-burgundy/10 p-6 hover:shadow-xl hover:border-elite-burgundy/20 transition-all duration-300 active:scale-[0.99] touch-manipulation">
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-semibold text-base shadow-lg">
             {review.user.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <p className="font-semibold text-gray-900 font-cabin">{review.user.name}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-semibold text-elite-black font-cabin text-base">{review.user.name}</p>
               {review.verified && (
-                <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">
-                  <CheckCircle className="w-3 h-3" />
-                  Verified
+                <span className="inline-flex items-center gap-1 bg-elite-burgundy/10 text-elite-burgundy text-xs font-semibold px-3 py-1 rounded-full border border-elite-burgundy/20">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Verified Purchase
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-500 font-cabin">
+            <p className="text-xs text-elite-black/60 font-cabin mt-1">
               {new Date(review.createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -39,14 +39,14 @@ export function ReviewCard({ review }: ReviewCardProps) {
         </div>
 
         {/* Rating Stars */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 flex-shrink-0">
           {[1, 2, 3, 4, 5].map((star) => (
             <Star
               key={star}
-              className={`w-4 h-4 ${
+              className={`w-5 h-5 ${
                 star <= review.rating
-                  ? "fill-amber-400 text-amber-400"
-                  : "text-gray-300"
+                  ? "fill-elite-burgundy text-elite-burgundy"
+                  : "text-elite-burgundy/20"
               }`}
             />
           ))}
@@ -55,16 +55,16 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
       {/* Comment */}
       {review.comment && (
-        <p className="text-gray-700 text-sm mb-3 font-cabin leading-relaxed">
+        <p className="text-elite-black/80 text-sm sm:text-base mb-4 font-cabin leading-relaxed">
           {review.comment}
         </p>
       )}
 
       {/* Footer */}
-      <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
-        <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-amber-600 transition-colors">
-          <ThumbsUp className="w-3 h-3" />
-          <span className="font-cabin">Helpful ({review.helpful})</span>
+      <div className="flex items-center gap-4 pt-4 border-t border-elite-burgundy/10">
+        <button className="flex items-center gap-2 text-sm text-elite-burgundy/70 hover:text-elite-burgundy hover:bg-elite-burgundy/5 px-3 py-1.5 rounded-full transition-all duration-200 active:scale-95 touch-manipulation">
+          <ThumbsUp className="w-4 h-4" />
+          <span className="font-cabin font-medium">Helpful ({review.helpful})</span>
         </button>
       </div>
     </div>
@@ -103,15 +103,13 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="font-calistoga text-xl text-gray-900 mb-4">Write a Review</h3>
-
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Rating Stars */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2 font-cabin">
-          Your Rating
+      <div>
+        <label className="block text-sm font-semibold text-elite-black mb-3 font-cabin">
+          Rate this product
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -119,33 +117,33 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
               onClick={() => setRating(star)}
               onMouseEnter={() => setHoverRating(star)}
               onMouseLeave={() => setHoverRating(0)}
-              className="focus:outline-none transition-transform hover:scale-110"
+              className="focus:outline-none transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation"
             >
               <Star
-                className={`w-8 h-8 ${
+                className={`w-10 h-10 sm:w-12 sm:h-12 transition-colors ${
                   star <= (hoverRating || rating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-gray-300"
+                    ? "fill-elite-burgundy text-elite-burgundy"
+                    : "text-elite-burgundy/20 hover:text-elite-burgundy/40"
                 }`}
               />
             </button>
           ))}
           {rating > 0 && (
-            <span className="ml-2 text-sm text-gray-600 font-cabin">
-              {rating === 5 && "Excellent!"}
-              {rating === 4 && "Very Good"}
-              {rating === 3 && "Good"}
-              {rating === 2 && "Fair"}
-              {rating === 1 && "Poor"}
+            <span className="ml-2 text-sm sm:text-base font-semibold text-elite-burgundy font-cabin px-4 py-2 bg-elite-burgundy/10 rounded-full border border-elite-burgundy/20">
+              {rating === 5 && "⭐ Excellent!"}
+              {rating === 4 && "👍 Very Good"}
+              {rating === 3 && "😊 Good"}
+              {rating === 2 && "😐 Fair"}
+              {rating === 1 && "😞 Poor"}
             </span>
           )}
         </div>
       </div>
 
       {/* Comment */}
-      <div className="mb-4">
-        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2 font-cabin">
-          Your Review (Optional)
+      <div>
+        <label htmlFor="comment" className="block text-sm font-semibold text-elite-black mb-3 font-cabin">
+          Share your experience (Optional)
         </label>
         <textarea
           id="comment"
@@ -153,10 +151,10 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           maxLength={1000}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none font-cabin"
-          placeholder="Share your experience with this product..."
+          className="w-full px-5 py-4 border-2 border-elite-burgundy/20 rounded-2xl focus:ring-2 focus:ring-elite-burgundy focus:border-elite-burgundy resize-none font-cabin text-elite-black placeholder:text-elite-black/40 transition-all duration-200"
+          placeholder="Tell us what you think about this product..."
         />
-        <p className="text-xs text-gray-500 mt-1 font-cabin">
+        <p className="text-xs text-elite-black/60 mt-2 font-cabin">
           {comment.length}/1000 characters
         </p>
       </div>
@@ -165,9 +163,16 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
       <button
         type="submit"
         disabled={submitting || rating === 0}
-        className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 px-6 rounded-lg font-cabin font-semibold hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-4 px-6 rounded-full font-cabin font-bold text-base hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elite-burgundy disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 active:scale-95 touch-manipulation"
       >
-        {submitting ? "Submitting..." : "Submit Review"}
+        {submitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-elite-cream border-t-transparent"></div>
+            Submitting...
+          </span>
+        ) : (
+          "Submit Review"
+        )}
       </button>
     </form>
   );
@@ -182,22 +187,22 @@ interface ReviewStatsProps {
 
 export function ReviewStats({ stats }: ReviewStatsProps) {
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-6">
-      <div className="flex items-center justify-between">
+    <div className="bg-gradient-to-br from-elite-cream to-elite-dark-cream rounded-3xl border-2 border-elite-burgundy/20 p-6 sm:p-8 shadow-lg">
+      <div className="flex items-center justify-between flex-wrap gap-6">
         <div>
-          <p className="text-sm text-gray-600 font-cabin mb-1">Average Rating</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-bold text-gray-900 font-calistoga">
+          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">Average Rating</p>
+          <div className="flex items-baseline gap-3">
+            <p className="text-5xl sm:text-6xl font-bold text-elite-burgundy font-calistoga">
               {stats.averageRating.toFixed(1)}
             </p>
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`w-4 h-4 ${
+                  className={`w-5 h-5 ${
                     star <= Math.round(stats.averageRating)
-                      ? "fill-amber-400 text-amber-400"
-                      : "text-gray-300"
+                      ? "fill-elite-burgundy text-elite-burgundy"
+                      : "text-elite-burgundy/20"
                   }`}
                 />
               ))}
@@ -205,8 +210,8 @@ export function ReviewStats({ stats }: ReviewStatsProps) {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-600 font-cabin mb-1">Total Reviews</p>
-          <p className="text-3xl font-bold text-gray-900 font-calistoga">{stats.total}</p>
+          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">Total Reviews</p>
+          <p className="text-4xl sm:text-5xl font-bold text-elite-burgundy font-calistoga">{stats.total}</p>
         </div>
       </div>
     </div>

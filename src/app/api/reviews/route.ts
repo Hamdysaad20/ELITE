@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user has ordered this product (for verified badge)
-    const hasOrdered = await prisma.orderItem.findFirst({
+    // Check if user has purchased this product (REQUIRED for review)
+    const hasPurchased = await prisma.orderItem.findFirst({
       where: {
         productId: body.productId,
         order: {
@@ -115,6 +115,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    if (!hasPurchased) {
+      return jsonResponse(
+        errorResponse("You can only review products you have purchased"),
+        403,
+      );
+    }
+
     const review = await prisma.review.create({
       data: {
         userId: user.id,
@@ -122,7 +129,7 @@ export async function POST(request: NextRequest) {
         productName: body.productName,
         rating: body.rating,
         comment: body.comment,
-        verified: !!hasOrdered,
+        verified: true, // Always true since purchase is required
         status: "approved", // Auto-approve for now; can add moderation later
       },
       include: {
