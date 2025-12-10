@@ -486,41 +486,28 @@ export default function ProductDetailClient({
               
               {!session ? (
                 // Not logged in
-                <div className="text-center py-8 bg-elite-cream/50 rounded-2xl border-2 border-elite-burgundy/10">
-                  <ShieldCheck className="w-12 h-12 text-elite-burgundy/60 mx-auto mb-4" />
-                  <p className="font-cabin text-elite-black/80 mb-4">
-                    Please sign in to leave a review
+                <div className="text-center py-6 bg-elite-cream/30 rounded-xl">
+                  <p className="font-cabin text-elite-black/70 text-sm mb-3">
+                    Sign in to leave a review
                   </p>
                   <Link
                     href={`/auth/signin?callbackUrl=/products/${product.id}`}
-                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
+                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-5 py-2 rounded-full font-cabin font-medium text-sm hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
                   >
                     Sign In
                   </Link>
                 </div>
               ) : purchaseLoading ? (
                 // Loading purchase history
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-elite-burgundy border-t-transparent mx-auto"></div>
-                  <p className="mt-4 font-cabin text-elite-black/60 text-sm">Checking purchase history...</p>
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-elite-burgundy border-t-transparent mx-auto"></div>
                 </div>
               ) : !userHasPurchased ? (
-                // Not purchased
-                <div className="text-center py-8 bg-elite-cream/50 rounded-2xl border-2 border-elite-burgundy/10">
-                  <ShieldCheck className="w-12 h-12 text-elite-burgundy/60 mx-auto mb-4" />
-                  <p className="font-cabin text-elite-black/80 font-semibold mb-2">
-                    Purchase Required to Review
+                // Not purchased - compact message
+                <div className="text-center py-4 bg-elite-cream/30 rounded-xl">
+                  <p className="font-cabin text-elite-black/70 text-sm">
+                    Purchase required to review
                   </p>
-                  <p className="font-cabin text-elite-black/60 text-sm mb-4">
-                    Only customers who have purchased this product can leave a review
-                  </p>
-                  <button
-                    onClick={handleAddToCart}
-                    className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 active:scale-95"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    Add to Cart
-                  </button>
                 </div>
               ) : (
                 // Can review
