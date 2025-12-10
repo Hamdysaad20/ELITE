@@ -115,6 +115,8 @@ export interface Order {
   id: string;
   orderNumber: string;
   userId: string;
+  addressId?: string;
+  address?: Address;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
@@ -169,12 +171,15 @@ export enum PaymentMethod {
 export interface Address {
   id: string;
   userId: string;
-  label: string;
+  label: string; // "Home", "Work", "Office"
   street: string;
+  apartment?: string;
   city: string;
-  state: string;
-  zipCode: string;
+  state?: string;
+  zipCode?: string;
   country: string;
+  phone?: string;
+  notes?: string; // Delivery instructions
   isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;

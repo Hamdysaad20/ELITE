@@ -23,6 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   reviews       Review[]        @relation("UserReviews")
+  addresses     Address[]       @relation("UserAddresses")
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -93,6 +94,8 @@ model Order {
   id             String          @id @default(uuid())
   user           User?           @relation(fields: [userId], references: [id])
   userId         String?
+  address        Address?        @relation(fields: [addressId], references: [id])
+  addressId      String?
   status         String
   paymentStatus  String
   paymentMethod  String
@@ -163,4 +166,26 @@ model Review {
   @@index([productId])
   @@index([userId])
   @@index([status])
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  user      User     @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  label     String   // e.g., "Home", "Work", "Office"
+  street    String
+  apartment String?
+  city      String
+  state     String?
+  zipCode   String?
+  country   String   @default("Egypt")
+  phone     String?
+  notes     String?  // Delivery instructions
+  isDefault Boolean  @default(false)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, isDefault])
 }

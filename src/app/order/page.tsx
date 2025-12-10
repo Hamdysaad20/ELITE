@@ -1,12 +1,14 @@
 "use client";
 import React from "react";
-import type { Order, OrderType } from "@/types";
+import type { Order, OrderType, Address } from "@/types";
 import { OrderIntegrationOptions } from "@/components/OrderIntegrationOptions";
 import { useToast } from "@/components/ToastProvider";
 import { Skeleton } from "@/components/Skeleton";
 import { useCart } from "@/hooks/useCart";
+import { useAddresses } from "@/hooks/useAddresses";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import AddressManager from "@/components/AddressManager";
 import Link from "next/link";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
@@ -23,6 +25,7 @@ import {
   Check,
   Receipt,
   CreditCard,
+  AlertCircle,
 } from "lucide-react";
 
 export default function OrderPage() {
@@ -38,8 +41,13 @@ export default function OrderPage() {
     total,
   } = useCart();
 
+  const { addresses, defaultAddress } = useAddresses();
+
   const [orderType, setOrderType] = React.useState<OrderType>(
     "PICKUP" as OrderType,
+  );
+  const [selectedAddress, setSelectedAddress] = React.useState<Address | null>(
+    null,
   );
   const [notes, setNotes] = React.useState("");
   const [saleEnabled, setSaleEnabled] = React.useState(true);
@@ -64,10 +72,26 @@ export default function OrderPage() {
     React.useState<PosDiagnostics | null>(null);
   const { push } = useToast();
 
+  // Auto-select default address when switching to delivery
+  React.useEffect(() => {
+    if (orderType === "DELIVERY" && defaultAddress && !selectedAddress) {
+      setSelectedAddress(defaultAddress);
+    }
+  }, [orderType, defaultAddress, selectedAddress]);
+
   const placeOrder = async () => {
     setSubmitting(true);
     setSubmitError(null);
     setLastOrder(null);
+
+    // Validate address for delivery orders
+    if (orderType === "DELIVERY" && !selectedAddress) {
+      setSubmitError("Please select a delivery address");
+      setSubmitting(false);
+      push({ type: "error", message: "Please select a delivery address" });
+      return;
+    }
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -78,6 +102,7 @@ export default function OrderPage() {
         body: JSON.stringify({
           paymentMethod: "ONLINE",
           orderType,
+          addressId: orderType === "DELIVERY" ? selectedAddress?.id : undefined,
           notes,
           odoo: {
             partner: { name: "Website Customer" },
@@ -433,6 +458,40 @@ export default function OrderPage() {
                   </label>
                 </div>
               </div>
+
+              {/* Delivery Address Selection - Only show for delivery */}
+              {orderType === "DELIVERY" && (
+                <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-6">
+                  <h2 className="font-calistoga text-elite-burgundy text-xl mb-4 flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    Delivery Address
+                  </h2>
+                  
+                  {addresses.length === 0 ? (
+                    <div className="bg-elite-cream/50 border-2 border-dashed border-elite-burgundy/30 rounded-2xl p-6 text-center">
+                      <AlertCircle className="w-12 h-12 text-elite-burgundy/60 mx-auto mb-3" />
+                      <p className="font-cabin text-elite-black/80 mb-4">
+                        No delivery addresses saved yet. Add one to continue with delivery.
+                      </p>
+                    </div>
+                  ) : (
+                    <AddressManager
+                      onSelectAddress={setSelectedAddress}
+                      selectedAddressId={selectedAddress?.id}
+                      compact
+                    />
+                  )}
+                  
+                  {!selectedAddress && addresses.length > 0 && (
+                    <div className="mt-4 bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <p className="font-cabin text-amber-900 text-sm">
+                        Please select a delivery address to continue
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Odoo Integration Options */}
               <OrderIntegrationOptions

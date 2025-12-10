@@ -2,17 +2,19 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, LogOut, ShoppingBag, Heart, Settings, ChevronRight } from "lucide-react";
-import { useEffect } from "react";
+import { User, Mail, LogOut, ShoppingBag, Heart, Settings, ChevronRight, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Navigation from "@/components/Navigation";
+import AddressManager from "@/components/AddressManager";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [showAddresses, setShowAddresses] = useState(false);
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -41,6 +43,13 @@ export default function ProfilePage() {
       label: "My Orders",
       href: "/orders",
       description: "View order history",
+    },
+    {
+      icon: MapPin,
+      label: "Delivery Addresses",
+      onClick: () => setShowAddresses(!showAddresses),
+      description: "Manage delivery locations",
+      isExpanded: showAddresses,
     },
     {
       icon: Heart,
@@ -93,34 +102,52 @@ export default function ProfilePage() {
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
-                <button
-                  key={item.label}
-                  onClick={() => !item.comingSoon && router.push(item.href)}
-                  disabled={item.comingSoon}
-                  className="w-full bg-white rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-elite-burgundy/10 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-elite-burgundy/10 flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-6 h-6 text-elite-burgundy" />
+                <div key={item.label}>
+                  <button
+                    onClick={() => {
+                      if (item.onClick) {
+                        item.onClick();
+                      } else if (!item.comingSoon && item.href) {
+                        router.push(item.href);
+                      }
+                    }}
+                    disabled={item.comingSoon}
+                    className="w-full bg-white rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-elite-burgundy/10 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-elite-burgundy/10 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-elite-burgundy" />
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <h3 className="font-cabin font-bold text-elite-black text-base sm:text-lg flex items-center gap-2">
+                          {item.label}
+                          {item.comingSoon && (
+                            <span className="text-xs bg-elite-burgundy/10 text-elite-burgundy px-2 py-0.5 rounded-full">
+                              Soon
+                            </span>
+                          )}
+                        </h3>
+                        <p className="font-cabin text-sm text-elite-black/60 truncate">
+                          {item.description}
+                        </p>
+                      </div>
+                      {!item.comingSoon && (
+                        <ChevronRight
+                          className={`w-5 h-5 text-elite-black/30 flex-shrink-0 transition-transform ${
+                            item.isExpanded ? "rotate-90" : ""
+                          }`}
+                        />
+                      )}
                     </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <h3 className="font-cabin font-bold text-elite-black text-base sm:text-lg flex items-center gap-2">
-                        {item.label}
-                        {item.comingSoon && (
-                          <span className="text-xs bg-elite-burgundy/10 text-elite-burgundy px-2 py-0.5 rounded-full">
-                            Soon
-                          </span>
-                        )}
-                      </h3>
-                      <p className="font-cabin text-sm text-elite-black/60 truncate">
-                        {item.description}
-                      </p>
+                  </button>
+
+                  {/* Address Manager - Expanded Section */}
+                  {item.label === "Delivery Addresses" && showAddresses && (
+                    <div className="mt-3 bg-white rounded-2xl p-5 sm:p-6 shadow-md border-2 border-elite-burgundy/10">
+                      <AddressManager />
                     </div>
-                    {!item.comingSoon && (
-                      <ChevronRight className="w-5 h-5 text-elite-black/30 flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
+                  )}
+                </div>
               );
             })}
           </div>
