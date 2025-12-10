@@ -110,6 +110,21 @@ export async function POST(request: NextRequest) {
       throw new BadRequestError("Cart is empty");
     }
 
+    // Validate address for delivery orders
+    if (body.orderType === "DELIVERY" && !body.addressId) {
+      throw new BadRequestError("Delivery address is required for delivery orders");
+    }
+
+    // If addressId provided, verify it exists and belongs to user
+    if (body.addressId) {
+      const address = await prisma.address.findFirst({
+        where: { id: body.addressId, userId },
+      });
+      if (!address) {
+        throw new BadRequestError("Invalid delivery address");
+      }
+    }
+
     const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
     const deliveryFee = body.orderType === "DELIVERY" ? 15 : 0;
     const total = subtotal + deliveryFee;
@@ -118,6 +133,7 @@ export async function POST(request: NextRequest) {
     const created = await prisma.order.create({
       data: {
         userId,
+        addressId: body.addressId || null,
         status: OrderStatus.PENDING,
         paymentStatus: PaymentStatus.PENDING,
         paymentMethod: body.paymentMethod,
@@ -145,8 +161,33 @@ export async function POST(request: NextRequest) {
           })),
         },
       },
-      include: { items: true },
+      include: { 
+        items: true,
+        address: true,
+      },
     });
+
+    // Get address details for Odoo sync if delivery order
+    let addressInfo: {
+      street?: string;
+      apartment?: string | null;
+      city?: string;
+      state?: string | null;
+      zip?: string | null;
+      phone?: string | null;
+      notes?: string | null;
+    } | null = null;
+    if (created.address) {
+      addressInfo = {
+        street: created.address.street,
+        apartment: created.address.apartment,
+        city: created.address.city,
+        state: created.address.state,
+        zip: created.address.zipCode,
+        phone: created.address.phone,
+        notes: created.address.notes,
+      };
+    }
 
     // Enqueue Odoo sync (fire-and-forget stub). Defaults: sale enabled, pos disabled.
     const enableSale = body.odoo?.sale?.enable !== false;
@@ -155,12 +196,12 @@ export async function POST(request: NextRequest) {
       orderId: created.id,
       clientOrderRef: clientOrderRef,
       partner: {
-        name: body.odoo?.partner?.name || "Website Customer",
-        email: body.odoo?.partner?.email,
-        phone: body.odoo?.partner?.phone,
-        street: body.odoo?.partner?.street,
-        city: body.odoo?.partner?.city,
-        zip: body.odoo?.partner?.zip,
+        name: body.odoo?.partner?.name || authUser?.name || "Website Customer",
+        email: body.odoo?.partner?.email || authUser?.email,
+        phone: addressInfo?.phone || body.odoo?.partner?.phone,
+        street: addressInfo?.street || body.odoo?.partner?.street,
+        city: addressInfo?.city || body.odoo?.partner?.city,
+        zip: addressInfo?.zip || body.odoo?.partner?.zip,
       },
       enableSale,
       autoConfirm: body.odoo?.sale?.autoConfirm === true,

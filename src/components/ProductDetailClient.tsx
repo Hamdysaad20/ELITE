@@ -9,6 +9,8 @@ import QuantitySelector from "./QuantitySelector";
 import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
 import { useToast } from "@/components/ToastProvider";
 import DrinkCard from "@/components/DrinkCard";
+import { ReviewCard, ReviewForm } from "@/components/ReviewCard";
+import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
 
 interface AttributeValue {
@@ -48,6 +50,17 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
+  
+  // Fetch reviews for this product
+  const { 
+    reviews, 
+    stats, 
+    loading: reviewsLoading, 
+    submitReview, 
+    submitting: submittingReview 
+  } = useReviews({
+    productId: product.id,
+  });
 
   // Detect multi-select attributes
   const isMultiSelect = (attributeName: string): boolean => {
@@ -423,6 +436,85 @@ export default function ProductDetailClient({
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16 bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-8">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-calistoga text-elite-burgundy text-3xl font-bold">
+                Customer Reviews
+              </h2>
+              {stats && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-5 h-5 ${
+                          star <= Math.round(stats.averageRating)
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="font-cabin text-elite-black font-semibold text-lg">
+                    {stats.averageRating.toFixed(1)}
+                  </span>
+                  <span className="font-cabin text-elite-black/60 text-sm">
+                    ({stats.total} {stats.total === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Review Form */}
+            <div className="mb-8 bg-elite-cream/50 rounded-2xl p-6">
+              <h3 className="font-calistoga text-elite-black text-xl mb-4">
+                Share Your Experience
+              </h3>
+              <ReviewForm
+                productId={product.id}
+                productName={product.name}
+                onSubmit={async (rating, comment) => {
+                  try {
+                    await submitReview(rating, comment);
+                    toastSuccess("Review submitted successfully!");
+                  } catch (err) {
+                    toastError(
+                      err instanceof Error ? err.message : "Failed to submit review"
+                    );
+                  }
+                }}
+                submitting={submittingReview}
+              />
+            </div>
+
+            {/* Reviews List */}
+            <div className="space-y-4">
+              {reviewsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
+                  <p className="mt-4 font-cabin text-elite-burgundy">Loading reviews...</p>
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="text-center py-12 bg-elite-cream/30 rounded-2xl">
+                  <Star className="w-16 h-16 text-elite-burgundy/40 mx-auto mb-4" />
+                  <h4 className="font-calistoga text-elite-black text-xl mb-2">
+                    No Reviews Yet
+                  </h4>
+                  <p className="font-cabin text-elite-black/60">
+                    Be the first to review this product!
+                  </p>
+                </div>
+              ) : (
+                reviews.map((review) => (
+                  <ReviewCard key={review.id} review={review} />
+                ))
+              )}
             </div>
           </div>
         </div>
