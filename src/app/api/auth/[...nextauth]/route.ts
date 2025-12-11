@@ -40,6 +40,16 @@ if (typeof window === 'undefined' && NEXTAUTH_SECRET === "placeholder-for-build"
   console.error("Please set NEXTAUTH_SECRET in your environment variables.");
 }
 
+// Log email configuration status at startup
+if (typeof window === 'undefined') {
+  console.log('📧 Email Configuration Check:');
+  console.log('  EMAIL_SERVER_HOST:', EMAIL_SERVER_HOST ? '✅' : '❌ MISSING');
+  console.log('  EMAIL_SERVER_PORT:', EMAIL_SERVER_PORT);
+  console.log('  EMAIL_SERVER_USER:', EMAIL_SERVER_USER ? '✅' : '❌ MISSING');
+  console.log('  EMAIL_SERVER_PASSWORD:', EMAIL_SERVER_PASSWORD ? '✅' : '❌ MISSING');
+  console.log('  EMAIL_FROM:', EMAIL_FROM);
+}
+
 // Create email transporter only if all credentials are provided
 const transporter =
   EMAIL_SERVER_HOST && EMAIL_SERVER_USER && EMAIL_SERVER_PASSWORD
@@ -122,12 +132,17 @@ function getAuthOptions(): NextAuthOptions {
             return; // Don't throw error in development
           }
           
-          const error = "Email transport is not configured. Set EMAIL_SERVER_* env vars.";
+          const missingVars = [];
+          if (!EMAIL_SERVER_HOST) missingVars.push('EMAIL_SERVER_HOST');
+          if (!EMAIL_SERVER_USER) missingVars.push('EMAIL_SERVER_USER');
+          if (!EMAIL_SERVER_PASSWORD) missingVars.push('EMAIL_SERVER_PASSWORD');
+          
+          const error = `Email transport is not configured. Missing: ${missingVars.join(', ')}`;
           console.error("❌", error);
           
           logAuthEvent(
             AuthEvent.MAGIC_LINK_SENT,
-            { email: identifier, reason: "Email transport not configured" },
+            { email: identifier, reason: error },
             "error",
           );
           
