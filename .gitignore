@@ -47,5 +47,9 @@ next-env.d.ts
 /public/uploads/avatars/*
 !/public/uploads/avatars/.gitkeep
 
+# AI workspace (temporary iteration documents)
+/.ai-workspace/*
+!/.ai-workspace/README.md
+
 /.github
 .env*.local

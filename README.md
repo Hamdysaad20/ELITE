@@ -1,11 +1,12 @@
-# Elite Coffee Shop - Production-Ready Full Stack Application
+# ELITE Coffee Shop - Full Stack E-Commerce Platform
 
-A modern, scalable coffee shop web application built with Next.js 15, TypeScript, NextAuth.js authentication, Redis caching, Postgres database, and optional Odoo ERP/POS integration.
+A modern, production-ready coffee shop web application with Odoo ERP integration.
 
-> **📚 Complete Documentation:** All docs live in the `docs/` folder  
-> **🚀 Quick Start:** [AUTH_QUICKSTART.md](./docs/AUTH_QUICKSTART.md)  
-> **📖 Full Guide:** [AUTH_SYSTEM_V1.md](./docs/AUTH_SYSTEM_V1.md)  
-> **🏗️ Architecture:** [ARCHITECTURE_V1.md](./docs/ARCHITECTURE_V1.md)
+> **📚 Documentation Index:** [/docs/README.md](./docs/README.md)  
+> **🚀 Getting Started:** [Getting Started Guide](./docs/GETTING_STARTED.md)  
+> **📖 System Overview:** [System Overview](./docs/SYSTEM_OVERVIEW.md)  
+> **🏗️ Architecture:** [Architecture V1](./docs/ARCHITECTURE_V1.md)  
+> **🔐 Authentication:** [Auth System](./docs/AUTH_SYSTEM.md)
 
 ---
 
@@ -422,12 +423,43 @@ This project is private and proprietary.
 
 ---
 
+## 📚 Documentation
+
+### Documentation Structure
+
+All documentation is organized in `/docs/`:
+
+**Core Guides:**
+- [System Overview](./docs/SYSTEM_OVERVIEW.md) - Architecture and features overview
+- [Getting Started](./docs/GETTING_STARTED.md) - Setup and development guide
+- [Authentication System](./docs/AUTH_SYSTEM.md) - Complete auth documentation
+- [Odoo Integration](./docs/ODOO_INTEGRATION.md) - ERP sync guide
+
+**Reference:**
+- [API Contract](./docs/API_CONTRACT_V1.md) - API endpoints reference
+- [Database Schema](./docs/DB_SCHEMA_AND_CACHE_V1.md) - Data models
+- [Architecture](./docs/ARCHITECTURE_V1.md) - System design
+- [Environment Setup](./docs/ENV_EXAMPLE.md) - Environment variables
+
+**Operations:**
+- [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) - Production deployment
+- [Troubleshooting](./docs/TROUBLESHOOTING.md) - Common issues and fixes
+
+**See [Documentation Index](./docs/README.md) for complete list**
+
+### AI Workspace
+
+The `/.ai-workspace/` folder is for AI assistants to create temporary iteration documents and analysis files. Finalized documentation should be moved to `/docs/`.
+
+---
+
 ## 📞 Support
 
 For issues and questions:
-- Check [Troubleshooting](#-troubleshooting) section
-- Review documentation in `docs/` folder
-- Contact the development team
+- Check [Troubleshooting](./docs/TROUBLESHOOTING.md)
+- Review [Documentation Index](./docs/README.md)
+- Search [GitHub Issues](https://github.com/Hamdysaad20/ELITE/issues)
+- Create new issue for bugs
 
 ---
 
@@ -436,9 +468,11 @@ For issues and questions:
 **Backend:** 🟢 COMPLETE  
 **Frontend:** 🟢 COMPLETE  
 **Authentication:** 🟢 COMPLETE  
+**Odoo Integration:** 🟢 COMPLETE  
+**Loyalty System:** 🟢 COMPLETE  
 **Security:** 🟢 COMPLETE  
-**Documentation:** 🟢 COMPLETE  
-**Production:** 🟢 READY TO DEPLOY
+**Documentation:** 🟢 ORGANIZED  
+**Production:** 🟢 DEPLOYED
 
 ---
 
