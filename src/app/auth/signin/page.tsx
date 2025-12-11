@@ -22,20 +22,30 @@ function SignInContent() {
     setError(null);
 
     try {
+      console.log("Attempting sign in with email:", email);
+      
       const result = await signIn("email", {
         email,
         callbackUrl,
         redirect: false,
       });
 
+      console.log("Sign in result:", result);
+
       if (result?.error) {
+        console.error("Sign in error:", result.error);
         setError(result.error);
         setLoading(false);
-      } else {
+      } else if (result?.ok) {
         // Redirect to verify request page
         router.push("/auth/verify-request?email=" + encodeURIComponent(email));
+      } else {
+        console.error("Unexpected sign in result:", result);
+        setError("Unable to send sign in link. Please try again.");
+        setLoading(false);
       }
     } catch (err) {
+      console.error("Sign in exception:", err);
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }

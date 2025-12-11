@@ -34,6 +34,12 @@ const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 // For build-time (allow undefined), runtime will validate
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "placeholder-for-build";
 
+// Warn if using placeholder at runtime (but don't crash the build)
+if (typeof window === 'undefined' && NEXTAUTH_SECRET === "placeholder-for-build" && process.env.NODE_ENV !== 'development') {
+  console.error("⚠️ WARNING: NEXTAUTH_SECRET is not set! Authentication will not work.");
+  console.error("Please set NEXTAUTH_SECRET in your environment variables.");
+}
+
 // Create email transporter only if all credentials are provided
 const transporter =
   EMAIL_SERVER_HOST && EMAIL_SERVER_USER && EMAIL_SERVER_PASSWORD
