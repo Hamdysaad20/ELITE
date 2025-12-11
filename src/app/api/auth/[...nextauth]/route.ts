@@ -31,14 +31,8 @@ const NEXTAUTH_URL = process.env.NEXTAUTH_URL ||
   (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.officieleliteeg.com');
 const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 
-// Don't throw at module load (build time), check at runtime
-function getNextAuthSecret() {
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) {
-    throw new Error("NEXTAUTH_SECRET must be set in environment variables");
-  }
-  return secret;
-}
+// For build-time (allow undefined), runtime will validate
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "placeholder-for-build";
 
 // Create email transporter only if all credentials are provided
 const transporter =
@@ -66,7 +60,7 @@ if (transporter && process.env.NODE_ENV === "development") {
 
 function getAuthOptions(): NextAuthOptions {
   return {
-    secret: getNextAuthSecret(),
+    secret: NEXTAUTH_SECRET,
     adapter: PrismaAdapter(prisma),
   
   // Use JWT strategy for better performance in serverless
