@@ -158,9 +158,9 @@ export default function AddressManager({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-6">
       {/* Address List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {addresses.map((address) => {
           const isEditing = editingId === address.id;
           const isSelected = selectedAddressId === address.id;
@@ -170,7 +170,7 @@ export default function AddressManager({
               <form
                 key={address.id}
                 onSubmit={handleSubmit}
-                className="bg-elite-cream rounded-2xl p-5 border-2 border-elite-burgundy"
+                className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-elite-burgundy shadow-lg"
               >
                 <AddressForm
                   formData={formData}
@@ -186,15 +186,15 @@ export default function AddressManager({
             <div
               key={address.id}
               onClick={() => onSelectAddress?.(address)}
-              className={`bg-elite-cream rounded-2xl p-5 border-2 transition-all ${
+              className={`bg-white rounded-3xl p-5 sm:p-6 border-2 transition-all shadow-md hover:shadow-lg ${
                 isSelected
-                  ? "border-elite-burgundy bg-elite-burgundy/5"
+                  ? "border-elite-burgundy bg-elite-burgundy/5 shadow-elite-burgundy/20"
                   : "border-elite-burgundy/20 hover:border-elite-burgundy/40"
               } ${onSelectAddress ? "cursor-pointer" : ""}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 shadow-md">
                     {getLabelIcon(address.label)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -203,12 +203,14 @@ export default function AddressManager({
                         {address.label}
                       </h4>
                       {address.isDefault && (
-                        <span className="bg-elite-burgundy text-elite-cream px-2 py-0.5 rounded-full text-xs font-cabin font-semibold">
+                        <span className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-sm">
                           Default
                         </span>
                       )}
                       {isSelected && onSelectAddress && (
-                        <Check className="w-5 h-5 text-elite-burgundy ml-auto" />
+                        <div className="ml-auto w-6 h-6 rounded-full bg-elite-burgundy flex items-center justify-center">
+                          <Check className="w-4 h-4 text-elite-cream" />
+                        </div>
                       )}
                     </div>
                     <p className="font-cabin text-elite-black/80 text-sm">
@@ -239,7 +241,7 @@ export default function AddressManager({
                       <button
                         type="button"
                         onClick={() => handleSetDefault(address.id)}
-                        className="p-2 rounded-lg hover:bg-elite-burgundy/10 text-elite-burgundy transition-colors"
+                        className="p-2.5 rounded-xl hover:bg-elite-burgundy/10 text-elite-burgundy transition-all hover:shadow-md"
                         title="Set as default"
                       >
                         <Check className="w-4 h-4" />
@@ -248,7 +250,7 @@ export default function AddressManager({
                     <button
                       type="button"
                       onClick={() => handleEdit(address)}
-                      className="p-2 rounded-lg hover:bg-elite-burgundy/10 text-elite-burgundy transition-colors"
+                      className="p-2.5 rounded-xl hover:bg-elite-burgundy/10 text-elite-burgundy transition-all hover:shadow-md"
                       title="Edit address"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -256,7 +258,7 @@ export default function AddressManager({
                     <button
                       type="button"
                       onClick={() => handleDelete(address.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                      className="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all hover:shadow-md"
                       title="Delete address"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -273,7 +275,7 @@ export default function AddressManager({
       {isAdding ? (
         <form
           onSubmit={handleSubmit}
-          className="bg-elite-cream rounded-2xl p-5 border-2 border-elite-burgundy"
+          className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-elite-burgundy shadow-lg"
         >
           <AddressForm
             formData={formData}
@@ -287,9 +289,11 @@ export default function AddressManager({
           <button
             type="button"
             onClick={() => setIsAdding(true)}
-            className="w-full bg-elite-cream border-2 border-dashed border-elite-burgundy/30 hover:border-elite-burgundy rounded-2xl p-5 flex items-center justify-center gap-2 text-elite-burgundy font-cabin font-semibold transition-all hover:bg-elite-burgundy/5"
+            className="w-full bg-white border-2 border-dashed border-elite-burgundy/30 hover:border-elite-burgundy rounded-3xl p-5 sm:p-6 flex items-center justify-center gap-3 text-elite-burgundy font-cabin font-bold text-lg transition-all hover:bg-elite-burgundy/5 hover:shadow-lg group"
           >
-            <Plus className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors">
+              <Plus className="w-6 h-6" />
+            </div>
             Add New Address
           </button>
         )
@@ -312,26 +316,26 @@ function AddressForm({
   onCancel,
 }: AddressFormProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h4 className="font-calistoga text-elite-black text-lg mb-4">
         {formData.label ? "Edit Address" : "New Address"}
       </h4>
 
       {/* Label Selection */}
       <div>
-        <label className="block font-cabin font-semibold text-elite-black mb-2">
+        <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
           Address Label
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {["Home", "Work", "Office", "Other"].map((label) => (
             <button
               key={label}
               type="button"
               onClick={() => setFormData({ ...formData, label })}
-              className={`px-4 py-2 rounded-lg font-cabin font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full font-cabin font-bold transition-all text-sm ${
                 formData.label === label
-                  ? "bg-elite-burgundy text-elite-cream"
-                  : "bg-white text-elite-black border-2 border-elite-burgundy/20 hover:border-elite-burgundy/40"
+                  ? "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/30"
+                  : "bg-white text-elite-black border-2 border-elite-burgundy/30 hover:border-elite-burgundy hover:shadow-md"
               }`}
             >
               {label}
@@ -342,8 +346,8 @@ function AddressForm({
 
       {/* Street Address */}
       <div>
-        <label className="block font-cabin font-semibold text-elite-black mb-2">
-          Street Address *
+        <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
+          Street Address <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -351,14 +355,14 @@ function AddressForm({
           value={formData.street}
           onChange={(e) => setFormData({ ...formData, street: e.target.value })}
           placeholder="123 Main Street"
-          className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
         />
       </div>
 
       {/* Apartment/Unit */}
       <div>
-        <label className="block font-cabin font-semibold text-elite-black mb-2">
-          Apartment, Suite, Unit (Optional)
+        <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
+          Apartment, Suite, Unit <span className="text-elite-black/40">(Optional)</span>
         </label>
         <input
           type="text"
@@ -367,15 +371,15 @@ function AddressForm({
             setFormData({ ...formData, apartment: e.target.value })
           }
           placeholder="Apt 4B"
-          className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
         />
       </div>
 
       {/* City & State */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block font-cabin font-semibold text-elite-black mb-2">
-            City *
+          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
+            City <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -383,11 +387,11 @@ function AddressForm({
             value={formData.city}
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             placeholder="Cairo"
-            className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
           />
         </div>
         <div>
-          <label className="block font-cabin font-semibold text-elite-black mb-2">
+          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
             State/Province
           </label>
           <input
@@ -395,7 +399,7 @@ function AddressForm({
             value={formData.state}
             onChange={(e) => setFormData({ ...formData, state: e.target.value })}
             placeholder="Cairo Governorate"
-            className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
           />
         </div>
       </div>
@@ -403,7 +407,7 @@ function AddressForm({
       {/* Zip Code & Phone */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block font-cabin font-semibold text-elite-black mb-2">
+          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
             Zip/Postal Code
           </label>
           <input
@@ -413,11 +417,11 @@ function AddressForm({
               setFormData({ ...formData, zipCode: e.target.value })
             }
             placeholder="12345"
-            className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
           />
         </div>
         <div>
-          <label className="block font-cabin font-semibold text-elite-black mb-2">
+          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
             Phone Number
           </label>
           <input
@@ -425,31 +429,31 @@ function AddressForm({
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             placeholder="+20 123 456 7890"
-            className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin"
+            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
           />
         </div>
       </div>
 
       {/* Delivery Notes */}
       <div>
-        <label className="block font-cabin font-semibold text-elite-black mb-2">
-          Delivery Instructions (Optional)
+        <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
+          Delivery Instructions <span className="text-elite-black/40">(Optional)</span>
         </label>
         <textarea
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           placeholder="e.g., Ring doorbell, leave at door, etc."
           rows={3}
-          className="w-full px-4 py-3 rounded-lg border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:outline-none font-cabin resize-none"
+          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin resize-none transition-all"
         />
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4">
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-6 py-4 rounded-2xl font-cabin font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-elite-burgundy/30"
         >
           {submitting ? (
             <>
@@ -467,7 +471,7 @@ function AddressForm({
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="px-6 py-3 rounded-full border-2 border-elite-burgundy text-elite-burgundy font-cabin font-semibold hover:bg-elite-burgundy/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="px-6 py-4 rounded-2xl border-2 border-elite-burgundy text-elite-burgundy font-cabin font-bold text-lg hover:bg-elite-burgundy/10 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <X className="w-5 h-5" />
           Cancel

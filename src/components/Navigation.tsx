@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Menu, User, Settings, ShoppingBag, MapPin, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 
@@ -126,6 +127,18 @@ export default function Navigation() {
                 </span>
               </Link>
 
+              <Link
+                href="/shop"
+                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
+              >
+                <span className="text-base uppercase">
+                  Shop
+                </span>
+                <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
+                  Soon
+                </span>
+              </Link>
+
               {/* User Profile Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 {status === "loading" ? (
@@ -133,9 +146,19 @@ export default function Navigation() {
                 ) : session ? (
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-semibold text-lg hover:shadow-xl hover:scale-110 transition-all duration-300 border-2 border-elite-cream shadow-lg"
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-semibold text-lg hover:shadow-xl hover:scale-110 transition-all duration-300 border-2 border-elite-cream shadow-lg overflow-hidden"
                   >
-                    {session.user?.name?.charAt(0).toUpperCase() || "U"}
+                    {session.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || "Profile"}
+                        width={48}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      session.user?.name?.charAt(0).toUpperCase() || "U"
+                    )}
                   </button>
                 ) : (
                   <Link
@@ -148,81 +171,88 @@ export default function Navigation() {
 
                 {/* Dropdown Menu */}
                 {profileDropdownOpen && session && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border-2 border-elite-burgundy/10 py-2 animate-in slide-in-from-top-2 duration-200 z-50">
-                    {/* User Info */}
-                    <div className="px-4 py-3 border-b border-elite-burgundy/10">
-                      <p className="font-cabin font-semibold text-elite-black truncate">
-                        {session.user?.name || "User"}
-                      </p>
-                      <p className="font-cabin text-sm text-elite-black/60 truncate">
-                        {session.user?.email}
-                      </p>
-                    </div>
+                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border-2 border-elite-burgundy/10 py-3 animate-in slide-in-from-top-2 duration-200 z-50 overflow-hidden">
+                    {/* Clickable Profile Photo & Info */}
+                    <Link
+                      href="/profile"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream/50 transition-all duration-300 border-b border-elite-burgundy/10 group"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-bold text-lg border-2 border-elite-cream shadow-md group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 flex-shrink-0 overflow-hidden">
+                        {session.user?.image ? (
+                          <Image
+                            src={session.user.image}
+                            alt={session.user.name || "Profile"}
+                            width={48}
+                            height={48}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          session.user?.name?.charAt(0).toUpperCase() || "U"
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-cabin font-bold text-elite-black truncate group-hover:text-elite-burgundy transition-colors duration-300">
+                          {session.user?.name || "User"}
+                        </p>
+                        <p className="font-cabin text-sm text-elite-black/60 truncate">
+                          {session.user?.email}
+                        </p>
+                      </div>
+                    </Link>
 
                     {/* Menu Items */}
-                    <div className="py-2">
-                      <Link
-                        href="/profile"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream transition-colors duration-200"
-                      >
-                        <User className="w-5 h-5 text-elite-burgundy" />
-                        <span className="font-cabin text-elite-black">Profile</span>
-                      </Link>
+                    <div className="py-3 px-3">
                       <Link
                         href="/orders"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream transition-colors duration-200"
+                        className="flex items-center gap-4 px-4 py-3.5 hover:bg-elite-cream rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md group"
                       >
-                        <ShoppingBag className="w-5 h-5 text-elite-burgundy" />
-                        <span className="font-cabin text-elite-black">My Orders</span>
+                        <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
+                          <ShoppingBag className="w-5 h-5 text-elite-burgundy" />
+                        </div>
+                        <span className="font-cabin font-semibold text-elite-black">My Orders</span>
                       </Link>
                       <Link
                         href="/profile"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream transition-colors duration-200"
+                        className="flex items-center gap-4 px-4 py-3.5 hover:bg-elite-cream rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md group"
                       >
-                        <MapPin className="w-5 h-5 text-elite-burgundy" />
-                        <span className="font-cabin text-elite-black">Addresses</span>
+                        <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
+                          <MapPin className="w-5 h-5 text-elite-burgundy" />
+                        </div>
+                        <span className="font-cabin font-semibold text-elite-black">Addresses</span>
                       </Link>
                       <Link
                         href="/settings"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream transition-colors duration-200"
+                        className="flex items-center gap-4 px-4 py-3.5 hover:bg-elite-cream rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md group"
                       >
-                        <Settings className="w-5 h-5 text-elite-burgundy" />
-                        <span className="font-cabin text-elite-black">Settings</span>
+                        <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
+                          <Settings className="w-5 h-5 text-elite-burgundy" />
+                        </div>
+                        <span className="font-cabin font-semibold text-elite-black">Settings</span>
                       </Link>
                     </div>
 
                     {/* Sign Out */}
-                    <div className="border-t border-elite-burgundy/10 pt-2">
+                    <div className="border-t border-elite-burgundy/10 pt-3 px-3">
                       <button
                         onClick={() => {
                           setProfileDropdownOpen(false);
                           signOut({ callbackUrl: "/" });
                         }}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors duration-200 w-full text-left"
+                        className="flex items-center gap-4 px-4 py-3.5 hover:bg-red-50 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md w-full text-left group"
                       >
-                        <LogOut className="w-5 h-5 text-red-600" />
-                        <span className="font-cabin text-red-600 font-semibold">Sign Out</span>
+                        <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors duration-300">
+                          <LogOut className="w-5 h-5 text-red-600" />
+                        </div>
+                        <span className="font-cabin font-semibold text-red-600">Sign Out</span>
                       </button>
                     </div>
                   </div>
                 )}
               </div>
-
-              <Link
-                href="/shop"
-                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
-              >
-                <span className="text-base uppercase">
-                  Shop
-                </span>
-                <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
-                  Soon
-                </span>
-              </Link>
             </div>
           </div>
         </div>

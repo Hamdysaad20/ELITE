@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db/client";
-import { getAuthUser } from "@/server/auth/session";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/server/auth/options";
+import { createOdooClient } from "@/server/utils/odooClient";
 
 // GET /api/addresses - Get all addresses for current user
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthUser(req);
-    if (!user) {
+    const session = await getServerSession(getAuthOptions());
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -14,7 +17,7 @@ export async function GET(req: NextRequest) {
     }
 
     const addresses = await prisma.address.findMany({
-      where: { userId: user.id },
+      where: { userId: session.user.id },
       orderBy: [
         { isDefault: "desc" }, // Default address first
         { updatedAt: "desc" },
@@ -40,8 +43,9 @@ export async function GET(req: NextRequest) {
 // POST /api/addresses - Create new address
 export async function POST(req: NextRequest) {
   try {
-    const user = await getAuthUser(req);
-    if (!user) {
+    const session = await getServerSession(getAuthOptions());
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -73,19 +77,19 @@ export async function POST(req: NextRequest) {
     // If setting as default, unset other defaults
     if (isDefault) {
       await prisma.address.updateMany({
-        where: { userId: user.id, isDefault: true },
+        where: { userId: session.user.id, isDefault: true },
         data: { isDefault: false },
       });
     }
 
     // If this is the user's first address, make it default
     const addressCount = await prisma.address.count({
-      where: { userId: user.id },
+      where: { userId: session.user.id },
     });
 
     const address = await prisma.address.create({
       data: {
-        userId: user.id,
+        userId: session.user.id,
         label,
         street,
         apartment,
@@ -98,6 +102,25 @@ export async function POST(req: NextRequest) {
         isDefault: isDefault || addressCount === 0,
       },
     });
+
+    // Sync address to Odoo
+    try {
+      const odooClient = createOdooClient();
+      if (odooClient && session.user.email) {
+        await odooClient.findOrCreatePartner({
+          name: session.user.name || session.user.email.split('@')[0] || 'Guest',
+          email: session.user.email,
+          phone: address.phone || undefined,
+          street: `${address.street}${address.apartment ? ', ' + address.apartment : ''}`,
+          city: address.city,
+          zip: address.zipCode || undefined,
+        });
+        console.log(`✅ Address synced to Odoo for user ${session.user.id}`);
+      }
+    } catch (error) {
+      console.error("❌ Failed to sync address to Odoo:", error);
+      // Non-blocking: address still created
+    }
 
     return NextResponse.json({
       success: true,

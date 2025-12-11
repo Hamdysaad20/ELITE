@@ -4,6 +4,7 @@ import { prisma } from "@/server/db/client";
 import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
 import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
 import { z } from "zod";
+import { createOdooClient } from "@/server/utils/odooClient";
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -107,6 +108,22 @@ export async function PATCH(request: NextRequest) {
       { userId: user.id, email: user.email },
       "info",
     );
+
+    // Sync profile update to Odoo
+    try {
+      const odooClient = createOdooClient();
+      if (odooClient && updatedUser.email) {
+        await odooClient.findOrCreatePartner({
+          name: updatedUser.name || updatedUser.email.split('@')[0] || 'Guest',
+          email: updatedUser.email,
+          phone: updatedUser.phone || undefined,
+        });
+        console.log(`✅ Profile update synced to Odoo for user ${updatedUser.id}`);
+      }
+    } catch (error) {
+      console.error("❌ Failed to sync profile update to Odoo:", error);
+      // Non-blocking: profile still updated
+    }
 
     return jsonResponse(
       successResponse(updatedUser, "Profile updated successfully"),

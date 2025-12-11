@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db/client";
-import { getAuthUser } from "@/server/auth/session";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/server/auth/options";
+import { createOdooClient } from "@/server/utils/odooClient";
 
 // GET /api/addresses/[id] - Get single address
 export async function GET(
@@ -8,8 +10,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getAuthUser(req);
-    if (!user) {
+    const session = await getServerSession(getAuthOptions());
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -18,7 +21,7 @@ export async function GET(
 
     const { id } = await context.params;
     const address = await prisma.address.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: session.user.id },
     });
 
     if (!address) {
@@ -50,8 +53,9 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getAuthUser(req);
-    if (!user) {
+    const session = await getServerSession(getAuthOptions());
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -63,7 +67,7 @@ export async function PATCH(
 
     // Verify ownership
     const existingAddress = await prisma.address.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: session.user.id },
     });
 
     if (!existingAddress) {
@@ -76,7 +80,7 @@ export async function PATCH(
     // If setting as default, unset other defaults
     if (body.isDefault === true) {
       await prisma.address.updateMany({
-        where: { userId: user.id, isDefault: true, id: { not: id } },
+        where: { userId: session.user.id, isDefault: true, id: { not: id } },
         data: { isDefault: false },
       });
     }
@@ -96,6 +100,25 @@ export async function PATCH(
         isDefault: body.isDefault,
       },
     });
+
+    // Sync updated address to Odoo
+    try {
+      const odooClient = createOdooClient();
+      if (odooClient && session.user.email) {
+        await odooClient.findOrCreatePartner({
+          name: session.user.name || session.user.email.split('@')[0] || 'Guest',
+          email: session.user.email,
+          phone: address.phone || undefined,
+          street: `${address.street}${address.apartment ? ', ' + address.apartment : ''}`,
+          city: address.city,
+          zip: address.zipCode || undefined,
+        });
+        console.log(`✅ Address update synced to Odoo for user ${session.user.id}`);
+      }
+    } catch (error) {
+      console.error("❌ Failed to sync address update to Odoo:", error);
+      // Non-blocking: address still updated
+    }
 
     return NextResponse.json({
       success: true,
@@ -119,8 +142,9 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getAuthUser(req);
-    if (!user) {
+    const session = await getServerSession(getAuthOptions());
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -131,7 +155,7 @@ export async function DELETE(
 
     // Verify ownership
     const address = await prisma.address.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: session.user.id },
     });
 
     if (!address) {
@@ -144,7 +168,7 @@ export async function DELETE(
     // If deleting default address, set another as default
     if (address.isDefault) {
       const otherAddress = await prisma.address.findFirst({
-        where: { userId: user.id, id: { not: id } },
+        where: { userId: session.user.id, id: { not: id } },
       });
 
       if (otherAddress) {

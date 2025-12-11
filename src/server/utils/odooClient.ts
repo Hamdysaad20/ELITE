@@ -207,7 +207,7 @@ export class OdooClient {
   ): Promise<number> {
     // Use website menuItemId as SKU (default_code). Fallback by name.
     const sku = item.menuItemId;
-    const name = item.menuItem?.name || item.menuItemId;
+    const name = item.menuItem?.name || item.menuItemId || "Unknown Product";
 
     const domain = sku ? [["default_code", "=", sku]] : [["name", "=", name]];
 
@@ -219,10 +219,10 @@ export class OdooClient {
 
     if (prodIds && prodIds.length) return prodIds[0];
 
-    // Create minimal product
+    // Create minimal product - ensure name is never null
     const productVals = {
-      name,
-      default_code: sku,
+      name: name || "Product",
+      default_code: sku || undefined,
       list_price: item.unitPrice,
       sale_ok: true,
       purchase_ok: false,

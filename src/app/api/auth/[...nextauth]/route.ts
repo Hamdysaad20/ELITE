@@ -19,6 +19,7 @@ import {
   AUTH_RATE_LIMITS,
   getClientIp,
 } from "@/server/auth/rateLimit";
+import { createOdooClient } from "@/server/utils/odooClient";
 
 const EMAIL_SERVER_HOST = process.env.EMAIL_SERVER_HOST;
 const EMAIL_SERVER_PORT = Number(process.env.EMAIL_SERVER_PORT || "587");
@@ -352,6 +353,21 @@ function getAuthOptions(): NextAuthOptions {
         } catch (error) {
           console.error("❌ Failed to create loyalty account:", error);
         }
+
+        // Sync user to Odoo as partner
+        try {
+          const odooClient = createOdooClient();
+          if (odooClient && user.email) {
+            const partnerId = await odooClient.findOrCreatePartner({
+              name: user.name || user.email.split('@')[0] || 'Guest',
+              email: user.email,
+            });
+            console.log(`✅ Odoo partner created: ${partnerId} for user ${user.id}`);
+          }
+        } catch (error) {
+          console.error("❌ Failed to create Odoo partner:", error);
+          // Non-blocking: user can still sign up
+        }
       } else {
         logAuthEvent(
           AuthEvent.SIGNIN_SUCCESS,
@@ -394,4 +410,4 @@ function getAuthOptions(): NextAuthOptions {
 // Create handler
 const handler = NextAuth(getAuthOptions());
 
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST, getAuthOptions };

@@ -43,5 +43,9 @@ next-env.d.ts
 # JSON database (local data storage)
 /data/database.json
 
+# User uploaded files (keep directory structure but ignore uploaded files)
+/public/uploads/avatars/*
+!/public/uploads/avatars/.gitkeep
+
 /.github
 .env*.local

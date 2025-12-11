@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       },
       select: {
         productId: true,
-        productName: true,
+        name: true,
         order: {
           select: {
             createdAt: true,
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     purchasedItems.forEach((item) => {
       if (!uniqueProducts.has(item.productId)) {
         uniqueProducts.set(item.productId, {
-          productName: item.productName,
+          productName: item.name,
           purchaseDate: item.order.createdAt,
         });
       }
