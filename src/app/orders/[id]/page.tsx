@@ -45,20 +45,8 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Content */}
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <OrderDetailCard 
-            orderId={orderId} 
-            enablePolling={true}
-            pollInterval={5000}
-          />
-
-          {/* Help Text */}
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <p className="text-blue-800 text-sm font-cabin">
-              <strong>Live Updates:</strong> This page automatically checks for order status updates every 5 seconds. 
-              You'll see real-time synchronization with our kitchen display and Odoo system.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <OrderDetailCard orderId={orderId} />
         </div>
       </div>
       <Footer />

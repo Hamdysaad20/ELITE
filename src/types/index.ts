@@ -108,6 +108,7 @@ export interface OrderItem {
   toppings?: string[];
   unitPrice: number;
   totalPrice: number;
+  attributes?: Record<string, unknown>;
   menuItem?: MenuItemType;
 }
 

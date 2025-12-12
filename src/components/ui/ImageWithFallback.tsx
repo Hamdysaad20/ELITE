@@ -94,8 +94,8 @@ export default function ImageWithFallback({
             src={fallbackSrc}
             alt={alt || "Placeholder"}
             fill={fill}
-            width={fill ? undefined : width}
-            height={fill ? undefined : height}
+            width={fill ? undefined : width || 200}
+            height={fill ? undefined : height || 200}
             className={className}
             style={fill ? { objectFit } : undefined}
           />

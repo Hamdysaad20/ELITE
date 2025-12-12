@@ -208,7 +208,7 @@ export default function MenuPage() {
           </div>
         </div>
 
-        <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8 overflow-hidden">
+        <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12">
             {/* Loading State with Skeletons */}
             {loading && <MenuPageSkeleton />}
@@ -390,12 +390,14 @@ export default function MenuPage() {
                                           key={sub.id}
                                           className="space-y-2 sm:space-y-4"
                                         >
-                                          {/* Items Preview - Horizontal Scrollable on All Screens */}
-                                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                                          {/* Items Preview - Horizontal Scrollable on Small Screens, Fixed Width on Large Screens */}
+                                          {/* Small Screens: Horizontal Scroll */}
+                                          <div className="lg:hidden overflow-x-auto menu-items-scroll scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-4">
+                                            <div className="flex gap-5 sm:gap-6 pb-4">
                                               {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
                                                 <div
                                                   key={item.id}
-                                                  className="w-full"
+                                                  className="w-64 sm:w-72 flex-shrink-0 snap-start"
                                                 >
                                                   <DrinkCard
                                                     id={item.id}
@@ -404,6 +406,7 @@ export default function MenuPage() {
                                                     price={item.price}
                                                     description={item.description}
                                                     available={item.available}
+                                                    size="small"
                                                     href={`/products/${item.id}`}
                                                     menuItemId={item.id}
                                                     showAddToOrder={true}
@@ -419,6 +422,40 @@ export default function MenuPage() {
                                                 </div>
                                               ))}
                                             </div>
+                                          </div>
+                                          
+                                          {/* Large Screens: Horizontal Scroll with Same Card Sizes as /menu/[category] */}
+                                          <div className="hidden lg:block overflow-x-auto menu-items-scroll scrollbar-hide -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
+                                            <div className="flex gap-5 sm:gap-6 pb-4">
+                                              {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
+                                                <div
+                                                  key={item.id}
+                                                  className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0 snap-start"
+                                                >
+                                                  <DrinkCard
+                                                    id={item.id}
+                                                    images={item.images}
+                                                    name={item.name}
+                                                    price={item.price}
+                                                    description={item.description}
+                                                    available={item.available}
+                                                    size="small"
+                                                    href={`/products/${item.id}`}
+                                                    menuItemId={item.id}
+                                                    showAddToOrder={true}
+                                                    categoryId={category.id}
+                                                    onQuickAdd={() => {
+                                                      const product = apiProducts.find(p => p.id === item.id);
+                                                      if (product) {
+                                                        setSelectedProduct(product);
+                                                        setIsModalOpen(true);
+                                                      }
+                                                    }}
+                                                  />
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
