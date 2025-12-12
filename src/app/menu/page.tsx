@@ -14,8 +14,6 @@ import {
   Home,
   RefreshCw,
 } from "lucide-react";
-import Navigation from "@/components/Navigation";
-import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
@@ -165,7 +163,6 @@ export default function MenuPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
-        <Navigation />
       </div>
       <MobileHeader title="Menu" showBack={true} transparent={true} />
       <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-16 md:pt-0">
@@ -476,7 +473,6 @@ export default function MenuPage() {
       <div className="hidden md:block">
         <Footer />
       </div>
-      <MobileNavigation />
     </>
   );
 }

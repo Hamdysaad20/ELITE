@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Menu, User, Settings, ShoppingBag, MapPin, LogOut, ChevronDown } from "lucide-react";
+import { X, User, Settings, ShoppingBag, MapPin, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -9,7 +9,6 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function Navigation() {
   const [showPromo, setShowPromo] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -81,10 +80,10 @@ export default function Navigation() {
         </div>
       )}
 
-      {/* Main Navigation */}
-      <nav className="sticky top-0 z-50">
+      {/* Main Navigation - Hidden on mobile */}
+      <nav className="sticky top-0 z-50 hidden md:block">
         {/* Desktop Navigation */}
-        <div className="hidden md:block">
+        <div>
           <div className="max-w-7xl mx-auto flex items-center justify-center py-3 px-6">
             {/* Pilled Navigation Container */}
             <div className="bg-elite-cream rounded-full flex items-center space-x-10 shadow-2xl px-10 py-4">
@@ -255,111 +254,6 @@ export default function Navigation() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden py-3 px-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="rounded-lg flex items-center justify-center px-4 h-16 -my-2 hover:scale-105 transition-transform duration-300"
-            >
-              <img
-                src="/images/logo_noBG.png"
-                alt="Elite Coffee Logo - Navigate to Home"
-                className="w-auto h-12 object-contain"
-              />
-            </Link>
-
-            {/* Hamburger Menu */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="bg-elite-cream rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-95 border-2 border-elite-burgundy/20 w-10 h-10"
-            >
-              {mobileMenuOpen ? (
-                <X size={20} className="text-elite-black" />
-              ) : (
-                <Menu size={20} className="text-elite-black" />
-              )}
-            </button>
-          </div>
-
-          {/* Mobile Menu Dropdown */}
-          {mobileMenuOpen && (
-            <div className="mt-4 py-6 border-t border-elite-burgundy/20 bg-elite-cream rounded-lg mx-2">
-              <div className="flex flex-col space-y-3 px-4">
-                <Link
-                  href="/menu"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105"
-                >
-                  Menu
-                </Link>
-                <a
-                  href="#location"
-                  onClick={(e) => {
-                    handleLocationClick(e);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105"
-                >
-                  Location
-                </a>
-                
-                {/* User Section */}
-                {session ? (
-                  <>
-                    <Link
-                      href="/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 flex items-center gap-3"
-                    >
-                      <User className="w-5 h-5" />
-                      Profile
-                    </Link>
-                    <Link
-                      href="/orders"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 flex items-center gap-3"
-                    >
-                      <ShoppingBag className="w-5 h-5" />
-                      My Orders
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        signOut({ callbackUrl: "/" });
-                      }}
-                      className="bg-red-50 text-red-600 font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-red-600 hover:text-white hover:shadow-lg hover:scale-105 flex items-center gap-3"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      Sign Out
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/auth/signin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="bg-elite-burgundy text-elite-cream font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-dark-burgundy hover:shadow-lg hover:scale-105"
-                  >
-                    Sign In
-                  </Link>
-                )}
-                
-                <Link
-                  href="/shop"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105 relative"
-                >
-                  Shop
-                  <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
-                    Soon
-                  </span>
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </nav>
     </>

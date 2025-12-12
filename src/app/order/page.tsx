@@ -6,9 +6,7 @@ import { useToast } from "@/components/ToastProvider";
 import { Skeleton } from "@/components/Skeleton";
 import { useCart } from "@/hooks/useCart";
 import { useAddresses } from "@/hooks/useAddresses";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import MobileNavigation from "@/components/MobileNavigation";
 import AddressManager from "@/components/AddressManager";
 import Link from "next/link";
 import LoadingState from "@/components/ui/LoadingState";
@@ -166,7 +164,6 @@ export default function OrderPage() {
   if (loading)
     return (
       <main className="page-transition loaded">
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
           <LoadingState
             variant="spinner"
@@ -181,7 +178,6 @@ export default function OrderPage() {
   if (error)
     return (
       <main className="page-transition loaded">
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
           <ErrorState
             error={error}
@@ -196,7 +192,6 @@ export default function OrderPage() {
 
   return (
     <main className="page-transition loaded">
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-12">
@@ -644,7 +639,6 @@ export default function OrderPage() {
         </div>
       </div>
       <Footer />
-      <MobileNavigation />
     </main>
   );
 }

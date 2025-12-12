@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { OrderDetailCard } from "@/components/OrderDetailCard";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -16,7 +15,6 @@ export default function OrderDetailPage() {
   if (authLoading) {
     return (
       <main>
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center">
           <div className="animate-pulse text-elite-black/70 font-cabin">
             Loading...
@@ -29,7 +27,6 @@ export default function OrderDetailPage() {
 
   return (
     <main>
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-8">

@@ -4,10 +4,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { User, Mail, Bell, Globe, Trash2, ChevronRight, MapPin as MapPinIcon, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
-import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
-import Navigation from "@/components/Navigation";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useRequireAuth } from "@/lib/auth/hooks";
 
@@ -102,7 +100,6 @@ export default function SettingsPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
-        <Navigation />
       </div>
       <MobileHeader title="Settings" showBack={true} />
       
@@ -395,7 +392,6 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      <MobileNavigation />
     </>
   );
 }

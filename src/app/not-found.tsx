@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { Coffee, Home, Menu, MapPin } from "lucide-react";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
 export default function NotFound() {
   return (
     <main>
-      <Navigation />
       <div className="min-h-screen bg-elite-cream flex items-center justify-center px-6">
         <div className="max-w-2xl mx-auto text-center">
           {/* 404 Icon */}

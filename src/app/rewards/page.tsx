@@ -3,7 +3,6 @@
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { useLoyalty } from "@/hooks/useLoyalty";
 import { LoyaltyCard, LoyaltyBenefits, LoyaltyActivity, LoyaltyTiers } from "@/components/LoyaltyCard";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Loader2, AlertCircle, RefreshCw, Gift } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +14,6 @@ export default function RewardsPage() {
   if (authLoading || loading) {
     return (
       <main>
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center">
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
@@ -29,7 +27,6 @@ export default function RewardsPage() {
 
   return (
     <main>
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-12">

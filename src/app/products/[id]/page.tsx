@@ -3,8 +3,6 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navigation from "@/components/Navigation";
-import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import Footer from "@/components/Footer";
 import ProductDetailClient from "@/components/ProductDetailClient";
@@ -88,7 +86,6 @@ export default function ProductDetailPage() {
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
         <div className="hidden md:block">
-          <Navigation />
         </div>
         <MobileHeader title="Product" showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
@@ -102,7 +99,6 @@ export default function ProductDetailPage() {
         <div className="hidden md:block">
           <Footer />
         </div>
-        <MobileNavigation />
       </>
     );
   }
@@ -112,7 +108,6 @@ export default function ProductDetailPage() {
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
         <div className="hidden md:block">
-          <Navigation />
         </div>
         <MobileHeader title="Product" showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
@@ -134,7 +129,6 @@ export default function ProductDetailPage() {
         <div className="hidden md:block">
           <Footer />
         </div>
-        <MobileNavigation />
       </>
     );
   }
@@ -143,7 +137,6 @@ export default function ProductDetailPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
-        <Navigation />
       </div>
       <MobileHeader title={product.name} showBack={true} />
       <main className="page-transition loaded min-h-screen bg-elite-burgundy pt-16 md:pt-0 pb-20 md:pb-0">
@@ -155,7 +148,6 @@ export default function ProductDetailPage() {
       <div className="hidden md:block">
         <Footer />
       </div>
-      <MobileNavigation />
     </>
   );
 }

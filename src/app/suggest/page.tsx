@@ -9,7 +9,6 @@ import { SuggestPreferencesForm } from "@/components/SuggestPreferencesForm";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { useToast } from "@/components/ToastProvider";
 import { Skeleton } from "@/components/Skeleton";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Sparkles, Coffee, ChevronRight } from "lucide-react";
@@ -25,7 +24,6 @@ export default function SuggestPage() {
 
   return (
     <main className="page-transition loaded">
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-12">

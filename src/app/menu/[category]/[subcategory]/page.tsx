@@ -9,7 +9,6 @@ import {
   Home,
 } from "lucide-react";
 import { notFound } from "next/navigation";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { getAllCategories } from "@/lib/menuData";
 import DrinkCard from "@/components/DrinkCard";
@@ -67,7 +66,6 @@ export default async function SubCategoryPage({
 
   return (
     <main className="page-transition loaded">
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-8">

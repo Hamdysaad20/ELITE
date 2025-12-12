@@ -3,8 +3,6 @@
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { useOrders } from "@/hooks/useOrderStatus";
 import { OrderStatusBadge, OrderIntegrationStatus } from "@/components/OrderStatusBadge";
-import Navigation from "@/components/Navigation";
-import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
@@ -22,7 +20,6 @@ export default function OrdersPage() {
   if (authLoading || loading) {
     return (
       <main>
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center">
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
@@ -38,7 +35,6 @@ export default function OrdersPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
-        <Navigation />
       </div>
       <MobileHeader title="My Orders" showBack={true} />
       <div className="min-h-screen bg-elite-cream pb-20 md:pb-0 pt-16 md:pt-0">
@@ -157,7 +153,6 @@ export default function OrdersPage() {
       <div className="hidden md:block">
         <Footer />
       </div>
-      <MobileNavigation />
     </>
   );
 }

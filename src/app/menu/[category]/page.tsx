@@ -17,7 +17,6 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import DrinkCard from "@/components/DrinkCard";
 import CategoryPageSkeleton from "@/components/skeletons/CategoryPageSkeleton";
@@ -98,7 +97,6 @@ export default function CategoryPage() {
   if (loading) {
     return (
       <main>
-        <Navigation />
         <CategoryPageSkeleton />
         <Footer />
       </main>
@@ -109,7 +107,6 @@ export default function CategoryPage() {
   if (error) {
     return (
       <main>
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center px-4">
           <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -141,7 +138,6 @@ export default function CategoryPage() {
   if (!category) {
     return (
       <main>
-        <Navigation />
         <div className="min-h-screen bg-elite-cream flex items-center justify-center px-4">
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 max-w-md text-center">
             <Coffee className="w-12 h-12 text-amber-500 mx-auto mb-4" />
@@ -163,7 +159,6 @@ export default function CategoryPage() {
 
   return (
     <main>
-      <Navigation />
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-8">

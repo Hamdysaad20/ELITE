@@ -4,10 +4,8 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, Mail, LogOut, ShoppingBag, MapPin, Package, Award, Settings, Camera } from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
-import MobileNavigation from "@/components/MobileNavigation";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
-import Navigation from "@/components/Navigation";
 import AddressManager from "@/components/AddressManager";
 import AvatarUpload from "@/components/AvatarUpload";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
@@ -62,7 +60,6 @@ function ProfileContent() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block">
-        <Navigation />
       </div>
       <MobileHeader title="Profile" showBack={true} />
       
@@ -274,7 +271,6 @@ function ProfileContent() {
         </div>
       </main>
 
-      <MobileNavigation />
       
       {/* Avatar Upload Modal */}
       {showAvatarUpload && (

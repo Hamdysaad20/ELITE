@@ -6,6 +6,8 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import NetworkStatus from "@/components/NetworkStatus";
 import CartButton from "@/components/Cart/CartButton";
+import Navigation from "@/components/Navigation";
+import MobileNavigation from "@/components/MobileNavigation";
 import {
   createNavigationState,
   cleanupNavigationState,
@@ -21,8 +23,8 @@ export default function ClientBody({
 }) {
   const pathname = usePathname();
   
-  // Hide cart on auth pages
-  const hideCart = pathname?.startsWith("/auth") || pathname?.includes("verify");
+  // Hide cart and mobile nav on auth pages
+  const isAuthPage = pathname?.startsWith("/auth") || pathname?.includes("verify");
   
   // Handle initialization after hydration is complete
   useEffect(() => {
@@ -95,8 +97,16 @@ export default function ClientBody({
   return (
     <AuthProvider>
       <NetworkStatus />
-      {!hideCart && <CartButton />}
-      <ToastProvider>{children}</ToastProvider>
+      {!isAuthPage && (
+        <>
+          <Navigation />
+          <CartButton />
+        </>
+      )}
+      <ToastProvider>
+        {children}
+      </ToastProvider>
+      {!isAuthPage && <MobileNavigation />}
     </AuthProvider>
   );
 }

@@ -1,11 +1,9 @@
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ShoppingBag, Star, Sparkles } from "lucide-react";
 
 export default function ShopPage() {
   return (
     <main>
-      <Navigation />
 
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}

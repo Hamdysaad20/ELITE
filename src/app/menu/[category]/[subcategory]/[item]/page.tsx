@@ -7,7 +7,6 @@ import {
   MenuItem,
 } from "@/lib/menuData";
 import { notFound } from "next/navigation";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ItemDetailClient from "@/components/ItemDetailClient";
 
@@ -66,7 +65,6 @@ export default async function ItemDetailPage({
 
   return (
     <main className="page-transition loaded">
-      <Navigation />
       <ItemDetailClient
         item={item}
         category={category}
