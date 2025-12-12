@@ -119,15 +119,6 @@ export default function Navigation() {
               </Link>
 
               <Link
-                href="/order"
-                className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
-              >
-                <span className="text-base uppercase">
-                  Order
-                </span>
-              </Link>
-
-              <Link
                 href="/shop"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
               >
@@ -306,13 +297,6 @@ export default function Navigation() {
                 >
                   Location
                 </a>
-                <Link
-                  href="/order"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="bg-white text-elite-black font-cabin text-base font-semibold py-4 px-6 rounded-full transition-all duration-300 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-105"
-                >
-                  Order
-                </Link>
                 
                 {/* User Section */}
                 {session ? (

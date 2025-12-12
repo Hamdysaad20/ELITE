@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import NetworkStatus from "@/components/NetworkStatus";
@@ -18,6 +19,11 @@ export default function ClientBody({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  
+  // Hide cart on auth pages
+  const hideCart = pathname?.startsWith("/auth") || pathname?.includes("verify");
+  
   // Handle initialization after hydration is complete
   useEffect(() => {
     // Ensure we're in the browser
@@ -89,7 +95,7 @@ export default function ClientBody({
   return (
     <AuthProvider>
       <NetworkStatus />
-      <CartButton />
+      {!hideCart && <CartButton />}
       <ToastProvider>{children}</ToastProvider>
     </AuthProvider>
   );

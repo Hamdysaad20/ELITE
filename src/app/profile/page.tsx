@@ -181,7 +181,7 @@ function ProfileContent() {
                     <p className="font-cabin text-elite-black/60 text-lg mb-2">No orders yet</p>
                     <p className="font-cabin text-elite-black/40 text-sm mb-6">Start your coffee journey today</p>
                     <button
-                      onClick={() => router.push("/order")}
+                      onClick={() => router.push("/menu")}
                       className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
                       Place Your First Order
