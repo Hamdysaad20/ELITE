@@ -20,6 +20,9 @@ export type OrderSyncPayload = OdooJobData;
  * the worker process isn't running.
  */
 export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void> {
+  const isServerlessEnv = process.env.VERCEL === "1" || process.env.NETLIFY === "true";
+  
+  // Try to use queue if available
   if (odooQueue) {
     try {
       await odooQueue.add("sync-order", payload, {
@@ -37,6 +40,30 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
         },
       });
       console.log(`[odooSync] Order ${payload.orderId} queued for sync`);
+      
+      // In serverless, also run inline sync as backup after a delay
+      // This ensures sync happens even if worker fails to process the queue
+      if (isServerlessEnv) {
+        console.log(`[odooSync] Setting up backup inline sync for order ${payload.orderId} (serverless safety net)`);
+        // Run backup sync after 5 seconds if queue hasn't processed it
+        setTimeout(async () => {
+          try {
+            const order = await prisma.order.findUnique({
+              where: { id: payload.orderId },
+              select: { odooStatusSale: true, saleOrderId: true },
+            });
+            
+            // Only run backup if order is still pending and not synced
+            if (order && (order.odooStatusSale === "pending" || order.odooStatusSale === null) && !order.saleOrderId) {
+              console.log(`[odooSync] Queue didn't process order ${payload.orderId} within 5s, running backup inline sync`);
+              await processOrderSync(payload);
+            }
+          } catch (err) {
+            console.error(`[odooSync] Backup inline sync failed for ${payload.orderId}:`, err);
+          }
+        }, 5000); // 5 second delay
+      }
+      
       return;
     } catch (error) {
       console.error(`[odooSync] Failed to queue order ${payload.orderId}, falling back to inline sync:`, error);

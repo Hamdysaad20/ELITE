@@ -305,12 +305,16 @@ if (!isBuildTime() && !isEdgeRuntime() && typeof process !== "undefined" && proc
   // Use setImmediate to avoid blocking module loading
   // In serverless, this will run on first API call
   setImmediate(async () => {
-    // Only auto-start in non-serverless or if explicitly enabled
-    // In serverless, we rely on the distributed lock mechanism
-    if (!isServerless() || process.env.ENABLE_ODOO_WORKER === "true") {
+    // Auto-start worker:
+    // - In traditional hosting: Always start
+    // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
+    // - Can be disabled by setting ENABLE_ODOO_WORKER=false
+    const shouldStart = process.env.ENABLE_ODOO_WORKER !== "false";
+    
+    if (shouldStart) {
       await initializeOdooWorker();
     } else {
-      console.log("[odoo-worker] Auto-start disabled in serverless (use separate worker process or set ENABLE_ODOO_WORKER=true)");
+      console.log("[odoo-worker] Auto-start disabled (ENABLE_ODOO_WORKER=false)");
     }
   });
 }
