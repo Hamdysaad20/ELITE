@@ -41,27 +41,47 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
       });
       console.log(`[odooSync] Order ${payload.orderId} queued for sync`);
       
-      // In serverless, also run inline sync as backup after a delay
+      // In serverless, also run inline sync as backup
       // This ensures sync happens even if worker fails to process the queue
+      // We check order status first to avoid unnecessary duplicate syncs
       if (isServerlessEnv) {
         console.log(`[odooSync] Setting up backup inline sync for order ${payload.orderId} (serverless safety net)`);
-        // Run backup sync after 5 seconds if queue hasn't processed it
-        setTimeout(async () => {
+        // Run backup sync check immediately (non-blocking) - doesn't await, runs in background
+        // This works in serverless because it starts executing before the function terminates
+        // We check if order was already synced first to avoid unnecessary work
+        (async () => {
           try {
+            // Use process.nextTick to run in next event loop iteration (still within execution context)
+            // This gives the queue a tiny chance to process first, but still runs before function terminates
+            await new Promise<void>((resolve) => {
+              if (typeof process !== "undefined" && process.nextTick) {
+                process.nextTick(() => resolve());
+              } else {
+                // Fallback for environments without process.nextTick
+                setImmediate(() => resolve());
+              }
+            });
+            
+            // Quick check: was order already synced by queue?
             const order = await prisma.order.findUnique({
               where: { id: payload.orderId },
               select: { odooStatusSale: true, saleOrderId: true },
             });
             
             // Only run backup if order is still pending and not synced
+            // This prevents unnecessary duplicate syncs if queue processed it quickly
             if (order && (order.odooStatusSale === "pending" || order.odooStatusSale === null) && !order.saleOrderId) {
-              console.log(`[odooSync] Queue didn't process order ${payload.orderId} within 5s, running backup inline sync`);
+              console.log(`[odooSync] Running backup inline sync for order ${payload.orderId} (queue may not process in time)`);
+              // Odoo sync is idempotent, so if queue processes it during this sync, it will just return existing order
               await processOrderSync(payload);
+            } else if (order?.saleOrderId) {
+              console.log(`[odooSync] Order ${payload.orderId} already synced by queue, skipping backup`);
             }
           } catch (err) {
+            // Only log real errors, don't throw - queue sync may still succeed
             console.error(`[odooSync] Backup inline sync failed for ${payload.orderId}:`, err);
           }
-        }, 5000); // 5 second delay
+        })(); // IIFE to run async function immediately
       }
       
       return;
