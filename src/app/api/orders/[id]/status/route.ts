@@ -7,6 +7,7 @@ import {
 } from "@/server/utils/apiHelpers";
 import { getAuthUser } from "@/server/auth/session";
 import { awardOrderPoints } from "@/server/services/loyalty";
+import { trackPurchaseChallenges } from "@/server/services/challengeService";
 
 export async function GET(
   request: NextRequest,
@@ -116,7 +117,25 @@ export async function PATCH(
     if (status && ["DELIVERED", "COMPLETED"].includes(status) && updatedOrder.userId) {
       const result = await awardOrderPoints(id, updatedOrder.userId);
       if (result) {
-        console.log(`✅ Awarded ${result.pointsAwarded} points for order ${id}`);
+        console.log(`✅ Awarded ${result.pointsAwarded} coins for order ${id}`);
+      }
+
+      const orderDetails = await prisma.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (orderDetails) {
+        await trackPurchaseChallenges(
+          updatedOrder.userId,
+          id,
+          Number(orderDetails.total),
+          orderDetails.items.map((item) => ({
+            productId: item.productId,
+            categoryId: item.categoryId || undefined,
+            quantity: item.quantity,
+          })),
+        );
       }
     }
 

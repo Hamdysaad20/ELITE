@@ -12,7 +12,11 @@
     "db:reset": "echo {\"carts\":{},\"orders\":[]} > data/database.json && echo Database reset complete!",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "worker:odoo": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/run-odoo-worker.ts"
+    "worker:odoo": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/run-odoo-worker.ts",
+    "loyalty:seed": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/seed-elite-rewards.ts",
+    "loyalty:migrate": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/migrate-loyalty-data.ts",
+    "loyalty:tier-check": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/monthly-tier-check.ts",
+    "loyalty:weekly-reset": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register ./scripts/weekly-challenge-reset.ts"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",

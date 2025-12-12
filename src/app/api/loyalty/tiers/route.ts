@@ -7,54 +7,34 @@ import {
   TIER_ORDER,
   getNextTier,
   calculateTierProgress,
-  COINS_PER_EGP,
+  checkAndUpdateTier,
 } from "@/server/services/eliteLoyalty";
 
 /**
- * GET /api/loyalty - Get comprehensive user's loyalty information
+ * GET /api/loyalty/tiers - Get user's tier status and progress
  */
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request);
 
-    let loyalty = await prisma.loyaltyAccount.findUnique({
+    const loyalty = await prisma.loyaltyAccount.findUnique({
       where: { userId: user.id },
     });
 
     if (!loyalty) {
-      loyalty = await prisma.loyaltyAccount.create({
-        data: {
-          userId: user.id,
-          coins: 0,
-          lifetimeCoins: 0,
-          totalSpent: 0,
-          tier: "starter",
-          tierMultiplier: 0,
-        },
-      });
+      return jsonResponse(
+        successResponse({
+          current: ELITE_TIERS.starter,
+          next: ELITE_TIERS.black,
+          progress: { overallProgress: 0 },
+          allTiers: TIER_ORDER.map((id) => ELITE_TIERS[id]),
+          monthlyProgress: null,
+        }),
+      );
     }
 
     const monthlyProgress = await prisma.monthlyTierProgress.findUnique({
       where: { userId: user.id },
-    });
-
-    const streak = await prisma.userStreak.findUnique({
-      where: { userId: user.id },
-    });
-
-    const recentActivity = await prisma.loyaltyLedger.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      include: {
-        order: {
-          select: {
-            id: true,
-            total: true,
-            createdAt: true,
-          },
-        },
-      },
     });
 
     const currentTier = ELITE_TIERS[loyalty.tier];
@@ -76,31 +56,17 @@ export async function GET(request: NextRequest) {
           overallProgress: 0,
         };
 
+    const visibleTiers = TIER_ORDER.slice(0, TIER_ORDER.indexOf(loyalty.tier) + 3).map(
+      (id) => ELITE_TIERS[id],
+    );
+
     return jsonResponse(
       successResponse({
-        account: {
-          coins: loyalty.coins,
-          lifetimeCoins: loyalty.lifetimeCoins,
-          coinsValueEGP: (loyalty.coins / COINS_PER_EGP).toFixed(2),
-          totalSpent: loyalty.totalSpent,
-          tier: loyalty.tier,
-          tierMultiplier: Number(loyalty.tierMultiplier),
-          updatedAt: loyalty.updatedAt,
-        },
-        tier: {
-          current: currentTier,
-          next: nextTier,
-          progress,
-        },
-        streak: streak
-          ? {
-              currentDaily: streak.currentDaily,
-              longestDaily: streak.longestDaily,
-              weeklyCount: streak.weeklyCount,
-              monthlyCount: streak.monthlyCount,
-              lastActivityDate: streak.lastActivityDate,
-            }
-          : null,
+        current: currentTier,
+        next: nextTier,
+        progress,
+        visibleTiers,
+        allTiers: TIER_ORDER.map((id) => ELITE_TIERS[id]),
         monthlyProgress: monthlyProgress
           ? {
               coinsEarned: monthlyProgress.coinsEarned,
@@ -112,21 +78,35 @@ export async function GET(request: NextRequest) {
               meetsRequirements: monthlyProgress.meetsRequirements,
             }
           : null,
-        recentActivity: recentActivity.map((item) => ({
-          id: item.id,
-          deltaCoins: item.deltaCoins,
-          reason: item.reason,
-          source: item.source,
-          orderId: item.orderId,
-          orderTotal: item.order?.total,
-          createdAt: item.createdAt,
-        })),
       }),
     );
   } catch (error) {
-    console.error("Loyalty fetch error:", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch loyalty information";
+    console.error("Tiers fetch error:", error);
+    const message = error instanceof Error ? error.message : "Failed to fetch tier information";
+    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
+  }
+}
+
+/**
+ * POST /api/loyalty/tiers/check - Manually trigger tier check (admin or cron)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const user = await requireAuth(request);
+
+    const newTier = await checkAndUpdateTier(user.id);
+
+    return jsonResponse(
+      successResponse({
+        tier: newTier,
+        tierConfig: ELITE_TIERS[newTier],
+        message: `Tier updated to ${ELITE_TIERS[newTier].name}`,
+      }),
+    );
+  } catch (error) {
+    console.error("Tier check error:", error);
+    const message = error instanceof Error ? error.message : "Failed to check tier";
     const isAuthError = error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }

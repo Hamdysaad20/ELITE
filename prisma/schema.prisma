@@ -8,24 +8,31 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(uuid())
-  email         String          @unique
-  emailVerified DateTime?
-  name          String?
-  phone         String?
-  image         String?
-  role          String          @default("user")
-  status        String          @default("active")
-  lastLoginAt   DateTime?
-  loyalty       LoyaltyAccount?
-  orders        Order[]
-  ledger        LoyaltyLedger[] @relation("UserLedger")
-  accounts      Account[]
-  sessions      Session[]
-  reviews       Review[]        @relation("UserReviews")
-  addresses     Address[]       @relation("UserAddresses")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id                   String                @id @default(uuid())
+  email                String                @unique
+  emailVerified        DateTime?
+  name                 String?
+  phone                String?
+  image                String?
+  role                 String                @default("user")
+  status               String                @default("active")
+  lastLoginAt          DateTime?
+  currentAvatarId      String?
+  loyalty              LoyaltyAccount?
+  orders               Order[]
+  ledger               LoyaltyLedger[]       @relation("UserLedger")
+  accounts             Account[]
+  sessions             Session[]
+  reviews              Review[]              @relation("UserReviews")
+  addresses            Address[]             @relation("UserAddresses")
+  streaks              UserStreak?
+  monthlyProgress      MonthlyTierProgress?
+  challengeCompletions ChallengeCompletion[]
+  unlockedAvatars      UserAvatar[]
+  redemptions          RewardRedemption[]
+  socialActions        SocialAction[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@index([email])
   @@index([status])
@@ -71,23 +78,212 @@ model VerificationToken {
 }
 
 model LoyaltyAccount {
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   @id
-  points     Int      @default(0)
-  totalSpent Decimal  @default(0)
-  level      String   @default("bronze")
-  updatedAt  DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @id
+  coins             Int      @default(0) // Renamed from points to coins
+  lifetimeCoins     Int      @default(0) // Total coins earned ever
+  totalSpent        Decimal  @default(0)
+  tier              String   @default("starter") // New 10-tier system
+  tierMultiplier    Decimal  @default(0) // Percentage multiplier (0, 5, 7, 10, etc.)
+  lastTierCheck     DateTime @default(now())
+  consecutiveMaintained Int  @default(0) // Months tier maintained
+  updatedAt         DateTime @updatedAt
 }
 
 model LoyaltyLedger {
-  id          String   @id @default(uuid())
-  user        User     @relation("UserLedger", fields: [userId], references: [id])
-  userId      String
-  order       Order?   @relation("OrderLedger", fields: [orderId], references: [id])
-  orderId     String?
-  deltaPoints Int
-  reason      String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  user       User     @relation("UserLedger", fields: [userId], references: [id])
+  userId     String
+  order      Order?   @relation("OrderLedger", fields: [orderId], references: [id])
+  orderId    String?
+  deltaCoins Int      // Renamed from deltaPoints
+  reason     String?
+  source     String   @default("order") // order, challenge, streak, social, admin, redemption
+  metadata   Json?    // Additional data (challenge ID, streak type, etc.)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([source])
+  @@index([createdAt])
+}
+
+model MonthlyTierProgress {
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String   @id
+  month            Int      // 1-12
+  year             Int
+  coinsEarned      Int      @default(0)
+  purchaseCount    Int      @default(0)
+  challengesComplete Int    @default(0)
+  eliteChallengesComplete Int @default(0)
+  maxStreakDays    Int      @default(0)
+  currentStreakDays Int     @default(0)
+  lastActivityDate DateTime @default(now())
+  tierAtStart      String
+  tierAtEnd        String?
+  meetsRequirements Boolean @default(false)
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, year, month])
+  @@index([year, month])
+}
+
+model UserStreak {
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @id
+  currentDaily      Int      @default(0)
+  longestDaily      Int      @default(0)
+  lastActivityDate  DateTime?
+  lastClaimDate     DateTime?
+  weeklyCount       Int      @default(0) // Orders this week
+  monthlyCount      Int      @default(0) // Orders this month
+  weekStartDate     DateTime @default(now())
+  monthStartDate    DateTime @default(now())
+  totalDaysActive   Int      @default(0)
+  updatedAt         DateTime @updatedAt
+}
+
+model Challenge {
+  id             String                @id @default(uuid())
+  title          String
+  description    String
+  type           String // purchase_count, spend_amount, product_category, review, share, streak, combo
+  tier           String                @default("normal") // normal or elite
+  requirement    Json // Flexible requirements object
+  coinsReward    Int
+  avatarUnlock   String? // Avatar ID to unlock on completion
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean               @default(true)
+  isRecurring    Boolean               @default(false) // Weekly/monthly reset
+  recurringPeriod String?              // weekly, monthly
+  priority       Int                   @default(0)
+  imageUrl       String?
+  completions    ChallengeCompletion[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([isActive])
+  @@index([tier])
+  @@index([startDate, endDate])
+}
+
+model ChallengeCompletion {
+  id           String    @id @default(uuid())
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String
+  challenge    Challenge @relation(fields: [challengeId], references: [id])
+  challengeId  String
+  progress     Json? // Track progress toward completion
+  completedAt  DateTime?
+  coinsAwarded Int       @default(0)
+  periodStart  DateTime  @default(now()) // For recurring challenges
+  periodEnd    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, challengeId, periodStart])
+  @@index([userId])
+  @@index([challengeId])
+  @@index([completedAt])
+}
+
+model Avatar {
+  id            String       @id @default(uuid())
+  name          String
+  imageUrl      String
+  thumbnailUrl  String?
+  rarity        String       @default("common") // common, rare, epic, legendary
+  unlockType    String // tier, challenge, coins, seasonal, special
+  unlockValue   String? // Tier name, challenge ID, coin cost, etc.
+  description   String?
+  isActive      Boolean      @default(true)
+  isLimited     Boolean      @default(false) // Limited time availability
+  availableFrom DateTime?
+  availableUntil DateTime?
+  sortOrder     Int          @default(0)
+  unlockedBy    UserAvatar[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([unlockType])
+  @@index([isActive])
+  @@index([rarity])
+}
+
+model UserAvatar {
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  avatar     Avatar   @relation(fields: [avatarId], references: [id])
+  avatarId   String
+  unlockedAt DateTime @default(now())
+  isEquipped Boolean  @default(false)
+
+  @@id([userId, avatarId])
+  @@index([userId])
+  @@index([avatarId])
+}
+
+model RewardItem {
+  id          String             @id @default(uuid())
+  name        String
+  description String
+  type        String // merch, food, drink, discount, avatar, mystery_box
+  coinsCost   Int
+  egpValue    Decimal? // Original EGP value for reference
+  imageUrl    String?
+  stockQty    Int? // null = unlimited
+  maxPerUser  Int? // Max redemptions per user
+  isActive    Boolean            @default(true)
+  category    String? // clothing, drinkware, food, special
+  metadata    Json? // Size options, SKU, Odoo product ID, etc.
+  sortOrder   Int                @default(0)
+  redemptions RewardRedemption[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([isActive])
+  @@index([type])
+  @@index([category])
+}
+
+model RewardRedemption {
+  id              String     @id @default(uuid())
+  user            User       @relation(fields: [userId], references: [id])
+  userId          String
+  rewardItem      RewardItem @relation(fields: [rewardItemId], references: [id])
+  rewardItemId    String
+  coinsSpent      Int
+  status          String     @default("pending") // pending, processing, shipped, delivered, cancelled
+  deliveryMethod  String? // pickup, delivery
+  deliveryAddress Json? // Address details
+  trackingInfo    String?
+  notes           String?
+  redeemedAt      DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([rewardItemId])
+  @@index([status])
+  @@index([redeemedAt])
+}
+
+model SocialAction {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  actionType String // review, rating, share, referral
+  targetType String? // product, order, general
+  targetId   String?
+  coinsAwarded Int   @default(0)
+  metadata   Json? // Share platform, rating value, etc.
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, actionType, targetId])
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
 }
 
 model Order {
