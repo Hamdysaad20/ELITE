@@ -30,7 +30,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       if (optimisticValue.action === 'update' && optimisticValue.quantity !== undefined) {
         return state.map(item => 
           item.id === optimisticValue.id 
-            ? { ...item, quantity: optimisticValue.quantity }
+            ? { ...item, quantity: optimisticValue.quantity as number }
             : item
         );
       }
