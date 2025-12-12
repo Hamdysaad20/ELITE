@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import { useAddresses } from "@/hooks/useAddresses";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import MobileNavigation from "@/components/MobileNavigation";
 import AddressManager from "@/components/AddressManager";
 import Link from "next/link";
 import LoadingState from "@/components/ui/LoadingState";
@@ -640,20 +641,10 @@ export default function OrderPage() {
               </div>
             </div>
           )}
-
-          {/* Continue Shopping */}
-          <div className="text-center pt-4">
-            <Link
-              href="/menu"
-              className="inline-flex items-center gap-2 font-cabin text-elite-burgundy hover:text-elite-dark-burgundy transition-colors"
-            >
-              <span>Continue shopping</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
         </div>
       </div>
       <Footer />
+      <MobileNavigation />
     </main>
   );
 }
