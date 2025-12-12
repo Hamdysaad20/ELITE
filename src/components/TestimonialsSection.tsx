@@ -118,19 +118,19 @@ export default function TestimonialsSection() {
 
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="font-calistoga text-elite-black text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-6">
+        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+          <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-4 sm:mb-6">
             What People
             <br />
             <span className="text-elite-burgundy">Love About Us</span>
           </h2>
-          <p className="text-elite-black font-cabin text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+          <p className="text-elite-black font-cabin text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto px-4">
             Real stories from real people who've made Elite their daily ritual
           </p>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-stretch">
           {/* Left Column - Testimonials */}
           <div className="space-y-6 flex flex-col justify-center min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]">
             {testimonials.map((testimonial, idx) => (

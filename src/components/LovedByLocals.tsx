@@ -73,10 +73,10 @@ export default function LovedByLocals() {
   }, []);
 
   return (
-    <section className="bg-elite-cream py-20 px-6">
+    <section className="bg-elite-cream py-12 sm:py-16 md:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
-        <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl mb-6">
+        <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-4 sm:mb-6">
           Loved by Locals
         </h2>
 
@@ -85,33 +85,67 @@ export default function LovedByLocals() {
           Local go-to's everyone loves — handpicked and always fresh.
         </p>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {products.map((product, index) => (
-            <a
-              key={index}
-              href={product.link}
-              className="group cursor-pointer flex flex-col items-center"
-              ref={(el) => {
-                productRefs.current[index] = el;
-              }}
-            >
-              <div className="bg-elite-burgundy rounded-3xl  transition-transform group-hover:scale-105 mb-4 relative overflow-hidden">
-                <div className="aspect-square overflow-hidden rounded-2xl flex items-end">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover object-bottom"
-                  />
+        {/* Product Grid - Mobile: Horizontal Scroll, Desktop: Grid */}
+        <div className="mb-16">
+          {/* Mobile: Horizontal Scroll */}
+          <div className="sm:hidden overflow-x-auto -mx-6 px-6 pb-4 scrollbar-hide">
+            <div className="flex gap-6 snap-x snap-mandatory">
+              {products.map((product, index) => (
+                <a
+                  key={index}
+                  href={product.link}
+                  className="group cursor-pointer flex flex-col items-center w-[240px] flex-shrink-0 snap-start"
+                  ref={(el) => {
+                    productRefs.current[index] = el;
+                  }}
+                >
+                  <div className="bg-elite-burgundy rounded-3xl transition-transform group-hover:scale-105 mb-4 relative overflow-hidden w-full">
+                    <div className="aspect-square overflow-hidden rounded-2xl flex items-end">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover object-bottom"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-center w-full">
+                    <h3 className="font-calistoga text-elite-black text-xl">
+                      {product.name}
+                    </h3>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop: Grid */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {products.map((product, index) => (
+              <a
+                key={index}
+                href={product.link}
+                className="group cursor-pointer flex flex-col items-center"
+                ref={(el) => {
+                  productRefs.current[index] = el;
+                }}
+              >
+                <div className="bg-elite-burgundy rounded-3xl transition-transform group-hover:scale-105 mb-4 relative overflow-hidden">
+                  <div className="aspect-square overflow-hidden rounded-2xl flex items-end">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover object-bottom"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="text-center w-full">
-                <h3 className="font-calistoga text-elite-black text-2xl">
-                  {product.name}
-                </h3>
-              </div>
-            </a>
-          ))}
+                <div className="text-center w-full">
+                  <h3 className="font-calistoga text-elite-black text-2xl">
+                    {product.name}
+                  </h3>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Explore Menu Button */}

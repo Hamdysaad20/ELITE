@@ -96,17 +96,17 @@ export default function FindAndGet() {
   }, []);
 
   return (
-    <section className="bg-elite-cream py-20 xl:py-36 px-6">
+    <section className="bg-elite-cream py-12 sm:py-16 md:py-20 xl:py-36 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
-        <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl mb-16">
+        <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-8 sm:mb-12 lg:mb-16">
           Find and Get
           <br />
           What You Love
         </h2>
 
         {/* Category Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
           {/* Classic Drinks Category */}
           <CategoryCard
             href="/menu/classic-drinks"

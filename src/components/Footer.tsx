@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="bg-elite-burgundy text-elite-white relative">
       <div className="relative max-w-7xl mx-auto px-6 py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12 sm:mb-14 lg:mb-16">
           {/* Brand Section */}
           <div className="space-y-6">
             {/* Tagline */}
