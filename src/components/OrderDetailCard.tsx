@@ -18,6 +18,7 @@ interface OrderDetailCardProps {
 function getEstimatedDeliveryDate(orderDate: Date, status: string): Date | null {
   const daysToAdd: Record<string, number> = {
     [OrderStatus.PENDING]: 3,
+    [OrderStatus.CONFIRMED]: 3,
     [OrderStatus.PREPARING]: 2,
     [OrderStatus.READY]: 1,
     [OrderStatus.OUT_FOR_DELIVERY]: 1,
@@ -51,7 +52,12 @@ function getTimelineEvents(status: string, createdAt: Date | string, updatedAt: 
 
   // Map statuses to timeline events
   // We group PREPARING, READY, and OUT_FOR_DELIVERY as "working on it"
+  // CONFIRMED is treated as "working on it" since it's the next step after pending
   const statusMap: Record<string, { title: string; description: string }> = {
+    [OrderStatus.CONFIRMED]: {
+      title: "Working on it",
+      description: "Your order has been confirmed",
+    },
     [OrderStatus.PREPARING]: {
       title: "Working on it",
       description: "We're preparing your order",
@@ -98,6 +104,11 @@ function getStatusInfo(status: string): { text: string; color: string; bgColor: 
       text: "Pending",
       color: "text-yellow-700",
       bgColor: "bg-yellow-100",
+    },
+    [OrderStatus.CONFIRMED]: {
+      text: "Working on it",
+      color: "text-orange-700",
+      bgColor: "bg-orange-100",
     },
     [OrderStatus.PREPARING]: {
       text: "Working on it",
@@ -181,6 +192,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   const getDeliveryProgress = () => {
     const progressMap: Record<string, number> = {
       [OrderStatus.PENDING]: 10,
+      [OrderStatus.CONFIRMED]: 25,
       [OrderStatus.PREPARING]: 50,
       [OrderStatus.READY]: 75,
       [OrderStatus.OUT_FOR_DELIVERY]: 90,
