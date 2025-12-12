@@ -89,7 +89,7 @@ export default function EmptyState({
               {actionHref ? (
                 <Link
                   href={actionHref}
-                  className="inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-dark-burgundy hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   <Sparkles className="w-5 h-5" />
                   {actionLabel}
@@ -97,7 +97,7 @@ export default function EmptyState({
               ) : (
                 <button
                   onClick={onAction}
-                  className="inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-dark-burgundy hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   <Sparkles className="w-5 h-5" />
                   {actionLabel}

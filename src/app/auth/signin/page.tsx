@@ -56,7 +56,7 @@ function SignInContent() {
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-64 h-64 bg-elite-cream rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-elite-dark-burgundy rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-elite-burgundy rounded-full blur-3xl"></div>
       </div>
 
       <div className="max-w-lg w-full relative z-10">
@@ -73,7 +73,7 @@ function SignInContent() {
         <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-12 space-y-6 sm:space-y-8 md:space-y-10">
           {/* Logo/Header */}
           <div className="text-center space-y-4 sm:space-y-6">
-            <div className="mx-auto h-20 w-20 sm:h-24 sm:w-24 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy rounded-full flex items-center justify-center shadow-xl">
+            <div className="mx-auto h-20 w-20 sm:h-24 sm:w-24 bg-elite-burgundy rounded-full flex items-center justify-center shadow-xl">
               <Coffee className="w-10 h-10 sm:w-12 sm:h-12 text-elite-cream" />
             </div>
             <div>
@@ -156,7 +156,7 @@ function SignInContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream font-cabin font-bold text-lg sm:text-xl py-5 sm:py-6 px-6 sm:px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px]"
+              className="w-full bg-elite-burgundy text-elite-cream font-cabin font-bold text-lg sm:text-xl py-5 sm:py-6 px-6 sm:px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px]"
             >
               {loading ? (
                 <>

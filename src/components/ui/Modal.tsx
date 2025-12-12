@@ -45,7 +45,7 @@ export default function Modal({
     <>
       {/* Mobile: Full screen overlay with bottom sheet */}
       <div className="md:hidden">
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[80] flex items-end justify-center">
           {/* Backdrop */}
           <div
             ref={overlayRef}
@@ -92,7 +92,7 @@ export default function Modal({
       </div>
 
       {/* Desktop: Centered modal */}
-      <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-4 sm:p-6">
+      <div className="hidden md:flex fixed inset-0 z-[80] items-center justify-center p-4 sm:p-6">
         {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"

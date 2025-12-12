@@ -20,12 +20,16 @@ interface AddressManagerProps {
   onSelectAddress?: (address: Address) => void;
   selectedAddressId?: string;
   compact?: boolean;
+  allowAddInSelectMode?: boolean;
+  onAddressCreated?: (address: Address) => void;
 }
 
 export default function AddressManager({
   onSelectAddress,
   selectedAddressId,
   compact = false,
+  allowAddInSelectMode = false,
+  onAddressCreated,
 }: AddressManagerProps) {
   const {
     addresses,
@@ -69,7 +73,11 @@ export default function AddressManager({
         await updateAddress(editingId, formData);
         setEditingId(null);
       } else {
-        await createAddress(formData);
+        const created = await createAddress(formData);
+        if (created) {
+          onAddressCreated?.(created);
+          onSelectAddress?.(created);
+        }
         setIsAdding(false);
       }
       // Reset form
@@ -194,7 +202,7 @@ export default function AddressManager({
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div className="w-12 h-12 rounded-2xl bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 shadow-md">
                     {getLabelIcon(address.label)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -203,12 +211,18 @@ export default function AddressManager({
                         {address.label}
                       </h4>
                       {address.isDefault && (
-                        <span className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-sm">
+                        <span className="bg-elite-burgundy text-elite-cream px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-sm">
                           Default
                         </span>
                       )}
-                      {isSelected && onSelectAddress && (
-                        <div className="ml-auto w-6 h-6 rounded-full bg-elite-burgundy flex items-center justify-center">
+                      {onSelectAddress && (
+                        <div
+                          className={`ml-auto w-6 h-6 rounded-full flex items-center justify-center transition-opacity ${
+                            isSelected
+                              ? "bg-elite-burgundy opacity-100"
+                              : "bg-elite-burgundy opacity-0"
+                          }`}
+                        >
                           <Check className="w-4 h-4 text-elite-cream" />
                         </div>
                       )}
@@ -285,7 +299,7 @@ export default function AddressManager({
           />
         </form>
       ) : (
-        !onSelectAddress && (
+        (!onSelectAddress || allowAddInSelectMode) && (
           <button
             type="button"
             onClick={() => setIsAdding(true)}
@@ -334,7 +348,7 @@ function AddressForm({
               onClick={() => setFormData({ ...formData, label })}
               className={`px-5 py-2.5 rounded-full font-cabin font-bold transition-all text-sm ${
                 formData.label === label
-                  ? "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/30"
+                  ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/30"
                   : "bg-white text-elite-black border-2 border-elite-burgundy/30 hover:border-elite-burgundy hover:shadow-md"
               }`}
             >
@@ -453,7 +467,7 @@ function AddressForm({
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-6 py-4 rounded-2xl font-cabin font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-elite-burgundy/30"
+          className="flex-1 bg-elite-burgundy text-elite-cream px-6 py-4 rounded-2xl font-cabin font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-elite-burgundy/30"
         >
           {submitting ? (
             <>

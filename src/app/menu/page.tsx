@@ -167,7 +167,7 @@ export default function MenuPage() {
       <MobileHeader title="Menu" showBack={true} transparent={true} />
       <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-16 md:pt-0">
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-elite-burgundy via-elite-dark-burgundy to-elite-burgundy opacity-90"></div>
+          <div className="absolute inset-0 bg-elite-burgundy opacity-90"></div>
 
           <div className="relative min-h-[30vh] md:min-h-[60vh] w-full overflow-hidden">
             <div className="absolute inset-0 z-[1]">
@@ -209,7 +209,7 @@ export default function MenuPage() {
         </div>
 
         <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8 overflow-hidden">
-          <div className="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12">
             {/* Loading State with Skeletons */}
             {loading && <MenuPageSkeleton />}
 
@@ -236,10 +236,10 @@ export default function MenuPage() {
             {/* Menu Content */}
             {!loading && !error && categories.length > 0 && (
               <>
-                {/* Mobile Category Pills - Horizontal Scrollable */}
-                <div className="lg:hidden mb-8">
-                  <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
-                    <div className="flex gap-3 py-4 min-w-max">
+                {/* Mobile Category Pills - Sticky + polished chips */}
+                <div className="lg:hidden sticky top-16 z-30 bg-elite-cream/85 backdrop-blur-sm border-b border-elite-burgundy/10 -mx-4 px-4 mb-6 pt-2">
+                  <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
+                    <div className="flex gap-3 py-3 min-w-max snap-x snap-mandatory">
                       {categories.filter((cat) => cat !== null && cat !== undefined).map((cat) => (
                         <button
                           key={cat.id}
@@ -248,23 +248,23 @@ export default function MenuPage() {
                               activeCategory === cat.id ? null : cat.id,
                             )
                           }
-                          className={`group flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap shadow-md border ${
+                          className={`group flex items-center gap-2 px-5 py-3 min-h-12 rounded-full transition-all duration-300 whitespace-nowrap border snap-start ${
                             activeCategory === cat.id
                               ? "bg-elite-burgundy text-elite-cream shadow-lg scale-105 border-elite-burgundy"
                               : cat.comingSoon
                                 ? "bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream"
-                                : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
+                                : "bg-transparent text-elite-burgundy border-elite-burgundy/25 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 hover:border-elite-burgundy"
                           }`}
                           disabled={cat.comingSoon}
                         >
                           <div
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
                               activeCategory === cat.id
                                 ? "bg-elite-cream"
                                 : "bg-elite-burgundy group-hover:bg-elite-cream"
                             }`}
                           ></div>
-                          <span className="font-cabin font-medium text-sm">
+                          <span className="font-cabin font-semibold text-[15px] sm:text-base">
                             {cat.name}
                           </span>
                           {cat.comingSoon && (
@@ -341,7 +341,7 @@ export default function MenuPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-3 sm:space-y-6">
                       {categories
                         .filter((cat) => cat !== null && cat !== undefined)
                         .filter(
@@ -350,7 +350,7 @@ export default function MenuPage() {
                         )
                         .map((category, index) => (
                           <div key={category.id} className="relative">
-                            <div className="bg-elite-cream rounded-2xl p-5 sm:p-6 lg:p-8 w-full relative">
+                            <div className="bg-elite-cream rounded-2xl p-4 sm:p-6 lg:p-8 w-full relative">
                               {category.comingSoon && (
                                 <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10"></div>
                               )}
@@ -358,7 +358,7 @@ export default function MenuPage() {
                               <div
                                 className={`${category.comingSoon ? "opacity-40" : ""}`}
                               >
-                                <div className="mb-4 sm:mb-6">
+                                <div className="mt-2 mb-3 sm:mb-6">
                                   <div className="flex items-center gap-3 sm:gap-4 mb-3">
                                     <div
                                       className={`p-3 sm:p-4 rounded-xl ${
@@ -384,19 +384,19 @@ export default function MenuPage() {
 
                                 {!category.comingSoon &&
                                   category.subCategories.length > 0 && (
-                                    <div className="space-y-6 sm:space-y-8">
+                                    <div className="space-y-4 sm:space-y-8">
                                       {category.subCategories.map((sub) => (
                                         <div
                                           key={sub.id}
-                                          className="space-y-3 sm:space-y-4"
+                                          className="space-y-2 sm:space-y-4"
                                         >
                                           {/* Items Preview - Horizontal Scrollable on All Screens */}
-                                          <div className="overflow-x-auto menu-items-scroll -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
-                                            <div className="flex gap-5 sm:gap-6 pb-4">
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                                               {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
                                                 <div
                                                   key={item.id}
-                                                  className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0">
+                                                  className="w-full"
+                                                >
                                                   <DrinkCard
                                                     id={item.id}
                                                     images={item.images}
@@ -404,7 +404,6 @@ export default function MenuPage() {
                                                     price={item.price}
                                                     description={item.description}
                                                     available={item.available}
-                                                    size="small"
                                                     href={`/products/${item.id}`}
                                                     menuItemId={item.id}
                                                     showAddToOrder={true}
@@ -420,7 +419,6 @@ export default function MenuPage() {
                                                 </div>
                                               ))}
                                             </div>
-                                          </div>
                                         </div>
                                       ))}
                                     </div>
@@ -435,7 +433,7 @@ export default function MenuPage() {
                                     !activeCategory || cat.id === activeCategory,
                                 ).length -
                                 1 && (
-                              <div className="h-px bg-elite-burgundy/10 mt-4 sm:mt-6"></div>
+                              <div className="h-px bg-elite-burgundy/10 mt-3 sm:mt-6"></div>
                             )}
                           </div>
                         ))}
@@ -453,7 +451,7 @@ export default function MenuPage() {
                 <p className="text-elite-black/60 font-cabin mb-4">Our menu is being prepared. Please check back soon!</p>
                 <button
                   onClick={handleRetry}
-                  className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all"
+                  className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Refresh

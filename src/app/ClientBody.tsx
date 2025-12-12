@@ -23,8 +23,9 @@ export default function ClientBody({
 }) {
   const pathname = usePathname();
   
-  // Hide cart and mobile nav on auth pages
+  // Hide cart and mobile nav on auth pages and order page
   const isAuthPage = pathname?.startsWith("/auth") || pathname?.includes("verify");
+  const isOrderPage = pathname === "/order";
   
   // Handle initialization after hydration is complete
   useEffect(() => {
@@ -100,7 +101,7 @@ export default function ClientBody({
       {!isAuthPage && (
         <>
           <Navigation />
-          <CartButton />
+          {!isOrderPage && <CartButton />}
         </>
       )}
       <ToastProvider>

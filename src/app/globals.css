@@ -12,8 +12,8 @@
   --elite-light-cream: #fef7e0;
   --elite-dark-cream: #e6d7b8;
   --elite-burgundy: #8b2635;
-  --elite-dark-burgundy: #6b1f2a;
-  --elite-light-burgundy: #a83247;
+  --elite-dark-burgundy: #8b2635;
+  --elite-light-burgundy: #8b2635;
   --elite-black: #2c2c2c;
 }
 
@@ -69,11 +69,11 @@
   }
 
   .bg-elite-dark-burgundy {
-    background-color: var(--elite-dark-burgundy);
+    background-color: var(--elite-burgundy);
   }
 
   .bg-elite-light-burgundy {
-    background-color: var(--elite-light-burgundy);
+    background-color: var(--elite-burgundy);
   }
 
   .bg-elite-black {
@@ -101,11 +101,11 @@
   }
 
   .text-elite-dark-burgundy {
-    color: var(--elite-dark-burgundy);
+    color: var(--elite-burgundy);
   }
 
   .text-elite-light-burgundy {
-    color: var(--elite-light-burgundy);
+    color: var(--elite-burgundy);
   }
 
   .text-elite-black {
@@ -222,6 +222,76 @@ link[rel="icon"] {
   display: none;  /* Safari and Chrome */
 }
 
+/* Enhanced mobile touch interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth snap scrolling for mobile */
+@supports (scroll-snap-type: x mandatory) {
+  .snap-scroll {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 1rem;
+    scroll-padding-right: 1rem;
+  }
+  
+  .snap-item {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
+
+/* Native mobile feel - prevent overflow and improve performance */
+@media (max-width: 640px) {
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Ensure minimum touch target size (44x44px) */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent text overflow */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Smooth scrolling for native feel */
+  html {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Performance optimizations */
+img {
+  content-visibility: auto;
+  will-change: auto;
+}
+
+/* Prevent layout shift from images */
+img[loading="lazy"] {
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* Optimize animations for mobile */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Enhanced drink card effects with circular base */
 .drink-card-container {
   position: relative;
@@ -289,7 +359,7 @@ link[rel="icon"] {
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--elite-dark-burgundy);
+  background: var(--elite-burgundy);
   opacity: 0.6;
 }
 
@@ -298,6 +368,17 @@ link[rel="icon"] {
   scrollbar-width: thin;
   scrollbar-color: var(--elite-burgundy) transparent;
   scroll-behavior: smooth;
+}
+
+/* Hide horizontal scrollbars on mobile for cleaner swipe UX */
+@media (max-width: 768px) {
+  .menu-items-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .menu-items-scroll::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .menu-items-scroll::-webkit-scrollbar {
@@ -317,7 +398,7 @@ link[rel="icon"] {
 }
 
 .menu-items-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--elite-dark-burgundy);
+  background: var(--elite-burgundy);
   opacity: 0.7;
 }
 
@@ -364,7 +445,7 @@ link[rel="icon"] {
   position: absolute;
   inset: 0;
   padding: 2px;
-  background: linear-gradient(135deg, var(--elite-burgundy), var(--elite-dark-burgundy));
+  background: linear-gradient(135deg, var(--elite-burgundy), var(--elite-burgundy));
   border-radius: 24px;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;

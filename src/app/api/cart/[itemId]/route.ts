@@ -5,9 +5,11 @@ import {
   jsonResponse,
   handleApiError,
   parseRequestBody,
+  getUserId,
 } from "@/server/utils/apiHelpers";
 import { updateCartItemSchema } from "@/server/validators/cartSchemas";
 import { BadRequestError } from "@/server/utils/errors";
+import { getAuthUser } from "@/server/auth/session";
 
 /**
  * DELETE /api/cart/[itemId]
@@ -18,7 +20,8 @@ export async function DELETE(
   { params }: { params: Promise<{ itemId: string }> },
 ) {
   try {
-    const userId = request.headers.get("x-user-id") || "demo-user";
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
     const { itemId } = await params;
 
     cartDB.removeItem(userId, itemId);
@@ -38,7 +41,8 @@ export async function PATCH(
   { params }: { params: Promise<{ itemId: string }> },
 ) {
   try {
-    const userId = request.headers.get("x-user-id") || "demo-user";
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
     const { itemId } = await params;
     const raw = await parseRequestBody(request);
     const { quantity } = updateCartItemSchema.parse(raw);

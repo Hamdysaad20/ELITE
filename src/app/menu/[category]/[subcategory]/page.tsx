@@ -263,7 +263,7 @@ export default async function SubCategoryPage({
                     </p>
                     <Link
                       href={`/menu/${category.id}`}
-                      className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-dark-burgundy hover:scale-105"
+                      className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-semibold transition-all duration-300 hover:opacity-90 hover:scale-105"
                       prefetch={true}
                     >
                       <ChevronLeft className="w-4 h-4" />

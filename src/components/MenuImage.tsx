@@ -36,7 +36,7 @@ export default function MenuImage({
   if (imageError || !src) {
     return (
       <div
-        className={`bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center ${className}`}
+        className={`bg-elite-burgundy flex items-center justify-center ${className}`}
       >
         {getDefaultIcon()}
       </div>

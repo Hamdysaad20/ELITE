@@ -178,7 +178,7 @@ export default function SuggestPage() {
           <div className="mt-8 text-center">
             <Link
               href="/menu"
-              className="inline-flex items-center gap-2 font-cabin text-elite-burgundy hover:text-elite-dark-burgundy transition-colors"
+              className="inline-flex items-center gap-2 font-cabin text-elite-burgundy hover:text-elite-burgundy transition-colors"
             >
               <span>Or browse our full menu</span>
               <ChevronRight className="w-4 h-4" />

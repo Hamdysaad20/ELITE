@@ -4,6 +4,7 @@ import {
   successResponse,
   handleApiError,
   parseRequestBody,
+  getUserId,
 } from "@/server/utils/apiHelpers";
 import { BadRequestError } from "@/server/utils/errors";
 import {
@@ -13,10 +14,12 @@ import {
 import { suggestDrinks } from "@/server/utils/recommender";
 import { getItemById } from "@/lib/menuData";
 import { orderDB } from "@/server/utils/jsonDatabase";
+import { getAuthUser } from "@/server/auth/session";
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get("x-user-id") || "demo-user";
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
     const raw = await parseRequestBody<unknown>(request);
 
     const parsed = preferenceSchema.safeParse(raw);

@@ -127,7 +127,7 @@ export default function ErrorState({
               onClick={handleRetry}
               disabled={isRetrying}
               className={cn(
-                "inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream rounded-full font-calistoga transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-elite-dark-burgundy shadow-lg hover:shadow-xl hover:scale-105",
+                "inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream rounded-full font-calistoga transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 shadow-lg hover:shadow-xl hover:scale-105",
                 size === "small" && "px-6 py-2 text-sm",
                 size === "medium" && "px-8 py-3 text-lg",
                 size === "large" && "px-10 py-4 text-xl"

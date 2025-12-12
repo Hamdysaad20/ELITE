@@ -63,7 +63,7 @@ export function OrderDetailCard({ orderId, enablePolling = true, pollInterval = 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Header with Status */}
-      <div className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream p-6">
+      <div className="bg-elite-burgundy text-elite-cream p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-calistoga text-2xl mb-1">Order #{status.id.slice(0, 8)}</h3>

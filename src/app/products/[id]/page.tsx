@@ -119,7 +119,7 @@ export default function ProductDetailPage() {
               </p>
               <Link
                 href="/menu"
-                className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:bg-elite-dark-burgundy transition-colors"
+                className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:opacity-90 transition-colors"
               >
                 Browse Menu
               </Link>

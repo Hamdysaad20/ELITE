@@ -140,6 +140,7 @@ export async function POST(req: NextRequest) {
       orderType: "PICKUP" as any,
       subtotal,
       deliveryFee: 0,
+      codFee: 0,
       discount: 0,
       total: subtotal,
       notes: body.notes,

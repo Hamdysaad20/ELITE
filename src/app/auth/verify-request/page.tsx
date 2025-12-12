@@ -133,7 +133,7 @@ function VerifyRequestContent() {
         <div className="flex flex-col gap-3 sm:gap-4">
           <Link
             href="/auth/signin"
-            className="w-full bg-elite-burgundy hover:bg-elite-dark-burgundy text-elite-cream font-cabin font-semibold text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-2xl sm:rounded-3xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            className="w-full bg-elite-burgundy hover:opacity-90 text-elite-cream font-cabin font-semibold text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-2xl sm:rounded-3xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
             <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Try Different Email</span>

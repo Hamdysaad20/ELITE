@@ -117,7 +117,7 @@ export function RecommendationCard({
         className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${
           added
             ? "bg-emerald-600 text-white font-calistoga"
-            : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy hover:scale-[1.02] hover:shadow-lg"
+            : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
         } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {added ? (

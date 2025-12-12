@@ -174,7 +174,7 @@ export default function ItemDetailClient({
           <div className="relative">
             <div className="aspect-square bg-elite-cream relative">
               {/* Circular Container */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-[28rem] h-[28rem] bg-elite-dark-burgundy rounded-full border border-elite-dark-burgundy/20 overflow-hidden z-10">
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-[28rem] h-[28rem] bg-elite-burgundy rounded-full border border-elite-burgundy/20 overflow-hidden z-10">
                 <div className="w-full h-full p-8 pt-12">
                   <img
                     src={item.images[currentImageIndex]}
@@ -276,7 +276,7 @@ export default function ItemDetailClient({
                           selectedSize === size.name
                             ? "bg-elite-burgundy text-elite-cream shadow-lg"
                             : size.available
-                              ? "bg-elite-cream/50 text-elite-dark-burgundy/60 border border-elite-burgundy/10 cursor-not-allowed opacity-60"
+                              ? "bg-elite-cream/50 text-elite-burgundy/60 border border-elite-burgundy/10 cursor-not-allowed opacity-60"
                               : "bg-elite-dark-cream text-elite-black/40 cursor-not-allowed"
                         }`}
                       >
@@ -284,7 +284,7 @@ export default function ItemDetailClient({
                           className={`font-bold text-sm ${
                             selectedSize === size.name
                               ? "text-elite-cream"
-                              : "text-elite-dark-burgundy/60"
+                              : "text-elite-burgundy/60"
                           }`}
                         >
                           {size.name}
@@ -293,7 +293,7 @@ export default function ItemDetailClient({
                           className={`text-xs mt-1 ${
                             selectedSize === size.name
                               ? "opacity-75 text-elite-cream"
-                              : "opacity-50 text-elite-dark-burgundy/50"
+                              : "opacity-50 text-elite-burgundy/50"
                           }`}
                         >
                           {sizePrice} EGP
@@ -374,7 +374,7 @@ export default function ItemDetailClient({
             {/* Allergen Note - Only if allergens exist */}
             {item.allergens.length > 0 && (
               <div className="bg-elite-cream/50 border border-elite-burgundy/20 rounded-2xl p-4">
-                <p className="font-cabin font-medium text-elite-dark-burgundy mb-1">
+                <p className="font-cabin font-medium text-elite-burgundy mb-1">
                   Contains: {item.allergens.join(", ")}
                 </p>
                 <p className="font-cabin text-elite-black/70 text-sm">
@@ -388,7 +388,7 @@ export default function ItemDetailClient({
                disabled={!item.available}
                className={`w-full py-6 rounded-2xl font-cabin font-bold text-xl transition-all duration-300 border-2 ${
                  item.available
-                   ? 'bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-dark-burgundy hover:scale-105 hover:shadow-xl shadow-lg border-elite-burgundy/30 hover:border-elite-burgundy/50'
+                   ? 'bg-elite-burgundy text-elite-burgundy hover:scale-105 hover:shadow-xl shadow-lg border-elite-burgundy/30 hover:border-elite-burgundy/50'
                    : 'bg-elite-dark-cream text-elite-black/40 cursor-not-allowed border-elite-dark-cream/30'
                }`}
              >

@@ -29,7 +29,7 @@ export default function RewardsPage() {
     <main>
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
-        <div className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-12">
+        <div className="bg-elite-burgundy text-elite-cream py-12">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center gap-4 mb-4">
               <Gift className="w-10 h-10" />
@@ -55,7 +55,7 @@ export default function RewardsPage() {
               <p className="text-red-700 font-cabin mb-4">{error}</p>
               <button
                 onClick={refetch}
-                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all"
+                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again
@@ -143,7 +143,7 @@ export default function RewardsPage() {
               <div className="text-center">
                 <Link
                   href="/menu"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
                   <Gift className="w-5 h-5" />
                   Start Earning Points

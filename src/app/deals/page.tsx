@@ -8,7 +8,7 @@ export default function DealsPage() {
     <>
       <main className="min-h-screen bg-elite-cream pb-24 md:pb-0">
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-12 sm:py-16 md:py-20">
+        <div className="bg-elite-burgundy text-elite-cream py-12 sm:py-16 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-elite-cream/10 mb-6 sm:mb-8">
               <Tag className="w-8 h-8 sm:w-10 sm:h-10" />
@@ -77,7 +77,7 @@ export default function DealsPage() {
               <p className="font-cabin text-elite-black/70 text-sm sm:text-base mb-4 sm:mb-6">
                 Want to be notified when deals go live?
               </p>
-              <button className="bg-elite-burgundy text-elite-cream px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-cabin font-bold text-sm sm:text-base hover:bg-elite-dark-burgundy transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 touch-manipulation">
+              <button className="bg-elite-burgundy text-elite-cream px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-cabin font-bold text-sm sm:text-base hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 touch-manipulation">
                 Join the Waitlist
               </button>
             </div>

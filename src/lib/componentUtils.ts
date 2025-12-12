@@ -31,7 +31,7 @@ export const buttonVariants = {
   outline:
     "border border-elite-burgundy text-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream transition-colors",
   ghost: "text-elite-burgundy hover:bg-elite-cream transition-colors",
-  danger: "bg-elite-burgundy text-white hover:bg-elite-dark-burgundy transition-colors",
+  danger: "bg-elite-burgundy text-white hover:opacity-90 transition-colors",
 } as const;
 
 /**

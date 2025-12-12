@@ -140,11 +140,12 @@ export default function AvatarUpload({ onClose, currentImage }: AvatarUploadProp
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy px-6 py-4 flex items-center justify-between">
+        <div className="bg-elite-burgundy px-6 py-4 flex items-center justify-between">
           <h2 className="font-calistoga text-xl text-elite-cream">Change Profile Picture</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
+            aria-label="Close"
           >
             <X className="w-5 h-5 text-elite-cream" />
           </button>
@@ -244,7 +245,7 @@ export default function AvatarUpload({ onClose, currentImage }: AvatarUploadProp
             <button
               onClick={handleUpload}
               disabled={!selectedFile || uploading}
-              className="flex-1 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-6 py-3 rounded-xl font-cabin font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-xl font-cabin font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>

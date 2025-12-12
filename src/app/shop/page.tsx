@@ -60,7 +60,7 @@ export default function ShopPage() {
                   Coming Soon!
                 </h2>
                 {/* Call to Action */}
-                <div className="bg-gradient-to-r from-elite-burgundy/10 to-elite-dark-burgundy/10 rounded-3xl p-8">
+                <div className="bg-elite-burgundy/10 rounded-3xl p-8">
                   <h3 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-4">
                     Stay Updated
                   </h3>
@@ -73,7 +73,7 @@ export default function ShopPage() {
                       href="https://instagram.com/officieleliteeg"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 hover:scale-105"
+                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105"
                     >
                       Follow on Instagram
                     </a>
@@ -81,7 +81,7 @@ export default function ShopPage() {
                       href="https://facebook.com/officieleliteeg"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 hover:scale-105"
+                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105"
                     >
                       Follow on Facebook
                     </a>
@@ -89,7 +89,7 @@ export default function ShopPage() {
                       href="https://tiktok.com/@officieleliteeg"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all duration-300 hover:scale-105"
+                      className="bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105"
                     >
                       Follow on TikTok
                     </a>

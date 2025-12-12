@@ -4,6 +4,7 @@ import {
   jsonResponse,
   successResponse,
   errorResponse,
+  getUserId,
 } from "@/server/utils/apiHelpers";
 import { getAuthUser } from "@/server/auth/session";
 import { awardOrderPoints } from "@/server/services/loyalty";
@@ -15,7 +16,7 @@ export async function GET(
   try {
     const { id } = await params;
     const authUser = await getAuthUser(request);
-    const userId = authUser?.id || request.headers.get("x-user-id") || "demo-user";
+    const userId = authUser?.id || getUserId(request);
 
     const order = await prisma.order.findFirst({
       where: { id, userId },
@@ -69,7 +70,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const authUser = await getAuthUser(request);
-    const userId = authUser?.id || request.headers.get("x-user-id") || "demo-user";
+    const userId = authUser?.id || getUserId(request);
 
     const body = await request.json();
     const { status, paymentStatus } = body;

@@ -64,11 +64,11 @@ export default function MobileHeader({
           {showBack && (
             <button
               onClick={handleBack}
-              className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full bg-elite-burgundy/10 hover:bg-elite-burgundy/20 active:bg-elite-burgundy/30 active:scale-90 transition-all duration-200 touch-manipulation group"
+              className="flex items-center justify-center w-11 h-11 -ml-1 rounded-full bg-elite-burgundy/10 hover:bg-elite-burgundy/20 active:bg-elite-burgundy/30 active:scale-90 transition-all duration-200 touch-manipulation group"
               aria-label="Go back"
             >
               <ArrowLeft 
-                className="w-5 h-5 text-elite-burgundy group-active:text-elite-dark-burgundy transition-colors" 
+                className="w-5 h-5 text-elite-burgundy group-active:text-elite-burgundy transition-colors" 
                 strokeWidth={2.5} 
               />
             </button>
@@ -96,11 +96,11 @@ export default function MobileHeader({
           {showMenu ? (
             <button
               onClick={onMenuClick}
-              className="flex items-center justify-center w-9 h-9 -mr-1 rounded-full bg-elite-burgundy/10 hover:bg-elite-burgundy/20 active:bg-elite-burgundy/30 active:scale-90 transition-all duration-200 touch-manipulation group"
+              className="flex items-center justify-center w-11 h-11 -mr-1 rounded-full bg-elite-burgundy/10 hover:bg-elite-burgundy/20 active:bg-elite-burgundy/30 active:scale-90 transition-all duration-200 touch-manipulation group"
               aria-label="Open menu"
             >
               <Menu 
-                className="w-5 h-5 text-elite-burgundy group-active:text-elite-dark-burgundy transition-colors" 
+                className="w-5 h-5 text-elite-burgundy group-active:text-elite-burgundy transition-colors" 
                 strokeWidth={2.5} 
               />
             </button>

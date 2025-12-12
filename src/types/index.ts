@@ -123,6 +123,7 @@ export interface Order {
   orderType: OrderType;
   subtotal: number;
   deliveryFee: number;
+  codFee: number;
   discount: number;
   total: number;
   notes?: string;
@@ -164,7 +165,7 @@ export enum PaymentMethod {
   CASH = "CASH",
   CARD = "CARD",
   WALLET = "WALLET",
-  ONLINE = "ONLINE",
+  FAWRY = "FAWRY",
 }
 
 // Address Types

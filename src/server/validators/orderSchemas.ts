@@ -1,11 +1,28 @@
 import { z } from "zod";
 import { PaymentMethod, OrderType } from "@/types";
 
+// Schema for cart items sent from client (LocalCartItem format)
+const cartItemSchema = z.object({
+  id: z.string(),
+  productId: z.string(),
+  name: z.string(),
+  basePrice: z.number(),
+  quantity: z.number().int().positive(),
+  attributes: z.record(z.array(z.object({
+    valueId: z.number(),
+    valueName: z.string(),
+    priceExtra: z.number(),
+  }))),
+  totalPrice: z.number(),
+  image: z.string().optional(),
+});
+
 export const createOrderSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod),
   orderType: z.nativeEnum(OrderType),
   addressId: z.string().min(1).optional(),
   notes: z.string().max(500).optional(),
+  items: z.array(cartItemSchema).min(1, "Cart cannot be empty"),
   odoo: z
     .object({
       partner: z
@@ -37,3 +54,4 @@ export const createOrderSchema = z.object({
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type CartItemInput = z.infer<typeof cartItemSchema>;

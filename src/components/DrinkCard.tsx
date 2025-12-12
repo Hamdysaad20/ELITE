@@ -73,19 +73,22 @@ export default function DrinkCard({
   const handleAddToOrder = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    const productId = menuItemId || id;
+    if (!productId) {
+      console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
+      return;
+    }
     
     if (onQuickAdd) {
       onQuickAdd();
       return;
     }
-
-    if (!menuItemId || addToOrderState.adding || !isAvailable) return;
-
     setAddToOrderState({ adding: true, added: false });
     try {
       // Add to local cart
       addItem({
-        productId: menuItemId,
+        productId,
         name: displayName,
         basePrice: displayPrice || 0,
         quantity: 1,
@@ -103,19 +106,18 @@ export default function DrinkCard({
       console.error("Failed to add to cart:", err);
       setAddToOrderState({ adding: false, added: false });
     }
-  }, [menuItemId, addToOrderState.adding, isAvailable, onQuickAdd, addItem, displayName, displayPrice, validImages]);
-
-  const classes = sizeClasses[size];
+  }, [menuItemId, id, name, onQuickAdd, addItem, displayName, displayPrice, validImages]);
 
   const CardContent = () => (
     <div
       className={cn(
         "bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 transition-all duration-300 hover:shadow-2xl hover:border-elite-burgundy/20 active:scale-[0.98] group h-full flex flex-col overflow-hidden touch-manipulation",
         !isAvailable && "opacity-60 cursor-not-allowed",
+        "transform transition-transform duration-500 ease-in-out hover:scale-105",
         className
       )}
     >
-      <div className="relative w-full pt-[100%]">
+      <div className="relative w-full h-64 sm:h-72 md:h-80">
         <div className="absolute inset-0 p-3 sm:p-4">
           <div
             className={cn(
@@ -126,9 +128,9 @@ export default function DrinkCard({
               src={validImages}
               alt={displayName}
               className="w-full h-full object-cover"
+              fill={true}
               objectFit="cover"
               showErrorIcon={true}
-              fill={true}
             />
           </div>
           
@@ -142,11 +144,11 @@ export default function DrinkCard({
       </div>
 
       <div className="text-center space-y-2 sm:space-y-3 px-4 sm:px-6 pb-3 sm:pb-4 flex-1 flex flex-col">
-        <h4 className="font-calistoga text-elite-black font-bold text-lg sm:text-xl md:text-2xl leading-tight line-clamp-2 w-full min-h-[2.5rem] sm:min-h-[3rem]" title={displayName}>
+        <h4 className="font-calistoga text-elite-black font-bold text-xl sm:text-2xl md:text-3xl leading-tight line-clamp-2 w-full min-h-[3rem] sm:min-h-[3.5rem]" title={displayName}>
           {displayName}
         </h4>
         {displayPrice !== null && (
-          <p className="font-cabin text-elite-burgundy font-bold text-xl sm:text-2xl pt-1">
+          <p className="font-cabin text-elite-burgundy font-bold text-2xl sm:text-3xl pt-1">
             EGP {displayPrice.toFixed(2)}
           </p>
         )}
@@ -171,7 +173,7 @@ export default function DrinkCard({
                   "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full text-sm sm:text-base tracking-wide shadow-md transition-all duration-300 touch-manipulation active:scale-95 min-h-[44px]",
                   addToOrderState.added
                     ? "bg-emerald-600 text-white font-calistoga"
-                    : "bg-elite-burgundy text-elite-cream font-calistoga hover:bg-elite-dark-burgundy active:bg-elite-dark-burgundy hover:shadow-lg",
+                    : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 active:opacity-80 hover:shadow-lg",
                   "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                 )}
                 aria-live="polite"

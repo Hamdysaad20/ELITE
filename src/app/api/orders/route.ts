@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { cartDB } from "@/server/utils/jsonDatabase";
 import { prisma } from "@/server/db/client";
 import type { Order as PrismaOrder, OrderItem as PrismaOrderItem } from "@prisma/client";
 import {
@@ -8,12 +7,17 @@ import {
   handleApiError,
   parseRequestBody,
   getQueryParams,
+  getUserId,
 } from "@/server/utils/apiHelpers";
 import { OrderStatus, PaymentStatus, OrderType, PaymentMethod, type Order } from "@/types";
 import { createOrderSchema } from "@/server/validators/orderSchemas";
 import { BadRequestError } from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
 import { getAuthUser } from "@/server/auth/session";
+import { getCheckoutConfig } from "@/server/services/checkoutConfig";
+import { cartDB } from "@/server/utils/jsonDatabase";
+// Auto-start Odoo worker when orders API is first accessed
+import "@/server/services/startOdooWorkerOnInit";
 
 type DbOrderWithItems = PrismaOrder & { items: PrismaOrderItem[] };
 
@@ -28,6 +32,7 @@ function serializeOrder(dbOrder: DbOrderWithItems) {
     orderType: dbOrder.orderType as OrderType,
     subtotal: Number(dbOrder.subtotal),
     deliveryFee: Number(dbOrder.deliveryFee),
+    codFee: Number(dbOrder.codFee),
     discount: Number(dbOrder.discount),
     total: Number(dbOrder.total),
     notes: dbOrder.notes || undefined,
@@ -70,7 +75,7 @@ function serializeOrder(dbOrder: DbOrderWithItems) {
 export async function GET(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
-    const userId = authUser?.id || request.headers.get("x-user-id") || "demo-user";
+    const userId = authUser?.id || getUserId(request);
     const { limit = "20", offset = "0" } = getQueryParams(request);
 
     const take = Math.max(1, Math.min(100, Number(limit) || 20));
@@ -101,11 +106,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
-    const userId = authUser?.id || request.headers.get("x-user-id") || "demo-user";
+    const userId = authUser?.id || getUserId(request);
     const raw = await parseRequestBody(request);
     const body = createOrderSchema.parse(raw);
 
-    const cartItems = cartDB.get(userId);
+    const checkoutConfig = await getCheckoutConfig();
+
+    // Use items from request body (LocalCartItem format from client)
+    const cartItems = body.items;
     if (!cartItems || cartItems.length === 0) {
       throw new BadRequestError("Cart is empty");
     }
@@ -125,9 +133,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
-    const deliveryFee = body.orderType === "DELIVERY" ? 15 : 0;
-    const total = subtotal + deliveryFee;
+    // Calculate totals from LocalCartItem format
+    const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    const deliveryFee =
+      body.orderType === "DELIVERY" ? checkoutConfig.deliveryFee : 0;
+    const codFee =
+      body.orderType === "DELIVERY" && body.paymentMethod === PaymentMethod.CASH
+        ? checkoutConfig.codFee
+        : 0;
+    const total = subtotal + deliveryFee + codFee;
     const clientOrderRef = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const created = await prisma.order.create({
@@ -140,25 +154,34 @@ export async function POST(request: NextRequest) {
         orderType: body.orderType,
         subtotal,
         deliveryFee,
+        codFee,
         discount: 0,
         total,
         notes: body.notes || null,
         clientOrderRef,
         items: {
-          create: cartItems.map((item) => ({
-            productId: item.menuItemId,
-            sku: item.menuItemId,
-            name: item.menuItem?.name || item.menuItemId,
-            categoryId: item.menuItem?.category || undefined,
-            quantity: item.quantity,
-            unitPrice: item.price / item.quantity,
-            totalPrice: item.price,
-            attributes: {
-              size: item.size,
-              flavor: item.flavor,
-              toppings: item.toppings || [],
-            },
-          })),
+          create: cartItems.map((item) => {
+            // Calculate unit price (base + extras)
+            const unitPrice = item.totalPrice / item.quantity;
+            // Format attributes for storage
+            const attributesList = Object.entries(item.attributes).flatMap(
+              ([attrName, values]) => values.map(v => `${attrName}: ${v.valueName}`)
+            );
+            return {
+              productId: item.productId,
+              sku: item.productId,
+              name: item.name,
+              categoryId: undefined,
+              quantity: item.quantity,
+              unitPrice,
+              totalPrice: item.totalPrice,
+              attributes: {
+                basePrice: item.basePrice,
+                selections: item.attributes,
+                formatted: attributesList,
+              },
+            };
+          }),
         },
       },
       include: { 

@@ -65,7 +65,7 @@ export default function OrdersPage() {
               <p className="text-red-700 font-cabin text-sm sm:text-base mb-4">{error}</p>
               <button
                 onClick={refetch}
-                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all touch-manipulation active:scale-95"
+                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all touch-manipulation active:scale-95"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again
@@ -83,7 +83,7 @@ export default function OrdersPage() {
               </p>
               <Link
                 href="/menu"
-                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:bg-elite-dark-burgundy transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
+                className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 Browse Menu
               </Link>
@@ -100,7 +100,7 @@ export default function OrdersPage() {
                   className="block bg-white rounded-2xl shadow-lg border border-gray-200 hover:border-elite-burgundy hover:shadow-xl transition-all duration-300 overflow-hidden active:scale-[0.99] touch-manipulation"
                 >
                   {/* Order Header */}
-                  <div className="bg-gradient-to-r from-elite-burgundy/5 to-elite-dark-burgundy/5 p-4 sm:p-6 border-b border-gray-200">
+                  <div className="bg-elite-burgundy/5 p-4 sm:p-6 border-b border-gray-200">
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-calistoga text-lg sm:text-xl text-elite-black mb-1">

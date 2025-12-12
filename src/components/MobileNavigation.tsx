@@ -117,11 +117,6 @@ export default function MobileNavigation() {
                     strokeWidth={active ? 2.5 : 2}
                   />
                   
-                  {/* Active indicator dot */}
-                  {active && (
-                    <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full animate-in zoom-in duration-300" />
-                  )}
-                  
                   {/* Cart Badge with animation */}
                   {item.isCart && itemCount > 0 && (
                     <span 

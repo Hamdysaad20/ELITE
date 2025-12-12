@@ -5,7 +5,9 @@ import {
   successResponse,
   jsonResponse,
   handleApiError,
+  getUserId,
 } from "@/server/utils/apiHelpers";
+import { getAuthUser } from "@/server/auth/session";
 
 type DbOrderWithItems = PrismaOrder & { items: PrismaOrderItem[] };
 
@@ -20,6 +22,7 @@ function serializeOrder(dbOrder: DbOrderWithItems) {
     orderType: dbOrder.orderType,
     subtotal: Number(dbOrder.subtotal),
     deliveryFee: Number(dbOrder.deliveryFee),
+    codFee: Number((dbOrder as { codFee?: unknown }).codFee ?? 0),
     discount: Number(dbOrder.discount),
     total: Number(dbOrder.total),
     notes: dbOrder.notes || undefined,
@@ -65,7 +68,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const userId = request.headers.get("x-user-id") || "demo-user";
+    const authUser = await getAuthUser(request);
+    const userId = authUser?.id || getUserId(request);
 
     const order = await prisma.order.findFirst({
       where: { id, userId },

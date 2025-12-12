@@ -147,7 +147,7 @@ export default function Navigation() {
                 ) : session ? (
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-semibold text-lg hover:shadow-xl hover:scale-110 transition-all duration-300 border-2 border-elite-cream shadow-lg overflow-hidden"
+                    className="w-12 h-12 rounded-full bg-elite-burgundy flex items-center justify-center text-elite-cream font-semibold text-lg hover:shadow-xl hover:scale-110 transition-all duration-300 border-2 border-elite-cream shadow-lg overflow-hidden"
                   >
                     {session.user?.image ? (
                       <Image
@@ -179,7 +179,7 @@ export default function Navigation() {
                       onClick={() => setProfileDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-elite-cream/50 transition-all duration-300 border-b border-elite-burgundy/10 group"
                     >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-bold text-lg border-2 border-elite-cream shadow-md group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 flex-shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 rounded-full bg-elite-burgundy flex items-center justify-center text-elite-cream font-bold text-lg border-2 border-elite-cream shadow-md group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 flex-shrink-0 overflow-hidden">
                         {session.user?.image ? (
                           <Image
                             src={session.user.image}

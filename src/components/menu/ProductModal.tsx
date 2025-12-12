@@ -118,8 +118,9 @@ export default function ProductModal({
       title="Customize Your Order"
       className="max-w-2xl md:max-w-3xl"
     >
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+      <div className="flex flex-col">
+        <div className="p-4 pt-6 sm:p-6 sm:pt-8 lg:p-8">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           {/* Image - Optimized for mobile with fixed aspect ratio */}
           <div className="w-full md:w-1/3 flex-shrink-0">
             <div className="relative w-full aspect-square">
@@ -132,7 +133,7 @@ export default function ProductModal({
                   <ImageWithFallback
                     src={validImages}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain sm:object-cover"
                     objectFit="cover"
                     showErrorIcon={true}
                     fill={true}
@@ -183,46 +184,54 @@ export default function ProductModal({
               </div>
             ))}
 
-            {/* Quantity & Add Button - Mobile optimized */}
-            <div className="pt-4 md:pt-6 border-t border-elite-burgundy/10 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-cabin font-semibold text-elite-black text-sm sm:text-base">Quantity</span>
-                <div className="flex items-center gap-2 sm:gap-3 bg-elite-cream/50 rounded-xl p-1.5">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 sm:p-2.5 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30"
-                    disabled={quantity <= 1}
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                  <span className="font-calistoga text-base sm:text-lg w-10 text-center">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 sm:p-2.5 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-              </div>
+          </div>
+          </div>
+        </div>
 
+        {/* Sticky Bottom Bar (price + quantity + action) */}
+        <div className="sticky bottom-0 flex-shrink-0 bg-white border-t border-elite-burgundy/10 p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-cabin text-xs sm:text-sm text-elite-black/60">Total</p>
+              <p className="font-calistoga text-elite-burgundy text-lg sm:text-xl tabular-nums truncate">
+                {totalPrice.toFixed(2)} EGP
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3 bg-elite-cream/50 rounded-xl p-1.5 flex-shrink-0">
               <button
-                onClick={handleAddToCart}
-                disabled={isAdding}
-                className="w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 rounded-xl font-cabin font-bold text-base sm:text-lg shadow-lg hover:bg-elite-dark-burgundy hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed touch-manipulation min-h-[56px]"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30 flex items-center justify-center"
+                disabled={quantity <= 1}
+                aria-label="Decrease quantity"
               >
-                {isAdding ? (
-                  <span className="animate-pulse">Adding to Order...</span>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-5 h-5" />
-                    <span>Add to Order — {totalPrice.toFixed(2)} EGP</span>
-                  </>
-                )}
+                <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              <span className="font-calistoga text-base sm:text-lg w-10 text-center tabular-nums">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 flex items-center justify-center"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
+
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className="mt-3 w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 rounded-xl font-cabin font-bold text-base sm:text-lg shadow-lg hover:opacity-90 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed touch-manipulation min-h-[56px]"
+          >
+            {isAdding ? (
+              <span className="animate-pulse">Adding to Order...</span>
+            ) : (
+              <>
+                <ShoppingBag className="w-5 h-5" />
+                <span>Add to Order</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </Modal>

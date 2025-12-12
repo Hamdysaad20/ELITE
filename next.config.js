@@ -29,6 +29,16 @@ const nextConfig = {
       },
     ],
   },
+
+  async redirects() {
+    return [
+      {
+        source: "/checkout",
+        destination: "/order",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

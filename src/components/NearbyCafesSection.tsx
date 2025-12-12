@@ -194,7 +194,7 @@ export default function NearbyCafesSection() {
               {/* CTA Button */}
               <button
                 onClick={handleGetDirections}
-                className="group relative w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-black font-cabin font-bold text-xl py-5 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] overflow-hidden border-2 border-elite-burgundy/50 hover:border-elite-burgundy"
+                className="group relative w-full bg-elite-burgundy text-elite-black font-cabin font-bold text-xl py-5 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] overflow-hidden border-2 border-elite-burgundy/50 hover:border-elite-burgundy"
               >
                 <span className="relative z-10 flex items-center justify-center space-x-3">
                   <Navigation className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
@@ -202,7 +202,7 @@ export default function NearbyCafesSection() {
                     Get Directions
                   </span>
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-elite-dark-burgundy to-elite-burgundy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-elite-burgundy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </div>
           </div>

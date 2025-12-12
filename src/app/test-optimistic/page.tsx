@@ -77,7 +77,7 @@ export default function TestOptimisticPage() {
               "px-6 py-3 rounded-full font-calistoga text-lg transition-all",
               testStatus === "success" && "bg-emerald-600 text-white",
               testStatus === "error" && "bg-red-600 text-white",
-              testStatus === "idle" && !isUpdating && "bg-elite-burgundy text-elite-cream hover:bg-elite-dark-burgundy",
+              testStatus === "idle" && !isUpdating && "bg-elite-burgundy text-elite-cream hover:opacity-90",
               isUpdating && "bg-elite-burgundy/50 text-elite-cream cursor-not-allowed"
             )}
           >

@@ -15,7 +15,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-3 sm:mb-4 gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center text-elite-cream font-semibold text-sm sm:text-base shadow-lg flex-shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-elite-burgundy flex items-center justify-center text-elite-cream font-semibold text-sm sm:text-base shadow-lg flex-shrink-0">
             {review.user.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -164,7 +164,7 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
       <button
         type="submit"
         disabled={submitting || rating === 0}
-        className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-4 px-6 rounded-full font-cabin font-bold text-base hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elite-burgundy disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 active:scale-95 touch-manipulation"
+        className="w-full bg-elite-burgundy text-elite-cream py-4 px-6 rounded-full font-cabin font-bold text-base hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elite-burgundy disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 active:scale-95 touch-manipulation"
       >
         {submitting ? (
           <span className="flex items-center justify-center gap-2">

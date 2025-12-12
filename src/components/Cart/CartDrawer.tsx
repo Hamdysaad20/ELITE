@@ -5,7 +5,7 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState, useTransition, useOptimistic } from "react";
+import { useEffect, useState, useTransition, useOptimistic } from "react";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -19,6 +19,30 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [isPending, startTransition] = useTransition();
   const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const itemCountLabel = `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const body = document.body;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+
+    // Prevent background scrolling while the drawer is open
+    body.style.overflow = "hidden";
+
+    // Avoid layout shift when scrollbar disappears
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
+    };
+  }, [isOpen]);
   
   // Optimistic cart state
   const [optimisticItems, setOptimisticItems] = useOptimistic(
@@ -72,10 +96,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     setIsCheckingOut(true);
     if (status === 'unauthenticated') {
       // Redirect to login with callback to checkout
-      router.push('/auth/signin?callbackUrl=/checkout');
+      router.push('/auth/signin?callbackUrl=/order');
     } else {
       // Proceed to checkout
-      router.push('/checkout');
+      router.push('/order');
     }
     setTimeout(() => {
       onClose();
@@ -111,11 +135,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <h2 className="font-calistoga text-xl sm:text-2xl lg:text-3xl leading-tight truncate">
                     Shopping Cart
                   </h2>
-                  {itemCount > 0 && (
-                    <p className="font-cabin text-elite-cream/80 text-sm sm:text-base mt-0.5 truncate">
-                      {itemCount} {itemCount === 1 ? 'item' : 'items'}
-                    </p>
-                  )}
+                  <p className="font-cabin text-elite-cream/80 text-sm sm:text-base mt-0.5 truncate tabular-nums min-h-[1.25rem] sm:min-h-[1.5rem]">
+                    <span className={itemCount > 0 ? "opacity-100" : "opacity-0"}>
+                      {itemCountLabel}
+                    </span>
+                  </p>
                 </div>
               </div>
               <button
@@ -127,7 +151,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </button>
             </div>
           </div>
-
           {/* Cart Items - Enhanced scrolling */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 lg:p-8 overscroll-contain">
             {items.length === 0 ? (
@@ -143,7 +166,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </p>
                 <button
                   onClick={onClose}
-                  className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-8 sm:px-10 lg:px-12 py-3.5 sm:py-4 lg:py-5 rounded-2xl font-cabin font-bold text-base lg:text-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg touch-manipulation min-h-[52px] lg:min-h-[60px]"
+                  className="bg-elite-burgundy text-elite-cream px-8 sm:px-10 lg:px-12 py-3.5 sm:py-4 lg:py-5 rounded-2xl font-cabin font-bold text-base lg:text-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg touch-manipulation min-h-[52px] lg:min-h-[60px]"
                 >
                   Continue Shopping
                 </button>
@@ -195,7 +218,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           <button
                             onClick={() => handleRemoveItem(item.id)}
                             disabled={isItemPending}
-                            className="flex-shrink-0 p-2 lg:p-2.5 text-red-500 hover:text-white hover:bg-red-500 active:bg-red-600 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group shadow-sm hover:shadow-lg w-10 h-10 lg:w-11 lg:h-11 flex items-center justify-center"
+                            className="flex-shrink-0 p-2 lg:p-2.5 text-red-500 hover:text-white hover:bg-red-500 active:bg-red-600 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group shadow-sm hover:shadow-lg w-11 h-11 lg:w-11 lg:h-11 flex items-center justify-center"
                             aria-label="Remove item"
                           >
                             <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -225,7 +248,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <div className="flex items-center gap-1.5 sm:gap-2 bg-elite-cream/50 rounded-full p-1.5 sm:p-2 border border-elite-burgundy/10 shadow-sm">
                               <button
                                 onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 flex items-center justify-center"
+                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-11 h-11 flex items-center justify-center"
                                 disabled={item.quantity <= 1 || isItemPending}
                                 aria-label="Decrease quantity"
                               >
@@ -236,7 +259,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               </span>
                               <button
                                 onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 flex items-center justify-center"
+                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-11 h-11 flex items-center justify-center"
                                 disabled={item.quantity >= 50 || isItemPending}
                                 aria-label="Increase quantity"
                               >
@@ -286,7 +309,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <button
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
-                className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-4 sm:py-5 lg:py-6 rounded-2xl font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
+                className="w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 lg:py-6 rounded-2xl font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
               >
                 {isCheckingOut ? (
                   <>

@@ -416,7 +416,7 @@ export default function ProductDetailClient({
                       ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
                       : addedToCart
                         ? 'bg-green-600 text-white'
-                        : 'bg-elite-burgundy text-elite-cream hover:bg-elite-dark-burgundy'
+                        : 'bg-elite-burgundy text-elite-cream hover:opacity-90'
                   )}
                 >
                   {!product.available ? (

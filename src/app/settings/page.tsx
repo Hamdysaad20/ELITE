@@ -2,12 +2,14 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Bell, Globe, Trash2, ChevronRight, MapPin as MapPinIcon, CreditCard } from "lucide-react";
+import { User, Mail, Bell, Globe, Trash2, ChevronRight, MapPin as MapPinIcon, CreditCard, Camera } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useRequireAuth } from "@/lib/auth/hooks";
+import AvatarUpload from "@/components/AvatarUpload";
 
 export default function SettingsPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
@@ -16,6 +18,7 @@ export default function SettingsPage() {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
   
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -110,7 +113,45 @@ export default function SettingsPage() {
           <div className="mb-6">
             <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Account Information</h2>
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-              
+              {/* Profile Picture */}
+              <div className="p-6 border-b border-elite-burgundy/10">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-elite-burgundy/10 flex items-center justify-center">
+                      {session.user?.image ? (
+                        <Image
+                          src={session.user.image}
+                          alt={session.user.name || "Profile"}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-10 h-10 text-elite-burgundy" />
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setShowAvatarUpload(true)}
+                      className="absolute -bottom-1 -right-1 w-11 h-11 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                      aria-label={session.user?.image ? "Change profile photo" : "Upload profile photo"}
+                    >
+                      <Camera className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-cabin text-sm text-elite-black/60 mb-1">Profile Picture</p>
+                    <button
+                      onClick={() => setShowAvatarUpload(true)}
+                      className="font-cabin text-sm font-semibold text-elite-burgundy hover:underline"
+                    >
+                      {session.user?.image ? "Change Photo" : "Upload Photo"}
+                    </button>
+                    <p className="font-cabin text-xs text-elite-black/40 mt-1">JPG, PNG or WebP • Max 5MB</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 
               {/* Name */}
               <div className="p-6 border-b border-elite-burgundy/10">
                 <div className="flex items-start gap-4">
@@ -133,7 +174,7 @@ export default function SettingsPage() {
                           <button
                             onClick={handleSaveName}
                             disabled={savingName}
-                            className="flex-1 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-4 py-2.5 rounded-xl font-cabin font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                            className="flex-1 bg-elite-burgundy text-elite-cream px-4 py-2.5 rounded-xl font-cabin font-semibold hover:shadow-lg transition-all disabled:opacity-50"
                           >
                             {savingName ? "Saving..." : "Save Changes"}
                           </button>
@@ -355,7 +396,14 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-
+  {/* Avatar Upload Modal */}
+      {showAvatarUpload && (
+        <AvatarUpload
+          onClose={() => setShowAvatarUpload(false)}
+          currentImage={session.user?.image}
+        />
+      )}
+    
           {/* Privacy & Security */}
           <div className="mb-6">
             <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Privacy & Security</h2>

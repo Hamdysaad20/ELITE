@@ -68,7 +68,7 @@ function ProfileContent() {
           
           {/* Profile Header - Compact */}
           <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-            <div className="bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy p-5 sm:p-6 md:p-8">
+            <div className="bg-elite-burgundy p-5 sm:p-6 md:p-8">
               <div className="flex items-center gap-4">
                 <div className="relative group">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl ring-4 ring-elite-cream/20 overflow-hidden">
@@ -147,7 +147,7 @@ function ProfileContent() {
                       </span>
                     )}
                     {isActive && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy" />
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-elite-burgundy" />
                     )}
                   </button>
                 );
@@ -175,7 +175,7 @@ function ProfileContent() {
                     <p className="font-cabin text-elite-black/40 text-sm mb-6">Start your coffee journey today</p>
                     <button
                       onClick={() => router.push("/menu")}
-                      className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
+                      className="bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
                       Place Your First Order
                     </button>
@@ -251,7 +251,7 @@ function ProfileContent() {
                   </p>
                   <button
                     onClick={() => router.push("/settings")}
-                    className="bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    className="bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
                     Go to Settings
                   </button>

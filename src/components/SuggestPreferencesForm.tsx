@@ -249,7 +249,7 @@ export function SuggestPreferencesForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-full font-calistoga text-lg tracking-wide shadow-lg transition-all duration-300 hover:bg-elite-dark-burgundy hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-full font-calistoga text-lg tracking-wide shadow-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <Sparkles className="w-5 h-5" />
         {loading ? "Finding your perfect drink..." : "Get My Suggestion"}
