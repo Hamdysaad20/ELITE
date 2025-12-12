@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, ShoppingCart, User } from "lucide-react";
+import { Home, Compass, ShoppingCart, User, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -18,6 +18,11 @@ const navItems = [
     name: "Explore",
     href: "/menu",
     icon: Compass,
+  },
+  {
+    name: "Deals",
+    href: "/deals",
+    icon: Tag,
   },
   {
     name: "Cart",
