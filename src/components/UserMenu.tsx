@@ -109,16 +109,16 @@ export function UserMenu() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`p-1.5 rounded-lg ${
-                    loyalty.account.level === "platinum" ? "bg-gradient-to-br from-purple-500 to-purple-700" :
-                    loyalty.account.level === "gold" ? "bg-gradient-to-br from-yellow-400 to-yellow-600" :
-                    loyalty.account.level === "silver" ? "bg-gradient-to-br from-gray-400 to-gray-600" :
+                    loyalty.account.tier === "platinum" ? "bg-gradient-to-br from-purple-500 to-purple-700" :
+                    loyalty.account.tier === "gold" ? "bg-gradient-to-br from-yellow-400 to-yellow-600" :
+                    loyalty.account.tier === "silver" ? "bg-gradient-to-br from-gray-400 to-gray-600" :
                     "bg-gradient-to-br from-amber-600 to-amber-800"
                   }`}>
                     <Award className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 font-cabin">Loyalty Points</p>
-                    <p className="text-sm font-bold text-gray-900 font-cabin">{loyalty.account.points} pts</p>
+                    <p className="text-xs text-gray-500 font-cabin">Loyalty Coins</p>
+                    <p className="text-sm font-bold text-gray-900 font-cabin">{loyalty.account.coins} coins</p>
                   </div>
                 </div>
                 <Sparkles className="w-4 h-4 text-amber-500" />
@@ -130,7 +130,7 @@ export function UserMenu() {
                 ></div>
               </div>
               <p className="text-xs text-gray-500 mt-1 font-cabin capitalize">
-                {loyalty.account.level} • {Math.round(loyalty.tiers.progress)}% to next tier
+                {loyalty.account.tier} • {Math.round(loyalty.tiers.progress)}% to next tier
               </p>
             </Link>
           )}

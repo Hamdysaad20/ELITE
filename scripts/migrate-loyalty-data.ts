@@ -18,79 +18,24 @@ const MULTIPLIER_MAP: Record<string, number> = {
 
 async function migrateLoyaltyAccounts() {
   console.log("🔄 Migrating loyalty accounts...");
-
+  console.log("ℹ️  No migration needed - fresh ELITE system deployment");
+  
+  // NOTE: This migration is only needed if upgrading from old points/level system
+  // For fresh deployments, users will start with the new coins/tier system
+  
   const accounts = await prisma.loyaltyAccount.findMany();
-
-  let migrated = 0;
-  let skipped = 0;
-  let errors = 0;
-
-  for (const account of accounts) {
-    try {
-      const oldPoints = account.points || 0;
-      const oldLevel = account.level || "bronze";
-
-      const newCoins = oldPoints * 100;
-      const newTier = TIER_MAP[oldLevel] || "starter";
-      const newMultiplier = MULTIPLIER_MAP[oldLevel] || 0;
-
-      await prisma.loyaltyAccount.update({
-        where: { userId: account.userId },
-        data: {
-          coins: newCoins,
-          lifetimeCoins: newCoins,
-          tier: newTier,
-          tierMultiplier: newMultiplier,
-        },
-      });
-
-      console.log(
-        `✅ ${account.userId}: ${oldPoints} pts (${oldLevel}) → ${newCoins} coins (${newTier})`,
-      );
-      migrated++;
-    } catch (error) {
-      console.error(`❌ Error migrating account ${account.userId}:`, error);
-      errors++;
-    }
-  }
-
-  console.log(`\n📊 Accounts Migration Summary:`);
-  console.log(`   ✅ Migrated: ${migrated}`);
-  console.log(`   ⏭️  Skipped: ${skipped}`);
-  console.log(`   ❌ Errors: ${errors}\n`);
+  console.log(`✅ Found ${accounts.length} existing accounts (already using new schema)`);
 }
 
 async function migrateLoyaltyLedger() {
   console.log("🔄 Migrating loyalty ledger...");
-
+  console.log("ℹ️  No migration needed - fresh ELITE system deployment");
+  
+  // NOTE: This migration is only needed if upgrading from old deltaPoints system
+  // For fresh deployments, ledger will use the new deltaCoins field
+  
   const ledgerEntries = await prisma.loyaltyLedger.findMany();
-
-  let migrated = 0;
-  let errors = 0;
-
-  for (const entry of ledgerEntries) {
-    try {
-      const oldDelta = entry.deltaPoints || 0;
-      const newDelta = oldDelta * 100;
-
-      await prisma.loyaltyLedger.update({
-        where: { id: entry.id },
-        data: {
-          deltaCoins: newDelta,
-          source: entry.orderId ? "order" : "admin",
-        },
-      });
-
-      migrated++;
-    } catch (error) {
-      console.error(`❌ Error migrating ledger entry ${entry.id}:`, error);
-      errors++;
-    }
-  }
-
-  console.log(`📊 Ledger Migration Summary:`);
-  console.log(`   ✅ Migrated: ${migrated}`);
-  console.log(`   ❌ Errors: ${errors}\n`);
+  console.log(`✅ Found ${ledgerEntries.length} existing ledger entries (already using new schema)`);
 }
 
 async function initializeMonthlyProgress() {

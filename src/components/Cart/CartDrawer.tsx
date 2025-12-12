@@ -1,7 +1,7 @@
 "use client";
 
 import { X, ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
-import { useLocalCart } from "@/hooks/useLocalCart";
+import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -21,16 +21,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   
   // Optimistic cart state
-  const [optimisticItems, setOptimisticItems] = useOptimistic(
+  const [optimisticItems, setOptimisticItems] = useOptimistic<LocalCartItem[], { action: 'remove' | 'update', id: string, quantity?: number }>(
     items,
-    (state, optimisticValue: { action: 'remove' | 'update', id: string, quantity?: number }) => {
+    (state, optimisticValue) => {
       if (optimisticValue.action === 'remove') {
         return state.filter(item => item.id !== optimisticValue.id);
       }
       if (optimisticValue.action === 'update' && optimisticValue.quantity !== undefined) {
         return state.map(item => 
           item.id === optimisticValue.id 
-            ? { ...item, quantity: optimisticValue.quantity }
+            ? { ...item, quantity: optimisticValue.quantity as number }
             : item
         );
       }
@@ -205,17 +205,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {/* Attributes */}
                         {Object.entries(item.attributes).length > 0 && (
                           <div className="space-y-1 mb-2 lg:mb-3">
-                            {Object.entries(item.attributes).map(([attrName, values]) => (
-                              <p key={attrName} className="font-cabin text-elite-black/60 text-xs sm:text-sm leading-snug">
-                                <span className="font-semibold text-elite-burgundy/70">{attrName}:</span>{' '}
-                                {values.map(v => v.valueName).join(', ')}
-                                {values.some(v => v.priceExtra > 0) && (
-                                  <span className="text-elite-burgundy font-medium">
-                                    {' '}(+{values.reduce((sum, v) => sum + v.priceExtra, 0)} EGP)
-                                  </span>
-                                )}
-                              </p>
-                            ))}
+                            {Object.entries(item.attributes).map(([attrName, values]) => {
+                              const attrValues = values as Array<{ valueId: number; valueName: string; priceExtra: number }>;
+                              return (
+                                <p key={attrName} className="font-cabin text-elite-black/60 text-xs sm:text-sm leading-snug">
+                                  <span className="font-semibold text-elite-burgundy/70">{attrName}:</span>{' '}
+                                  {attrValues.map(v => v.valueName).join(', ')}
+                                  {attrValues.some(v => v.priceExtra > 0) && (
+                                    <span className="text-elite-burgundy font-medium">
+                                      {' '}(+{attrValues.reduce((sum, v) => sum + v.priceExtra, 0)} EGP)
+                                    </span>
+                                  )}
+                                </p>
+                              );
+                            })}
                           </div>
                         )}
 

@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
           },
           loyalty: {
             select: {
-              points: true,
+              coins: true,
               totalSpent: true,
-              level: true,
+              tier: true,
             },
           },
         },

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        loyalty: { points: 0, level: "bronze", totalSpent: 0 },
+        loyalty: { coins: 0, tier: "starter", totalSpent: 0 },
       }),
     );
   } catch (err) {

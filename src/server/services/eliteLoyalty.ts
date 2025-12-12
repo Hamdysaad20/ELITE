@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/server/db/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -630,7 +631,7 @@ export async function awardSocialCoins(
         actionType,
         targetId,
         coinsAwarded: coinsReward,
-        metadata,
+        metadata: metadata as any,
       },
     });
 
@@ -640,7 +641,7 @@ export async function awardSocialCoins(
         deltaCoins: coinsReward,
         reason: `Social action: ${actionType}`,
         source: "social",
-        metadata: { actionType, targetId, ...metadata },
+        metadata: { actionType, targetId, ...metadata } as any,
       },
     });
 
@@ -736,7 +737,7 @@ export async function addBonusCoins(
         deltaCoins: coins,
         reason,
         source: "admin",
-        metadata,
+        metadata: metadata as any,
       },
     });
 

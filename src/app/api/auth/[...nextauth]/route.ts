@@ -359,9 +359,11 @@ function getAuthOptions(): NextAuthOptions {
           await prisma.loyaltyAccount.create({
             data: {
               userId: user.id,
-              points: 0,
+              coins: 0,
+              lifetimeCoins: 0,
               totalSpent: 0,
-              level: "bronze",
+              tier: "starter",
+              tierMultiplier: 0,
             },
           });
           console.log(`✅ Loyalty account created for user ${user.id}`);

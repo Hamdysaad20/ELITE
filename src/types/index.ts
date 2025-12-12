@@ -201,8 +201,10 @@ export interface Review {
 export interface Reward {
   id: string;
   userId: string;
-  points: number;
-  level: string;
+  coins: number;
+  lifetimeCoins: number;
+  tier: string;
+  tierMultiplier: number;
   totalSpent: number;
   createdAt: Date;
   updatedAt: Date;

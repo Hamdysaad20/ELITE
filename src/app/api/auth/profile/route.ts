@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
         lastLoginAt: true,
         loyalty: {
           select: {
-            points: true,
+            coins: true,
             totalSpent: true,
-            level: true,
+            tier: true,
             updatedAt: true,
           },
         },
@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
     return jsonResponse(successResponse({
       ...profile,
       loyalty: profile.loyalty || {
-        points: 0,
+        coins: 0,
         totalSpent: 0,
-        level: "bronze",
+        tier: "starter",
         updatedAt: new Date(),
       },
       orderCount: profile._count.orders,

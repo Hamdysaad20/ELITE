@@ -5,25 +5,38 @@ import { apiClient } from "@/lib/auth/apiClient";
 import { useSession } from "next-auth/react";
 
 export interface LoyaltyAccount {
-  points: number;
+  coins: number;
+  lifetimeCoins: number;
   totalSpent: number;
-  level: string;
+  tier: string;
+  tierMultiplier: number;
   updatedAt: Date;
 }
 
 export interface LoyaltyActivity {
   id: string;
-  deltaPoints: number;
+  deltaCoins: number;
   reason: string | null;
+  source: string;
   orderId: string | null;
   orderTotal?: number;
   createdAt: Date;
 }
 
 export interface LoyaltyTier {
-  level: string;
-  minPoints: number;
+  id: string;
+  name: string;
+  multiplier: number;
+  monthlyRequirements: {
+    coinsEarned: number;
+    purchases: number;
+    challenges?: number;
+    eliteChallenges?: number;
+    streakDays: number;
+  };
   benefits: string[];
+  color: string;
+  icon: string;
 }
 
 export interface LoyaltyData {
@@ -56,8 +69,8 @@ interface UseLoyaltyReturn {
  * 
  * return (
  *   <div>
- *     <p>Points: {loyalty.account.points}</p>
- *     <p>Level: {loyalty.account.level}</p>
+ *     <p>Coins: {loyalty.account.coins}</p>
+ *     <p>Tier: {loyalty.account.tier}</p>
  *   </div>
  * );
  * ```
