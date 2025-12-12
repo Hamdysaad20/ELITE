@@ -9,9 +9,11 @@ import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Navigation from "@/components/Navigation";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { useRequireAuth } from "@/lib/auth/hooks";
 
 export default function SettingsPage() {
-  const { data: session, status, update } = useSession();
+  const { user, isLoading: authLoading } = useRequireAuth();
+  const { data: session, update } = useSession();
   const router = useRouter();
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState("");
@@ -27,18 +29,12 @@ export default function SettingsPage() {
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin?callbackUrl=/settings");
-    }
-  }, [status, router]);
-
-  useEffect(() => {
     if (session?.user?.name) {
       setNewName(session.user.name);
     }
   }, [session?.user?.name]);
 
-  if (status === "loading") {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-elite-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent" />

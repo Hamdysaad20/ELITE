@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 /**
  * Hook to get current user session
@@ -112,10 +112,12 @@ export function useRequireAuth() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  if (!isLoading && !isAuthenticated) {
-    const currentUrl = window.location.pathname;
-    router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`);
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      const currentUrl = window.location.pathname + window.location.search;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`);
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   return {
     user,

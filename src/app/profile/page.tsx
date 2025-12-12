@@ -12,12 +12,14 @@ import AddressManager from "@/components/AddressManager";
 import AvatarUpload from "@/components/AvatarUpload";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useUserPurchases } from "@/hooks/useUserPurchases";
+import { useRequireAuth } from "@/lib/auth/hooks";
 import Image from "next/image";
 
 type TabType = "orders" | "addresses" | "rewards" | "settings";
 
 function ProfileContent() {
-  const { data: session, status } = useSession();
+  const { user, isLoading: authLoading } = useRequireAuth();
+  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>("orders");
@@ -37,13 +39,7 @@ function ProfileContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin?callbackUrl=/profile");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-elite-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent" />
