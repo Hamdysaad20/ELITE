@@ -439,19 +439,19 @@ export default function ProductDetailClient({
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-16 bg-elite-cream rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-6 sm:p-8 lg:p-10">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-              <h2 className="font-calistoga text-elite-burgundy text-3xl sm:text-4xl font-bold">
+        <div className="mt-8 sm:mt-12 lg:mt-16 bg-elite-cream rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-4 sm:p-6 lg:p-8 xl:p-10 w-full">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-start sm:items-center justify-between mb-6 sm:mb-8 flex-col sm:flex-row gap-4">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold">
                 Customer Reviews
               </h2>
               {stats && stats.total > 0 && (
-                <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
-                  <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
+                  <div className="flex items-center gap-0.5 sm:gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
                           star <= Math.round(stats.averageRating)
                             ? "fill-elite-burgundy text-elite-burgundy"
                             : "text-elite-burgundy/20"
@@ -459,10 +459,10 @@ export default function ProductDetailClient({
                       />
                     ))}
                   </div>
-                  <span className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
+                  <span className="font-cabin text-elite-burgundy font-bold text-base sm:text-lg lg:text-xl">
                     {stats.averageRating.toFixed(1)}
                   </span>
-                  <span className="font-cabin text-elite-black/60 text-sm font-medium">
+                  <span className="font-cabin text-elite-black/60 text-xs sm:text-sm font-medium">
                     ({stats.total} {stats.total === 1 ? 'review' : 'reviews'})
                   </span>
                 </div>
@@ -470,8 +470,8 @@ export default function ProductDetailClient({
             </div>
 
             {/* Reviews List */}
-            <div className="space-y-5">
-              <h3 className="font-calistoga text-elite-black text-xl sm:text-2xl mb-4">
+            <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+              <h3 className="font-calistoga text-elite-black text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
                 {reviews.length > 0 ? `All Reviews (${reviews.length})` : 'Reviews'}
               </h3>
               {reviewsLoading ? (
@@ -502,17 +502,39 @@ export default function ProductDetailClient({
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <div className="text-center mb-8">
-              <h2 className="font-calistoga text-elite-burgundy text-3xl font-bold mb-2">
+          <div className="mt-8 sm:mt-12 lg:mt-16">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold mb-2">
                 You Might Also Like
               </h2>
-              <p className="font-cabin text-elite-black/60">
+              <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
                 More products from {product.category?.name || "this category"}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Mobile: Horizontal Scroll */}
+            <div className="md:hidden">
+              <div className="flex gap-4 overflow-x-auto pb-4 px-1 -mx-4 snap-x snap-mandatory scrollbar-hide">
+                {relatedProducts.map((relatedProduct) => (
+                  <div key={relatedProduct.id} className="flex-shrink-0 w-[280px] snap-start">
+                    <DrinkCard
+                      id={relatedProduct.id}
+                      name={relatedProduct.name}
+                      price={relatedProduct.price}
+                      images={relatedProduct.images}
+                      available={relatedProduct.available}
+                      href={`/products/${relatedProduct.id}`}
+                      menuItemId={relatedProduct.id}
+                      showAddToOrder={true}
+                      className="h-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop: Grid */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {relatedProducts.map((relatedProduct) => (
                 <DrinkCard
                   key={relatedProduct.id}
