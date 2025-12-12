@@ -5,6 +5,7 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useState, useTransition, useOptimistic } from "react";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -15,8 +16,60 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, subtotal, tax, total, itemCount } = useLocalCart();
   const router = useRouter();
   const { status } = useSession();
+  const [isPending, startTransition] = useTransition();
+  const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  
+  // Optimistic cart state
+  const [optimisticItems, setOptimisticItems] = useOptimistic(
+    items,
+    (state, optimisticValue: { action: 'remove' | 'update', id: string, quantity?: number }) => {
+      if (optimisticValue.action === 'remove') {
+        return state.filter(item => item.id !== optimisticValue.id);
+      }
+      if (optimisticValue.action === 'update' && optimisticValue.quantity !== undefined) {
+        return state.map(item => 
+          item.id === optimisticValue.id 
+            ? { ...item, quantity: optimisticValue.quantity }
+            : item
+        );
+      }
+      return state;
+    }
+  );
+  
+  const handleRemoveItem = (id: string) => {
+    setPendingItems(prev => new Set(prev).add(id));
+    setOptimisticItems({ action: 'remove', id });
+    startTransition(() => {
+      removeItem(id);
+      setTimeout(() => {
+        setPendingItems(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, 300);
+    });
+  };
+  
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    setPendingItems(prev => new Set(prev).add(id));
+    setOptimisticItems({ action: 'update', id, quantity });
+    startTransition(() => {
+      updateQuantity(id, quantity);
+      setTimeout(() => {
+        setPendingItems(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, 300);
+    });
+  };
 
   const handleCheckout = () => {
+    setIsCheckingOut(true);
     if (status === 'unauthenticated') {
       // Redirect to login with callback to checkout
       router.push('/auth/signin?callbackUrl=/checkout');
@@ -24,7 +77,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       // Proceed to checkout
       router.push('/checkout');
     }
-    onClose();
+    setTimeout(() => {
+      onClose();
+      setIsCheckingOut(false);
+    }, 300);
   };
 
   return (
@@ -64,7 +120,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
               <button
                 onClick={onClose}
-                className="p-2.5 sm:p-3 lg:p-3.5 hover:bg-elite-cream/20 active:bg-elite-cream/30 rounded-2xl transition-all active:scale-90 touch-manipulation group flex-shrink-0 ml-2"
+                className="hover:bg-elite-cream/20 active:bg-elite-cream/30 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group flex-shrink-0 ml-2 w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 flex items-center justify-center"
                 aria-label="Close cart"
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:rotate-90 transition-transform duration-300" />
@@ -94,12 +150,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4">
-                {items.map((item) => (
+                {optimisticItems.map((item) => {
+                  const isItemPending = pendingItems.has(item.id);
+                  
+                  return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-2xl lg:rounded-3xl p-3 sm:p-4 lg:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-elite-burgundy/10 active:scale-[0.99]"
+                    className={`bg-white rounded-2xl lg:rounded-3xl p-3 sm:p-4 lg:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-elite-burgundy/10 active:scale-[0.99] ${isItemPending ? 'opacity-60 pointer-events-none' : ''}`}
                   >
-                    <div className="flex gap-3 sm:gap-4">
+                    <div className="flex gap-3 sm:gap-4 relative">
+                      {/* Loading overlay */}
+                      {isItemPending && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px] rounded-2xl z-10">
+                          <div className="w-6 h-6 border-3 border-elite-burgundy/30 border-t-elite-burgundy rounded-full animate-spin" />
+                        </div>
+                      )}
+                      
                       {/* Image - Optimized sizing with aspect ratio */}
                       <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5 aspect-square">
                         {item.image ? (
@@ -109,6 +175,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             width={112}
                             height={112}
                             className="w-full h-full object-cover"
+                            priority
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-elite-burgundy/5 to-elite-burgundy/10 flex items-center justify-center aspect-square">
@@ -126,8 +193,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           
                           {/* Remove Button - Enhanced for mobile */}
                           <button
-                            onClick={() => removeItem(item.id)}
-                            className="flex-shrink-0 p-2 lg:p-2.5 text-red-500 hover:text-white hover:bg-red-500 active:bg-red-600 rounded-xl lg:rounded-2xl transition-all active:scale-90 touch-manipulation group shadow-sm hover:shadow-md min-w-[40px] min-h-[40px]"
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={isItemPending}
+                            className="flex-shrink-0 p-2 lg:p-2.5 text-red-500 hover:text-white hover:bg-red-500 active:bg-red-600 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group shadow-sm hover:shadow-lg w-10 h-10 lg:w-11 lg:h-11 flex items-center justify-center"
                             aria-label="Remove item"
                           >
                             <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -154,11 +222,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {/* Quantity and Price */}
                         <div className="flex items-end justify-between mt-3 gap-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1.5 sm:gap-2 bg-elite-cream/50 rounded-xl lg:rounded-2xl p-1.5 sm:p-2 border border-elite-burgundy/10 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 bg-elite-cream/50 rounded-full p-1.5 sm:p-2 border border-elite-burgundy/10 shadow-sm">
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                className="p-2 sm:p-2.5 text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-lg lg:rounded-xl transition-all active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed min-w-[36px] min-h-[36px]"
-                                disabled={item.quantity <= 1}
+                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 flex items-center justify-center"
+                                disabled={item.quantity <= 1 || isItemPending}
                                 aria-label="Decrease quantity"
                               >
                                 <Minus className="w-4 h-4" />
@@ -167,9 +235,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                 {item.quantity}
                               </span>
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                className="p-2 sm:p-2.5 text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-lg lg:rounded-xl transition-all active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed min-w-[36px] min-h-[36px]"
-                                disabled={item.quantity >= 50}
+                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 flex items-center justify-center"
+                                disabled={item.quantity >= 50 || isItemPending}
                                 aria-label="Increase quantity"
                               >
                                 <Plus className="w-4 h-4" />
@@ -191,7 +259,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             )}
           </div>
@@ -216,10 +285,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-4 sm:py-5 lg:py-6 rounded-2xl font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group"
+                disabled={isCheckingOut}
+                className="w-full bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream py-4 sm:py-5 lg:py-6 rounded-2xl font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
               >
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform duration-300" />
+                {isCheckingOut ? (
+                  <>
+                    <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform duration-300" />
+                  </>
+                )}
               </button>
 
               {status === 'unauthenticated' && (

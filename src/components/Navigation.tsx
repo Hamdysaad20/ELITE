@@ -141,7 +141,9 @@ export default function Navigation() {
               {/* User Profile Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 {status === "loading" ? (
-                  <div className="w-12 h-12 rounded-full bg-elite-burgundy/20 animate-pulse" />
+                  <div className="w-12 h-12 rounded-full bg-elite-burgundy/20 animate-pulse flex items-center justify-center">
+                    <div className="w-6 h-6 border-3 border-elite-burgundy/30 border-t-elite-burgundy rounded-full animate-spin" />
+                  </div>
                 ) : session ? (
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -185,9 +187,12 @@ export default function Navigation() {
                             width={48}
                             height={48}
                             className="object-cover w-full h-full"
+                            priority
                           />
                         ) : (
-                          session.user?.name?.charAt(0).toUpperCase() || "U"
+                          <span className="flex items-center justify-center w-full h-full">
+                            {session.user?.name?.charAt(0).toUpperCase() || "U"}
+                          </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">

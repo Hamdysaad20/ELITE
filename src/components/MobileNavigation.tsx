@@ -82,9 +82,9 @@ export default function MobileNavigation() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-2 safe-area-inset-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 pb-2 pt-1.5 safe-area-inset-bottom">
         <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-[0_-8px_24px_rgba(139,0,0,0.12),0_4px_12px_rgba(139,0,0,0.08)] border border-elite-burgundy/10">
-          <div className="flex items-center justify-around px-2 py-2.5 gap-1.5">
+          <div className="flex items-center justify-around px-1 py-2 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -95,12 +95,12 @@ export default function MobileNavigation() {
                 onClick={() => handleNavigation(item.href, item.requireAuth, item.isCart)}
                 disabled={isPending && optimisticPath === item.href}
                 className={cn(
-                  "relative flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-full transition-all duration-500 ease-out touch-manipulation will-change-transform",
+                  "relative flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-full transition-all duration-500 ease-out touch-manipulation will-change-transform",
                   "active:scale-90",
                   active
                     ? "bg-elite-burgundy text-white shadow-lg shadow-elite-burgundy/30 scale-105"
                     : "text-elite-black/60 hover:text-elite-burgundy hover:bg-elite-burgundy/5 active:bg-elite-burgundy/10",
-                  "min-w-[72px] flex-1 max-w-[90px]"
+                  "flex-1 min-w-0"
                 )}
                 style={{
                   transform: active ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
@@ -140,7 +140,7 @@ export default function MobileNavigation() {
                 {/* Label with smooth fade */}
                 <span
                   className={cn(
-                    "text-[10px] font-cabin transition-all duration-500 ease-out leading-tight",
+                    "text-[9px] font-cabin transition-all duration-500 ease-out leading-tight truncate max-w-full",
                     active ? "font-bold opacity-100" : "font-medium opacity-80"
                   )}
                 >
