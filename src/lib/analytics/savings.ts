@@ -75,7 +75,7 @@ export async function calculateOrderSavings(
         originalPrice,
         finalPrice,
         totalSavings,
-        discounts: discounts as any,
+        discounts: discounts as unknown as never,
       },
     });
 
@@ -116,9 +116,9 @@ export async function updateUserSavings(
 
     if (existing) {
       // Update existing record
-      const savingsByMonth = (existing.savingsByMonth as any) || [];
+      const savingsByMonth = (existing.savingsByMonth as unknown as Array<{ month: string; amount: number }>) || [];
       const monthIndex = savingsByMonth.findIndex(
-        (m: any) => m.month === currentMonth
+        (m: { month: string; amount: number }) => m.month === currentMonth
       );
 
       if (monthIndex >= 0) {
@@ -136,7 +136,7 @@ export async function updateUserSavings(
           totalSaved: newTotalSaved,
           totalOrders: newTotalOrders,
           averageSavingsPerOrder: newTotalSaved / newTotalOrders,
-          savingsByMonth: savingsByMonth as any,
+          savingsByMonth: savingsByMonth as unknown as never,
         },
       });
     } else {
@@ -147,7 +147,7 @@ export async function updateUserSavings(
           totalSaved: newSavings,
           totalOrders: 1,
           averageSavingsPerOrder: newSavings,
-          savingsByMonth: [{ month: currentMonth, amount: newSavings }] as any,
+          savingsByMonth: [{ month: currentMonth, amount: newSavings }] as unknown as never,
         },
       });
     }
@@ -178,7 +178,7 @@ export async function getUserSavings(userId: string) {
       totalSaved: Number(savings.totalSaved),
       totalOrders: savings.totalOrders,
       averageSavingsPerOrder: Number(savings.averageSavingsPerOrder),
-      savingsByMonth: savings.savingsByMonth as any,
+      savingsByMonth: savings.savingsByMonth as unknown as Array<{ month: string; amount: number }>,
     };
   } catch (error) {
     console.error("Error fetching user savings:", error);
@@ -207,7 +207,7 @@ export async function getOrderSavings(orderId: string) {
       originalPrice: Number(savings.originalPrice),
       finalPrice: Number(savings.finalPrice),
       totalSavings: Number(savings.totalSavings),
-      discounts: savings.discounts as DiscountDetail[],
+      discounts: savings.discounts as unknown as DiscountDetail[],
     };
   } catch (error) {
     console.error("Error fetching order savings:", error);

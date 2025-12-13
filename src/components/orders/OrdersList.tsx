@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { ShoppingBag, Clock, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
-import { OrderStatus } from "@/types";
+import { OrderStatus, Order } from "@/types";
 
 interface OrdersListProps {
-  orders: any[];
+  orders: Order[];
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;

@@ -128,6 +128,7 @@ export interface Order {
   discount: number;
   total: number;
   notes?: string;
+  pointsEarned?: number;
   integrations?: {
     odoo?: {
       saleOrderId?: number;

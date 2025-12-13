@@ -43,7 +43,7 @@ export function SpendingChart({ data }: SpendingChartProps) {
               fontFamily: 'Cabin',
               padding: '12px'
             }}
-            formatter={(value: any) => [`EGP ${value.toFixed(2)}`, '']}
+            formatter={(value: number) => [`EGP ${value.toFixed(2)}`, '']}
             labelStyle={{ color: '#F5F5DC', fontWeight: 'bold', marginBottom: '8px' }}
           />
           <Legend 

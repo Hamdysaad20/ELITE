@@ -1,11 +1,11 @@
 "use client";
 
 import { TrendingUp, Package, Clock, CheckCircle2, Sparkles, Star } from "lucide-react";
-import { OrderStatus } from "@/types";
+import { OrderStatus, Order } from "@/types";
 import { useUserSavings, useUserPoints } from "@/hooks/useAnalytics";
 
 interface OrdersAnalyticsProps {
-  orders: any[];
+  orders: Order[];
 }
 
 export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {

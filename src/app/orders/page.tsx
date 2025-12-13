@@ -51,7 +51,7 @@ export default function OrdersPage() {
 
     // Filter by order type
     if (filters.orderType !== 'all') {
-      filtered = filtered.filter(order => order.orderType === filters.orderType);
+      filtered = filtered.filter(order => order.orderType === filters.orderType.toUpperCase());
     }
 
     // Sort orders
@@ -106,10 +106,10 @@ export default function OrdersPage() {
           
           {/* Page Header with Breadcrumbs */}
           <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-3xl p-4 sm:p-6 space-y-3">
-            {/* Back Button */}
+            {/* Back Button - Hidden on mobile */}
             <Link
               href="/profile"
-              className="inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors group"
+              className="hidden md:inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors group"
             >
               <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

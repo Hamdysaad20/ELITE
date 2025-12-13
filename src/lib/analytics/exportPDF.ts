@@ -26,9 +26,9 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
   const doc = new jsPDF();
 
   // Elite colors
-  const burgundy = [128, 0, 32];
-  const cream = [245, 245, 220];
-  const black = [0, 0, 0];
+  const burgundy: [number, number, number] = [128, 0, 32];
+  const cream: [number, number, number] = [245, 245, 220];
+  const black: [number, number, number] = [0, 0, 0];
 
   // Header
   doc.setFillColor(...burgundy);
@@ -87,7 +87,7 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
     },
   });
 
-  yPos = (doc as any).lastAutoTable.finalY + 15;
+  yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
 
   // Savings by Month
   if (data.savingsByMonth && data.savingsByMonth.length > 0) {
@@ -120,7 +120,7 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
       },
     });
 
-    yPos = (doc as any).lastAutoTable.finalY + 15;
+    yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   }
 
   // New page if needed
@@ -160,7 +160,7 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
       },
     });
 
-    yPos = (doc as any).lastAutoTable.finalY + 15;
+    yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   }
 
   // Top Orders
@@ -252,17 +252,17 @@ export async function fetchAndExportAnalytics(): Promise<void> {
       totalPointsEarned: pointsData.totalEarned || 0,
       tier: pointsData.tier || 'bronze',
       savingsByMonth:
-        savingsData.savingsByMonth?.slice(0, 6).map((item: any) => ({
+        savingsData.savingsByMonth?.slice(0, 6).map((item: { month: string; amount: number }) => ({
           month: item.month,
           amount: Number(item.amount),
         })) || [],
       pointsByMonth:
-        historyData.byMonth?.slice(0, 6).map((item: any) => ({
+        historyData.byMonth?.slice(0, 6).map((item: { month: string; points: number }) => ({
           month: item.month,
           points: item.points,
         })) || [],
       topOrders:
-        savingsData.topSavingOrders?.slice(0, 10).map((order: any) => ({
+        savingsData.topSavingOrders?.slice(0, 10).map((order: { date: string; total: number; saved: number; points?: number }) => ({
           date: new Date(order.date).toLocaleDateString(),
           amount: order.total,
           saved: order.saved,

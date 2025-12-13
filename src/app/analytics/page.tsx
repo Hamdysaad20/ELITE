@@ -56,14 +56,14 @@ export default function AnalyticsPage() {
   }
 
   // Prepare chart data from savings
-  const savingsChartData = savings?.savingsByMonth?.slice(-6).map((item: any) => ({
+  const savingsChartData = savings?.savingsByMonth?.slice(-6).map((item: { month: string; amount: number }) => ({
     month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
     savings: item.amount,
     spending: 0 // Will be calculated from orders
   })) || [];
 
   // Calculate spending by month from orders
-  const spendingByMonth = orders?.reduce((acc: any, order: any) => {
+  const spendingByMonth = orders?.reduce((acc: Record<string, number>, order: { createdAt: Date | string; total: number }) => {
     const month = new Date(order.createdAt).toISOString().slice(0, 7);
     if (!acc[month]) acc[month] = 0;
     acc[month] += Number(order.total);
@@ -71,7 +71,7 @@ export default function AnalyticsPage() {
   }, {}) || {};
 
   // Merge spending data into chart data
-  const spendingChartData = savingsChartData.map((item: any, index: number) => {
+  const spendingChartData = savingsChartData.map((item: { month: string; savings: number; spending: number }, index: number) => {
     const monthKey = Object.keys(spendingByMonth)[index];
     return {
       ...item,
@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
   });
 
   // Calculate points earned by month
-  const pointsChartData = savings?.savingsByMonth?.slice(-6).map((item: any) => ({
+  const pointsChartData = savings?.savingsByMonth?.slice(-6).map((item: { month: string; amount: number }) => ({
     month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
     earned: item.amount * 100, // Rough estimate: savings to points
     redeemed: 0

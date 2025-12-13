@@ -197,7 +197,7 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
           {datePresets.map((preset) => (
             <button
               key={preset.value}
-              onClick={() => handleDatePreset(preset.value as any)}
+              onClick={() => handleDatePreset(preset.value as typeof filters.dateRange.preset)}
               className={`px-3 py-1.5 rounded-xl text-sm font-cabin font-semibold transition-all touch-manipulation active:scale-95 ${
                 filters.dateRange.preset === preset.value
                   ? 'bg-elite-burgundy text-elite-cream'
@@ -220,7 +220,7 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
           {['all', 'delivery', 'pickup'].map((type) => (
             <button
               key={type}
-              onClick={() => handleOrderTypeChange(type as any)}
+              onClick={() => handleOrderTypeChange(type as typeof filters.orderType)}
               className={`flex-1 px-3 py-2 rounded-xl text-sm font-cabin font-semibold capitalize transition-all touch-manipulation active:scale-95 ${
                 filters.orderType === type
                   ? 'bg-elite-burgundy text-elite-cream'
@@ -242,7 +242,7 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
         <div className="flex gap-2">
           <select
             value={filters.sortBy}
-            onChange={(e) => handleSortChange(e.target.value as any)}
+            onChange={(e) => handleSortChange(e.target.value as typeof filters.sortBy)}
             className="flex-1 px-3 py-2 rounded-xl bg-elite-cream text-elite-black font-cabin font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-elite-burgundy"
           >
             {sortOptions.map((option) => (

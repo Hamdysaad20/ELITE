@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Helper functions
-function calculateTrend(savingsByMonth: any[]): "up" | "down" | "stable" {
+function calculateTrend(savingsByMonth: Array<{ month: string; amount: number }>): "up" | "down" | "stable" {
   if (!savingsByMonth || savingsByMonth.length < 2) return "stable";
 
   const recent = savingsByMonth.slice(-2);
@@ -144,7 +144,7 @@ function calculateTrend(savingsByMonth: any[]): "up" | "down" | "stable" {
   return "stable";
 }
 
-function calculatePercentageChange(savingsByMonth: any[]): number {
+function calculatePercentageChange(savingsByMonth: Array<{ month: string; amount: number }>): number {
   if (!savingsByMonth || savingsByMonth.length < 2) return 0;
 
   const recent = savingsByMonth.slice(-2);
@@ -154,10 +154,10 @@ function calculatePercentageChange(savingsByMonth: any[]): number {
   return Math.round(((current - previous) / previous) * 100);
 }
 
-function calculateProjectedEarnings(monthlyData: { [key: string]: any }): number {
+function calculateProjectedEarnings(monthlyData: Record<string, { points: number; savings: number; spending: number }>): number {
   const months = Object.values(monthlyData);
   if (months.length === 0) return 0;
 
-  const avgPoints = months.reduce((sum: number, m: any) => sum + m.points, 0) / months.length;
+  const avgPoints = months.reduce((sum: number, m) => sum + m.points, 0) / months.length;
   return Math.round(avgPoints);
 }

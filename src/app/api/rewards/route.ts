@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { getAuthOptions } from '@/server/auth/options';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/db/client';
 import { getAvailableRewards } from '@/lib/rewards/catalog';
 
 export async function GET() {

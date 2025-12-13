@@ -117,7 +117,7 @@ export async function calculateOrderPoints(
         bonusPoints,
         multiplier,
         totalPoints,
-        pointsBreakdown: pointsBreakdown as any,
+        pointsBreakdown: pointsBreakdown as unknown as never,
         expiresAt,
       },
     });
@@ -146,7 +146,7 @@ export async function calculateOrderPoints(
       bonusPoints: orderPoints.bonusPoints,
       multiplier: Number(orderPoints.multiplier),
       totalPoints: orderPoints.totalPoints,
-      pointsBreakdown: orderPoints.pointsBreakdown as PointsBreakdownItem[],
+      pointsBreakdown: orderPoints.pointsBreakdown as unknown as PointsBreakdownItem[],
       expiresAt: orderPoints.expiresAt,
     };
   } catch (error) {

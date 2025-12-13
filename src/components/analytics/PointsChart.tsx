@@ -49,7 +49,7 @@ export function PointsChart({ data }: PointsChartProps) {
               fontFamily: 'Cabin',
               padding: '12px'
             }}
-            formatter={(value: any) => [`${value.toLocaleString()} pts`, '']}
+            formatter={(value: number) => [`${value.toLocaleString()} pts`, '']}
             labelStyle={{ color: '#F5F5DC', fontWeight: 'bold', marginBottom: '8px' }}
           />
           <Area 

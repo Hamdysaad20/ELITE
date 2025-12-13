@@ -62,7 +62,7 @@ export default function PointsHistoryPage() {
     }
   };
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -103,7 +103,7 @@ export default function PointsHistoryPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {transactions.map((transaction: any) => (
+              {transactions.map((transaction: { id: string; type: string; amount: number; reason: string; createdAt: Date | string; balance: number }) => (
                 <div
                   key={transaction.id}
                   className="bg-white rounded-2xl shadow-sm border-2 border-elite-burgundy/10 p-4 hover:border-elite-burgundy/30 transition-all"

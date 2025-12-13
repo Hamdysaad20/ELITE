@@ -7,6 +7,15 @@ interface UserSavings {
   savingsByMonth: { month: string; amount: number }[];
 }
 
+interface PointsTransaction {
+  id: string;
+  type: string;
+  amount: number;
+  balance: number;
+  reason: string;
+  createdAt: Date | string;
+}
+
 interface UserPoints {
   totalPoints: number;
   totalEarned: number;
@@ -14,7 +23,7 @@ interface UserPoints {
   tier: string;
   nextTierAt: number;
   pointsToNextTier: number;
-  recentTransactions?: any[];
+  recentTransactions?: PointsTransaction[];
 }
 
 export function useUserSavings() {
@@ -78,7 +87,7 @@ export function useUserPoints() {
 }
 
 export function usePointsHistory(limit: number = 20) {
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

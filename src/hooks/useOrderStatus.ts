@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { apiClient } from "@/lib/auth/apiClient";
+import { Order as OrderType } from "@/types";
 
 export interface OrderStatus {
   id: string;
@@ -157,17 +158,7 @@ export function useOrderStatus(options: UseOrderStatusOptions): UseOrderStatusRe
  */
 export function useOrders(options: { limit?: number; offset?: number } = {}) {
   const { limit = 20, offset = 0 } = options;
-  const [orders, setOrders] = useState<Array<{
-    id: string;
-    orderNumber: string;
-    status: string;
-    total: number;
-    createdAt: string;
-    integrationStatus?: {
-      sale?: { synced: boolean; orderId?: number; status: string; url?: string };
-      pos?: { synced: boolean; orderId?: number; status: string };
-    };
-  }>>([]);
+  const [orders, setOrders] = useState<OrderType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -180,17 +171,7 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
       params.append("limit", String(limit));
       params.append("offset", String(offset));
 
-      const response = await apiClient.get<{ orders: Array<{
-        id: string;
-        orderNumber: string;
-        status: string;
-        total: number;
-        createdAt: string;
-        integrationStatus?: {
-          sale?: { synced: boolean; orderId?: number; status: string; url?: string };
-          pos?: { synced: boolean; orderId?: number; status: string };
-        };
-      }> }>(`/api/orders?${params.toString()}`);
+      const response = await apiClient.get<{ orders: OrderType[] }>(`/api/orders?${params.toString()}`);
       setOrders(response.orders || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load orders";
