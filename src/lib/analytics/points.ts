@@ -6,6 +6,10 @@
 
 import { prisma } from "@/lib/db";
 import { Decimal } from "@prisma/client/runtime/library";
+import {
+  checkAndNotifyTierUpgrade,
+  createPointsEarnedNotification,
+} from "./notifications";
 
 export interface PointsBreakdownItem {
   reason: string;
@@ -127,6 +131,14 @@ export async function calculateOrderPoints(
     // Update user points balance
     await updateUserPoints(order.userId, totalPoints, "earn", orderId);
 
+    // Send points earned notification
+    await createPointsEarnedNotification(
+      order.userId,
+      totalPoints,
+      orderId,
+      `from your order`
+    );
+
     return {
       orderId: orderPoints.orderId,
       userId: orderPoints.userId,
@@ -176,6 +188,15 @@ export async function updateUserPoints(
 
     // Determine tier based on total earned
     const { tier, nextTierAt } = calculateUserTier(newTotalEarned);
+
+    // Check for tier upgrade and notify
+    if (existing && type === "earn") {
+      await checkAndNotifyTierUpgrade(
+        userId,
+        existing.totalEarned,
+        newTotalEarned
+      );
+    }
 
     // Upsert user points
     await prisma.userPoints.upsert({

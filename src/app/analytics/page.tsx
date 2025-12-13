@@ -7,13 +7,15 @@ import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
-import { Loader2, TrendingUp, Award } from "lucide-react";
+import { Loader2, TrendingUp, Award, Download } from "lucide-react";
 import { SavingsCard } from "@/components/analytics/SavingsCard";
 import { PointsCard } from "@/components/analytics/PointsCard";
 import { SavingsChart } from "@/components/analytics/SavingsChart";
 import { PointsChart } from "@/components/analytics/PointsChart";
 import { SpendingChart } from "@/components/analytics/SpendingChart";
+import { fetchAndExportAnalytics } from "@/lib/analytics/exportPDF";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function AnalyticsPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
@@ -21,8 +23,21 @@ export default function AnalyticsPage() {
   const { points, loading: pointsLoading } = useUserPoints();
   const { orders, loading: ordersLoading } = useOrders();
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
+  const [exporting, setExporting] = useState(false);
 
   const loading = authLoading || savingsLoading || pointsLoading || ordersLoading;
+
+  const handleExportPDF = async () => {
+    setExporting(true);
+    try {
+      await fetchAndExportAnalytics();
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to export analytics. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -97,7 +112,45 @@ export default function AnalyticsPage() {
                 Track your savings, points, and spending habits
               </p>
             </div>
+            
+            {/* Export PDF Button */}
+            <button
+              onClick={handleExportPDF}
+              disabled={exporting}
+              className="hidden md:flex items-center gap-2 px-4 py-2 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-semibold hover:bg-elite-burgundy/90 active:scale-95 transition-all disabled:opacity-50"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Export PDF
+                </>
+              )}
+            </button>
           </div>
+
+          {/* Mobile Export Button */}
+          <button
+            onClick={handleExportPDF}
+            disabled={exporting}
+            className="md:hidden w-full flex items-center justify-center gap-2 px-4 py-3 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-semibold hover:bg-elite-burgundy/90 active:scale-95 transition-all disabled:opacity-50"
+          >
+            {exporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Export Analytics as PDF
+              </>
+            )}
+          </button>
 
           {/* Top Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
