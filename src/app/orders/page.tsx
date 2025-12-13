@@ -7,7 +7,7 @@ import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { Loader2, ShoppingBag, Home } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { OrdersAnalytics } from "@/components/orders/OrdersAnalytics";
 import { OrdersList } from "@/components/orders/OrdersList";
@@ -104,33 +104,50 @@ export default function OrdersPage() {
       <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4 md:space-y-6">
           
-          {/* Quick Navigation */}
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
+          {/* Page Header with Breadcrumbs */}
+          <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-3xl p-4 sm:p-6 space-y-3">
+            {/* Back Button */}
             <Link
               href="/profile"
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all whitespace-nowrap touch-manipulation active:scale-95"
+              className="inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors group"
             >
-              <Home className="w-4 h-4 text-elite-burgundy" />
-              <span className="font-cabin text-sm font-semibold text-elite-black">Profile</span>
+              <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="font-cabin text-sm font-semibold">Back to Profile</span>
             </Link>
-            <Link
-              href="/menu"
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all whitespace-nowrap touch-manipulation active:scale-95"
-            >
-              <ShoppingBag className="w-4 h-4 text-elite-burgundy" />
-              <span className="font-cabin text-sm font-semibold text-elite-black">Order Again</span>
-            </Link>
-            
-            {/* Filters */}
-            <OrderFilters 
-              filters={filters} 
-              onFilterChange={setFilters} 
-              orderCount={filteredOrders.length}
-            />
+
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 text-sm font-cabin">
+              <Link href="/" className="text-elite-cream/60 hover:text-elite-cream transition-colors">
+                Home
+              </Link>
+              <span className="text-elite-cream/40">/</span>
+              <Link href="/profile" className="text-elite-cream/60 hover:text-elite-cream transition-colors">
+                Profile
+              </Link>
+              <span className="text-elite-cream/40">/</span>
+              <span className="text-elite-cream font-semibold">My Orders</span>
+            </div>
+
+            {/* Page Title */}
+            <h1 className="font-calistoga text-3xl sm:text-4xl text-elite-cream">
+              My Orders
+            </h1>
+            <p className="font-cabin text-elite-cream/80">
+              Track your orders, view savings, and earn rewards
+            </p>
           </div>
 
           {/* Analytics Overview */}
           <OrdersAnalytics orders={filteredOrders} />
+
+          {/* Filters */}
+          <OrderFilters 
+            filters={filters} 
+            onFilterChange={setFilters} 
+            orderCount={filteredOrders.length}
+          />
 
           {/* Orders List */}
           <OrdersList 

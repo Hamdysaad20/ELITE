@@ -70,7 +70,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-cream">
-            {savings?.totalSaved.toFixed(0) || 0}
+            {savings?.totalSaved?.toFixed(0) || 0}
             <span className="text-sm ml-1">EGP</span>
           </p>
         </div>
@@ -84,7 +84,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-burgundy">
-            {points?.totalPoints.toLocaleString() || 0}
+            {points?.totalPoints?.toLocaleString() || 0}
           </p>
         </div>
 

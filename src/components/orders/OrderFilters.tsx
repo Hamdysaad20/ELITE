@@ -124,23 +124,25 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all touch-manipulation active:scale-95"
-      >
-        <Filter className="w-4 h-4 text-elite-burgundy" />
-        <span className="font-cabin font-semibold text-elite-black">Filters</span>
-        {activeFiltersCount > 0 && (
-          <span className="bg-elite-burgundy text-elite-cream text-xs font-cabin font-bold px-2 py-0.5 rounded-full">
-            {activeFiltersCount}
-          </span>
-        )}
-      </button>
+      <div className="w-full">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all touch-manipulation active:scale-95"
+        >
+          <Filter className="w-4 h-4 text-elite-burgundy" />
+          <span className="font-cabin font-semibold text-elite-black">Filters</span>
+          {activeFiltersCount > 0 && (
+            <span className="bg-elite-burgundy text-elite-cream text-xs font-cabin font-bold px-2 py-0.5 rounded-full">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-5 space-y-5">
+    <div className="w-full bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-5 space-y-5 animate-in slide-in-from-top-2 duration-300">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="font-calistoga text-lg text-elite-black">Filters</h3>
