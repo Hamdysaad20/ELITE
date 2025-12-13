@@ -24,6 +24,13 @@ model User {
   sessions      Session[]
   reviews       Review[]        @relation("UserReviews")
   addresses     Address[]       @relation("UserAddresses")
+  
+  // New relations for analytics
+  userSavings        UserSavings?
+  userPoints         UserPoints?
+  orderPoints        OrderPoints[]
+  pointsTransactions PointsTransaction[]
+  
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -112,8 +119,17 @@ model Order {
   odooStatusSale String          @default("pending")
   odooStatusPos  String          @default("pending")
   clientOrderRef String          @unique
+  
+  // New fields for analytics
+  originalPrice   Decimal?        // Price before discounts
+  discountApplied Boolean         @default(false)
+  pointsEarned    Int             @default(0)
+  
   items          OrderItem[]
   ledger         LoyaltyLedger[] @relation("OrderLedger")
+  savings        OrderSavings?
+  points         OrderPoints?
+  
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -198,4 +214,100 @@ model Address {
 
   @@index([userId])
   @@index([userId, isDefault])
+}
+
+// Analytics Models
+
+model OrderSavings {
+  id            String   @id @default(uuid())
+  orderId       String   @unique
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  originalPrice Decimal  // Price before discounts
+  finalPrice    Decimal  // Price after discounts
+  totalSavings  Decimal  // Calculated savings
+  
+  discounts     Json     // Array of discount objects
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model OrderPoints {
+  id              String    @id @default(uuid())
+  orderId         String    @unique
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  basePoints      Int       // Points from order value (total * 100)
+  bonusPoints     Int       @default(0)
+  multiplier      Decimal   @default(1.0)
+  totalPoints     Int       // Calculated total
+  
+  pointsBreakdown Json      // Detailed breakdown
+  
+  earnedAt        DateTime  @default(now())
+  expiresAt       DateTime? // Point expiration (1 year)
+  isExpired       Boolean   @default(false)
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([earnedAt])
+}
+
+model UserSavings {
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  totalSaved              Decimal  @default(0)
+  totalOrders             Int      @default(0)
+  averageSavingsPerOrder  Decimal  @default(0)
+  
+  savingsByMonth          Json     // Monthly breakdown
+  
+  lastUpdated             DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model UserPoints {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  totalPoints   Int      @default(0)     // Current balance
+  totalEarned   Int      @default(0)     // Lifetime earned
+  totalRedeemed Int      @default(0)     // Lifetime spent
+  
+  tier          String   @default("bronze") // bronze, silver, gold, platinum
+  nextTierAt    Int      @default(100000)   // 1,000 EGP in points
+  
+  lastUpdated   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([tier])
+}
+
+model PointsTransaction {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   // 'earn' | 'redeem' | 'expire' | 'adjust'
+  amount    Int      // Positive for earn, negative for redeem
+  balance   Int      // Balance after transaction
+  
+  reason    String   // Description of transaction
+  orderId   String?  // Related order if applicable
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
 }

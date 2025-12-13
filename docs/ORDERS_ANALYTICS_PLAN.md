@@ -122,15 +122,15 @@ interface UserSavings {
 #### Points Calculation Rules
 
 **Base Points:**
-- 1 EGP spent = 1 point
+- 1 EGP spent = 100 points
 - Minimum order for points: 50 EGP
 - Points multiplier events (2x, 3x, etc.)
 
 **Bonus Points:**
-- First order: +100 points
+- First order: +1,000 points (worth 10 EGP)
 - Birthday month: 2x points
-- Referral: +50 points (both users)
-- Review after order: +25 points
+- Referral: +5,000 points for referrer when referred user completes first purchase (worth 50 EGP)
+- Review after order: +25 points (worth 0.25 EGP)
 
 **Points Tracking:**
 ```typescript
@@ -181,7 +181,7 @@ interface UserPoints {
 ┌─────────────────────────────┐
 │ ⭐ Points Balance          │
 │                             │
-│   2,450 Points             │
+│   24,500 Points            │
 │   Worth EGP 245            │
 └─────────────────────────────┘
 ```
@@ -318,7 +318,7 @@ model UserPoints {
   totalRedeemed   Int      @default(0)     // Lifetime spent
   
   tier            String   @default("bronze") // bronze, silver, gold, platinum
-  nextTierAt      Int      @default(1000)
+  nextTierAt      Int      @default(100000)  // 1,000 EGP in points
   
   lastUpdated     DateTime @updatedAt
   
@@ -509,13 +509,13 @@ async function calculateOrderPoints(orderId: string) {
   const order = await getOrder(orderId);
   const user = await getUser(order.userId);
   
-  // Base points (1 EGP = 1 point)
-  const basePoints = Math.floor(order.total);
+  // Base points (1 EGP = 100 points)
+  const basePoints = Math.floor(order.total * 100);
   
   // Check for bonuses
   let bonusPoints = 0;
   const isFirstOrder = await isUserFirstOrder(order.userId);
-  if (isFirstOrder) bonusPoints += 100;
+  if (isFirstOrder) bonusPoints += 1000;
   
   const isBirthdayMonth = checkBirthdayMonth(user.birthdate);
   const multiplier = isBirthdayMonth ? 2 : 1;
@@ -560,10 +560,10 @@ async function updateUserTier(userId: string) {
   const userPoints = await getUserPoints(userId);
   
   const tiers = {
-    bronze: { min: 0, max: 999 },
-    silver: { min: 1000, max: 4999 },
-    gold: { min: 5000, max: 9999 },
-    platinum: { min: 10000, max: Infinity },
+    bronze: { min: 0, max: 99999 },      // 0-999 EGP
+    silver: { min: 100000, max: 499999 }, // 1,000-4,999 EGP
+    gold: { min: 500000, max: 999999 },   // 5,000-9,999 EGP
+    platinum: { min: 1000000, max: Infinity }, // 10,000+ EGP
   };
   
   let newTier = 'bronze';
@@ -675,7 +675,7 @@ interface PointsCardProps {
 
 export function PointsCard({ balance, tier, nextTierAt }: PointsCardProps) {
   const progress = (balance / nextTierAt) * 100;
-  const pointsValue = balance * 0.1; // 10 points = 1 EGP
+  const pointsValue = balance / 100; // 100 points = 1 EGP
   
   return (
     <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
@@ -1139,12 +1139,12 @@ describe('calculateOrderPoints', () => {
   it('should calculate base points correctly', () => {
     const order = { total: 150 };
     const points = calculateBasePoints(order);
-    expect(points).toBe(150);
+    expect(points).toBe(15000); // 150 EGP * 100
   });
   
   it('should apply first order bonus', () => {
     const points = calculatePoints(order, { isFirstOrder: true });
-    expect(points.bonusPoints).toBe(100);
+    expect(points.bonusPoints).toBe(1000);
   });
   
   it('should apply birthday multiplier', () => {
