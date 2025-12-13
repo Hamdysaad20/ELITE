@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { getUserSavings } from "@/lib/analytics/savings";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/server/db/client";
 
 export async function GET(request: NextRequest) {
   try {

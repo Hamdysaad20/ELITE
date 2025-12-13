@@ -3,7 +3,7 @@
  * Handles calculation and tracking of user savings from discounts
  */
 
-import { prisma } from "@/lib/db";
+import { prisma } from "@/server/db/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export interface DiscountDetail {

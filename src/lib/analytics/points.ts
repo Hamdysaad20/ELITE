@@ -4,7 +4,7 @@
  * Exchange Rate: 1 EGP = 100 points
  */
 
-import { prisma } from "@/lib/db";
+import { prisma } from "@/server/db/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import {
   checkAndNotifyTierUpgrade,
