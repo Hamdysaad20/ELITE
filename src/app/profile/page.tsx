@@ -165,14 +165,21 @@ function ProfileContent() {
             {/* Orders Tab */}
             {activeTab === "orders" && (
               <div className="space-y-4">
-                {/* View All Orders Link */}
-                <div className="flex items-center justify-between">
-                  <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black">Your Orders</h2>
+                {/* Quick Links Row */}
+                <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
                   <Link
                     href="/orders"
-                    className="text-elite-burgundy font-cabin text-sm font-bold hover:text-elite-burgundy/80 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all whitespace-nowrap"
                   >
-                    View All →
+                    <ShoppingBag className="w-4 h-4 text-elite-burgundy" />
+                    <span className="font-cabin text-sm font-semibold text-elite-black">View All</span>
+                  </Link>
+                  <Link
+                    href="/analytics"
+                    className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-elite-burgundy text-elite-cream hover:bg-elite-burgundy/90 transition-all whitespace-nowrap"
+                  >
+                    <Package className="w-4 h-4" />
+                    <span className="font-cabin text-sm font-semibold">Analytics</span>
                   </Link>
                 </div>
 
