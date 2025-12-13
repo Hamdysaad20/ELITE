@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/server/auth/options';
 import { prisma } from '@/lib/db';
 import {
   getRewardById,
@@ -12,7 +12,7 @@ import { updateUserPoints } from '@/lib/analytics/points';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(getAuthOptions());
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
