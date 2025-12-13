@@ -16,35 +16,46 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
     switch (status.toLowerCase()) {
       case "confirmed":
       case "synced":
-      case "completed":
-      case "delivered":
+      case "preparing":
+      case "ready":
+      case "out_for_delivery":
         return {
           icon: CheckCircle,
-          color: "text-green-600",
-          bg: "bg-green-50",
-          border: "border-green-200",
-          label: label || "Confirmed",
+          color: "text-elite-cream",
+          bg: "bg-elite-burgundy",
+          border: "border-elite-burgundy",
+          label: label || "Active",
         };
       
       case "pending":
       case "processing":
         return {
           icon: Clock,
-          color: "text-amber-600",
-          bg: "bg-amber-50",
-          border: "border-amber-200",
-          label: label || "Processing",
+          color: "text-elite-black",
+          bg: "bg-elite-cream",
+          border: "border-elite-burgundy/20",
+          label: label || "Pending",
         };
       
       case "queued":
       case "syncing":
         return {
           icon: Loader2,
-          color: "text-blue-600",
-          bg: "bg-blue-50",
-          border: "border-blue-200",
+          color: "text-elite-burgundy",
+          bg: "bg-elite-cream",
+          border: "border-elite-burgundy/20",
           label: label || "Syncing",
           animate: true,
+        };
+      
+      case "completed":
+      case "delivered":
+        return {
+          icon: CheckCircle,
+          color: "text-elite-cream",
+          bg: "bg-elite-burgundy",
+          border: "border-elite-burgundy",
+          label: label || "Delivered",
         };
       
       case "failed":
@@ -52,28 +63,28 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
       case "error":
         return {
           icon: XCircle,
-          color: "text-red-600",
-          bg: "bg-red-50",
-          border: "border-red-200",
-          label: label || "Failed",
+          color: "text-elite-black",
+          bg: "bg-elite-cream",
+          border: "border-elite-burgundy/20",
+          label: label || "Cancelled",
         };
       
       case "retry":
       case "retrying":
         return {
           icon: AlertTriangle,
-          color: "text-orange-600",
-          bg: "bg-orange-50",
-          border: "border-orange-200",
+          color: "text-elite-burgundy",
+          bg: "bg-elite-cream",
+          border: "border-elite-burgundy/20",
           label: label || "Retrying",
         };
       
       default:
         return {
           icon: Clock,
-          color: "text-gray-600",
-          bg: "bg-gray-50",
-          border: "border-gray-200",
+          color: "text-elite-black",
+          bg: "bg-elite-cream",
+          border: "border-elite-burgundy/20",
           label: label || status,
         };
     }
@@ -86,13 +97,13 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
     sm: {
       icon: "w-3 h-3",
       text: "text-xs",
-      padding: "px-2 py-1",
-      gap: "gap-1",
+      padding: "px-3 py-1.5",
+      gap: "gap-1.5",
     },
     md: {
       icon: "w-4 h-4",
       text: "text-sm",
-      padding: "px-3 py-1.5",
+      padding: "px-4 py-2",
       gap: "gap-2",
     },
     lg: {
@@ -107,7 +118,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
 
   return (
     <span
-      className={`inline-flex items-center ${sizeClass.gap} ${sizeClass.padding} rounded-full border ${config.bg} ${config.border} ${config.color} font-cabin font-medium ${sizeClass.text}`}
+      className={`inline-flex items-center ${sizeClass.gap} ${sizeClass.padding} rounded-2xl border-2 ${config.bg} ${config.border} ${config.color} font-cabin font-bold ${sizeClass.text}`}
     >
       <Icon className={`${sizeClass.icon} ${config.animate ? "animate-spin" : ""}`} />
       {config.label}

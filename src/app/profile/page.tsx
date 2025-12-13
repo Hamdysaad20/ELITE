@@ -9,9 +9,12 @@ import SwipeIndicator from "@/components/SwipeIndicator";
 import AddressManager from "@/components/AddressManager";
 import AvatarUpload from "@/components/AvatarUpload";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
-import { useUserPurchases } from "@/hooks/useUserPurchases";
+import { useOrders } from "@/hooks/useOrderStatus";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import Image from "next/image";
+import Link from "next/link";
+import { OrdersAnalytics } from "@/components/orders/OrdersAnalytics";
+import { OrdersList } from "@/components/orders/OrdersList";
 
 type TabType = "orders" | "addresses" | "rewards" | "settings";
 
@@ -22,7 +25,9 @@ function ProfileContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-  const { purchases, loading: purchasesLoading } = useUserPurchases();
+  
+  // Fetch orders data
+  const { orders, loading: ordersLoading, error: ordersError, refetch: refetchOrders } = useOrders();
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -111,7 +116,7 @@ function ProfileContent() {
             {/* Stats Bar */}
             <div className="bg-elite-cream/50 px-5 sm:px-6 py-5 flex items-center justify-around border-t border-elite-burgundy/10">
               <div className="text-center">
-                <p className="font-calistoga text-xl text-elite-burgundy">{purchases.length}</p>
+                <p className="font-calistoga text-xl text-elite-burgundy">{orders.length}</p>
                 <p className="font-cabin text-xs text-elite-black/60">Orders</p>
               </div>
               <div className="w-px h-10 bg-elite-burgundy/20" />
@@ -159,59 +164,33 @@ function ProfileContent() {
           <div>
             {/* Orders Tab */}
             {activeTab === "orders" && (
-              <div className="bg-white rounded-3xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-elite-burgundy/10">
-                <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-5">Your Orders</h2>
-                {purchasesLoading ? (
-                  <div className="text-center py-16">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent mx-auto mb-4"></div>
-                    <p className="font-cabin text-elite-black/60">Loading orders...</p>
-                  </div>
-                ) : purchases.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="w-20 h-20 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
-                      <ShoppingBag className="w-10 h-10 text-elite-burgundy/40" />
-                    </div>
-                    <p className="font-cabin text-elite-black/60 text-lg mb-2">No orders yet</p>
-                    <p className="font-cabin text-elite-black/40 text-sm mb-6">Start your coffee journey today</p>
-                    <button
-                      onClick={() => router.push("/menu")}
-                      className="bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
-                    >
-                      Place Your First Order
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {purchases.map((purchase) => (
-                      <div
-                        key={purchase.productId}
-                        className="flex items-center gap-3 sm:gap-4 p-4 sm:p-4 bg-elite-cream/30 rounded-2xl border-2 border-elite-burgundy/10 hover:border-elite-burgundy/20 hover:shadow-md transition-all active:scale-[0.98]"
-                      >
-                        <div className="w-14 h-14 rounded-2xl bg-elite-burgundy/10 flex items-center justify-center flex-shrink-0">
-                          <Package className="w-6 h-6 text-elite-burgundy" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-cabin font-bold text-elite-black truncate">
-                            {purchase.productName}
-                          </p>
-                          <p className="font-cabin text-sm text-elite-black/60">
-                            {new Date(purchase.purchaseDate).toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => router.push(`/menu`)}
-                          className="flex-shrink-0 text-xs sm:text-sm font-bold text-elite-burgundy hover:text-elite-cream bg-elite-burgundy/10 hover:bg-elite-burgundy px-4 py-2.5 rounded-full transition-all duration-300 active:scale-95"
-                        >
-                          Reorder
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-4">
+                {/* View All Orders Link */}
+                <div className="flex items-center justify-between">
+                  <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black">Your Orders</h2>
+                  <Link
+                    href="/orders"
+                    className="text-elite-burgundy font-cabin text-sm font-bold hover:text-elite-burgundy/80 transition-colors"
+                  >
+                    View All →
+                  </Link>
+                </div>
+
+                {/* Orders Analytics */}
+                <OrdersAnalytics orders={orders} />
+
+                {/* Orders List */}
+                <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-4 sm:p-5">
+                  <OrdersList 
+                    orders={orders} 
+                    loading={ordersLoading} 
+                    error={ordersError} 
+                    onRetry={refetchOrders}
+                    compact={true}
+                    maxItems={3}
+                    showViewAll={true}
+                  />
+                </div>
               </div>
             )}
 

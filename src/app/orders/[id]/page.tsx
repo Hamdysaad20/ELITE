@@ -4,53 +4,42 @@ import { useParams } from "next/navigation";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { OrderDetailCard } from "@/components/OrderDetailCard";
 import Footer from "@/components/Footer";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import MobileHeader from "@/components/MobileHeader";
+import SwipeIndicator from "@/components/SwipeIndicator";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 
 export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params?.id as string;
   const { isLoading: authLoading } = useRequireAuth();
+  
+  // Enable swipe-back gesture
+  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   if (authLoading) {
     return (
-      <main>
-        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-          <div className="animate-pulse text-elite-black/70 font-cabin">
-            Loading...
-          </div>
-        </div>
+      <>
+        <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
+        <MobileHeader title="Order Details" showBack={true} />
+        <main className="min-h-screen bg-elite-cream flex items-center justify-center pt-16 md:pt-0">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent" />
+        </main>
         <Footer />
-      </main>
+      </>
     );
   }
 
   return (
-    <main>
-      <div className="min-h-screen bg-elite-cream">
-        {/* Header */}
-        <div className="bg-elite-burgundy text-elite-cream py-8">
-          <div className="max-w-7xl mx-auto px-6">
-            <Link
-              href="/orders"
-              className="inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors mb-4"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="font-cabin text-sm">Back to Orders</span>
-            </Link>
-            <h1 className="font-calistoga text-4xl md:text-5xl">
-              Order Details
-            </h1>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-7xl mx-auto px-6 py-12">
+    <>
+      <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
+      <MobileHeader title="Order Details" showBack={true} />
+      <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-12">
           <OrderDetailCard orderId={orderId} />
         </div>
-      </div>
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
 
