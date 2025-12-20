@@ -62,16 +62,15 @@ export default function MenuPage() {
       return [];
     }
     
+    // Filter products to only include those with valid categoryId
+    // (excludes orphaned products with null categoryId)
+    const validProducts = (apiProducts || []).filter(p => p?.categoryId);
+    
     return apiCategories
-      .filter(cat => {
-        // Filter out "Offers" category
-        const categoryName = cat?.name?.toLowerCase() || "";
-        return !categoryName.includes("offer");
-      })
       .map(cat => {
         if (!cat || !cat.id) return null;
         
-        const categoryProducts = (apiProducts || []).filter(p => p?.categoryId === cat.id);
+        const categoryProducts = validProducts.filter(p => p?.categoryId === cat.id);
         
         // Skip empty categories entirely
         if (categoryProducts.length === 0) {

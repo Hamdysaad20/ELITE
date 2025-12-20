@@ -3,10 +3,26 @@
  */
 
 /**
+ * Marker used when images are stripped from list view for performance
+ * The actual image will be fetched on-demand when viewing product details
+ */
+export const HAS_IMAGE_MARKER = "has-image";
+
+/**
+ * Check if image is a stripped marker (indicating full image needs to be fetched)
+ */
+export function isImageMarker(src: string | undefined | null): boolean {
+  return src === HAS_IMAGE_MARKER;
+}
+
+/**
  * Validates if a string is a valid image URL or base64
  */
 export function isValidImage(src: string | undefined | null): boolean {
   if (!src || typeof src !== 'string') return false;
+  
+  // The "has-image" marker is not a valid displayable image
+  if (src === HAS_IMAGE_MARKER) return false;
   
   // Check if base64
   if (src.startsWith('data:image/')) return true;

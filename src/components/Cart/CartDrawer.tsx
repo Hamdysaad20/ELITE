@@ -64,8 +64,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   
   const handleRemoveItem = (id: string) => {
     setPendingItems(prev => new Set(prev).add(id));
-    setOptimisticItems({ action: 'remove', id });
     startTransition(() => {
+      setOptimisticItems({ action: 'remove', id });
       removeItem(id);
       setTimeout(() => {
         setPendingItems(prev => {
@@ -79,8 +79,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   
   const handleUpdateQuantity = (id: string, quantity: number) => {
     setPendingItems(prev => new Set(prev).add(id));
-    setOptimisticItems({ action: 'update', id, quantity });
     startTransition(() => {
+      setOptimisticItems({ action: 'update', id, quantity });
       updateQuantity(id, quantity);
       setTimeout(() => {
         setPendingItems(prev => {

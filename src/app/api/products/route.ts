@@ -24,10 +24,21 @@ type Product = {
   sequence?: number;         // Sort order
 };
 
-// Categories that should not be displayed on the website
+// Categories that should not be displayed on the website menu
+// These are either:
+// - POS-only categories (Services, administrative items)
+// - Add-ons/extras (handled via product attributes, not standalone)
+// - Promotional/discount categories (not browsable menu items)
+// - Internal/expense categories
 const EXCLUDED_CATEGORIES = [
-  'Extras',     // Add-ons and extras (these are attributes, not products)
-  'Services',   // Administrative items like "OPEN REGISTER"
+  'Extras',         // Add-ons and extras (these are attributes)
+  'EXTRA',          // Case variation
+  'Services',       // Administrative items like "OPEN REGISTER"
+  'Offers',         // Discounts and promotions (not browsable menu items)
+  'Expenses',       // Internal expense tracking
+  'Toppings',       // Add-ons (handled as product attributes)
+  'Sauces',         // Add-ons (handled as product attributes)
+  'Elite Essentials', // Internal supplies
 ];
 
 function applyFilters(
@@ -67,6 +78,19 @@ function isStale(lastUpdate: string): boolean {
   return new Date(lastUpdate).getTime() < fiveMinutesAgo;
 }
 
+/**
+ * Strip base64 images from product for list view (massive payload reduction)
+ * Full images are only needed for individual product pages
+ */
+function stripImagesForListView(product: any): Product {
+  return {
+    ...product,
+    // Remove base64 images from list view - they're ~30KB each
+    // Images will be fetched on-demand when viewing product details
+    images: product.images?.length > 0 ? ["has-image"] : [],
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
@@ -75,6 +99,7 @@ export async function GET(request: NextRequest) {
     const productId = url.searchParams.get("id");
     const categoryId = url.searchParams.get("categoryId");
     const limit = url.searchParams.get("limit");
+    const includeImages = url.searchParams.get("includeImages") === "true";
     
     const page = Number(url.searchParams.get("page") || "1");
     const pageSize = Number(url.searchParams.get("pageSize") || "50");
@@ -92,12 +117,13 @@ export async function GET(request: NextRequest) {
       return !EXCLUDED_CATEGORIES.includes(product.category.name);
     });
 
-    // Handle single product fetch
+    // Handle single product fetch - ALWAYS include full images
     if (productId) {
       const product = websiteProducts.find((p) => p.id === productId);
       if (!product) {
         return jsonResponse(errorResponse("Product not found"), 404);
       }
+      // Single product view: include full images
       return jsonResponse(successResponse([product], lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
     }
 
@@ -114,7 +140,9 @@ export async function GET(request: NextRequest) {
       const limitNum = Number(limit);
       if (Number.isFinite(limitNum) && limitNum > 0) {
         filtered = filtered.slice(0, limitNum);
-        return jsonResponse(successResponse(filtered, lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
+        // Strip images for list view unless explicitly requested
+        const items = includeImages ? filtered : filtered.map(stripImagesForListView);
+        return jsonResponse(successResponse(items, lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
       }
     }
 
@@ -123,10 +151,15 @@ export async function GET(request: NextRequest) {
     const start = (p - 1) * ps;
     const end = start + ps;
     const slice = filtered.slice(start, end);
+    
+    // Strip base64 images for list view (massive payload reduction: 1MB -> ~50KB)
+    // Images are fetched on-demand for individual product pages
+    const items = includeImages ? slice : slice.map(stripImagesForListView);
 
-    return jsonResponse(
+    // Add cache headers for better performance
+    const response = jsonResponse(
       successResponse({
-        items: slice,
+        items,
         page: p,
         pageSize: ps,
         total: filtered.length,
@@ -134,6 +167,11 @@ export async function GET(request: NextRequest) {
         lastUpdate: lastUpdate || null,
       }),
     );
+    
+    // Cache for 5 minutes, stale-while-revalidate for 1 hour
+    response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+    
+    return response;
   } catch (err: any) {
     const msg = err?.message || "Failed to fetch products";
     return jsonResponse(errorResponse(msg), 500);
