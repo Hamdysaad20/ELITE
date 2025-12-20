@@ -79,6 +79,12 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsReturn
       if (categoryId) params.append("categoryId", categoryId);
       if (search) params.append("search", search);
       if (available !== undefined) params.append("available", String(available));
+      
+      // For menu page (no filters), fetch all products to ensure all categories have items
+      // Default pageSize is 50, but we have ~200 products, so increase it
+      if (!categoryId && !search && available === undefined) {
+        params.append("pageSize", "500");
+      }
 
       const url = `/api/products${params.toString() ? `?${params.toString()}` : ""}`;
       
