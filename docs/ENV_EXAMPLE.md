@@ -13,7 +13,7 @@ ODOO_DB=your_db
 ODOO_USERNAME=your_user@example.com
 ODOO_API_KEY=your_api_key           # preferred over password on Odoo 19+
 # ODOO_PASSWORD=optional_password_fallback
-ODOO_TIMEOUT_MS=20000               # optional
+# ODOO_TIMEOUT_MS=45000             # optional, default 45s. Increase to 60000-90000 if Odoo is slow
 ODOO_INSECURE_SSL=false             # set true only for local self-signed
 # SYNC_PRODUCTS_LIMIT=500           # optional limit during sync
 

@@ -35,6 +35,10 @@ export function isOdooConfigured(): boolean {
   );
 }
 
+// Default timeout for Odoo operations - 45s is needed because order sync
+// makes multiple sequential RPC calls (auth, find/create partner, find/create products, create order)
+const DEFAULT_ODOO_TIMEOUT_MS = 45000;
+
 export function getOdooConfigFromEnv(): OdooConfig | null {
   if (!isOdooConfigured()) return null;
   return {
@@ -44,7 +48,7 @@ export function getOdooConfigFromEnv(): OdooConfig | null {
     password: String(process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD),
     timeoutMs: process.env.ODOO_TIMEOUT_MS
       ? Number(process.env.ODOO_TIMEOUT_MS)
-      : 20000,
+      : DEFAULT_ODOO_TIMEOUT_MS,
     insecureSSL: (process.env.ODOO_INSECURE_SSL || "").toLowerCase() === "true",
   };
 }
@@ -58,7 +62,7 @@ export class OdooClient {
     this.config = config;
     this.axios = axios.create({
       baseURL: config.host.replace(/\/$/, ""),
-      timeout: config.timeoutMs ?? 20000,
+      timeout: config.timeoutMs ?? DEFAULT_ODOO_TIMEOUT_MS,
       headers: { "Content-Type": "application/json" },
       httpsAgent: config.insecureSSL
         ? new https.Agent({ rejectUnauthorized: false })
