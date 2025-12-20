@@ -35,9 +35,10 @@ export function isOdooConfigured(): boolean {
   );
 }
 
-// Default timeout for Odoo operations - 45s is needed because order sync
+// Default timeout for Odoo operations - 60s is needed because order sync
 // makes multiple sequential RPC calls (auth, find/create partner, find/create products, create order)
-const DEFAULT_ODOO_TIMEOUT_MS = 45000;
+// and Odoo can be slow especially in shared hosting or during high load
+const DEFAULT_ODOO_TIMEOUT_MS = 60000;
 
 export function getOdooConfigFromEnv(): OdooConfig | null {
   if (!isOdooConfigured()) return null;
