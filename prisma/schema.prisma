@@ -120,6 +120,12 @@ model Order {
   odooStatusPos  String          @default("pending")
   clientOrderRef String          @unique
   
+  // Retry tracking for Odoo sync (30-min max window)
+  odooSyncAttempts      Int       @default(0)
+  odooSyncLastError     String?
+  odooSyncLastAttemptAt DateTime?
+  odooSyncNotifiedAt    DateTime?  // When customer was notified of sync failure
+  
   // New fields for analytics
   originalPrice   Decimal?        // Price before discounts
   discountApplied Boolean         @default(false)

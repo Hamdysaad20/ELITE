@@ -31,13 +31,17 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
       await processOrderSync(payload);
     } catch (err) {
       console.error(`[odooSync] Order sync failed for ${payload.orderId}:`, err);
-      // Update order status on error
+      // Update order status on error with retry tracking
+      const errorMessage = err instanceof Error ? err.message : String(err);
       try {
         await prisma.order.update({
           where: { id: payload.orderId },
           data: {
             odooStatusSale: payload.enableSale ? "failed" : "skipped",
             odooStatusPos: payload.enablePos ? "failed" : "skipped",
+            odooSyncAttempts: { increment: 1 },
+            odooSyncLastError: errorMessage.substring(0, 500), // Limit error length
+            odooSyncLastAttemptAt: new Date(),
           },
         });
       } catch (updateErr) {
@@ -81,12 +85,16 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
       await processOrderSync(payload);
     } catch (err) {
       console.error(`[odooSync] Order sync failed for ${payload.orderId}:`, err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       try {
         await prisma.order.update({
           where: { id: payload.orderId },
           data: {
             odooStatusSale: payload.enableSale ? "failed" : "skipped",
             odooStatusPos: payload.enablePos ? "failed" : "skipped",
+            odooSyncAttempts: { increment: 1 },
+            odooSyncLastError: errorMessage.substring(0, 500),
+            odooSyncLastAttemptAt: new Date(),
           },
         });
       } catch (updateErr) {
@@ -223,16 +231,24 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
         status: saleId ? OrderStatus.CONFIRMED : order.status,
         odooStatusSale: payload.enableSale ? "synced" : "skipped",
         odooStatusPos: payload.enablePos ? "synced" : "skipped",
+        // Reset retry tracking on success
+        odooSyncAttempts: { increment: 1 },
+        odooSyncLastError: null,
+        odooSyncLastAttemptAt: new Date(),
       },
     });
     console.log(`[odooSync] Order ${payload.orderId} sync completed successfully`);
   } catch (err) {
     console.error(`[odooSync] Order ${payload.orderId} sync failed:`, err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
     await prisma.order.update({
       where: { id: order.id },
       data: {
         odooStatusSale: payload.enableSale ? "failed" : "skipped",
         odooStatusPos: payload.enablePos ? "failed" : "skipped",
+        odooSyncAttempts: { increment: 1 },
+        odooSyncLastError: errorMessage.substring(0, 500),
+        odooSyncLastAttemptAt: new Date(),
       },
     });
     throw err;

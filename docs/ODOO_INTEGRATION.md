@@ -119,7 +119,56 @@ ODOO_API_KEY=your-api-key           # preferred
 
 ---
 
+## Retry & Error Handling
+
+### Automatic Retries (30-Minute Window)
+
+If Odoo sync fails during order creation:
+
+1. **Immediate Retry Tracking**: Error and attempt count stored in database
+2. **Cron-Based Retries**: Every 5 minutes for up to 30 minutes
+3. **Customer Notification**: Apology email sent if sync fails within 30-min window
+4. **Manual Intervention**: Orders marked as `failed_permanent` after 30 minutes
+
+**Key Features**:
+- Max 5 retry attempts
+- Customer notified before 30-min deadline
+- Orders always saved (even if sync fails)
+- Graceful degradation
+
+See [Odoo Order Sync Retry System](./ODOO_ORDER_SYNC_RETRY_SYSTEM.md) for complete details.
+
+---
+
+## Environment Variables (Updated)
+
+```bash
+# Odoo Connection
+ODOO_HOST=https://your-odoo.odoo.com
+ODOO_DB=your_database_name
+ODOO_USERNAME=admin@yourdomain.com
+ODOO_API_KEY=your-secure-api-key
+ODOO_TIMEOUT_MS=60000  # 60 seconds (default)
+
+# Email (for customer notifications on sync failures)
+EMAIL_SERVER_HOST=smtp.example.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=your_smtp_username
+EMAIL_SERVER_PASSWORD=your_smtp_password
+EMAIL_FROM=noreply@yourdomain.com
+
+# Cron Security (auto-set by Vercel)
+CRON_SECRET=your-vercel-cron-secret
+
+# Optional (recommended on Vercel to avoid worker start attempts)
+# ENABLE_ODOO_WORKER=false
+```
+
+---
+
 ## Related Documentation
 - [System Overview](./SYSTEM_OVERVIEW.md)
-- [Loyalty System](./LOYALTY_SYSTEM.md)
-- [Order Flow](./ORDER_FLOW.md)
+- [Order Sync Serverless Report](./ODOO_ORDER_SYNC_SERVERLESS_REPORT.md)
+- **[Order Sync Retry System](./ODOO_ORDER_SYNC_RETRY_SYSTEM.md)** ← New!
+- [Odoo Worker Implementation](./ODOO_WORKER_IMPLEMENTATION.md)
+- [Vercel Deployment](./VERCEL_DEPLOYMENT.md)
