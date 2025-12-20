@@ -50,10 +50,13 @@ EMAIL_FROM="ELITE <noreply@yourdomain.com>"
 REDIS_URL="redis://default:xxxxx@host:port"
 
 # Odoo (optional)
-ODOO_URL="https://your-odoo.com"
+ODOO_HOST="https://your-odoo.com"
 ODOO_DB="your_db"
 ODOO_USERNAME="admin@domain.com"
-ODOO_PASSWORD="password"
+ODOO_API_KEY="your-api-key"          # preferred
+# ODOO_PASSWORD="password"           # fallback
+# ODOO_TIMEOUT_MS=60000              # optional
+# ENABLE_ODOO_WORKER=false           # recommended on Vercel if using inline order sync
 
 # Google OAuth (optional)
 GOOGLE_CLIENT_ID="xxxxx.apps.googleusercontent.com"

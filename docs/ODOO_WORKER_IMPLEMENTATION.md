@@ -37,39 +37,37 @@ ODOO_API_KEY=your_key
 ### 2. Serverless (Vercel, Netlify, AWS Lambda)
 
 **How it works:**
-- Uses **distributed locking** via Redis to ensure only ONE worker runs across all instances
-- If worker can't start (lock held by another instance), falls back to inline sync
-- Inline sync runs in the same function execution as the order creation
+- **Order sync runs inline** during `POST /api/orders` (serverless-safe).
+- A worker may still attempt to auto-start (if enabled) but **orders do not rely on it**.
+- If you deploy a separate worker service, you can use the queue-based path in non-serverless deployments.
 
 **Configuration:**
 ```bash
-REDIS_URL=redis://your-redis-url  # Required for distributed locking
+REDIS_URL=redis://your-redis-url  # Optional (used by queue/locking; may be used by other parts of the system)
 ODOO_HOST=https://your-odoo.odoo.com
 ODOO_DB=your_db
 ODOO_USERNAME=your_user
 ODOO_API_KEY=your_key
 
-# Optional: Force worker to start even in serverless
-ENABLE_ODOO_WORKER=true
+# Recommended on Vercel if you rely on inline order sync:
+ENABLE_ODOO_WORKER=false
 ```
 
 **Options:**
 
-**Option A: Auto-start with distributed locking (Recommended)**
-- Worker starts automatically on first API call
-- Distributed lock prevents duplicate workers
-- Set `ENABLE_ODOO_WORKER=true` to enable
+**Option A: Inline sync (Recommended for Vercel orders)**
+- Orders sync inline on creation
+- No dependency on long-running workers
 
-**Option B: Separate worker process (Most Reliable)**
+**Option B: Separate worker process (Most Reliable for async retries)**
 - Deploy worker as a separate service (e.g., Railway, Render, Fly.io)
 - Run: `npm run worker:odoo`
 - Worker processes jobs from Redis queue
 - API routes just enqueue jobs
 
-**Option C: Inline sync only (Simplest)**
-- Don't set `REDIS_URL` or set `ENABLE_ODOO_WORKER=false`
-- Orders sync inline when created
-- Works but blocks the API response slightly
+**Option C: Auto-start worker on serverless (Not recommended for Vercel)**
+- Even with distributed locking, serverless instances are not guaranteed to run continuously
+- Prefer Option A (inline) or Option B (separate worker)
 
 ### 3. Edge Runtime
 
@@ -101,7 +99,7 @@ To prevent multiple instances from running duplicate workers:
 - **Queue failures**: Falls back to inline sync
 - **Worker failures**: Jobs are retried (3 attempts with exponential backoff)
 - **Sync failures**: Order status updated to "failed"
-- **Lock failures**: Worker still starts (prevents complete failure)
+- **Lock failures**: Worker does not start in serverless (prevents duplicate workers)
 
 ### Resource Cleanup
 

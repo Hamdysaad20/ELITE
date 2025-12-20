@@ -25,12 +25,6 @@ ELITE integrates with Odoo 17 for:
            │
            ↓
 ┌─────────────────────┐
-│   Bull Queue        │
-│  (Redis-backed)     │
-└──────────┬──────────┘
-           │
-           ↓
-┌─────────────────────┐
 │   Odoo Client       │
 │  (JSON-RPC)         │
 └──────────┬──────────┘
@@ -41,6 +35,11 @@ ELITE integrates with Odoo 17 for:
 │  (PostgreSQL)       │
 └─────────────────────┘
 ```
+
+### Deployment-aware order sync
+
+- **Serverless (Vercel/Netlify)**: order sync runs **inline** during `POST /api/orders` (reliable; no always-on worker).
+- **Non-serverless (VPS/Docker/Worker service)**: order sync can run via **BullMQ queue + worker**.
 
 ---
 
@@ -59,9 +58,18 @@ ELITE integrates with Odoo 17 for:
 
 **Trigger**: Order creation (POST `/api/orders`)
 
-**Process**: Async via Bull queue
+**Process**:
 
-**Implementation**: `/src/server/utils/odooClient.ts`, `/src/server/queues/orderQueue.ts`
+- **Serverless**: inline sync (awaited in the API request)
+- **Non-serverless**: async via Redis queue + worker, with inline fallback if Redis is unavailable
+
+**Implementation**:
+
+- API entry: `/src/app/api/orders/route.ts`
+- Sync service: `/src/server/services/odooSync.ts`
+- Odoo client: `/src/server/utils/odooClient.ts`
+- Worker bootstrap (optional): `/src/server/services/startOdooWorkerOnInit.ts`
+- Queue (non-serverless): `/src/server/queue/odooQueue.ts`
 
 ### 3. Loyalty Points
 
@@ -95,10 +103,18 @@ npx tsx scripts/test-odoo-sync.ts
 
 ```bash
 # Odoo Connection
-ODOO_URL=https://your-odoo-instance.com
+ODOO_HOST=https://your-odoo-instance.com
 ODOO_DB=your_database_name
 ODOO_USERNAME=admin@yourdomain.com
-ODOO_PASSWORD=your-secure-password
+ODOO_API_KEY=your-api-key           # preferred
+# ODOO_PASSWORD=your-secure-password # fallback
+
+# Optional
+# ODOO_TIMEOUT_MS=60000
+# ODOO_INSECURE_SSL=false
+
+# Optional (recommended on Vercel to avoid worker start attempts)
+# ENABLE_ODOO_WORKER=false
 ```
 
 ---

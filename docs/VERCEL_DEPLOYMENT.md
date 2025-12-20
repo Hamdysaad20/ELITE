@@ -59,11 +59,12 @@ EMAIL_FROM=noreply@yourdomain.com
 ### Optional Environment Variables
 
 ```bash
-# Enable worker auto-start in serverless (default: disabled)
-ENABLE_ODOO_WORKER=true
+# Odoo worker auto-start (recommended OFF on Vercel for orders)
+# Orders sync inline on Vercel, so the worker is not required and may just add log noise.
+ENABLE_ODOO_WORKER=false
 
 # Odoo timeout
-ODOO_TIMEOUT_MS=20000
+# ODOO_TIMEOUT_MS=60000
 
 # Odoo SSL (dev only)
 ODOO_INSECURE_SSL=false
@@ -71,26 +72,23 @@ ODOO_INSECURE_SSL=false
 
 ## Deployment Options
 
-### Option 1: Auto-Start Worker (Recommended for Small Scale)
+### Option 1: Inline order sync (Recommended for Vercel)
 
 **How it works:**
-- Worker starts automatically on first API call
-- Uses distributed locking to ensure only ONE worker across all instances
-- Works well for low to medium traffic
+- `POST /api/orders` syncs to Odoo **inline** (serverless-safe).
+- No dependency on long-running workers.
 
 **Setup:**
-1. Set `ENABLE_ODOO_WORKER=true` in Vercel environment variables
-2. Ensure `REDIS_URL` is set
-3. Deploy - worker will auto-start
+1. Set `ENABLE_ODOO_WORKER=false`
+2. Deploy
 
 **Pros:**
 - Simple setup
 - No separate service needed
-- Automatic scaling
 
 **Cons:**
-- Worker restarts on each deployment
-- Slight delay on first request after deployment
+- Adds latency to `POST /api/orders` (bounded by `ODOO_TIMEOUT_MS`)
+- No automatic retries if Odoo is down (order is created; Odoo sync can fail)
 
 ### Option 2: Separate Worker Process (Recommended for Production)
 
@@ -122,8 +120,9 @@ ODOO_INSECURE_SSL=false
 - Works but blocks API response slightly
 
 **Setup:**
-1. Don't set `REDIS_URL` or set `ENABLE_ODOO_WORKER=false`
-2. Deploy - inline sync handles everything
+1. Set `ENABLE_ODOO_WORKER=false`
+2. (Optional) Keep `REDIS_URL` if you use Redis for other features
+3. Deploy - inline sync handles everything
 
 **Pros:**
 - Simplest setup
