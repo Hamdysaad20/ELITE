@@ -9,7 +9,11 @@ import { getCheckoutConfig } from "@/server/services/checkoutConfig";
 export async function GET(_request: NextRequest) {
   try {
     const config = await getCheckoutConfig();
-    return jsonResponse(successResponse(config));
+    const response = jsonResponse(successResponse(config));
+    // Cache for 1 minute - settings can change, so we want reasonably fresh data
+    // But not too aggressive to avoid hammering the database
+    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    return response;
   } catch (error) {
     return handleApiError(error);
   }

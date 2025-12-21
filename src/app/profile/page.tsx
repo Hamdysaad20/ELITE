@@ -68,15 +68,16 @@ function ProfileContent() {
       </div>
       <MobileHeader title="Profile" showBack={true} />
       
-      <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-12 space-y-4 md:space-y-6">
+      <main className="min-h-screen bg-elite-cream pb-28 md:pb-8 pt-16 md:pt-0">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-12 space-y-3 md:space-y-6">
           
-          {/* Profile Header - Compact */}
-          <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-            <div className="bg-elite-burgundy p-5 sm:p-6 md:p-8">
-              <div className="flex items-center gap-4">
+          {/* Profile Header - Premium rounded design */}
+          <div className="bg-white rounded-3xl shadow-lg border border-elite-burgundy/10 overflow-hidden">
+            <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 p-4 sm:p-6 md:p-8">
+              <div className="flex items-center gap-3 sm:gap-4">
+                {/* Avatar */}
                 <div className="relative group">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl ring-4 ring-elite-cream/20 overflow-hidden">
+                  <div className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center shadow-lg ring-2 ring-elite-cream/30 overflow-hidden">
                     {session.user?.image ? (
                       <Image
                         src={session.user.image}
@@ -86,26 +87,27 @@ function ProfileContent() {
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <span className="font-calistoga text-2xl sm:text-3xl text-elite-burgundy">
+                      <span className="font-calistoga text-xl sm:text-2xl md:text-3xl text-elite-burgundy">
                         {session.user?.name?.charAt(0).toUpperCase() || session.user?.email?.charAt(0).toUpperCase() || "U"}
                       </span>
                     )}
                   </div>
                   <button
                     onClick={() => setShowAvatarUpload(true)}
-                    className="absolute inset-0 rounded-full bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100"
+                    className="absolute inset-0 rounded-full bg-black/0 active:bg-black/40 md:hover:bg-black/40 transition-all flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100 touch-manipulation"
                     title="Change profile picture"
                   >
-                    <Camera className="w-6 h-6 text-white drop-shadow-lg" />
+                    <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-lg" />
                   </button>
                 </div>
+                {/* User Info */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="font-calistoga text-xl sm:text-2xl text-elite-cream truncate">
+                  <h1 className="font-calistoga text-lg sm:text-xl md:text-2xl text-elite-cream truncate leading-tight">
                     {session.user?.name || session.user?.email?.split('@')[0] || "User"}
                   </h1>
-                  <div className="flex items-center gap-2 text-elite-cream/80 mt-1">
-                    <Mail className="w-4 h-4 flex-shrink-0" />
-                    <p className="font-cabin text-sm truncate">
+                  <div className="flex items-center gap-1.5 text-elite-cream/70 mt-0.5">
+                    <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                    <p className="font-cabin text-xs sm:text-sm truncate">
                       {session.user?.email}
                     </p>
                   </div>
@@ -113,23 +115,23 @@ function ProfileContent() {
               </div>
             </div>
             
-            {/* Stats Bar */}
-            <div className="bg-elite-cream/50 px-5 sm:px-6 py-5 flex items-center justify-around border-t border-elite-burgundy/10">
+            {/* Stats Bar - Compact */}
+            <div className="bg-elite-cream/40 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-around">
               <div className="text-center">
-                <p className="font-calistoga text-xl text-elite-burgundy">{orders.length}</p>
-                <p className="font-cabin text-xs text-elite-black/60">Orders</p>
+                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">{orders.length}</p>
+                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">Orders</p>
               </div>
-              <div className="w-px h-10 bg-elite-burgundy/20" />
+              <div className="w-px h-8 bg-elite-burgundy/15" />
               <div className="text-center">
-                <p className="font-calistoga text-xl text-elite-burgundy">0</p>
-                <p className="font-cabin text-xs text-elite-black/60">Points</p>
+                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">0</p>
+                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">Points</p>
               </div>
             </div>
           </div>
 
-          {/* Tabs Navigation */}
-          <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-            <div className="flex items-center">
+          {/* Tabs Navigation - Rounded pill style */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border border-elite-burgundy/10 p-2">
+            <div className="flex items-center gap-1.5">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -138,21 +140,16 @@ function ProfileContent() {
                     key={tab.id}
                     onClick={() => !tab.comingSoon && setActiveTab(tab.id)}
                     disabled={tab.comingSoon}
-                    className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-2 px-3 sm:px-4 py-5 font-cabin font-semibold transition-all duration-300 relative ${
+                    className={`flex-1 flex flex-col items-center justify-center gap-1 px-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl font-cabin font-semibold transition-all duration-200 relative touch-manipulation ${
                       isActive
-                        ? "text-elite-burgundy bg-elite-cream/30"
-                        : "text-elite-black/60 hover:text-elite-black hover:bg-elite-cream/20"
-                    } ${tab.comingSoon ? "opacity-50 cursor-not-allowed" : ""}`}
+                        ? "text-elite-cream bg-elite-burgundy shadow-md"
+                        : "text-elite-black/50 active:bg-elite-cream/50"
+                    } ${tab.comingSoon ? "opacity-40" : ""}`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs sm:text-sm">{tab.label}</span>
+                    <Icon className={`w-5 h-5 sm:w-5 sm:h-5 ${isActive ? "" : ""}`} />
+                    <span className="text-[10px] sm:text-xs">{tab.label}</span>
                     {tab.comingSoon && (
-                      <span className="absolute top-1 right-1 text-[9px] bg-elite-burgundy text-elite-cream px-1.5 py-0.5 rounded-full font-bold">
-                        SOON
-                      </span>
-                    )}
-                    {isActive && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-elite-burgundy" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-elite-burgundy rounded-full" />
                     )}
                   </button>
                 );

@@ -166,7 +166,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </p>
                 <button
                   onClick={onClose}
-                  className="bg-elite-burgundy text-elite-cream px-8 sm:px-10 lg:px-12 py-3.5 sm:py-4 lg:py-5 rounded-2xl font-cabin font-bold text-base lg:text-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg touch-manipulation min-h-[52px] lg:min-h-[60px]"
+                  className="bg-elite-burgundy text-elite-cream px-10 sm:px-12 lg:px-14 py-4 sm:py-4.5 lg:py-5 rounded-full font-cabin font-bold text-base lg:text-lg hover:shadow-xl hover:scale-105 active:scale-[0.97] transition-all duration-300 shadow-lg shadow-elite-burgundy/25 touch-manipulation min-h-[52px] lg:min-h-[60px]"
                 >
                   Continue Shopping
                 </button>
@@ -309,7 +309,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <button
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
-                className="w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 lg:py-6 rounded-2xl font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
+                className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
               >
                 {isCheckingOut ? (
                   <>

@@ -27,8 +27,6 @@ import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
 
 export default function MenuPage() {
-  const [animationPlayed, setAnimationPlayed] = useState(false);
-  const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,16 +100,6 @@ export default function MenuPage() {
       }).filter(Boolean);
   }, [apiCategories, apiProducts]);
 
-  // Using useMemo for hero images to prevent re-creation on every render
-  const heroImages = useMemo(
-    () => [
-      "/images/Hero Items/1.svg",
-      "/images/Hero Items/2.svg",
-      "/images/Hero Items/3.svg",
-    ],
-    [],
-  );
-
   const renderIcon = (iconName: string) => {
     const iconProps = { className: "w-5 h-5" };
     switch (iconName) {
@@ -130,29 +118,6 @@ export default function MenuPage() {
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimationPlayed(true);
-    }, 1700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Preload images for a smoother transition experience
-  useEffect(() => {
-    heroImages.forEach((src) => {
-      const image = new Image();
-      image.src = src;
-    });
-  }, [heroImages]);
-
-  // Image rotation logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [heroImages.length]);
-
   const handleRetry = () => {
     refetchCategories();
     refetchProducts();
@@ -164,51 +129,33 @@ export default function MenuPage() {
       <div className="hidden md:block">
       </div>
       <MobileHeader title="Menu" showBack={true} transparent={true} />
-      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-16 md:pt-0">
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-elite-burgundy opacity-90"></div>
+      
+      {/* Full-height background that flows behind content */}
+      <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
+        {/* Header - Matching shop page style */}
+        <div className="bg-elite-burgundy text-elite-cream py-20 relative overflow-hidden pt-14 md:pt-20">
+          {/* Decorative background elements */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-10 w-32 h-32 border border-elite-cream/30 rounded-full"></div>
+            <div className="absolute bottom-10 right-10 w-24 h-24 border border-elite-cream/30 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/4 w-16 h-16 border border-elite-cream/20 rounded-full"></div>
+          </div>
 
-          <div className="relative min-h-[30vh] md:min-h-[60vh] w-full overflow-hidden">
-            <div className="absolute inset-0 z-[1]">
-              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl sm:text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold text-elite-cream select-none pointer-events-none opacity-90">
-                MENU
-              </h1>
-            </div>
-
-            <div className="absolute inset-0 z-[5]">
-              <div className="relative h-full w-full flex items-center justify-center pointer-events-none">
-                {heroImages.map((imageSrc, index) => (
-                  <img
-                    key={imageSrc}
-                    src={imageSrc}
-                    alt={`Hero Image ${index + 1}`}
-                    className={`absolute object-contain transition-opacity duration-1000 w-[60rem] h-[60rem] sm:w-[64rem] sm:h-[64rem] md:w-[32rem] md:h-[32rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] translate-y-[10%] md:translate-y-[20%] ${
-                      index === currentHeroImage ? "opacity-100" : "opacity-0"
-                    } ${
-                      animationPlayed ? "drink-overlay-animation animated" : ""
-                    }`}
-                    aria-hidden={index !== currentHeroImage}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="absolute inset-0 z-[10]">
-              <h1
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold select-none pointer-events-none"
-                style={{
-                  color: "transparent",
-                  WebkitTextStroke: "4px #F5F5DC",
-                }}
-              >
-                MENU
-              </h1>
-            </div>
+          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h1 className="font-calistoga text-6xl md:text-7xl font-bold mb-6">
+              Menu
+            </h1>
+            <p className="font-cabin text-xl md:text-2xl text-elite-cream/90 max-w-3xl mx-auto leading-relaxed">
+              Explore our selection of premium coffee, beverages, and delicious treats
+            </p>
           </div>
         </div>
 
-        <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8">
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12">
+        {/* Content Section */}
+        <div className="relative z-20">
+          {/* Main content area */}
+          <div className="relative bg-elite-cream pt-8 md:pt-12 min-h-[60vh]">
+            <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
             {/* Loading State with Skeletons */}
             {loading && <MenuPageSkeleton />}
 
@@ -235,44 +182,55 @@ export default function MenuPage() {
             {/* Menu Content */}
             {!loading && !error && categories.length > 0 && (
               <>
-                {/* Mobile Category Pills - Sticky + polished chips */}
-                <div className="lg:hidden sticky top-16 z-30 bg-elite-cream/85 backdrop-blur-sm border-b border-elite-burgundy/10 -mx-4 px-4 mb-6 pt-2">
+                {/* Mobile Category Pills - Sticky + premium design */}
+                <div className="lg:hidden sticky top-16 z-30 bg-elite-cream/92 backdrop-blur-md border-b border-elite-burgundy/8 -mx-4 px-4 mb-5">
                   <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
-                    <div className="flex gap-3 py-3 min-w-max snap-x snap-mandatory">
-                      {categories.filter((cat) => cat !== null && cat !== undefined).map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() =>
-                            setActiveCategory(
-                              activeCategory === cat.id ? null : cat.id,
-                            )
-                          }
-                          className={`group flex items-center gap-2 px-5 py-3 min-h-12 rounded-full transition-all duration-300 whitespace-nowrap border snap-start ${
-                            activeCategory === cat.id
-                              ? "bg-elite-burgundy text-elite-cream shadow-lg scale-105 border-elite-burgundy"
-                              : cat.comingSoon
-                                ? "bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream"
-                                : "bg-transparent text-elite-burgundy border-elite-burgundy/25 hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 hover:border-elite-burgundy"
-                          }`}
-                          disabled={cat.comingSoon}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                              activeCategory === cat.id
-                                ? "bg-elite-cream"
-                                : "bg-elite-burgundy group-hover:bg-elite-cream"
+                    <div className="flex gap-2 py-2.5 min-w-max snap-x snap-mandatory">
+                      {/* All categories button */}
+                      <button
+                        onClick={() => setActiveCategory(null)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
+                          activeCategory === null
+                            ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                            : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
+                        }`}
+                      >
+                        <span className={`font-cabin text-sm ${activeCategory === null ? "font-bold" : "font-medium"}`}>
+                          All
+                        </span>
+                      </button>
+                      
+                      {categories.filter((cat) => cat !== null && cat !== undefined).map((cat) => {
+                        const isActive = activeCategory === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => setActiveCategory(isActive ? null : cat.id)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
+                              isActive
+                                ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                                : cat.comingSoon
+                                  ? "bg-elite-dark-cream/60 text-elite-black/40 cursor-not-allowed"
+                                  : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
                             }`}
-                          ></div>
-                          <span className="font-cabin font-semibold text-[15px] sm:text-base">
-                            {cat.name}
-                          </span>
-                          {cat.comingSoon && (
-                            <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
-                              Soon
+                            disabled={cat.comingSoon}
+                          >
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
+                                isActive ? "bg-elite-cream" : "bg-elite-burgundy/50"
+                              }`}
+                            />
+                            <span className={`font-cabin text-sm ${isActive ? "font-bold" : "font-medium"}`}>
+                              {cat.name}
                             </span>
-                          )}
-                        </button>
-                      ))}
+                            {cat.comingSoon && (
+                              <span className="text-[10px] bg-elite-burgundy/30 text-elite-cream px-1.5 py-0.5 rounded-full font-medium">
+                                Soon
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -280,7 +238,7 @@ export default function MenuPage() {
                 <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 min-w-0">
                   {/* Desktop Sidebar - Hidden on Mobile */}
                   <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
-                    <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto sidebar-scroll">
+                    <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto sidebar-scroll">
                       {/* Sidebar Header */}
                       <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                         <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
@@ -339,137 +297,170 @@ export default function MenuPage() {
                     </div>
                   </div>
 
+                  {/* Main Content Area */}
                   <div className="flex-1 min-w-0">
-                    <div className="space-y-3 sm:space-y-6">
+                    {/* Mobile: Native scrollable category sections */}
+                    <div className="lg:hidden space-y-6">
                       {categories
                         .filter((cat) => cat !== null && cat !== undefined)
-                        .filter(
-                          (category) =>
-                            !activeCategory || category.id === activeCategory,
-                        )
+                        .filter((category) => !activeCategory || category.id === activeCategory)
+                        .map((category, catIndex) => (
+                          <section key={category.id} className="relative">
+                            {/* Category Header - Sticky on scroll */}
+                            <div className="flex items-center justify-between mb-4 px-1">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                  category.comingSoon 
+                                    ? "bg-elite-dark-cream text-elite-burgundy/50" 
+                                    : "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                                }`}>
+                                  {renderIcon(category.icon)}
+                                </div>
+                                <div>
+                                  <h3 className="font-calistoga text-elite-black text-xl font-bold leading-tight">
+                                    {category.name}
+                                  </h3>
+                                  <p className="font-cabin text-elite-black/50 text-xs">
+                                    {category.subCategories[0]?.items.length || 0} items
+                                  </p>
+                                </div>
+                              </div>
+                              {!category.comingSoon && (
+                                <Link 
+                                  href={`/menu/${category.id}`}
+                                  className="font-cabin text-sm text-elite-burgundy font-semibold px-3 py-1.5 rounded-full bg-elite-burgundy/8 active:bg-elite-burgundy/15 transition-colors touch-manipulation"
+                                >
+                                  See all
+                                </Link>
+                              )}
+                            </div>
+
+                            {/* Products - Horizontal scroll for native feel */}
+                            {!category.comingSoon && category.subCategories.length > 0 && (
+                              <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 pb-2">
+                                <div className="flex gap-3 snap-x snap-mandatory">
+                                  {category.subCategories[0]?.items
+                                    .filter((item) => item !== null && item !== undefined)
+                                    .slice(0, 8)
+                                    .map((item, idx) => (
+                                      <div 
+                                        key={item.id} 
+                                        className="w-[160px] flex-shrink-0 snap-start"
+                                      >
+                                        <DrinkCard
+                                          id={item.id}
+                                          images={item.images}
+                                          name={item.name}
+                                          price={item.price}
+                                          description={item.description}
+                                          available={item.available}
+                                          size="small"
+                                          href={`/products/${item.id}`}
+                                          menuItemId={item.id}
+                                          showAddToOrder={true}
+                                          categoryId={category.id}
+                                          animationDelay={catIndex * 100 + idx * 30}
+                                          onQuickAdd={() => {
+                                            const product = apiProducts.find(p => p.id === item.id);
+                                            if (product) {
+                                              setSelectedProduct(product);
+                                              setIsModalOpen(true);
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Coming Soon State */}
+                            {category.comingSoon && (
+                              <div className="bg-elite-dark-cream/30 rounded-2xl p-6 text-center">
+                                <span className="font-cabin text-elite-black/40 text-sm">Coming Soon</span>
+                              </div>
+                            )}
+
+                            {/* Subtle divider */}
+                            {catIndex < categories.filter(c => !activeCategory || c.id === activeCategory).length - 1 && (
+                              <div className="h-px bg-gradient-to-r from-transparent via-elite-burgundy/10 to-transparent mt-6" />
+                            )}
+                          </section>
+                        ))}
+                    </div>
+
+                    {/* Desktop: Grid layout */}
+                    <div className="hidden lg:block space-y-8">
+                      {categories
+                        .filter((cat) => cat !== null && cat !== undefined)
+                        .filter((category) => !activeCategory || category.id === activeCategory)
                         .map((category, index) => (
                           <div key={category.id} className="relative">
-                            <div className="bg-elite-cream rounded-2xl p-4 sm:p-6 lg:p-8 w-full relative">
+                            <div className="bg-white/50 rounded-2xl p-6 lg:p-8 w-full">
                               {category.comingSoon && (
-                                <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10"></div>
+                                <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10" />
                               )}
 
-                              <div
-                                className={`${category.comingSoon ? "opacity-40" : ""}`}
-                              >
-                                <div className="mt-2 mb-3 sm:mb-6">
-                                  <div className="flex items-center gap-3 sm:gap-4 mb-3">
-                                    <div
-                                      className={`p-3 sm:p-4 rounded-xl ${
-                                        category.comingSoon
-                                          ? "bg-elite-dark-cream text-elite-burgundy"
-                                          : "bg-elite-burgundy text-elite-cream"
-                                      }`}
-                                    >
-                                      {renderIcon(category.icon)}
-                                    </div>
-                                    <div className="flex items-center gap-2 sm:gap-3">
-                                      <h3 className="font-calistoga text-elite-black text-2xl sm:text-3xl md:text-4xl font-bold">
-                                        {category.name}
-                                      </h3>
-                                      {category.comingSoon && (
-                                        <span className="bg-elite-burgundy/60 text-elite-cream/80 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-cabin font-bold">
-                                          Coming Soon
-                                        </span>
-                                      )}
-                                    </div>
+                              <div className={category.comingSoon ? "opacity-40" : ""}>
+                                {/* Category Header */}
+                                <div className="flex items-center gap-4 mb-6">
+                                  <div className={`p-4 rounded-xl ${
+                                    category.comingSoon 
+                                      ? "bg-elite-dark-cream text-elite-burgundy" 
+                                      : "bg-elite-burgundy text-elite-cream"
+                                  }`}>
+                                    {renderIcon(category.icon)}
+                                  </div>
+                                  <div>
+                                    <h3 className="font-calistoga text-elite-black text-3xl font-bold">
+                                      {category.name}
+                                    </h3>
+                                    {category.comingSoon && (
+                                      <span className="bg-elite-burgundy/60 text-elite-cream/80 px-3 py-1 rounded-full text-sm font-cabin font-bold">
+                                        Coming Soon
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
 
-                                {!category.comingSoon &&
-                                  category.subCategories.length > 0 && (
-                                    <div className="space-y-4 sm:space-y-8">
-                                      {category.subCategories.map((sub) => (
-                                        <div
-                                          key={sub.id}
-                                          className="space-y-2 sm:space-y-4"
-                                        >
-                                          {/* Items Preview - Horizontal Scrollable on Small Screens, Fixed Width on Large Screens */}
-                                          {/* Small Screens: Horizontal Scroll */}
-                                          <div className="lg:hidden overflow-x-auto menu-items-scroll scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 py-4">
-                                            <div className="flex gap-5 sm:gap-6 pb-4">
-                                              {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
-                                                <div
-                                                  key={item.id}
-                                                  className="w-64 sm:w-72 flex-shrink-0 snap-start"
-                                                >
-                                                  <DrinkCard
-                                                    id={item.id}
-                                                    images={item.images}
-                                                    name={item.name}
-                                                    price={item.price}
-                                                    description={item.description}
-                                                    available={item.available}
-                                                    size="small"
-                                                    href={`/products/${item.id}`}
-                                                    menuItemId={item.id}
-                                                    showAddToOrder={true}
-                                                    categoryId={category.id}
-                                                    onQuickAdd={() => {
-                                                      const product = apiProducts.find(p => p.id === item.id);
-                                                      if (product) {
-                                                        setSelectedProduct(product);
-                                                        setIsModalOpen(true);
-                                                      }
-                                                    }}
-                                                  />
-                                                </div>
-                                              ))}
-                                            </div>
+                                {/* Products - Horizontal scroll */}
+                                {!category.comingSoon && category.subCategories.length > 0 && (
+                                  <div className="overflow-x-auto menu-items-scroll scrollbar-hide -mx-8 px-8 py-4">
+                                    <div className="flex gap-5 pb-4">
+                                      {category.subCategories[0]?.items
+                                        .filter((item) => item !== null && item !== undefined)
+                                        .map((item, idx) => (
+                                          <div key={item.id} className="w-72 flex-shrink-0 snap-start">
+                                            <DrinkCard
+                                              id={item.id}
+                                              images={item.images}
+                                              name={item.name}
+                                              price={item.price}
+                                              description={item.description}
+                                              available={item.available}
+                                              size="small"
+                                              href={`/products/${item.id}`}
+                                              menuItemId={item.id}
+                                              showAddToOrder={true}
+                                              categoryId={category.id}
+                                              animationDelay={idx * 30}
+                                              onQuickAdd={() => {
+                                                const product = apiProducts.find(p => p.id === item.id);
+                                                if (product) {
+                                                  setSelectedProduct(product);
+                                                  setIsModalOpen(true);
+                                                }
+                                              }}
+                                            />
                                           </div>
-                                          
-                                          {/* Large Screens: Horizontal Scroll with Same Card Sizes as /menu/[category] */}
-                                          <div className="hidden lg:block overflow-x-auto menu-items-scroll scrollbar-hide -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
-                                            <div className="flex gap-5 sm:gap-6 pb-4">
-                                              {sub.items.filter((item) => item !== null && item !== undefined).map((item) => (
-                                                <div
-                                                  key={item.id}
-                                                  className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0 snap-start"
-                                                >
-                                                  <DrinkCard
-                                                    id={item.id}
-                                                    images={item.images}
-                                                    name={item.name}
-                                                    price={item.price}
-                                                    description={item.description}
-                                                    available={item.available}
-                                                    size="small"
-                                                    href={`/products/${item.id}`}
-                                                    menuItemId={item.id}
-                                                    showAddToOrder={true}
-                                                    categoryId={category.id}
-                                                    onQuickAdd={() => {
-                                                      const product = apiProducts.find(p => p.id === item.id);
-                                                      if (product) {
-                                                        setSelectedProduct(product);
-                                                        setIsModalOpen(true);
-                                                      }
-                                                    }}
-                                                  />
-                                                </div>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ))}
+                                        ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
                               </div>
                             </div>
-                            {index <
-                              categories
-                                .filter((cat) => cat !== null && cat !== undefined)
-                                .filter(
-                                  (cat) =>
-                                    !activeCategory || cat.id === activeCategory,
-                                ).length -
-                                1 && (
-                              <div className="h-px bg-elite-burgundy/10 mt-3 sm:mt-6"></div>
+                            {index < categories.filter(c => !activeCategory || c.id === activeCategory).length - 1 && (
+                              <div className="h-px bg-elite-burgundy/10 mt-8" />
                             )}
                           </div>
                         ))}
@@ -494,6 +485,7 @@ export default function MenuPage() {
                 </button>
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>

@@ -1,39 +1,39 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, ShoppingCart, User, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useLocalCart } from "@/hooks/useLocalCart";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import CartDrawer from "@/components/Cart/CartDrawer";
+import { Home, Compass, Tag, ShoppingBag, User } from "lucide-react";
 
 const navItems = [
   {
     name: "Home",
     href: "/",
-    icon: Home,
+    Icon: Home,
   },
   {
     name: "Explore",
     href: "/menu",
-    icon: Compass,
+    Icon: Compass,
   },
   {
     name: "Deals",
     href: "/deals",
-    icon: Tag,
+    Icon: Tag,
   },
   {
     name: "Cart",
     href: "#cart",
-    icon: ShoppingCart,
+    Icon: ShoppingBag,
     isCart: true,
   },
   {
     name: "Profile",
     href: "/profile",
-    icon: User,
+    Icon: User,
     requireAuth: true,
   },
 ];
@@ -46,6 +46,16 @@ export default function MobileNavigation() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticPath, setOptimisticPath] = useState<string | null>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Detect reduced motion preference for adaptive animations
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/") {
@@ -80,78 +90,106 @@ export default function MobileNavigation() {
     });
   };
 
+  // Adaptive animation duration - faster for low-end devices
+  const animDuration = prefersReducedMotion ? "duration-100" : "duration-300";
+  const transitionStyle = prefersReducedMotion 
+    ? { transition: 'all 0.1s ease-out' }
+    : { transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' };
+
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 pb-2 pt-1.5 safe-area-inset-bottom">
-        <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-[0_-8px_24px_rgba(139,0,0,0.12),0_4px_12px_rgba(139,0,0,0.08)] border border-elite-burgundy/10">
-          <div className="flex items-center justify-around px-1 py-2 gap-0.5">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item.href, item.requireAuth, item.isCart)}
-                disabled={isPending && optimisticPath === item.href}
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-full transition-all duration-500 ease-out touch-manipulation will-change-transform",
-                  "active:scale-90",
-                  active
-                    ? "bg-elite-burgundy text-white shadow-lg shadow-elite-burgundy/30 scale-105"
-                    : "text-elite-black/60 hover:text-elite-burgundy hover:bg-elite-burgundy/5 active:bg-elite-burgundy/10",
-                  "flex-1 min-w-0"
-                )}
-                style={{
-                  transform: active ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
-                  transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}
-              >
-                <div className="relative">
-                  {/* Icon with smooth transition */}
-                  <Icon
-                    className={cn(
-                      "w-5 h-5 transition-all duration-500 ease-out will-change-transform",
-                      active && "scale-110 drop-shadow-sm"
-                    )}
-                    strokeWidth={active ? 2.5 : 2}
-                  />
-                  
-                  {/* Cart Badge with animation */}
-                  {item.isCart && itemCount > 0 && (
-                    <span 
-                      className={cn(
-                        "absolute -top-1.5 -right-2 text-[9px] font-bold font-calistoga rounded-full w-4 h-4 flex items-center justify-center border transition-all duration-300 ease-out animate-in zoom-in",
-                        active 
-                          ? "bg-white text-elite-burgundy border-white shadow-lg" 
-                          : "bg-elite-burgundy text-white border-elite-burgundy"
-                      )}
-                    >
-                      {itemCount > 9 ? '9+' : itemCount}
-                    </span>
-                  )}
-                </div>
-
-                {/* Label with smooth fade */}
-                <span
+      {/* Premium cream-colored bottom navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+        {/* Background with cream gradient and subtle shadow */}
+        <div 
+          className="bg-gradient-to-t from-elite-cream via-elite-cream to-elite-cream/95 backdrop-blur-xl border-t border-elite-burgundy/8"
+          style={{
+            boxShadow: '0 -8px 40px rgba(139, 38, 53, 0.12), 0 -2px 8px rgba(139, 38, 53, 0.08)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}
+        >
+          <div className="flex items-stretch justify-around h-[72px] max-w-lg mx-auto">
+            {navItems.map((item) => {
+              const { Icon } = item;
+              const active = isActive(item.href);
+              const isOptimistic = optimisticPath === item.href;
+              
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavigation(item.href, item.requireAuth, item.isCart)}
+                  disabled={isPending && isOptimistic}
                   className={cn(
-                    "text-[9px] font-cabin transition-all duration-500 ease-out leading-tight truncate max-w-full",
-                    active ? "font-bold opacity-100" : "font-medium opacity-80"
+                    "relative flex flex-col items-center justify-center gap-1 flex-1 touch-manipulation",
+                    "active:scale-95 transition-transform",
+                    animDuration
                   )}
+                  style={transitionStyle}
                 >
-                  {item.name}
-                </span>
-
-                {/* Loading indicator */}
-                {isPending && optimisticPath === item.href && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-full backdrop-blur-sm">
-                    <div className="w-4 h-4 border-2 border-elite-burgundy border-t-transparent rounded-full animate-spin" />
+                  <div className="relative">
+                    {/* Icon container - optimized for active state */}
+                    <div 
+                      className={cn(
+                        "flex items-center justify-center w-11 h-11 rounded-2xl transition-all",
+                        animDuration,
+                        active || isOptimistic
+                          ? "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/30" 
+                          : "bg-elite-dark-cream/40 text-elite-burgundy/65"
+                      )}
+                      style={{
+                        transform: (active || isOptimistic) && !prefersReducedMotion ? 'translateY(-2px) scale(1.05)' : 'translateY(0) scale(1)',
+                      }}
+                    >
+                      <Icon 
+                        className={cn(
+                          "transition-all",
+                          animDuration,
+                          active || isOptimistic ? "w-6 h-6" : "w-5 h-5"
+                        )}
+                        strokeWidth={active || isOptimistic ? 2.5 : 2}
+                      />
+                      
+                      {/* Optimistic loading pulse */}
+                      {isOptimistic && isPending && (
+                        <div className="absolute inset-0 rounded-2xl bg-elite-cream/20 animate-pulse" />
+                      )}
+                    </div>
+                    
+                    {/* Cart Badge - Premium style */}
+                    {item.isCart && itemCount > 0 && (
+                      <span 
+                        className={cn(
+                          "absolute -top-0.5 -right-1 text-[10px] font-bold font-cabin rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 transition-all border-2",
+                          animDuration,
+                          active || isOptimistic
+                            ? "bg-elite-cream text-elite-burgundy border-elite-burgundy scale-110 shadow-sm" 
+                            : "bg-elite-burgundy text-elite-cream border-elite-cream"
+                        )}
+                        style={{
+                          boxShadow: '0 2px 8px rgba(139, 38, 53, 0.25)',
+                        }}
+                      >
+                        {itemCount > 99 ? '99+' : itemCount}
+                      </span>
+                    )}
                   </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+
+                  {/* Label with optimistic highlight */}
+                  <span
+                    className={cn(
+                      "text-[11px] font-cabin leading-none transition-all",
+                      animDuration,
+                      active || isOptimistic
+                        ? "font-bold text-elite-burgundy" 
+                        : "font-medium text-elite-burgundy/50"
+                    )}
+                  >
+                    {item.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
 

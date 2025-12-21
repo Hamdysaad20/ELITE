@@ -1,4 +1,4 @@
-import { redisGet, redisSet } from "../cache/redis";
+import { redisGet, redisSet, redisDel } from "../cache/redis";
 import { syncProductsFromOdoo } from "../utils/syncProducts";
 
 // Define types locally to match usage
@@ -23,7 +23,8 @@ const CACHE_KEYS = {
   DATA: "products:all",
   TIMESTAMP: "sync:last_update",
   LOCK: "sync:lock",
-  CATEGORIES: "categories:list"
+  CATEGORIES: "categories:list",
+  VERSION: "cache:version"
 };
 
 export type Category = {
@@ -32,9 +33,10 @@ export type Category = {
   description?: string;
 };
 
-// Soft TTL: 1 hour (in milliseconds)
-// If data is older than this, we trigger a background refresh
-const SOFT_TTL = 60 * 60 * 1000; 
+// Soft TTL: 30 minutes (reduced for fresher data)
+// Hard TTL: 2 hours (Redis expiry)
+const SOFT_TTL = 30 * 60 * 1000;
+const HARD_TTL = 2 * 60 * 60; // seconds for Redis 
 
 async function ensureFreshness(lastUpdate: string | null) {
   const now = Date.now();
@@ -96,4 +98,38 @@ export async function getCatalogSafe(): Promise<{ products: Product[], categorie
 export async function getProductsSafe(): Promise<{ products: Product[], lastUpdate: string | null }> {
   const { products, lastUpdate } = await getCatalogSafe();
   return { products, lastUpdate };
+}
+
+/**
+ * Force invalidate the cache - useful when Odoo data changes
+ * This will trigger a fresh sync on the next request
+ */
+export async function invalidateCatalogCache(): Promise<{ success: boolean; message: string }> {
+  try {
+    // Delete the timestamp to force a fresh sync
+    await redisDel(CACHE_KEYS.TIMESTAMP);
+    // Increment version to bust client-side caches
+    const version = Date.now().toString();
+    await redisSet(CACHE_KEYS.VERSION, version, HARD_TTL);
+    
+    console.log('[CACHE] Catalog cache invalidated, version:', version);
+    
+    return { 
+      success: true, 
+      message: `Cache invalidated at ${new Date().toISOString()}` 
+    };
+  } catch (err) {
+    console.error('[CACHE] Failed to invalidate cache:', err);
+    return { 
+      success: false, 
+      message: err instanceof Error ? err.message : 'Failed to invalidate cache' 
+    };
+  }
+}
+
+/**
+ * Get the current cache version for cache-busting
+ */
+export async function getCacheVersion(): Promise<string | null> {
+  return redisGet<string>(CACHE_KEYS.VERSION);
 }

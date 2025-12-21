@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,24 +22,44 @@ export default function Modal({
 }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Handle SSR
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
+      // Prevent background scroll on iOS
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 200);
+  };
+
+  if (!mounted || (!isOpen && !isClosing)) return null;
 
   return createPortal(
     <>
@@ -49,8 +69,11 @@ export default function Modal({
           {/* Backdrop */}
           <div
             ref={overlayRef}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
-            onClick={onClose}
+            className={cn(
+              "absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200",
+              isClosing ? "opacity-0" : "opacity-100"
+            )}
+            onClick={handleClose}
             aria-hidden="true"
           />
 
@@ -58,33 +81,34 @@ export default function Modal({
           <div
             ref={contentRef}
             className={cn(
-              "relative w-full max-h-[90vh] transform overflow-hidden rounded-t-3xl bg-white shadow-2xl transition-all animate-in slide-in-from-bottom duration-300",
+              "relative w-full max-h-[92vh] transform overflow-hidden rounded-t-[28px] bg-white shadow-2xl transition-transform duration-300 ease-out",
+              isClosing ? "translate-y-full" : "translate-y-0",
               className
             )}
             role="dialog"
             aria-modal="true"
           >
             {/* Drag Handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1.5 bg-elite-black/10 rounded-full" />
+            <div className="flex justify-center pt-2.5 pb-1 sticky top-0 bg-white z-20">
+              <div className="w-10 h-1 bg-elite-black/15 rounded-full" />
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-elite-burgundy/10 sticky top-0 bg-white z-10">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-elite-burgundy/8 sticky top-6 bg-white z-10">
               <h3 className="font-calistoga text-lg text-elite-black">
                 {title}
               </h3>
               <button
-                onClick={onClose}
-                className="rounded-full p-2 text-elite-black/50 hover:bg-elite-burgundy/5 hover:text-elite-burgundy transition-colors touch-manipulation active:scale-90"
+                onClick={handleClose}
+                className="rounded-full w-9 h-9 flex items-center justify-center text-elite-black/50 bg-elite-black/5 active:bg-elite-burgundy/10 active:text-elite-burgundy transition-colors touch-manipulation active:scale-90"
                 aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={2.5} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="max-h-[calc(90vh-80px)] overflow-y-auto overscroll-contain">
+            <div className="max-h-[calc(92vh-72px)] overflow-y-auto overscroll-contain">
               {children}
             </div>
           </div>
@@ -95,15 +119,19 @@ export default function Modal({
       <div className="hidden md:flex fixed inset-0 z-[80] items-center justify-center p-4 sm:p-6">
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
-          onClick={onClose}
+          className={cn(
+            "absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200",
+            isClosing ? "opacity-0" : "opacity-100"
+          )}
+          onClick={handleClose}
           aria-hidden="true"
         />
 
-        {/* Modal Content */}
+        {/* Modal Content - Rounded design */}
         <div
           className={cn(
-            "relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200",
+            "relative w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-200",
+            isClosing ? "opacity-0 scale-95" : "opacity-100 scale-100",
             className
           )}
           role="dialog"
@@ -115,8 +143,8 @@ export default function Modal({
               {title}
             </h3>
             <button
-              onClick={onClose}
-              className="rounded-full p-2 text-elite-black/50 hover:bg-elite-burgundy/5 hover:text-elite-burgundy transition-colors"
+              onClick={handleClose}
+              className="rounded-full w-10 h-10 flex items-center justify-center text-elite-black/50 hover:bg-elite-burgundy/5 hover:text-elite-burgundy transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />

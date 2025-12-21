@@ -19,7 +19,7 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
-import MenuPageSkeleton from "@/components/skeletons/MenuPageSkeleton";
+import CategoryPageSkeleton from "@/components/skeletons/CategoryPageSkeleton";
 import ProductModal from "@/components/menu/ProductModal";
 
 type MenuCategory = {
@@ -230,50 +230,68 @@ export default function CategoryPage() {
       <div className="hidden md:block"></div>
       <MobileHeader title="Menu" showBack={true} transparent={true} />
 
-      <div className="min-h-screen bg-elite-burgundy pb-20 md:pb-0 pt-16 md:pt-0">
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-elite-burgundy opacity-90"></div>
-
-          <div className="relative min-h-[30vh] md:min-h-[60vh] w-full overflow-hidden">
-            <div className="absolute inset-0 z-[1]">
-              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl sm:text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold text-elite-cream select-none pointer-events-none opacity-90">
-                MENU
+      {/* Full-height background */}
+      <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
+        {/* Hero Section - Large and attractive design */}
+        <div className="relative pt-14 md:pt-0">
+          <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] xl:h-[75vh] w-full overflow-hidden">
+            {/* Background text */}
+            <div className="absolute inset-0 z-[1] flex items-center justify-center">
+              <h1 className="text-[5rem] sm:text-[8rem] md:text-[12rem] lg:text-[18rem] xl:text-[22rem] font-cabin font-bold text-elite-cream/90 select-none pointer-events-none tracking-tight leading-none">
+                {selectedCategory?.name?.toUpperCase() || "MENU"}
               </h1>
             </div>
 
-            <div className="absolute inset-0 z-[5]">
-              <div className="relative h-full w-full flex items-center justify-center pointer-events-none">
+            {/* Hero Images Container - Bottom-aligned to prevent layout shift */}
+            <div className="absolute inset-0 z-[5] flex items-end justify-center pb-0">
+              <div className="relative w-full h-full flex items-end justify-center hero-image-container">
                 {heroImages.map((imageSrc, index) => (
-                  <img
+                  <div
                     key={imageSrc}
-                    src={imageSrc}
-                    alt={`Hero Image ${index + 1}`}
-                    className={`absolute object-contain transition-opacity duration-1000 w-[60rem] h-[60rem] sm:w-[64rem] sm:h-[64rem] md:w-[32rem] md:h-[32rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] translate-y-[10%] md:translate-y-[20%] ${
-                      index === currentHeroImage ? "opacity-100" : "opacity-0"
-                    } ${animationPlayed ? "drink-overlay-animation animated" : ""}`}
-                    aria-hidden={index !== currentHeroImage}
-                  />
+                    className={`absolute inset-0 flex items-end justify-center transition-opacity duration-700 ease-in-out ${
+                      index === currentHeroImage ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                    }`}
+                  >
+                    <img
+                      src={imageSrc}
+                      alt={`Hero Image ${index + 1}`}
+                      className={`w-[20rem] h-[20rem] sm:w-[28rem] sm:h-[28rem] md:w-[38rem] md:h-[38rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] object-contain pointer-events-none ${
+                        animationPlayed ? "drink-overlay-animation animated" : ""
+                      }`}
+                      style={{
+                        objectPosition: "bottom center",
+                        maxHeight: "90%",
+                      }}
+                      aria-hidden={index !== currentHeroImage}
+                      loading="eager"
+                    />
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="absolute inset-0 z-[10]">
+            {/* Outlined text */}
+            <div className="absolute inset-0 z-[10] flex items-center justify-center pointer-events-none">
               <h1
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl md:text-[12rem] lg:text-[20rem] xl:text-[24rem] font-cabin font-bold select-none pointer-events-none"
+                className="text-[5rem] sm:text-[8rem] md:text-[12rem] lg:text-[18rem] xl:text-[22rem] font-cabin font-bold select-none tracking-tight leading-none"
                 style={{
                   color: "transparent",
-                  WebkitTextStroke: "4px #F5F5DC",
+                  WebkitTextStroke: "2px rgba(248, 240, 210, 0.6)",
                 }}
               >
-                MENU
+                {selectedCategory?.name?.toUpperCase() || "MENU"}
               </h1>
             </div>
           </div>
         </div>
 
-        <div className="relative z-20 bg-elite-cream min-h-[25vh] rounded-t-[3rem] md:rounded-t-[3rem] -mt-8 overflow-hidden">
-          <div className="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
-            {loading && <MenuPageSkeleton />}
+        {/* Content with curved top */}
+        <div className="relative z-20 -mt-5 md:-mt-8">
+          <div className="absolute top-0 left-0 right-0 h-6 md:h-10 bg-elite-cream rounded-t-[1.75rem] md:rounded-t-[2.5rem]" />
+          
+          <div className="relative bg-elite-cream pt-3 md:pt-6 min-h-[65vh]">
+            <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
+            {loading && <CategoryPageSkeleton />}
 
             {error && !loading && (
               <ErrorState error={error} onRetry={handleRetry} size="large" />
@@ -291,29 +309,33 @@ export default function CategoryPage() {
 
             {!loading && !error && categories.length > 0 && (
               <>
-                <div className="lg:hidden mb-8">
-                  <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 scroll-smooth">
-                    <div className="flex gap-3 py-4 min-w-max snap-x snap-mandatory">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => router.push(`/menu/${cat.id}`)}
-                          className={`group flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap shadow-md border snap-start ${
-                            String(cat.id) === String(categoryId)
-                              ? "bg-elite-burgundy text-elite-cream shadow-lg scale-105 border-elite-burgundy"
-                              : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
-                          }`}
-                        >
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                              String(cat.id) === String(categoryId)
-                                ? "bg-elite-cream"
-                                : "bg-elite-burgundy group-hover:bg-elite-cream"
+                {/* Mobile Category Pills - Sticky with polished design */}
+                <div className="lg:hidden sticky top-16 z-30 -mx-6 px-4 mb-5 pt-2 pb-3 bg-elite-cream/90 backdrop-blur-sm border-b border-elite-burgundy/5">
+                  <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
+                    <div className="flex gap-2.5 min-w-max snap-x snap-mandatory py-1">
+                      {categories.map((cat) => {
+                        const isActive = String(cat.id) === String(categoryId);
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => router.push(`/menu/${cat.id}`)}
+                            className={`group flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
+                              isActive
+                                ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                                : "bg-white text-elite-black/80 border border-elite-burgundy/15 active:bg-elite-burgundy/5"
                             }`}
-                          ></div>
-                          <span className="font-cabin font-medium text-sm">{cat.name}</span>
-                        </button>
-                      ))}
+                          >
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
+                                isActive ? "bg-elite-cream" : "bg-elite-burgundy/60"
+                              }`}
+                            />
+                            <span className={`font-cabin text-sm ${isActive ? "font-bold" : "font-medium"}`}>
+                              {cat.name}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -363,6 +385,7 @@ export default function CategoryPage() {
                     </div>
                   </div>
 
+                  {/* Main Content */}
                   <div className="flex-1 min-w-0">
                     {!selectedCategory && (
                       <EmptyState
@@ -375,81 +398,83 @@ export default function CategoryPage() {
                     )}
 
                     {selectedCategory && displayedCategories.length > 0 && (
-                      <div className="space-y-4 sm:space-y-6">
-                        {displayedCategories.map((category, index) => (
-                          <div key={category.id} className="relative">
-                            <div className="bg-elite-cream rounded-2xl p-5 sm:p-6 lg:p-8 w-full relative">
-                              <div>
-                                <div className="mb-4 sm:mb-6">
-                                  <div className="flex items-center gap-3 sm:gap-4 mb-3">
-                                    <div className="p-3 sm:p-4 rounded-xl bg-elite-burgundy text-elite-cream">
-                                      {renderIcon(category.icon)}
-                                    </div>
-                                    <div className="flex items-center gap-2 sm:gap-3">
-                                      <h3 className="font-calistoga text-elite-black text-2xl sm:text-3xl md:text-4xl font-bold">
-                                        {category.name}
-                                      </h3>
-                                    </div>
-                                  </div>
-                                  {category.description && (
-                                    <p className="font-cabin text-elite-black/60">{category.description}</p>
-                                  )}
+                      <>
+                        {displayedCategories.map((category) => (
+                          <div key={category.id}>
+                            {/* Mobile: Category header with item count */}
+                            <div className="lg:hidden mb-4 px-1">
+                              <div className="flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-xl bg-elite-burgundy text-elite-cream flex items-center justify-center shadow-md shadow-elite-burgundy/20">
+                                  {renderIcon(category.icon)}
                                 </div>
-
-                                {category.subCategories.length > 0 && (
-                                  <div className="space-y-6 sm:space-y-8">
-                                    {category.subCategories.map((sub) => (
-                                      <div key={sub.id} className="space-y-3 sm:space-y-4">
-                                        <div className="overflow-x-auto menu-items-scroll scrollbar-hide -mx-5 sm:-mx-6 lg:-mx-8 px-5 sm:px-6 lg:px-8 py-4">
-                                          <div className="flex gap-5 sm:gap-6 pb-4">
-                                            {sub.items
-                                              .filter((item) => item !== null && item !== undefined)
-                                              .map((item) => (
-                                                <div
-                                                  key={item.id}
-                                                  className="w-64 sm:w-72 md:w-80 lg:w-96 flex-shrink-0 snap-start"
-                                                >
-                                                  <DrinkCard
-                                                    id={item.id}
-                                                    images={item.images}
-                                                    name={item.name}
-                                                    price={item.price}
-                                                    description={item.description}
-                                                    available={item.available}
-                                                    size="small"
-                                                    href={`/products/${item.id}`}
-                                                    menuItemId={item.id}
-                                                    showAddToOrder={true}
-                                                    categoryId={category.id}
-                                                    onQuickAdd={() => {
-                                                      const product = (apiProducts || []).find((p) => p.id === item.id);
-                                                      if (product) {
-                                                        setSelectedProduct(product);
-                                                        setIsModalOpen(true);
-                                                      }
-                                                    }}
-                                                  />
-                                                </div>
-                                              ))}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
+                                <div>
+                                  <h2 className="font-calistoga text-elite-black text-xl font-bold leading-tight">
+                                    {category.name}
+                                  </h2>
+                                  <p className="font-cabin text-elite-black/50 text-xs">
+                                    {category.subCategories[0]?.items.length || 0} items available
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                            {index < displayedCategories.length - 1 && (
-                              <div className="h-px bg-elite-burgundy/10 mt-4 sm:mt-6"></div>
+
+                            {/* Desktop: Full header */}
+                            <div className="hidden lg:block mb-6">
+                              <div className="flex items-center gap-4 mb-2">
+                                <div className="p-4 rounded-xl bg-elite-burgundy text-elite-cream">
+                                  {renderIcon(category.icon)}
+                                </div>
+                                <div>
+                                  <h2 className="font-calistoga text-elite-black text-3xl font-bold">
+                                    {category.name}
+                                  </h2>
+                                  {category.description && (
+                                    <p className="font-cabin text-elite-black/60 mt-1">{category.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Products Grid */}
+                            {category.subCategories.length > 0 && (
+                              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
+                                {category.subCategories[0]?.items
+                                  .filter((item) => item !== null && item !== undefined)
+                                  .map((item, itemIndex) => (
+                                    <DrinkCard
+                                      key={item.id}
+                                      id={item.id}
+                                      images={item.images}
+                                      name={item.name}
+                                      price={item.price}
+                                      description={item.description}
+                                      available={item.available}
+                                      size="small"
+                                      href={`/products/${item.id}`}
+                                      menuItemId={item.id}
+                                      showAddToOrder={true}
+                                      categoryId={category.id}
+                                      animationDelay={itemIndex * 40}
+                                      onQuickAdd={() => {
+                                        const product = (apiProducts || []).find((p) => p.id === item.id);
+                                        if (product) {
+                                          setSelectedProduct(product);
+                                          setIsModalOpen(true);
+                                        }
+                                      }}
+                                    />
+                                  ))}
+                              </div>
                             )}
                           </div>
                         ))}
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
