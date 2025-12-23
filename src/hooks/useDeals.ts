@@ -2,50 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/auth/apiClient";
+import type { DealProduct, ComboDeal, Deal } from "@/types/deals";
 
-export interface DealProduct {
-  id: string;
-  name: string;
-  description?: string | null;
-  price: number; // Original price
-  originalPrice: number;
-  dealPrice: number;
-  dealActive: boolean;
-  savings: number;
-  savingsPercent: number;
-  categoryId?: string;
-  images?: string[];
-  available?: boolean;
-  sku?: string;
-}
-
-export interface ComboDeal {
-  id: string;
-  name: string;
-  description?: string;
-  items: Array<{
-    id: string;
-    name: string;
-    price: number;
-    image?: string;
-    categoryId?: string;
-  }>;
-  originalTotal: number;
-  dealPrice: number;
-  dealActive: boolean;
-  savings: number;
-  savingsPercent: number;
-}
-
-export interface Deal {
-  id: string;
-  name: string;
-  description?: string;
-  pricelistId: number;
-  products: DealProduct[];
-  active: boolean;
-  combos?: ComboDeal[];
-}
+// Re-export types for backward compatibility
+export type { DealProduct, ComboDeal, Deal };
 
 export interface DealsResponse {
   deals: Deal[];

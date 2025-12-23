@@ -6,6 +6,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import type { ComboDeal } from "@/types/deals";
 
 export interface ComboItem {
   id: string;
@@ -13,19 +14,6 @@ export interface ComboItem {
   price: number;
   image?: string;
   categoryId?: string;
-}
-
-export interface ComboDeal {
-  id: string;
-  name: string;
-  description?: string;
-  items: ComboItem[];
-  originalTotal: number;
-  dealPrice: number;
-  dealActive: boolean;
-  savings: number;
-  savingsPercent: number;
-  maxDiscount?: number; // Max 30% for combos
 }
 
 interface ComboDealCardProps {

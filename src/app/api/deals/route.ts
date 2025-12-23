@@ -9,52 +9,11 @@ import { getProductsSafe } from "@/server/services/product.service";
 import { isDealActive, getDealTimeWindowDescription } from "@/server/utils/deals/timeValidation";
 import { calculateDealPrice } from "@/server/utils/deals/priceConversion";
 import { validateDiscount, clampDiscount, isLargeItem } from "@/server/utils/deals/discountValidation";
-// Temporarily disabled for debugging
-// import { validateDealProduct, sanitizeDealProduct } from "@/server/utils/deals/securityValidation";
+import { validateDealProduct, sanitizeDealProduct } from "@/server/utils/deals/securityValidation";
+import type { DealProduct, ComboDeal, Deal } from "@/types/deals";
 
-export interface ComboDeal {
-  id: string;
-  name: string;
-  description?: string;
-  items: Array<{
-    id: string;
-    name: string;
-    price: number;
-    image?: string;
-    categoryId?: string;
-  }>;
-  originalTotal: number;
-  dealPrice: number;
-  dealActive: boolean;
-  savings: number;
-  savingsPercent: number;
-}
-
-export interface Deal {
-  id: string;
-  name: string;
-  description?: string;
-  pricelistId: number;
-  products: DealProduct[];
-  active: boolean;
-  combos?: ComboDeal[]; // Combo deals for this pricelist
-}
-
-export interface DealProduct {
-  id: string;
-  name: string;
-  description?: string | null;
-  price: number; // Original price
-  originalPrice: number;
-  dealPrice: number;
-  dealActive: boolean;
-  savings: number;
-  savingsPercent: number;
-  categoryId?: string;
-  images?: string[];
-  available?: boolean;
-  sku?: string;
-}
+// Re-export types for backward compatibility
+export type { DealProduct, ComboDeal, Deal };
 
 /**
  * GET /api/deals
@@ -500,21 +459,34 @@ export async function GET(request: NextRequest) {
               : 0,
           };
           
-          // Security validation temporarily disabled for debugging
-          // TODO: Re-enable after fixing import issues
-          // try {
-          //   const validation = validateDealProduct(dealProduct);
-          //   if (!validation.isValid) {
-          //     console.warn(`[DEALS API] Invalid deal product ${product.name}:`, validation.errors);
-          //     return sanitizeDealProduct(dealProduct);
-          //   }
-          //   if (validation.warnings.length > 0) {
-          //     console.warn(`[DEALS API] Warnings for ${product.name}:`, validation.warnings);
-          //   }
-          // } catch (validationError) {
-          //   console.error(`[DEALS API] Validation error for ${product.name}:`, validationError);
-          //   return sanitizeDealProduct(dealProduct);
-          // }
+          // Security validation and sanitization
+          // This ensures data integrity and prevents abuse:
+          // - Validates price ranges and calculations
+          // - Enforces business rules (max discounts, large item rules)
+          // - Detects price manipulation attempts
+          // - Sanitizes malformed data
+          try {
+            const validation = validateDealProduct(dealProduct);
+            
+            if (!validation.isValid) {
+              console.warn(`[DEALS API ${requestId}] ❌ Invalid deal product ${product.name}:`, validation.errors);
+              // Sanitize to prevent errors and ensure data integrity
+              const sanitized = sanitizeDealProduct(dealProduct);
+              console.log(`[DEALS API ${requestId}] ✅ Sanitized product ${product.name}`);
+              return sanitized;
+            }
+            
+            // Log warnings for review (non-blocking)
+            if (validation.warnings.length > 0) {
+              console.warn(`[DEALS API ${requestId}] ⚠️  Warnings for ${product.name}:`, validation.warnings);
+            }
+          } catch (validationError) {
+            console.error(`[DEALS API ${requestId}] ❌ Validation error for ${product.name}:`, validationError);
+            // On validation error, sanitize to ensure we return valid data
+            const sanitized = sanitizeDealProduct(dealProduct);
+            console.log(`[DEALS API ${requestId}] ✅ Sanitized product ${product.name} after validation error`);
+            return sanitized;
+          }
           
           return dealProduct;
         });

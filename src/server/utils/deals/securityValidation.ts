@@ -8,7 +8,7 @@
  * - Business rule enforcement
  */
 
-import type { DealProduct } from "@/app/api/deals/route";
+import type { DealProduct } from "@/types/deals";
 import { validateDiscount, clampDiscount } from "./discountValidation";
 
 /**
