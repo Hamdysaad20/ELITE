@@ -1,37 +1,66 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
-import { Mail, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { Mail, CheckCircle2, ArrowLeft, RefreshCw, Shield, Clock, Sparkles } from "lucide-react";
+import MobileHeader from "@/components/MobileHeader";
 
 function VerifyRequestContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const email = searchParams?.get("email");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <main className="min-h-screen bg-elite-cream">
-      {/* Hero Section */}
-      <div className="bg-elite-burgundy relative overflow-hidden py-12 sm:py-16 md:py-20">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-5 left-5 w-20 h-20 bg-elite-burgundy rounded-full blur-2xl"></div>
-          <div className="absolute bottom-5 right-5 w-32 h-32 bg-elite-cream rounded-full blur-3xl"></div>
+    <main className="min-h-screen bg-elite-cream pb-24 md:pb-0">
+      {/* Mobile Header */}
+      <MobileHeader 
+        title="" 
+        showBack={true} 
+        onBack={() => router.push("/auth/signin")}
+      />
+      
+      {/* Compact Hero Section for Mobile */}
+      <div className="bg-elite-burgundy relative overflow-hidden pt-20 pb-10 md:pt-16 md:pb-16">
+        {/* Subtle background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-8 -left-8 w-32 h-32 bg-elite-cream/5 rounded-full blur-2xl" />
+          <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-elite-cream/5 rounded-full blur-3xl" />
         </div>
         
-        <div className="relative max-w-4xl mx-auto px-6 sm:px-8 text-center z-10">
-          <div className="inline-flex items-center justify-center mb-4 p-3 bg-elite-cream/20 rounded-full">
-            <CheckCircle2 className="w-6 h-6 text-elite-cream" />
+        <div className="relative max-w-lg mx-auto px-5 text-center z-10">
+          {/* Animated check icon */}
+          <div 
+            className={`inline-flex items-center justify-center mb-5 w-16 h-16 bg-elite-cream/15 rounded-full border border-elite-cream/20 transition-all duration-500 ${mounted ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}`}
+          >
+            <Mail className="w-7 h-7 text-elite-cream" />
           </div>
-          <h1 className="font-calistoga text-elite-cream text-3xl sm:text-4xl md:text-5xl font-bold mb-3 leading-tight">
+          
+          <h1 
+            className={`font-calistoga text-elite-cream text-2xl sm:text-3xl md:text-4xl font-bold mb-3 transition-all duration-500 delay-100 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+          >
             Check Your Email
           </h1>
-          <p className="font-cabin text-elite-cream/90 text-base sm:text-lg mb-4">
+          
+          <p 
+            className={`font-cabin text-elite-cream/85 text-sm sm:text-base mb-4 transition-all duration-500 delay-150 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+          >
             We've sent a magic link to
           </p>
+          
           {email && (
-            <div className="inline-flex items-center gap-2 bg-elite-cream/15 border border-elite-cream/30 rounded-full px-4 sm:px-6 py-2 sm:py-3">
-              <Mail className="w-4 h-4 text-elite-cream flex-shrink-0" />
-              <p className="font-cabin font-semibold text-elite-cream text-sm sm:text-base break-all">
+            <div 
+              className={`inline-flex items-center gap-2.5 bg-elite-cream/10 backdrop-blur-sm border border-elite-cream/25 rounded-2xl px-5 py-3 transition-all duration-500 delay-200 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+            >
+              <div className="w-8 h-8 rounded-full bg-elite-cream/15 flex items-center justify-center flex-shrink-0">
+                <Mail className="w-4 h-4 text-elite-cream" />
+              </div>
+              <p className="font-cabin font-semibold text-elite-cream text-sm break-all text-left">
                 {email}
               </p>
             </div>
@@ -39,110 +68,97 @@ function VerifyRequestContent() {
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-12 sm:py-16 md:py-20">
-        {/* Next Steps Card */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 mb-8 hover:shadow-2xl hover:border-elite-burgundy/20 transition-all duration-300">
-          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-            <div className="p-2 sm:p-3 bg-elite-burgundy/10 rounded-2xl flex-shrink-0">
-              <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7 text-elite-burgundy" />
+      {/* Content Section - Optimized for mobile */}
+      <div className="max-w-lg mx-auto px-4 py-6 md:py-10">
+        {/* Steps Card - Rounded design */}
+        <div 
+          className={`bg-white rounded-3xl shadow-lg border border-elite-burgundy/8 p-6 mb-5 transition-all duration-500 delay-250 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-11 h-11 bg-elite-burgundy/10 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-elite-burgundy" />
             </div>
-            <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold">
-              What Happens Next
+            <h2 className="font-calistoga text-elite-burgundy text-xl font-bold">
+              Next Steps
             </h2>
           </div>
 
-          <div className="space-y-3 sm:space-y-4 pl-2 sm:pl-4">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 font-cabin font-bold text-sm sm:text-base">
-                1
+          <div className="space-y-4">
+            {[
+              { num: 1, text: "Check your inbox for the email" },
+              { num: 2, text: "Click the magic link inside" },
+              { num: 3, text: "You're all set! ✨" },
+            ].map((step, i) => (
+              <div 
+                key={step.num}
+                className={`flex items-center gap-3 transition-all duration-300`}
+                style={{ transitionDelay: `${300 + i * 50}ms` }}
+              >
+                <div className="w-8 h-8 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 font-cabin font-bold text-sm">
+                  {step.num}
+                </div>
+                <p className="font-cabin text-elite-black font-medium text-sm flex-1">
+                  {step.text}
+                </p>
               </div>
-              <div className="pt-0.5 sm:pt-1">
-                <p className="font-cabin text-elite-black font-semibold text-sm sm:text-base">Check your inbox for the email</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 font-cabin font-bold text-sm sm:text-base">
-                2
-              </div>
-              <div className="pt-0.5 sm:pt-1">
-                <p className="font-cabin text-elite-black font-semibold text-sm sm:text-base">Click the magic link inside</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center flex-shrink-0 font-cabin font-bold text-sm sm:text-base">
-                3
-              </div>
-              <div className="pt-0.5 sm:pt-1">
-                <p className="font-cabin text-elite-black font-semibold text-sm sm:text-base">You're all set and verified ✨</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Info Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Info Cards - Horizontal scroll on mobile */}
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2 mb-5 snap-x snap-mandatory">
           {/* Security Card */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-elite-burgundy/5 p-5 sm:p-6 hover:shadow-xl hover:border-elite-burgundy/15 transition-all duration-300 group">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4">
-              <span className="text-xl sm:text-2xl">🔐</span>
-              <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl font-bold">Safe & Secure</h3>
+          <div className="flex-shrink-0 w-[280px] snap-start bg-white rounded-3xl shadow-md border border-elite-burgundy/8 p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-elite-burgundy/10 flex items-center justify-center">
+                <Shield className="w-4.5 h-4.5 text-elite-burgundy" />
+              </div>
+              <h3 className="font-calistoga text-elite-burgundy text-base font-bold">Safe & Secure</h3>
             </div>
-            <ul className="space-y-2 text-xs sm:text-sm">
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">✓</span>
-                <span>Link expires in 24 hours</span>
-              </li>
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">✓</span>
-                <span>Single-use only</span>
-              </li>
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">✓</span>
-                <span>No password needed</span>
-              </li>
+            <ul className="space-y-2.5">
+              {["Link expires in 24 hours", "Single-use only", "No password needed"].map((item, i) => (
+                <li key={i} className="font-cabin text-elite-black/70 text-xs flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Help Card */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-elite-burgundy/5 p-5 sm:p-6 hover:shadow-xl hover:border-elite-burgundy/15 transition-all duration-300 group">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4">
-              <span className="text-xl sm:text-2xl">💬</span>
-              <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl font-bold">No Email?</h3>
+          <div className="flex-shrink-0 w-[280px] snap-start bg-white rounded-3xl shadow-md border border-elite-burgundy/8 p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-elite-burgundy/10 flex items-center justify-center">
+                <Clock className="w-4.5 h-4.5 text-elite-burgundy" />
+              </div>
+              <h3 className="font-calistoga text-elite-burgundy text-base font-bold">No Email?</h3>
             </div>
-            <ul className="space-y-2 text-xs sm:text-sm">
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">→</span>
-                <span>Check your spam folder</span>
-              </li>
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">→</span>
-                <span>Verify the email address</span>
-              </li>
-              <li className="font-cabin text-elite-black/80 flex items-start gap-2">
-                <span className="flex-shrink-0">→</span>
-                <span>Wait 1-2 minutes and refresh</span>
-              </li>
+            <ul className="space-y-2.5">
+              {["Check your spam folder", "Verify the email address", "Wait 1-2 minutes"].map((item, i) => (
+                <li key={i} className="font-cabin text-elite-black/70 text-xs flex items-center gap-2.5">
+                  <span className="w-4 h-4 rounded-full bg-elite-burgundy/10 flex items-center justify-center text-elite-burgundy text-[10px]">→</span>
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-3 sm:gap-4">
+        {/* Action Buttons - Rounded pill style */}
+        <div className="space-y-3">
           <Link
             href="/auth/signin"
-            className="w-full bg-elite-burgundy hover:opacity-90 text-elite-cream font-cabin font-semibold text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-2xl sm:rounded-3xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            className="w-full bg-elite-burgundy text-elite-cream font-cabin font-bold text-sm py-4.5 px-6 rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-elite-burgundy/25 active:scale-[0.97] transition-all touch-manipulation"
           >
-            <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+            <RefreshCw className="w-4 h-4" />
             <span>Try Different Email</span>
           </Link>
+          
           <Link
             href="/"
-            className="w-full bg-elite-cream border-2 border-elite-burgundy text-elite-burgundy hover:bg-elite-burgundy/5 font-cabin font-semibold text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-2xl sm:rounded-3xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 group"
+            className="w-full bg-white border-2 border-elite-burgundy/15 text-elite-burgundy font-cabin font-bold text-sm py-4.5 px-6 rounded-full flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.97] transition-all touch-manipulation"
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+            <ArrowLeft className="w-4 h-4" />
             <span>Back to Shop</span>
           </Link>
         </div>
@@ -155,8 +171,8 @@ export default function VerifyRequestPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-elite-burgundy flex items-center justify-center">
-          <div className="text-elite-cream font-cabin text-xl">Loading...</div>
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
+          <div className="w-12 h-12 border-3 border-elite-burgundy border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

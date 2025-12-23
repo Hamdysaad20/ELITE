@@ -155,6 +155,59 @@ export class OdooClient {
     return this.rpc<T[]>(model, "search_read", [domain], options);
   }
 
+  /**
+   * Search for a pricelist by name
+   */
+  async findPricelistByName(name: string): Promise<number | null> {
+    const pricelists = await this.searchRead<{ id: number; name: string }>(
+      "product.pricelist",
+      [["name", "=", name], ["active", "=", true]],
+      ["id", "name"],
+      { limit: 1 },
+    );
+    return pricelists && pricelists.length > 0 ? pricelists[0].id : null;
+  }
+
+  /**
+   * Get all active pricelists (for deals)
+   */
+  async getAllActivePricelists(): Promise<Array<{ id: number; name: string }>> {
+    return this.searchRead<{ id: number; name: string }>(
+      "product.pricelist",
+      [["active", "=", true]],
+      ["id", "name"],
+    );
+  }
+
+  /**
+   * Get product price with pricelist context
+   * This uses Odoo's price_get method which respects pricelists
+   * 
+   * Note: Odoo's price_get signature is: price_get(product_ids, pricelist_id, qty, partner_id, uom_id, date)
+   * We use a simplified version with just product_ids, pricelist_id, and qty
+   */
+  async getProductPriceWithPricelist(
+    productId: number,
+    pricelistId: number,
+    qty: number = 1,
+  ): Promise<number> {
+    try {
+      const uid = await this.authenticate();
+      // Odoo price_get returns a dict: { productId: { price: value, ... } }
+      const result = await this.rpc<Record<number, { price: number }>>(
+        "product.product",
+        "price_get",
+        [[productId], pricelistId, qty],
+      );
+      // Extract price from result
+      const priceData = result[productId];
+      return priceData?.price || 0;
+    } catch (error) {
+      console.error(`[OdooClient] Failed to get price for product ${productId} with pricelist ${pricelistId}:`, error);
+      return 0;
+    }
+  }
+
   /** Generic search_count helper */
   async searchCount(model: string, domain: any[] = []): Promise<number> {
     return this.rpc<number>(model, "search_count", [domain]);

@@ -11,6 +11,8 @@ type ProductRecord = {
   categ_id?: any;
   active?: boolean;
   sale_ok?: boolean;
+  available_in_pos?: boolean;
+  website_published?: boolean; // Primary field for controlling website visibility
   image_128?: string | boolean;
   image_1024?: string | boolean;
   image_1920?: string | boolean;
@@ -21,6 +23,7 @@ type ProductRecord = {
 
 type ProductTemplateRecord = {
   id: number;
+  available_in_pos?: boolean;
   image_128?: string | boolean;
   image_1024?: string | boolean;
   image_1920?: string | boolean;
@@ -54,10 +57,14 @@ function normalizeProduct(
   const categoryName = Array.isArray(rec.categ_id) ? rec.categ_id[1] : undefined;
   
   const categoryDetail = categoriesRaw.find(c => c.id === categoryId);
-  const available = rec.active !== false && rec.sale_ok !== false;
   
   const templateId = Array.isArray(rec.product_tmpl_id) ? rec.product_tmpl_id[0] : rec.product_tmpl_id;
   const template = templateId && templateImages ? templateImages.get(templateId) : null;
+  
+  // Product availability: active and sale_ok
+  // Note: available_in_pos is not used here because products can be available for both website and POS
+  const available = rec.active !== false && rec.sale_ok !== false;
+  
   const attributes = templateId && attributesByTemplate ? attributesByTemplate.get(templateId) : undefined;
   
   const image1024 = (rec.image_1024 && typeof rec.image_1024 === 'string') 
@@ -158,12 +165,14 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     const limit = Number.isFinite(limitEnv) && limitEnv > 0 ? limitEnv : undefined;
 
     const productFields = [
-      "id", "name", "default_code", "list_price", "categ_id", "active", "sale_ok",
+      "id", "name", "default_code", "list_price", "categ_id", "active", "sale_ok", "available_in_pos",
+      "website_published", // Primary field for controlling website visibility (recommended approach)
       "image_128", "image_1024", "image_1920", "uom_id", "taxes_id", "product_tmpl_id",
       "description_sale", "qty_available", "virtual_available", "sequence",
     ];
 
     // 1. Fetch Products and Categories in parallel (Independent)
+    // Filter: sale_ok=true (we'll filter POS-only variants using website_published field and name patterns)
     const [productsRaw, categoriesRaw] = await Promise.all([
       client.searchRead<ProductRecord>(
         "product.product",
@@ -192,7 +201,7 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
         ? client.searchRead<ProductTemplateRecord>(
             "product.template",
             [["id", "in", templateIds]],
-            ["id", "image_128", "image_1024", "image_1920", "attribute_line_ids"]
+            ["id", "available_in_pos", "image_128", "image_1024", "image_1920", "attribute_line_ids"]
           )
         : Promise.resolve([]),
       templateIds.length > 0
@@ -229,7 +238,63 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
       });
     }
 
-    const products = productsRaw.map(p => normalizeProduct(p, templateImages, categoriesRaw, attributesByTemplate));
+    /**
+     * Filter out POS-only products using a data-driven approach.
+     * 
+     * PRIMARY METHOD (Recommended): Use Odoo's `website_published` field
+     * - Set `website_published = false` in Odoo for products that should not appear on the website
+     * - This is the most maintainable and robust approach
+     * - Products with `website_published = false` are excluded from the website catalog
+     * 
+     * FALLBACK METHOD (Legacy): Regex patterns on product names
+     * - Used as a fallback when `website_published` is not set (undefined/null)
+     * - This is brittle and can break if product naming conventions change
+     * - Consider migrating to `website_published` field in Odoo for long-term maintainability
+     * 
+     * To configure in Odoo:
+     * 1. Go to Inventory > Products > [Product]
+     * 2. In the "Sales" tab, uncheck "Published on Website" (website_published field)
+     * 3. This will exclude the product from website sync automatically
+     */
+    const posOnlyVariantPatterns = [
+      /turkish coffee single/i,
+      /turkish coffee double/i,
+      /spanish latte.*single/i,
+      /spanish latte.*double/i,
+    ];
+    
+    // Filter out POS-only variant products before normalization
+    const websiteProductsRaw = productsRaw.filter(p => {
+      // PRIMARY: Use website_published field if available (data-driven approach)
+      // If website_published is explicitly false, exclude the product
+      if (p.website_published === false) {
+        return false;
+      }
+      
+      // If website_published is explicitly true, include the product
+      if (p.website_published === true) {
+        return true;
+      }
+      
+      // FALLBACK: When website_published is undefined/null, use regex patterns (legacy behavior)
+      // This maintains backward compatibility while encouraging migration to website_published
+      const name = p.name?.toLowerCase() || '';
+      const matchesPosOnlyPattern = posOnlyVariantPatterns.some(pattern => pattern.test(name));
+      
+      if (matchesPosOnlyPattern) {
+        console.warn(
+          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern. ` +
+          `Consider setting website_published=false in Odoo for a more robust solution.`
+        );
+        return false;
+      }
+      
+      return true;
+    });
+    
+    const products = websiteProductsRaw
+      .map(p => normalizeProduct(p, templateImages, categoriesRaw, attributesByTemplate))
+      .filter(p => p.available !== false); // Final filter to exclude inactive/unavailable products
     
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach(cat => {
@@ -248,6 +313,10 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     // Cache for 7 days (long TTL to avoid "first hit penalty")
     // We rely on background sync to keep data fresh (Soft TTL)
     const cacheTTL = 60 * 60 * 24 * 7;
+
+    // Clear old product cache keys before writing new data (cleanup)
+    // Note: We don't delete all keys to avoid race conditions, but we overwrite the main ones
+    console.log(`[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`);
 
     await redisSet("categories:list", categories, cacheTTL);
 

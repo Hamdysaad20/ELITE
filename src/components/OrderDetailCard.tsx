@@ -149,6 +149,11 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   const { success, error: showError, info } = useToast();
   const router = useRouter();
 
+  // Handle contact support - opens Facebook Messenger
+  const handleContactSupport = () => {
+    window.open("https://m.me/61577901386334", "_blank");
+  };
+
   if (loading) {
     return (
       <div className="space-y-4 animate-fadeIn">
@@ -303,11 +308,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       setCopiedTracking(true);
       setTimeout(() => setCopiedTracking(false), 2000);
     }
-  };
-
-  // Handle contact support - opens Facebook Messenger
-  const handleContactSupport = () => {
-    window.open("https://m.me/61577901386334", "_blank");
   };
 
   // Handle reorder click - check if cart has items
@@ -714,7 +714,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                         src={itemImage}
                         alt={itemName}
                         fill={true}
-                        sizes="(max-width: 640px) 96px, 112px"
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         fallbackSrc=""
                       />

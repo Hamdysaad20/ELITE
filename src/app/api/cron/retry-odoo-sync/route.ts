@@ -110,16 +110,24 @@ export async function GET(request: NextRequest) {
         const enablePos = order.odooStatusPos === "failed";
 
         // Build address info if available
-        let addressInfo: any = null;
+        let addressInfo: {
+          street?: string;
+          apartment?: string;
+          city?: string;
+          state?: string;
+          zip?: string;
+          phone?: string;
+          notes?: string;
+        } | null = null;
         if (order.address) {
           addressInfo = {
-            street: order.address.street,
-            apartment: order.address.apartment,
-            city: order.address.city,
-            state: order.address.state,
-            zip: order.address.zipCode,
-            phone: order.address.phone,
-            notes: order.address.notes,
+            street: order.address.street ?? undefined,
+            apartment: order.address.apartment ?? undefined,
+            city: order.address.city ?? undefined,
+            state: order.address.state ?? undefined,
+            zip: order.address.zipCode ?? undefined,
+            phone: order.address.phone ?? undefined,
+            notes: order.address.notes ?? undefined,
           };
         }
 
@@ -207,8 +215,8 @@ export async function GET(request: NextRequest) {
     return jsonResponse(
       successResponse(results, "Odoo sync retry job completed"),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to run retry job";
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Failed to run retry job";
     console.error("[cron:retry-odoo-sync] Job failed:", err);
     return jsonResponse(errorResponse(msg), 500);
   }

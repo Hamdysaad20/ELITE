@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Skeleton } from "../Skeleton";
 
 interface ProductCardSkeletonProps {
   className?: string;
@@ -12,42 +13,41 @@ export default function ProductCardSkeleton({
   size = "medium",
 }: ProductCardSkeletonProps) {
   const sizeClasses = {
-    small: "h-52",
-    medium: "h-60",
-    large: "h-68",
+    small: "h-48 sm:h-52",
+    medium: "h-56 sm:h-64",
+    large: "h-64 sm:h-72",
   };
 
   return (
     <div
       className={cn(
-        "relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-md",
-        "animate-pulse",
+        "relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-elite-burgundy/5",
         className
       )}
     >
-      {/* Image skeleton */}
-      <div className={cn("w-full bg-elite-dark-cream", sizeClasses[size])} />
-
-      {/* Content skeleton */}
-      <div className="p-4 space-y-3">
-        {/* Title */}
-        <div className="h-5 bg-elite-dark-cream rounded w-3/4" />
-
-        {/* Description */}
-        <div className="space-y-2">
-          <div className="h-3 bg-elite-dark-cream rounded w-full" />
-          <div className="h-3 bg-elite-dark-cream rounded w-2/3" />
-        </div>
-
-        {/* Price and button */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="h-6 bg-elite-dark-cream rounded w-20" />
-          <div className="h-10 w-10 bg-elite-dark-cream rounded-full" />
-        </div>
+      {/* Image skeleton with inner padding like real cards */}
+      <div className="p-3 sm:p-4">
+        <Skeleton 
+          className={cn("w-full rounded-2xl", sizeClasses[size])} 
+          variant="shimmer"
+          rounded="xl"
+        />
       </div>
 
-      {/* Shimmer effect */}
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      {/* Content skeleton */}
+      <div className="px-4 sm:px-6 pb-4 space-y-3">
+        {/* Title */}
+        <Skeleton className="h-6 sm:h-7 w-4/5" rounded="lg" />
+
+        {/* Price */}
+        <Skeleton className="h-7 sm:h-8 w-28" rounded="lg" />
+
+        {/* Buttons row */}
+        <div className="flex items-center gap-2 pt-2">
+          <Skeleton className="h-11 w-20 flex-shrink-0" rounded="full" />
+          <Skeleton className="h-11 flex-1" rounded="full" />
+        </div>
+      </div>
     </div>
   );
 }

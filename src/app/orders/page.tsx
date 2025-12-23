@@ -101,11 +101,11 @@ export default function OrdersPage() {
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <MobileHeader title="My Orders" showBack={true} />
       
-      <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4 md:space-y-6">
+      <main className="min-h-screen bg-elite-cream pb-28 md:pb-8 pt-16 md:pt-0">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-8 space-y-3 md:space-y-6">
           
-          {/* Page Header with Breadcrumbs */}
-          <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-3xl p-4 sm:p-6 space-y-3">
+          {/* Page Header - Compact on mobile */}
+          <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-2xl md:rounded-3xl p-4 sm:p-6 space-y-2 md:space-y-3">
             {/* Back Button - Hidden on mobile */}
             <Link
               href="/profile"
@@ -117,8 +117,8 @@ export default function OrdersPage() {
               <span className="font-cabin text-sm font-semibold">Back to Profile</span>
             </Link>
 
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm font-cabin">
+            {/* Breadcrumbs - Hidden on mobile */}
+            <div className="hidden md:flex items-center gap-2 text-sm font-cabin">
               <Link href="/" className="text-elite-cream/60 hover:text-elite-cream transition-colors">
                 Home
               </Link>
@@ -131,11 +131,11 @@ export default function OrdersPage() {
             </div>
 
             {/* Page Title */}
-            <h1 className="font-calistoga text-3xl sm:text-4xl text-elite-cream">
+            <h1 className="font-calistoga text-2xl sm:text-3xl md:text-4xl text-elite-cream">
               My Orders
             </h1>
-            <p className="font-cabin text-elite-cream/80">
-              Track your orders, view savings, and earn rewards
+            <p className="font-cabin text-elite-cream/70 text-sm md:text-base">
+              Track orders & earn rewards
             </p>
           </div>
 

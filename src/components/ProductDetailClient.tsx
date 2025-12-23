@@ -204,12 +204,12 @@ export default function ProductDetailClient({
   // Render component
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with Back Button */}
-      <div className="bg-elite-burgundy text-elite-cream py-8 pb-16">
+      {/* Header - Hidden on mobile (using MobileHeader) */}
+      <div className="hidden md:block bg-elite-burgundy text-elite-cream py-6 pb-14">
         <div className="max-w-7xl mx-auto px-6">
           <Link
             href="/menu"
-            className="inline-flex items-center gap-2 bg-elite-cream/20 text-elite-cream px-4 py-2 rounded-full font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30 hover:scale-105"
+            className="inline-flex items-center gap-2 bg-elite-cream/20 text-elite-cream px-4 py-2 rounded-full font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Menu
@@ -218,77 +218,77 @@ export default function ProductDetailClient({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-elite-cream rounded-t-[2.5rem] -mt-8">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Image Section */}
+      <div className="flex-1 bg-elite-cream md:rounded-t-[2.5rem] md:-mt-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 md:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
+          {/* Image Section - Compact on mobile */}
           <div className="relative lg:sticky lg:top-32 h-fit">
-            <div className="aspect-square bg-elite-cream relative rounded-3xl overflow-hidden">
+            <div className="aspect-square bg-gradient-to-b from-elite-cream to-elite-burgundy/5 relative rounded-3xl overflow-hidden">
               {/* Main Image Container */}
-              <div className="absolute inset-0 bg-gradient-to-b from-elite-burgundy/5 to-elite-burgundy/10 rounded-3xl flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center">
                 {hasImages ? (
                   <div className="relative w-full h-full">
                     <Image
                       src={displayImages[currentImageIndex]}
                       alt={product.name}
                       fill
-                      className="object-contain p-8"
+                      className="object-contain p-4 md:p-8"
                       priority
                     />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-elite-burgundy/40">
-                    <Package className="w-24 h-24 mb-4" />
-                    <p className="font-cabin text-sm">No image available</p>
+                    <Package className="w-16 h-16 md:w-24 md:h-24 mb-3" />
+                    <p className="font-cabin text-xs md:text-sm">No image available</p>
                   </div>
                 )}
               </div>
 
-              {/* Stock Badge */}
-              <div className="absolute top-6 right-6 z-10">
+              {/* Stock Badge - Compact on mobile */}
+              <div className="absolute top-3 right-3 md:top-6 md:right-6 z-10">
                 {product.available ? (
-                  <div className="bg-elite-burgundy text-elite-cream px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg flex items-center gap-2">
-                    <div className="w-2 h-2 bg-elite-cream rounded-full animate-pulse"></div>
+                  <div className="bg-elite-burgundy text-elite-cream px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-elite-cream rounded-full animate-pulse" />
                     In Stock
                   </div>
                 ) : (
-                  <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg">
-                    Out of Stock
+                  <div className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md">
+                    Sold Out
                   </div>
                 )}
               </div>
 
-              {/* Image Navigation */}
+              {/* Image Navigation - Touch friendly */}
               {hasMultipleImages && (
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-20"
+                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft className="w-6 h-6" />
+                    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-20"
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
                     aria-label="Next image"
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </>
               )}
 
-              {/* Image Indicators */}
+              {/* Image Indicators - Smaller on mobile */}
               {hasMultipleImages && (
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 z-20">
+                <div className="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-20">
                   {product.images.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${
                         index === currentImageIndex
                           ? "bg-elite-burgundy scale-125"
-                          : "bg-elite-burgundy/50 hover:bg-elite-burgundy/75"
+                          : "bg-elite-burgundy/40"
                       }`}
                       aria-label={`View image ${index + 1}`}
                     />
@@ -297,16 +297,16 @@ export default function ProductDetailClient({
               )}
             </div>
 
-            {/* Thumbnail Gallery (if multiple images) */}
+            {/* Thumbnail Gallery - Hidden on mobile for cleaner UX */}
             {hasMultipleImages && (
-              <div className="mt-4 grid grid-cols-4 gap-3">
+              <div className="hidden md:grid mt-4 grid-cols-4 gap-3">
                 {product.images.slice(0, 4).map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
                       index === currentImageIndex
-                        ? "border-elite-burgundy shadow-lg scale-105"
+                        ? "border-elite-burgundy shadow-lg"
                         : "border-elite-burgundy/20 hover:border-elite-burgundy/50"
                     }`}
                   >
@@ -323,38 +323,38 @@ export default function ProductDetailClient({
             )}
           </div>
 
-          {/* Product Information */}
-          <div className="space-y-8">
+          {/* Product Information - Compact mobile layout */}
+          <div className="space-y-5 md:space-y-8">
             {/* Header Section */}
-            <div className="space-y-4">
+            <div className="space-y-2 md:space-y-4">
               {product.category && (
                 <Link
                   href={`/menu?category=${product.category.id}`}
-                  className="inline-flex items-center gap-1 text-elite-burgundy/60 hover:text-elite-burgundy font-cabin text-base font-medium uppercase tracking-wider transition-colors"
+                  className="inline-flex items-center gap-1 text-elite-burgundy/60 active:text-elite-burgundy font-cabin text-xs md:text-sm font-semibold uppercase tracking-wider transition-colors touch-manipulation"
                 >
                   {product.category.name}
                 </Link>
               )}
               
-              <h1 className="font-calistoga text-elite-burgundy text-4xl lg:text-5xl font-bold leading-tight">
+              <h1 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
                 {product.name}
               </h1>
 
-              {/* Description - Moved up for better context */}
+              {/* Description */}
               {product.description && (
-                <p className="font-cabin text-elite-black/70 text-lg leading-relaxed">
+                <p className="font-cabin text-elite-black/60 text-sm md:text-base leading-relaxed">
                   {product.description}
                 </p>
               )}
 
               {/* Base Price */}
-              <div className="flex items-baseline gap-2 pt-2">
-                <span className="font-calistoga text-elite-burgundy text-3xl">
-                  {product.price} EGP
+              <div className="flex items-baseline gap-2 pt-1">
+                <span className="font-calistoga text-elite-burgundy text-2xl md:text-3xl">
+                  EGP {product.price}
                 </span>
                 {product.attributes && Object.keys(product.attributes).length > 0 && (
-                  <span className="font-cabin text-elite-black/40 text-base">
-                    Base Price
+                  <span className="font-cabin text-elite-black/40 text-xs md:text-sm">
+                    starting price
                   </span>
                 )}
               </div>
@@ -363,10 +363,10 @@ export default function ProductDetailClient({
             <div className="h-px bg-elite-burgundy/10 w-full" />
 
             {/* Configuration Section */}
-            <div className="space-y-8">
+            <div className="space-y-5 md:space-y-8">
               {/* Attributes */}
               {product.attributes && Object.keys(product.attributes).length > 0 && (
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {Object.entries(product.attributes).map(([attributeName, values]) => (
                     <AttributeSelector
                       key={attributeName}
@@ -385,51 +385,49 @@ export default function ProductDetailClient({
                 </div>
               )}
 
-              {/* Quantity & Total & Action - Grouped in a card for better UX */}
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="w-full sm:w-auto">
-                    <QuantitySelector
-                      value={quantity}
-                      onChange={setQuantity}
-                      min={1}
-                      max={50}
-                      disabled={!product.available}
-                    />
-                  </div>
+              {/* Quantity & Total - Compact row on mobile */}
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  <QuantitySelector
+                    value={quantity}
+                    onChange={setQuantity}
+                    min={1}
+                    max={50}
+                    disabled={!product.available}
+                  />
                   
-                  <div className="text-center sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
-                    <p className="font-cabin text-lg text-elite-black/50 mb-1">Total Price</p>
-                    <p className="font-calistoga text-4xl text-elite-burgundy">
-                      {calculateTotalPrice()} EGP
+                  <div className="text-right">
+                    <p className="font-cabin text-xs md:text-sm text-elite-black/50">Total</p>
+                    <p className="font-calistoga text-xl md:text-3xl text-elite-burgundy">
+                      EGP {calculateTotalPrice()}
                     </p>
                   </div>
                 </div>
 
-                {/* Add to Cart Button */}
+                {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
                 <button
                   onClick={handleAddToCart}
                   disabled={!product.available || addedToCart}
                   className={cn(
-                    "w-full py-4 rounded-xl font-calistoga text-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform active:scale-[0.98]",
+                    "w-full py-4 md:py-5 rounded-2xl md:rounded-3xl font-cabin font-bold text-base md:text-lg transition-all duration-300 flex items-center justify-center gap-2.5 shadow-xl active:scale-[0.97] touch-manipulation",
                     !product.available
                       ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
                       : addedToCart
-                        ? 'bg-green-600 text-white'
-                        : 'bg-elite-burgundy text-elite-cream hover:opacity-90'
+                        ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                        : 'bg-elite-burgundy text-elite-cream shadow-elite-burgundy/30 hover:shadow-2xl'
                   )}
                 >
                   {!product.available ? (
-                    'Temporarily Unavailable'
+                    'Sold Out'
                   ) : addedToCart ? (
                     <>
-                      <Check className="w-6 h-6" />
-                      Added to Cart
+                      <Check className="w-5 h-5 animate-bounce" />
+                      Added to Cart!
                     </>
                   ) : (
                     <>
-                      <ShoppingCart className="w-6 h-6" />
-                      Add to Order
+                      <ShoppingCart className="w-5 h-5" />
+                      Add to Cart
                     </>
                   )}
                 </button>

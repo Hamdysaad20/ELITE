@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Skeleton } from "../Skeleton";
 
 interface CategoryPillSkeletonProps {
   className?: string;
@@ -11,22 +12,21 @@ export default function CategoryPillSkeleton({
   className,
   count = 5,
 }: CategoryPillSkeletonProps) {
-  // Generate random widths for variety
-  const widths = ["w-24", "w-32", "w-28", "w-36", "w-20"];
+  // Generate varied widths for natural look
+  const widths = ["w-20", "w-28", "w-24", "w-32", "w-26"];
 
   return (
-    <div className={cn("flex gap-3 py-4 px-2", className)}>
+    <div className={cn("flex gap-2.5 py-3 overflow-x-auto scrollbar-hide -mx-4 px-4", className)}>
       {Array.from({ length: count }).map((_, index) => (
-        <div
+        <Skeleton
           key={index}
           className={cn(
-            "relative h-12 bg-elite-dark-cream rounded-xl animate-pulse overflow-hidden",
+            "h-11 flex-shrink-0",
             widths[index % widths.length]
           )}
-        >
-          {/* Shimmer effect */}
-          <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-        </div>
+          rounded="full"
+          variant="shimmer"
+        />
       ))}
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Check } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
@@ -24,6 +24,7 @@ export default function ProductModal({
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, number>>({});
   const [isAdding, setIsAdding] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   // Reset state when product changes
   useEffect(() => {
@@ -99,7 +100,12 @@ export default function ProductModal({
         image: sanitizeImages(product.images)[0]
       });
 
-      onClose();
+      setJustAdded(true);
+      // Brief success feedback before closing
+      setTimeout(() => {
+        onClose();
+        setJustAdded(false);
+      }, 600);
     } catch (error) {
       console.error("Failed to add to cart:", error);
     } finally {
@@ -220,15 +226,28 @@ export default function ProductModal({
 
           <button
             onClick={handleAddToCart}
-            disabled={isAdding}
-            className="mt-3 w-full bg-elite-burgundy text-elite-cream py-4 sm:py-5 rounded-xl font-cabin font-bold text-base sm:text-lg shadow-lg hover:opacity-90 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed touch-manipulation min-h-[56px]"
+            disabled={isAdding || justAdded}
+            className={cn(
+              "mt-3 w-full py-4 rounded-2xl font-cabin font-bold text-base shadow-lg transition-all flex items-center justify-center gap-3 touch-manipulation min-h-[56px] active:scale-[0.98]",
+              justAdded 
+                ? "bg-emerald-500 text-white shadow-emerald-500/25"
+                : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70"
+            )}
           >
-            {isAdding ? (
-              <span className="animate-pulse">Adding to Order...</span>
+            {justAdded ? (
+              <>
+                <Check className="w-5 h-5" />
+                <span>Added!</span>
+              </>
+            ) : isAdding ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
+                <span>Adding...</span>
+              </div>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />
-                <span>Add to Order</span>
+                <span>Add to Order • EGP {totalPrice.toFixed(2)}</span>
               </>
             )}
           </button>
