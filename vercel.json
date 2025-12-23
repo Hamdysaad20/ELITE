@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/retry-odoo-sync",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 3 * * *"
     }
   ],
   "env": {
