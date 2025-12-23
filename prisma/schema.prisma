@@ -31,6 +31,12 @@ model User {
   orderPoints        OrderPoints[]
   pointsTransactions PointsTransaction[]
   
+  // Gamification relations
+  achievements   UserAchievement[]
+  streaks       UserStreak[]
+  badges         UserBadge[]
+  rewardEvents   RewardEvent[]
+  
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -493,4 +499,154 @@ model PosConfig {
   defaultCategory String?  // ID of the default category to show
   
   updatedAt       DateTime @updatedAt
+}
+
+// Gamification Models
+
+model Achievement {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  description   String
+  category      String
+  icon          String?
+  tier          String   @default("bronze")
+  
+  requirementType String
+  requirementValue Int
+  requirementData Json?
+  
+  rewards       AchievementReward[]
+  userProgress  UserAchievement[]
+  
+  isActive      Boolean  @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([code])
+  @@index([category])
+  @@index([isActive])
+}
+
+model AchievementReward {
+  id            String   @id @default(uuid())
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  rewardType    String
+  rewardValue   Json
+  rewardName    String
+  
+  priority      Int      @default(0)
+  isActive      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([achievementId])
+  @@index([rewardType])
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  progress      Int      @default(0)
+  target        Int
+  isCompleted   Boolean  @default(false)
+  completedAt   DateTime?
+  
+  rewardsAwarded Json    @default("[]")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@index([isCompleted])
+}
+
+model UserStreak {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  streakType    String
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastActivityAt DateTime?
+  
+  gracePeriodHours Int   @default(4)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, streakType])
+  @@index([userId])
+  @@index([streakType])
+}
+
+model RewardEvent {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  triggerType   String
+  triggerId     String?
+  triggerData   Json?
+  
+  rewards       Json
+  status        String   @default("pending")
+  errorMessage  String?
+  
+  createdAt     DateTime @default(now())
+  processedAt   DateTime?
+  
+  @@index([userId])
+  @@index([triggerType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Badge {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  description   String
+  icon          String
+  category      String
+  rarity        String   @default("common")
+  
+  unlockType    String
+  unlockData    Json?
+  
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  userBadges    UserBadge[]
+  
+  @@index([code])
+  @@index([category])
+  @@index([rarity])
+}
+
+model UserBadge {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId       String
+  badge         Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  unlockedAt    DateTime @default(now())
+  isDisplayed    Boolean  @default(true)
+  
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@index([unlockedAt])
 }

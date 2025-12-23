@@ -7,7 +7,7 @@ import {
 import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
 import { getProductsSafe } from "@/server/services/product.service";
 import { isDealActive, getDealTimeWindowDescription } from "@/server/utils/deals/timeValidation";
-import { calculateDealPrice } from "@/server/utils/deals/priceConversion";
+import { calculateDealPrice, premiumRound } from "@/server/utils/deals/priceConversion";
 import { validateDiscount, clampDiscount, isLargeItem } from "@/server/utils/deals/discountValidation";
 import { validateDealProduct, sanitizeDealProduct } from "@/server/utils/deals/securityValidation";
 import type { DealProduct, ComboDeal, Deal } from "@/types/deals";
@@ -466,8 +466,8 @@ export async function GET(request: NextRequest) {
             dealPrice = calculateDealPrice(originalPrice, percentage);
           }
           
-          // Round to 2 decimal places
-          dealPrice = Math.round(dealPrice * 100) / 100;
+          // Apply premium rounding (round to nearest 5 EGP) for brand aesthetics
+          dealPrice = premiumRound(dealPrice);
           
           // Use server-side time validation result
           const dealActive = dealIsActive;
@@ -758,8 +758,11 @@ async function detectComboDeals(
       const MAX_COMBO_DISCOUNT = 30; // Max 30% for combos
       if (discountPercent > MAX_COMBO_DISCOUNT) {
         console.warn(`[DEALS API] Combo discount ${discountPercent.toFixed(1)}% exceeds max ${MAX_COMBO_DISCOUNT}%, clamping...`);
-        comboPrice = Math.round(originalTotal * (1 - MAX_COMBO_DISCOUNT / 100) * 100) / 100;
+        comboPrice = originalTotal * (1 - MAX_COMBO_DISCOUNT / 100);
       }
+      
+      // Apply premium rounding (round to nearest 5 EGP) for brand aesthetics
+      comboPrice = premiumRound(comboPrice);
       
       const savings = originalTotal - comboPrice;
       const savingsPercent = originalTotal > 0
