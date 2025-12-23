@@ -26,11 +26,18 @@ const MAX_RETRY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify cron secret (Vercel Cron sends this header)
+    // Verify cron secret (Vercel Cron sends this header) or admin token (GitHub Actions)
     const authHeader = request.headers.get("authorization");
+    const adminToken = request.headers.get("x-admin-token");
     const cronSecret = process.env.CRON_SECRET;
+    const expectedAdminToken = process.env.ADMIN_TOKEN;
     
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // Allow either CRON_SECRET (Vercel) or ADMIN_TOKEN (GitHub Actions)
+    const isAuthorized = 
+      (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+      (expectedAdminToken && adminToken === expectedAdminToken);
+    
+    if (!isAuthorized) {
       return jsonResponse(errorResponse("Unauthorized"), 401);
     }
 
