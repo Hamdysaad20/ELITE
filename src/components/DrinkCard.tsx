@@ -208,6 +208,20 @@ export default function DrinkCard({
             showErrorIcon={true}
           />
           
+          {/* FOMO Badge for Big Deals (on image corner) */}
+          {dealInfo && isDealsPage && dealInfo.savingsPercent >= 20 && (
+            <div className="absolute top-2 right-2 z-10">
+              <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white px-3 py-1.5 rounded-xl shadow-lg border-2 border-white/30 transform rotate-3 animate-pulse">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs sm:text-sm font-calistoga font-bold">
+                    🔥 {dealInfo.savingsPercent.toFixed(0)}% OFF
+                  </span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-700 rounded-full border-2 border-white/30"></div>
+              </div>
+            </div>
+          )}
+          
           {/* Unavailable overlay */}
           {!isAvailable && (
             <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
@@ -236,26 +250,28 @@ export default function DrinkCard({
           <div className="mt-2 space-y-1">
             {dealInfo && isDealsPage ? (
               // Deal page: Show deal details inside card
-              <div className="space-y-1">
-                {/* Original Price (strikethrough) */}
+              <div className="space-y-1.5">
+                {/* Original Price (strikethrough, grayed out) */}
                 {dealInfo.originalPrice > dealInfo.dealPrice && (
-                  <p className="text-xs font-cabin text-elite-black/50 line-through">
+                  <p className="text-xs sm:text-sm font-cabin text-elite-black/40 line-through">
                     {dealInfo.originalPrice.toFixed(0)} EGP
                   </p>
                 )}
                 
-                {/* Deal Price (prominent) */}
-                <div className="flex items-center gap-2 flex-wrap">
+                {/* Deal Price (bigger, more attractive) */}
+                <div className="flex items-baseline gap-2 flex-wrap">
                   <p className={cn(
-                    "font-cabin text-elite-burgundy font-bold",
-                    adaptivePriceSize
+                    "font-calistoga text-elite-burgundy font-bold leading-tight",
+                    dealInfo.savingsPercent >= 20 
+                      ? "text-xl sm:text-2xl" // Bigger for big deals
+                      : adaptivePriceSize
                   )}>
                     {dealInfo.dealPrice.toFixed(0)} EGP
                   </p>
                   
-                  {/* Savings Badge */}
-                  {dealInfo.savings > 0 && (
-                    <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-cabin font-semibold">
+                  {/* Savings Pill (only for deals < 20% - big deals have FOMO badge on image) */}
+                  {dealInfo.savings > 0 && dealInfo.savingsPercent < 20 && (
+                    <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-cabin font-bold">
                       Save {dealInfo.savingsPercent > 0 
                         ? `${dealInfo.savingsPercent.toFixed(0)}%` 
                         : `${dealInfo.savings.toFixed(0)} EGP`}
@@ -277,7 +293,7 @@ export default function DrinkCard({
                 adaptivePriceSize
               )}>
                 EGP {displayPrice.toFixed(0)}
-          </p>
+              </p>
             )}
           </div>
         )}

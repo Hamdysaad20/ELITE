@@ -82,6 +82,15 @@ export async function GET(request: NextRequest) {
     try {
       pricelists = await client.getAllActivePricelists();
       console.log(`[DEALS API ${requestId}] ✅ Found ${pricelists?.length || 0} active pricelist(s)`);
+      
+      // Sort pricelists to prioritize "General Deals" (process it last so it acts as fallback)
+      // This ensures products in specific deals appear in those deals, and others fall back to General Deals
+      pricelists.sort((a, b) => {
+        if (a.name === "General Deals") return 1; // Move to end (processed last)
+        if (b.name === "General Deals") return -1;
+        return 0; // Keep other order
+      });
+      console.log(`[DEALS API ${requestId}] ✅ Sorted pricelists (General Deals will be processed last as fallback)`);
     } catch (pricelistError) {
       console.error(`[DEALS API ${requestId}] ❌ Error fetching pricelists:`, pricelistError);
       return jsonResponse(
@@ -548,16 +557,27 @@ export async function GET(request: NextRequest) {
     }
     
     // Deduplicate products across all deals
+    // Note: "General Deals" is processed last, so it acts as a fallback for products
+    // that don't have specific deals. Products in specific deals take priority.
     console.log(`[DEALS API ${requestId}] Deduplicating products across ${deals.length} deal(s)...`);
     const seenProductIds = new Set<string>();
     const seenComboIds = new Set<string>();
 
     const deduplicatedDeals = deals.map(deal => {
+      // For "General Deals", only include products that aren't in other deals
+      // This makes it a fallback for products without specific deals
+      const isGeneralDeals = deal.name === "General Deals";
+      
       // Deduplicate regular products
       const uniqueProducts = deal.products.filter(product => {
         if (seenProductIds.has(product.id)) {
-          console.log(`[DEALS API ${requestId}] Skipping duplicate product: ${product.id} (${product.name})`);
-          return false;
+          if (isGeneralDeals) {
+            // For General Deals, silently skip duplicates (expected behavior)
+            return false;
+          } else {
+            console.log(`[DEALS API ${requestId}] Skipping duplicate product: ${product.id} (${product.name})`);
+            return false;
+          }
         }
         seenProductIds.add(product.id);
         return true;

@@ -20,10 +20,8 @@ export default function UserActivationCTA({ className }: UserActivationCTAProps)
 
   // Check profile completeness (simplified - expand later)
   // TODO: Add more comprehensive checks (phone, address, preferences, etc.)
-  const isProfileComplete = 
-    session.user.email &&
-    session.user.emailVerified &&
-    session.user.phone; // Add more checks as needed
+  // For now, just check if user has email (basic completeness)
+  const isProfileComplete = !!session.user.email;
 
   if (isProfileComplete) {
     return null; // Don't show if profile is complete

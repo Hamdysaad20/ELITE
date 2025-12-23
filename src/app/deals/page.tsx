@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDeals, DealProduct, Deal } from "@/hooks/useDeals";
 import { sanitizeImages } from "@/lib/imageUtils";
 import {
@@ -23,10 +23,12 @@ import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
 import { cn } from "@/lib/utils";
 import UserActivationCTA from "@/components/deals/UserActivationCTA";
+import DealSortFilter, { type DealSortOption } from "@/components/deals/DealSortFilter";
 
 export default function DealsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<DealSortOption>("discount-desc"); // Default: biggest discount first
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -62,12 +64,45 @@ export default function DealsPage() {
   };
 
   // Filter to only show active deals
-  const activeDeals = deals.filter(deal => deal.active && (
+  const activeDeals = (deals || []).filter(deal => deal.active && (
     deal.products.length > 0 || (deal.combos && deal.combos.length > 0)
   ));
 
   // Check if any deal is active
   const hasActiveDeals = activeDeals.length > 0;
+
+  // Sort products within each deal by discount (biggest first by default)
+  const sortedDeals = useMemo(() => {
+    return activeDeals.map(deal => {
+      const sortedProducts = [...deal.products].sort((a, b) => {
+        switch (sortBy) {
+          case "discount-desc":
+            return (b.savingsPercent || 0) - (a.savingsPercent || 0);
+          case "discount-asc":
+            return (a.savingsPercent || 0) - (b.savingsPercent || 0);
+          case "savings-desc":
+            return (b.savings || 0) - (a.savings || 0);
+          case "savings-asc":
+            return (a.savings || 0) - (b.savings || 0);
+          case "price-desc":
+            return (b.dealPrice || 0) - (a.dealPrice || 0);
+          case "price-asc":
+            return (a.dealPrice || 0) - (b.dealPrice || 0);
+          case "name-asc":
+            return (a.name || "").localeCompare(b.name || "");
+          case "name-desc":
+            return (b.name || "").localeCompare(a.name || "");
+          default:
+            return (b.savingsPercent || 0) - (a.savingsPercent || 0);
+        }
+      });
+
+      return {
+        ...deal,
+        products: sortedProducts,
+      };
+    });
+  }, [activeDeals, sortBy]);
 
   return (
     <>
@@ -102,7 +137,7 @@ export default function DealsPage() {
           <div className="relative bg-elite-cream pt-8 md:pt-12 min-h-[60vh]">
             <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
               {/* Status Banner */}
-              {!loading && !error && activeDeals.length > 0 && (
+              {!loading && !error && activeDeals && activeDeals.length > 0 && (
                 <div
                   className={cn(
                     "mb-6 rounded-2xl p-4 md:p-6 border-2",
@@ -123,6 +158,18 @@ export default function DealsPage() {
                 </div>
               )}
 
+              {/* Sort Filter */}
+              {!loading && !error && sortedDeals && sortedDeals.length > 0 && (
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <div className="flex-1" />
+                  <DealSortFilter
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                    productCount={totalProducts}
+                  />
+                </div>
+              )}
+
               {/* Loading State */}
               {loading && (
                 <div className="py-12">
@@ -136,7 +183,7 @@ export default function DealsPage() {
               )}
 
               {/* Empty State */}
-              {!loading && !error && activeDeals.length === 0 && (
+              {!loading && !error && (!activeDeals || activeDeals.length === 0) && (
                 <EmptyState
                   variant="no-products"
                   title="No Active Deals"
@@ -147,9 +194,9 @@ export default function DealsPage() {
               )}
 
               {/* Deals Content */}
-              {!loading && !error && activeDeals.length > 0 && (
+              {!loading && !error && sortedDeals && sortedDeals.length > 0 && (
                 <div className="space-y-12 md:space-y-16">
-                  {activeDeals.map((deal, dealIndex) => (
+                  {sortedDeals.map((deal, dealIndex) => (
                     <div key={deal.id} className="space-y-6">
                       {/* Deal Header */}
                       <div className="border-b border-elite-burgundy/20 pb-4">
@@ -244,7 +291,7 @@ export default function DealsPage() {
               )}
 
               {/* Info Box */}
-              {!loading && !error && activeDeals.length > 0 && (
+              {!loading && !error && activeDeals && activeDeals.length > 0 && (
                 <div className="mt-12 md:mt-16 bg-white/50 rounded-2xl p-6 md:p-8 border border-elite-burgundy/10">
                   <div className="flex items-start gap-4">
                     <AlertCircle className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
@@ -272,7 +319,7 @@ export default function DealsPage() {
               )}
 
               {/* User Activation CTA */}
-              {!loading && !error && activeDeals.length > 0 && (
+              {!loading && !error && activeDeals && activeDeals.length > 0 && (
                 <div className="mt-8 md:mt-12">
                   <UserActivationCTA />
                 </div>
