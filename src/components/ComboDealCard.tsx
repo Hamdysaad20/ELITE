@@ -183,45 +183,66 @@ export default function ComboDealCard({
           {combo.name}
         </h3>
 
-        {/* Items List */}
-        <div className="mb-3 space-y-1">
+        {/* Items List with Prices */}
+        <div className="mb-4 space-y-2 bg-elite-cream/30 rounded-xl p-3">
+          <p className="text-xs font-cabin font-semibold text-elite-black/70 mb-2">
+            Items included:
+          </p>
           {combo.items.map((item, idx) => (
-            <div key={item.id} className="flex items-center gap-2 text-xs sm:text-sm">
-              <span className="text-elite-burgundy font-semibold">•</span>
-              <span className="font-cabin text-elite-black/70 flex-1 line-clamp-1">
-                {item.name}
+            <div key={item.id} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-elite-burgundy font-semibold">•</span>
+                <span className="font-cabin text-elite-black/80 truncate">
+                  {item.name}
+                </span>
+              </div>
+              <span className="font-cabin text-elite-black/60 text-xs ml-2 flex-shrink-0">
+                {item.price.toFixed(0)} EGP
               </span>
             </div>
           ))}
         </div>
 
         {/* Price Section */}
-        <div className="mt-auto space-y-1.5">
-          {combo.dealActive && combo.savings > 0 ? (
-            <>
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
-                  EGP {combo.dealPrice.toFixed(0)}
-                </p>
+        <div className="mt-auto space-y-2 bg-white/50 rounded-xl p-4 border border-elite-burgundy/10">
+          {/* Original Total */}
+          <div className="flex items-center justify-between">
+            <span className="font-cabin text-elite-black/70 text-sm">
+              Original Total:
+            </span>
+            <span className="font-cabin text-elite-black/50 text-sm line-through">
+              {combo.originalTotal.toFixed(0)} EGP
+            </span>
+          </div>
+          
+          {/* Deal Price */}
+          <div className="flex items-center justify-between">
+            <span className="font-cabin text-elite-black/70 text-sm font-semibold">
+              Combo Price:
+            </span>
+            <span className="font-cabin text-elite-burgundy font-bold text-lg">
+              {combo.dealPrice.toFixed(0)} EGP
+            </span>
+          </div>
+          
+          {/* Divider */}
+          <div className="h-px bg-elite-burgundy/20 my-2" />
+          
+          {/* Savings (Prominent) */}
+          {combo.dealActive && combo.savings > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="font-cabin text-emerald-700 font-bold text-base">
+                You Save:
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-cabin text-emerald-700 font-bold text-base">
+                  {combo.savings.toFixed(0)} EGP
+                </span>
                 <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-cabin font-semibold">
-                  Save {combo.savingsPercent}%
+                  ({combo.savingsPercent.toFixed(0)}% off)
                 </span>
               </div>
-              <p className="text-xs font-cabin text-elite-black/50 line-through">
-                {combo.originalTotal.toFixed(0)} EGP
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
-                EGP {combo.dealPrice.toFixed(0)}
-              </p>
-              {!combo.dealActive && (
-                <p className="text-xs font-cabin text-amber-600">
-                  Deal: {combo.dealPrice.toFixed(0)} EGP
-                </p>
-              )}
-            </>
+            </div>
           )}
         </div>
 

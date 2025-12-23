@@ -22,6 +22,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
 import { cn } from "@/lib/utils";
+import UserActivationCTA from "@/components/deals/UserActivationCTA";
 
 export default function DealsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -60,8 +61,13 @@ export default function DealsPage() {
     };
   };
 
+  // Filter to only show active deals
+  const activeDeals = deals.filter(deal => deal.active && (
+    deal.products.length > 0 || (deal.combos && deal.combos.length > 0)
+  ));
+
   // Check if any deal is active
-  const hasActiveDeals = deals.some(deal => deal.active && deal.products.length > 0);
+  const hasActiveDeals = activeDeals.length > 0;
 
   return (
     <>
@@ -96,40 +102,21 @@ export default function DealsPage() {
           <div className="relative bg-elite-cream pt-8 md:pt-12 min-h-[60vh]">
             <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
               {/* Status Banner */}
-              {!loading && !error && deals.length > 0 && (
+              {!loading && !error && activeDeals.length > 0 && (
                 <div
                   className={cn(
                     "mb-6 rounded-2xl p-4 md:p-6 border-2",
-                    hasActiveDeals
-                      ? "bg-emerald-50 border-emerald-200"
-                      : "bg-amber-50 border-amber-200",
+                    "bg-emerald-50 border-emerald-200",
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <Sparkles className={cn(
-                      "w-6 h-6 flex-shrink-0 mt-0.5",
-                      hasActiveDeals ? "text-emerald-600" : "text-amber-600"
-                    )} />
+                    <Sparkles className="w-6 h-6 flex-shrink-0 mt-0.5 text-emerald-600" />
                     <div className="flex-1">
-                      <h3
-                        className={cn(
-                          "font-calistoga text-lg md:text-xl mb-1",
-                          hasActiveDeals ? "text-emerald-900" : "text-amber-900",
-                        )}
-                      >
-                        {hasActiveDeals
-                          ? `🎉 ${deals.length} Active Deal${deals.length !== 1 ? "s" : ""}!`
-                          : "⏰ Deals Available"}
+                      <h3 className="font-calistoga text-lg md:text-xl mb-1 text-emerald-900">
+                        {`🎉 ${activeDeals.length} Active Deal${activeDeals.length !== 1 ? "s" : ""}!`}
                       </h3>
-                      <p
-                        className={cn(
-                          "font-cabin text-sm md:text-base",
-                          hasActiveDeals ? "text-emerald-700" : "text-amber-700",
-                        )}
-                      >
-                        {hasActiveDeals
-                          ? `Enjoy special prices on ${totalProducts} item${totalProducts !== 1 ? "s" : ""} across ${deals.length} deal${deals.length !== 1 ? "s" : ""}`
-                          : "Browse our current deals and special offers"}
+                      <p className="font-cabin text-sm md:text-base text-emerald-700">
+                        {`Enjoy special prices on ${totalProducts} item${totalProducts !== 1 ? "s" : ""} across ${activeDeals.length} deal${activeDeals.length !== 1 ? "s" : ""}`}
                       </p>
                     </div>
                   </div>
@@ -149,20 +136,20 @@ export default function DealsPage() {
               )}
 
               {/* Empty State */}
-              {!loading && !error && isEmpty && (
+              {!loading && !error && activeDeals.length === 0 && (
                 <EmptyState
                   variant="no-products"
-                  title="No Deals Available"
-                  description="Deal products are being synchronized. Please check back soon or contact support."
+                  title="No Active Deals"
+                  description="There are no active deals at the moment. Check back soon for new offers!"
                   actionLabel="Refresh"
                   onAction={handleRetry}
                 />
               )}
 
               {/* Deals Content */}
-              {!loading && !error && deals.length > 0 && (
+              {!loading && !error && activeDeals.length > 0 && (
                 <div className="space-y-12 md:space-y-16">
-                  {deals.map((deal, dealIndex) => (
+                  {activeDeals.map((deal, dealIndex) => (
                     <div key={deal.id} className="space-y-6">
                       {/* Deal Header */}
                       <div className="border-b border-elite-burgundy/20 pb-4">
@@ -257,7 +244,7 @@ export default function DealsPage() {
               )}
 
               {/* Info Box */}
-              {!loading && !error && deals.length > 0 && (
+              {!loading && !error && activeDeals.length > 0 && (
                 <div className="mt-12 md:mt-16 bg-white/50 rounded-2xl p-6 md:p-8 border border-elite-burgundy/10">
                   <div className="flex items-start gap-4">
                     <AlertCircle className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
@@ -281,6 +268,13 @@ export default function DealsPage() {
                       </ul>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* User Activation CTA */}
+              {!loading && !error && activeDeals.length > 0 && (
+                <div className="mt-8 md:mt-12">
+                  <UserActivationCTA />
                 </div>
               )}
             </div>

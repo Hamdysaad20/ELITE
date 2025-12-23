@@ -547,8 +547,69 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // Deduplicate products across all deals
+    console.log(`[DEALS API ${requestId}] Deduplicating products across ${deals.length} deal(s)...`);
+    const seenProductIds = new Set<string>();
+    const seenComboIds = new Set<string>();
+
+    const deduplicatedDeals = deals.map(deal => {
+      // Deduplicate regular products
+      const uniqueProducts = deal.products.filter(product => {
+        if (seenProductIds.has(product.id)) {
+          console.log(`[DEALS API ${requestId}] Skipping duplicate product: ${product.id} (${product.name})`);
+          return false;
+        }
+        seenProductIds.add(product.id);
+        return true;
+      });
+
+      // Deduplicate combos
+      const uniqueCombos = deal.combos?.filter(combo => {
+        if (seenComboIds.has(combo.id)) {
+          console.log(`[DEALS API ${requestId}] Skipping duplicate combo: ${combo.id}`);
+          return false;
+        }
+        seenComboIds.add(combo.id);
+        return true;
+      });
+
+      return {
+        ...deal,
+        products: uniqueProducts,
+        combos: uniqueCombos,
+      };
+    });
+
+    // Also ensure products in combos are not shown as individual products
+    const productIdsInCombos = new Set<string>();
+    deduplicatedDeals.forEach(deal => {
+      deal.combos?.forEach(combo => {
+        combo.items.forEach(item => {
+          productIdsInCombos.add(item.id);
+        });
+      });
+    });
+
+    // Remove products that are part of combos from individual products list
+    const finalDeals = deduplicatedDeals.map(deal => ({
+      ...deal,
+      products: deal.products.filter(product => {
+        if (productIdsInCombos.has(product.id)) {
+          console.log(`[DEALS API ${requestId}] Removing product ${product.id} (${product.name}) - it's part of a combo`);
+          return false;
+        }
+        return true;
+      }),
+    }));
+
+    const duplicatesRemoved = deals.reduce((sum, d) => sum + d.products.length, 0) - 
+                             finalDeals.reduce((sum, d) => sum + d.products.length, 0);
+    if (duplicatesRemoved > 0) {
+      console.log(`[DEALS API ${requestId}] ✅ Removed ${duplicatesRemoved} duplicate product(s)`);
+    }
+    
     // If no deals found, return helpful message
-    if (deals.length === 0) {
+    if (finalDeals.length === 0) {
       console.log(`[DEALS API ${requestId}] ⚠️  No deals found after processing all pricelists`);
       return jsonResponse(
         successResponse({
@@ -558,14 +619,14 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const totalProducts = deals.reduce((sum, deal) => sum + deal.products.length, 0);
+    const totalProducts = finalDeals.reduce((sum, deal) => sum + deal.products.length, 0);
     const duration = Date.now() - startTime;
-    console.log(`[DEALS API ${requestId}] ✅ Success: Returning ${deals.length} deal(s) with ${totalProducts} product(s) (${duration}ms total)`);
+    console.log(`[DEALS API ${requestId}] ✅ Success: Returning ${finalDeals.length} deal(s) with ${totalProducts} product(s) (${duration}ms total)`);
     
     return jsonResponse(
       successResponse({
-        deals,
-        count: deals.length,
+        deals: finalDeals,
+        count: finalDeals.length,
         totalProducts,
       }),
     );

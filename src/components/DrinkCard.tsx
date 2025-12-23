@@ -233,41 +233,41 @@ export default function DrinkCard({
         
         {/* Price Display - Deal-aware */}
         {displayPrice !== null && (
-          <div className="space-y-0.5 sm:space-y-1">
+          <div className="mt-2 space-y-1">
             {dealInfo && isDealsPage ? (
               // Deal page: Show deal details inside card
               <div className="space-y-1">
-                {dealInfo.dealActive && dealInfo.savings > 0 ? (
-                  <>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className={cn(
-                        "font-cabin text-elite-burgundy font-bold",
-                        adaptivePriceSize
-                      )}>
-                        EGP {dealInfo.dealPrice.toFixed(0)}
-                      </p>
-                      <span className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-cabin font-semibold">
-                        Save {dealInfo.savingsPercent}%
-                      </span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs font-cabin text-elite-black/50 line-through">
-                      {dealInfo.originalPrice.toFixed(0)} EGP
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className={cn(
-                      "font-cabin text-elite-burgundy font-bold",
-                      adaptivePriceSize
-                    )}>
-                      EGP {displayPrice.toFixed(0)}
-                    </p>
-                    {!dealInfo.dealActive && dealInfo.dealPrice !== dealInfo.originalPrice && (
-                      <p className="text-[10px] sm:text-xs font-cabin text-amber-600">
-                        Deal: {dealInfo.dealPrice.toFixed(0)} EGP
-                      </p>
-                    )}
-                  </>
+                {/* Original Price (strikethrough) */}
+                {dealInfo.originalPrice > dealInfo.dealPrice && (
+                  <p className="text-xs font-cabin text-elite-black/50 line-through">
+                    {dealInfo.originalPrice.toFixed(0)} EGP
+                  </p>
+                )}
+                
+                {/* Deal Price (prominent) */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className={cn(
+                    "font-cabin text-elite-burgundy font-bold",
+                    adaptivePriceSize
+                  )}>
+                    {dealInfo.dealPrice.toFixed(0)} EGP
+                  </p>
+                  
+                  {/* Savings Badge */}
+                  {dealInfo.savings > 0 && (
+                    <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-cabin font-semibold">
+                      Save {dealInfo.savingsPercent > 0 
+                        ? `${dealInfo.savingsPercent.toFixed(0)}%` 
+                        : `${dealInfo.savings.toFixed(0)} EGP`}
+                    </span>
+                  )}
+                </div>
+                
+                {/* Deal Status Message */}
+                {!dealInfo.dealActive && (
+                  <p className="text-xs font-cabin text-amber-600 mt-1">
+                    Deal not currently active
+                  </p>
                 )}
               </div>
             ) : (
@@ -277,7 +277,7 @@ export default function DrinkCard({
                 adaptivePriceSize
               )}>
                 EGP {displayPrice.toFixed(0)}
-              </p>
+          </p>
             )}
           </div>
         )}
