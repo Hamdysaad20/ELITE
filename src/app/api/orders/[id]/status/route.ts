@@ -119,6 +119,46 @@ export async function PATCH(
       if (result) {
         console.log(`✅ Awarded ${result.pointsAwarded} points for order ${id}`);
       }
+
+      // Process gamification rewards (achievements, badges, streaks)
+      // Note: Deal detection will be enhanced in future iterations
+      // Idempotency: Check if rewards already processed for this order
+      try {
+        const { prisma: prismaClient } = await import("@/server/db/client");
+        const existingReward = await prismaClient.rewardEvent.findFirst({
+          where: {
+            userId: updatedOrder.userId,
+            triggerType: "deal_purchased",
+            triggerId: id,
+            status: { in: ["awarded", "pending"] },
+          },
+        });
+
+        if (!existingReward) {
+          const { processDealPurchaseRewards } = await import("@/server/services/gamification/dealRewards");
+          const orderWithItems = await prisma.order.findUnique({
+            where: { id },
+            include: { items: true },
+          });
+
+          if (orderWithItems && orderWithItems.items.length > 0) {
+            // For now, process generic deal purchase rewards
+            // Future: Detect specific deal types from order items
+            await processDealPurchaseRewards({
+              userId: updatedOrder.userId,
+              orderId: id,
+              dealType: "General Deals", // Will be enhanced to detect actual deal type
+              dealProducts: orderWithItems.items.map((item) => item.productId),
+              orderTotal: Number(orderWithItems.total),
+            });
+          }
+        } else {
+          console.log(`Rewards already processed for order ${id}`);
+        }
+      } catch (error) {
+        // Don't fail order update if gamification fails
+        console.error(`⚠️ Failed to process gamification rewards for order ${id}:`, error);
+      }
     }
 
     return jsonResponse(
