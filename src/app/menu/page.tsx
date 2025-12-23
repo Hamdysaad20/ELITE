@@ -382,7 +382,7 @@ export default function MenuPage() {
                             )}
 
                             {/* Subtle divider */}
-                            {catIndex < categories.filter(c => !activeCategory || c.id === activeCategory).length - 1 && (
+                            {catIndex < categories.filter(c => c !== null && (!activeCategory || c.id === activeCategory)).length - 1 && (
                               <div className="h-px bg-gradient-to-r from-transparent via-elite-burgundy/10 to-transparent mt-6" />
                             )}
                           </section>
@@ -459,7 +459,7 @@ export default function MenuPage() {
                                 )}
                               </div>
                             </div>
-                            {index < categories.filter(c => !activeCategory || c.id === activeCategory).length - 1 && (
+                            {index < categories.filter(c => c !== null && (!activeCategory || c.id === activeCategory)).length - 1 && (
                               <div className="h-px bg-elite-burgundy/10 mt-8" />
                             )}
                           </div>

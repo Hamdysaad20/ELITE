@@ -18,9 +18,8 @@ export default function MenuPageSkeleton() {
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton 
                 key={i} 
-                className="h-10 flex-shrink-0" 
+                className="h-10 flex-shrink-0 w-24" 
                 rounded="full" 
-                style={{ width: `${80 + Math.random() * 40}px` }}
               />
             ))}
           </div>
@@ -45,9 +44,8 @@ export default function MenuPageSkeleton() {
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-2 h-2" rounded="full" />
                       <Skeleton 
-                        className="h-5" 
+                        className="h-5 w-32" 
                         rounded="lg" 
-                        style={{ width: `${100 + Math.random() * 60}px` }} 
                       />
                     </div>
                   </div>

@@ -16,9 +16,16 @@ function useAdaptiveAnimation() {
     // Check for reduced motion preference
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Check for low-end device hints
-    const isSlowConnection = (navigator as any).connection?.effectiveType === "2g" || 
-                             (navigator as any).connection?.effectiveType === "slow-2g";
-    const hasLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory < 4;
+    interface NavigatorWithConnection extends Navigator {
+      connection?: {
+        effectiveType?: string;
+      };
+      deviceMemory?: number;
+    }
+    const nav = navigator as NavigatorWithConnection;
+    const isSlowConnection = nav.connection?.effectiveType === "2g" || 
+                             nav.connection?.effectiveType === "slow-2g";
+    const hasLowMemory = nav.deviceMemory !== undefined && nav.deviceMemory < 4;
     
     setIsLowEnd(prefersReduced || isSlowConnection || hasLowMemory);
   }, []);

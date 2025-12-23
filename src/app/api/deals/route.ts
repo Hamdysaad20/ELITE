@@ -188,9 +188,25 @@ export async function GET(request: NextRequest) {
         
         // Get pricelist items (include category-based rules)
         console.log(`[DEALS API ${requestId}] Fetching pricelist items for "${pricelist.name}"...`);
-        let pricelistItems;
+        let pricelistItems: Array<{
+          product_id?: number | [number, string] | false;
+          categ_id?: number | [number, string] | false;
+          fixed_price?: number;
+          compute_price?: string;
+          percent_price?: number;
+          date_start?: string;
+          date_end?: string;
+        }>;
         try {
-          pricelistItems = await client.searchRead<any>(
+          pricelistItems = await client.searchRead<{
+            product_id?: number | [number, string] | false;
+            categ_id?: number | [number, string] | false;
+            fixed_price?: number;
+            compute_price?: string;
+            percent_price?: number;
+            date_start?: string;
+            date_end?: string;
+          }>(
             "product.pricelist.item",
             [["pricelist_id", "=", pricelist.id]],
             ["product_id", "categ_id", "fixed_price", "compute_price", "percent_price", "date_start", "date_end"],
@@ -210,7 +226,7 @@ export async function GET(request: NextRequest) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
-        const validItems = pricelistItems.filter((item: any) => {
+        const validItems = pricelistItems.filter((item) => {
           // If date_start is set, check if today is after start date
           if (item.date_start) {
             const startDate = new Date(item.date_start);
@@ -247,14 +263,14 @@ export async function GET(request: NextRequest) {
         const productDealPercentages = new Map<number, number>();
         
         // Global rules (apply to all products)
-        let globalFixedPrice: number | null = null;
+        const globalFixedPrice: number | null = null; // Currently unused, reserved for future use
         let globalPercentage: number | null = null;
         
         for (const item of pricelistItems) {
           const computePrice = item.compute_price || "fixed";
           
           // Handle product-specific rules
-          if (item.product_id && item.product_id !== false) {
+          if (item.product_id && (typeof item.product_id === 'number' || Array.isArray(item.product_id))) {
             let productId: number | null = null;
             if (Array.isArray(item.product_id)) {
               productId = item.product_id[0];
@@ -271,7 +287,7 @@ export async function GET(request: NextRequest) {
             }
           }
           // Handle category-based rules
-          else if (item.categ_id && item.categ_id !== false) {
+          else if (item.categ_id && (typeof item.categ_id === 'number' || Array.isArray(item.categ_id))) {
             let categoryId: number | null = null;
             if (Array.isArray(item.categ_id)) {
               categoryId = item.categ_id[0];
@@ -553,18 +569,22 @@ export async function GET(request: NextRequest) {
         totalProducts,
       }),
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     const duration = Date.now() - startTime;
-    const msg = err?.message || "Failed to fetch deals";
+    const msg = err instanceof Error ? err.message : "Failed to fetch deals";
     console.error(`[DEALS API ${requestId}] ❌ FATAL ERROR after ${duration}ms:`, err);
     if (err instanceof Error) {
       console.error(`[DEALS API ${requestId}] Error stack:`, err.stack);
+      console.error(`[DEALS API ${requestId}] Error details:`, {
+        message: msg,
+        name: err.name,
+        code: (err as Error & { code?: string | number }).code,
+      });
+    } else {
+      console.error(`[DEALS API ${requestId}] Error details:`, {
+        message: msg,
+      });
     }
-    console.error(`[DEALS API ${requestId}] Error details:`, {
-      message: msg,
-      name: err?.name,
-      code: err?.code,
-    });
     return jsonResponse(errorResponse(msg), 500);
   }
 }
@@ -586,7 +606,10 @@ async function detectComboDeals(
   
   try {
     // Get all pricelist items for this pricelist
-    const pricelistItems = await client.searchRead<any>(
+    const pricelistItems = await client.searchRead<{
+      product_id?: number | [number, string] | false;
+      fixed_price?: number;
+    }>(
       "product.pricelist.item",
       [["pricelist_id", "=", pricelistId], ["compute_price", "=", "fixed"]],
       ["product_id", "fixed_price"]
@@ -601,7 +624,7 @@ async function detectComboDeals(
     const priceGroups = new Map<number, Array<{ productId: number; price: number }>>();
     
     for (const item of pricelistItems) {
-      if (!item.product_id || item.product_id === false || !item.fixed_price) {
+      if (!item.product_id || !(typeof item.product_id === 'number' || Array.isArray(item.product_id)) || !item.fixed_price) {
         continue;
       }
       

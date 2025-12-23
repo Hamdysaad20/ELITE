@@ -102,7 +102,7 @@ export function validateDealProduct(product: DealProduct): {
  * Sanitize and clamp deal product prices
  */
 export function sanitizeDealProduct(product: DealProduct): DealProduct {
-  let sanitized = { ...product };
+  const sanitized = { ...product };
 
   // Clamp prices to valid ranges
   sanitized.originalPrice = Math.max(MIN_PRICE, Math.min(MAX_PRICE, sanitized.originalPrice));

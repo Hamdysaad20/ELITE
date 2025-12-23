@@ -14,7 +14,8 @@ import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
-import ComboDealCard, { ComboDeal } from "@/components/ComboDealCard";
+import ComboDealCard from "@/components/ComboDealCard";
+import type { ComboDeal } from "@/types/deals";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
@@ -217,7 +218,7 @@ export default function DealsPage() {
                                 images={sanitizeImages(dealProduct.images)}
                                 name={dealProduct.name}
                                 price={displayPrice}
-                                description={dealProduct.description}
+                                description={dealProduct.description ?? undefined}
                                 available={
                                   dealProduct.available !== false && dealProduct.dealActive
                                 }

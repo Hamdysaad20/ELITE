@@ -28,8 +28,8 @@ export async function POST(_request: NextRequest) {
     return jsonResponse(
       successResponse(result.data, "Cache cleared and refreshed from Odoo"),
     );
-  } catch (err: any) {
-    const msg = err?.message || "Failed to clear cache";
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Failed to clear cache";
     console.error("[CACHE-CLEAR] Error:", err);
     return jsonResponse(errorResponse(msg), 500);
   }
