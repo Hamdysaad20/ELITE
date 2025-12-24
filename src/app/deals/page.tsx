@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
 import ComboDealCard from "@/components/ComboDealCard";
+import DealCard from "@/components/deals/DealCard";
 import type { ComboDeal } from "@/types/deals";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
@@ -203,112 +204,100 @@ export default function DealsPage() {
 
               {/* Enhanced Deals Content */}
               {!loading && !error && sortedDeals && sortedDeals.length > 0 && (
-                <div className="space-y-16 md:space-y-20">
+                <div className="space-y-8">
                   {sortedDeals.map((deal, dealIndex) => (
-                    <div key={deal.id} className="space-y-8">
-                      {/* Enhanced Deal Header */}
-                      <div className="mb-8">
-                        <div className="bg-gradient-to-br from-white to-elite-cream/30 rounded-3xl p-5 md:p-6 border-2 border-elite-burgundy/15 shadow-lg relative overflow-hidden">
-                          {/* Decorative background */}
-                          <div className="absolute top-0 right-0 w-40 h-40 bg-elite-burgundy/5 rounded-full blur-3xl -mr-20 -mt-20" />
-                          
-                          <div className="relative z-10">
-                            <div className="flex items-center gap-4 mb-3 flex-wrap">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy rounded-xl flex items-center justify-center shadow-md">
-                                  <Tag className="w-5 h-5 text-elite-cream" />
-                                </div>
-                                <h2 className="font-calistoga text-elite-black text-2xl md:text-3xl lg:text-4xl font-bold">
+                    <div key={deal.id} className="relative">
+                      {/* Background Container - Matching Menu Page Style */}
+                      <div className="bg-white/50 rounded-2xl p-6 lg:p-8 w-full">
+                        {/* Deal Header - Matching Menu Page Style */}
+                        <div className="mb-6">
+                          <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 rounded-full bg-elite-burgundy"></div>
+                              <div>
+                                <h2 className="font-calistoga text-elite-black text-xl md:text-2xl lg:text-3xl font-bold leading-tight">
                                   {deal.name}
                                 </h2>
+                                <p className="font-cabin text-elite-black/50 text-xs mt-0.5">
+                                  {deal.products.length + (deal.combos?.length || 0)} {deal.products.length + (deal.combos?.length || 0) === 1 ? 'item' : 'items'}
+                                </p>
                               </div>
-                              {deal.active && (
-                                <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-1.5 rounded-full text-xs font-cabin font-bold shadow-md">
-                                  <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                                  Active
-                                </span>
-                              )}
                             </div>
-                            {deal.description && (
-                              <p className="font-cabin text-elite-black/75 text-sm md:text-base ml-14 leading-relaxed">
-                                {deal.description}
-                              </p>
+                            {deal.active && (
+                              <span className="inline-flex items-center gap-1.5 bg-elite-burgundy text-elite-cream px-3 py-1.5 rounded-full text-xs font-cabin font-bold shadow-sm">
+                                <span className="w-1.5 h-1.5 bg-elite-cream rounded-full animate-pulse" />
+                                Active
+                              </span>
                             )}
                           </div>
+                          {deal.description && (
+                            <p className="font-cabin text-elite-black/60 text-sm md:text-base ml-5 leading-relaxed">
+                              {deal.description}
+                            </p>
+                          )}
                         </div>
+
+                        {/* Enhanced Combo Deals Section */}
+                        {deal.combos && deal.combos.length > 0 && (
+                          <div className="mb-8">
+                            <div className="flex items-center gap-3 mb-6">
+                              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
+                              <h3 className="font-calistoga text-elite-black text-xl md:text-2xl font-bold">
+                                Combo Deals
+                              </h3>
+                              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                              {deal.combos.map((combo, comboIdx) => (
+                                <ComboDealCard
+                                  key={combo.id}
+                                  combo={combo}
+                                  animationDelay={dealIndex * 100 + comboIdx * 50}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Enhanced Products Grid */}
+                        {deal.products.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+                            {deal.products.map((dealProduct, idx) => {
+                              return (
+                                <DealCard
+                                  key={dealProduct.id}
+                                  id={dealProduct.id}
+                                  name={dealProduct.name}
+                                  images={sanitizeImages(dealProduct.images)}
+                                  originalPrice={dealProduct.originalPrice}
+                                  dealPrice={dealProduct.dealPrice}
+                                  dealActive={dealProduct.dealActive}
+                                  savings={dealProduct.savings}
+                                  savingsPercent={dealProduct.savingsPercent}
+                                  description={dealProduct.description ?? undefined}
+                                  available={
+                                    dealProduct.available !== false && dealProduct.dealActive
+                                  }
+                                  categoryId={dealProduct.categoryId}
+                                  onQuickAdd={() => {
+                                    const product = convertToProduct(dealProduct);
+                                    setSelectedProduct(product);
+                                    setIsModalOpen(true);
+                                  }}
+                                  animationDelay={dealIndex * 100 + idx * 30}
+                                  size="small"
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="bg-elite-cream/50 rounded-2xl p-6 text-center">
+                            <p className="font-cabin text-elite-black/60 text-sm">
+                              No products available in this deal
+                            </p>
+                          </div>
+                        )}
                       </div>
-
-                      {/* Enhanced Combo Deals Section */}
-                      {deal.combos && deal.combos.length > 0 && (
-                        <div className="mb-10">
-                          <div className="flex items-center gap-3 mb-6">
-                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
-                            <h3 className="font-calistoga text-elite-black text-xl md:text-2xl font-bold">
-                              Combo Deals
-                            </h3>
-                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                            {deal.combos.map((combo, comboIdx) => (
-                              <ComboDealCard
-                                key={combo.id}
-                                combo={combo}
-                                animationDelay={dealIndex * 100 + comboIdx * 50}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Enhanced Products Grid */}
-                      {deal.products.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
-                          {deal.products.map((dealProduct, idx) => {
-                            // Use deal price if active, otherwise show original price
-                            const displayPrice = dealProduct.dealActive
-                              ? dealProduct.dealPrice
-                              : dealProduct.originalPrice;
-
-                            return (
-                              <DrinkCard
-                                key={dealProduct.id}
-                                id={dealProduct.id}
-                                images={sanitizeImages(dealProduct.images)}
-                                name={dealProduct.name}
-                                price={displayPrice}
-                                description={dealProduct.description ?? undefined}
-                                available={
-                                  dealProduct.available !== false && dealProduct.dealActive
-                                }
-                                size="small"
-                                href={`/products/${dealProduct.id}`}
-                                menuItemId={dealProduct.id}
-                                showAddToOrder={dealProduct.dealActive}
-                                onQuickAdd={() => {
-                                  const product = convertToProduct(dealProduct);
-                                  setSelectedProduct(product);
-                                  setIsModalOpen(true);
-                                }}
-                                animationDelay={dealIndex * 100 + idx * 30}
-                                isDealsPage={true}
-                                dealInfo={{
-                                  originalPrice: dealProduct.originalPrice,
-                                  dealPrice: dealProduct.dealPrice,
-                                  dealActive: dealProduct.dealActive,
-                                  savings: dealProduct.savings,
-                                  savingsPercent: dealProduct.savingsPercent,
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="bg-elite-cream/50 rounded-2xl p-6 text-center">
-                          <p className="font-cabin text-elite-black/60 text-sm">
-                            No products available in this deal
-                          </p>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
