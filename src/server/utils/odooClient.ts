@@ -180,6 +180,94 @@ export class OdooClient {
   }
 
   /**
+   * Check if Odoo has native combo product support
+   * In Odoo 19, combo products are product.template with type='combo'
+   */
+  async hasComboProductSupport(): Promise<boolean> {
+    try {
+      // Check if product.template has 'type' field that can be 'combo'
+      const templates = await this.searchRead<any>(
+        "product.template",
+        [["type", "=", "combo"]],
+        ["id"],
+        { limit: 1 },
+      );
+      return templates !== null && templates.length > 0;
+    } catch (error) {
+      // If field doesn't exist or model doesn't support it, return false
+      console.log("[OdooClient] Combo product support check failed (may not be available):", error);
+      return false;
+    }
+  }
+
+  /**
+   * Fetch native combo products from Odoo
+   * Returns products with type='combo' and their choice sets
+   */
+  async getComboProducts(): Promise<Array<{
+    id: number;
+    name: string;
+    list_price: number;
+    combo_line_ids?: number[]; // Choice set line IDs
+  }>> {
+    try {
+      const combos = await this.searchRead<{
+        id: number;
+        name: string;
+        list_price: number;
+        combo_line_ids?: number[];
+      }>(
+        "product.template",
+        [["type", "=", "combo"], ["sale_ok", "=", true], ["active", "=", true]],
+        ["id", "name", "list_price", "combo_line_ids"],
+      );
+      return combos || [];
+    } catch (error) {
+      console.error("[OdooClient] Error fetching combo products:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Get combo choice sets for a combo product
+   * Returns the choice sets (what products can be selected in the combo)
+   */
+  async getComboChoiceSets(comboProductId: number): Promise<Array<{
+    id: number;
+    product_id: number;
+    name: string;
+    required: boolean;
+    quantity: number;
+  }>> {
+    try {
+      // In Odoo 19, combo choice sets are stored in product.combo.line
+      // This is a many2many relationship from product.template
+      const comboLines = await this.searchRead<{
+        id: number;
+        product_id: number | [number, string];
+        name: string;
+        required: boolean;
+        quantity: number;
+      }>(
+        "product.combo.line",
+        [["combo_id", "=", comboProductId]],
+        ["id", "product_id", "name", "required", "quantity"],
+      );
+      
+      return (comboLines || []).map(line => ({
+        id: line.id,
+        product_id: Array.isArray(line.product_id) ? line.product_id[0] : line.product_id,
+        name: line.name,
+        required: line.required || false,
+        quantity: line.quantity || 1,
+      }));
+    } catch (error) {
+      console.error(`[OdooClient] Error fetching combo choice sets for ${comboProductId}:`, error);
+      return [];
+    }
+  }
+
+  /**
    * Get product price with pricelist context
    * This uses Odoo's price_get method which respects pricelists
    * 

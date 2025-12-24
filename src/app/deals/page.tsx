@@ -136,21 +136,29 @@ export default function DealsPage() {
           {/* Main content area */}
           <div className="relative bg-elite-cream pt-8 md:pt-12 min-h-[60vh]">
             <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
-              {/* Status Banner */}
+              {/* Enhanced Status Banner */}
               {!loading && !error && activeDeals && activeDeals.length > 0 && (
                 <div
                   className={cn(
-                    "mb-6 rounded-2xl p-4 md:p-6 border-2",
-                    "bg-emerald-50 border-emerald-200",
+                    "mb-8 rounded-3xl p-5 md:p-7 border-2",
+                    "bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50",
+                    "border-emerald-300/50 shadow-lg shadow-emerald-200/20",
+                    "relative overflow-hidden"
                   )}
                 >
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="w-6 h-6 flex-shrink-0 mt-0.5 text-emerald-600" />
+                  {/* Decorative background elements */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/20 rounded-full blur-2xl -mr-16 -mt-16" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-teal-200/20 rounded-full blur-xl -ml-12 -mb-12" />
+                  
+                  <div className="flex items-start gap-4 relative z-10">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Sparkles className="w-6 h-6 text-white animate-pulse" />
+                    </div>
                     <div className="flex-1">
-                      <h3 className="font-calistoga text-lg md:text-xl mb-1 text-emerald-900">
+                      <h3 className="font-calistoga text-xl md:text-2xl mb-2 text-emerald-900">
                         {`🎉 ${activeDeals.length} Active Deal${activeDeals.length !== 1 ? "s" : ""}!`}
                       </h3>
-                      <p className="font-cabin text-sm md:text-base text-emerald-700">
+                      <p className="font-cabin text-sm md:text-base text-emerald-800/90 leading-relaxed">
                         {`Enjoy special prices on ${totalProducts} item${totalProducts !== 1 ? "s" : ""} across ${activeDeals.length} deal${activeDeals.length !== 1 ? "s" : ""}`}
                       </p>
                     </div>
@@ -193,38 +201,54 @@ export default function DealsPage() {
                 />
               )}
 
-              {/* Deals Content */}
+              {/* Enhanced Deals Content */}
               {!loading && !error && sortedDeals && sortedDeals.length > 0 && (
-                <div className="space-y-12 md:space-y-16">
+                <div className="space-y-16 md:space-y-20">
                   {sortedDeals.map((deal, dealIndex) => (
-                    <div key={deal.id} className="space-y-6">
-                      {/* Deal Header */}
-                      <div className="border-b border-elite-burgundy/20 pb-4">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Tag className="w-6 h-6 text-elite-burgundy" />
-                          <h2 className="font-calistoga text-elite-black text-2xl md:text-3xl lg:text-4xl">
-                            {deal.name}
-                          </h2>
-                          {deal.active && (
-                            <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-cabin font-semibold">
-                              Active
-                            </span>
-                          )}
+                    <div key={deal.id} className="space-y-8">
+                      {/* Enhanced Deal Header */}
+                      <div className="mb-8">
+                        <div className="bg-gradient-to-br from-white to-elite-cream/30 rounded-3xl p-5 md:p-6 border-2 border-elite-burgundy/15 shadow-lg relative overflow-hidden">
+                          {/* Decorative background */}
+                          <div className="absolute top-0 right-0 w-40 h-40 bg-elite-burgundy/5 rounded-full blur-3xl -mr-20 -mt-20" />
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center gap-4 mb-3 flex-wrap">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy rounded-xl flex items-center justify-center shadow-md">
+                                  <Tag className="w-5 h-5 text-elite-cream" />
+                                </div>
+                                <h2 className="font-calistoga text-elite-black text-2xl md:text-3xl lg:text-4xl font-bold">
+                                  {deal.name}
+                                </h2>
+                              </div>
+                              {deal.active && (
+                                <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-1.5 rounded-full text-xs font-cabin font-bold shadow-md">
+                                  <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                  Active
+                                </span>
+                              )}
+                            </div>
+                            {deal.description && (
+                              <p className="font-cabin text-elite-black/75 text-sm md:text-base ml-14 leading-relaxed">
+                                {deal.description}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        {deal.description && (
-                          <p className="font-cabin text-elite-black/70 text-sm md:text-base ml-9">
-                            {deal.description}
-                          </p>
-                        )}
                       </div>
 
-                      {/* Combo Deals Section */}
+                      {/* Enhanced Combo Deals Section */}
                       {deal.combos && deal.combos.length > 0 && (
-                        <div className="mb-8">
-                          <h3 className="font-calistoga text-elite-black text-xl md:text-2xl mb-4">
-                            Combo Deals
-                          </h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        <div className="mb-10">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
+                            <h3 className="font-calistoga text-elite-black text-xl md:text-2xl font-bold">
+                              Combo Deals
+                            </h3>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
                             {deal.combos.map((combo, comboIdx) => (
                               <ComboDealCard
                                 key={combo.id}
@@ -236,9 +260,9 @@ export default function DealsPage() {
                         </div>
                       )}
 
-                      {/* Products Grid */}
+                      {/* Enhanced Products Grid */}
                       {deal.products.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
                           {deal.products.map((dealProduct, idx) => {
                             // Use deal price if active, otherwise show original price
                             const displayPrice = dealProduct.dealActive
@@ -290,27 +314,36 @@ export default function DealsPage() {
                 </div>
               )}
 
-              {/* Info Box */}
+              {/* Enhanced Info Box */}
               {!loading && !error && activeDeals && activeDeals.length > 0 && (
-                <div className="mt-12 md:mt-16 bg-white/50 rounded-2xl p-6 md:p-8 border border-elite-burgundy/10">
-                  <div className="flex items-start gap-4">
-                    <AlertCircle className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h3 className="font-calistoga text-elite-black text-lg md:text-xl mb-2">
+                <div className="mt-16 md:mt-20 bg-gradient-to-br from-white to-elite-cream/20 rounded-3xl p-6 md:p-8 border-2 border-elite-burgundy/15 shadow-lg relative overflow-hidden">
+                  {/* Decorative background */}
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-elite-burgundy/5 rounded-full blur-2xl -ml-16 -mb-16" />
+                  
+                  <div className="flex items-start gap-4 relative z-10">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy rounded-xl flex items-center justify-center shadow-md">
+                      <AlertCircle className="w-5 h-5 text-elite-cream" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-calistoga text-elite-black text-lg md:text-xl mb-3 font-bold">
                         How Deals Work
                       </h3>
-                      <ul className="font-cabin text-elite-black/70 text-sm md:text-base space-y-2">
-                        <li>
-                          • Deals are managed through Odoo pricelists
+                      <ul className="font-cabin text-elite-black/75 text-sm md:text-base space-y-2.5">
+                        <li className="flex items-start gap-2">
+                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
+                          <span>Deals are managed through Odoo pricelists</span>
                         </li>
-                        <li>
-                          • Prices shown are final prices from Odoo (our inventory system)
+                        <li className="flex items-start gap-2">
+                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
+                          <span>Prices shown are final prices from Odoo (our inventory system)</span>
                         </li>
-                        <li>
-                          • All prices are validated by Odoo at checkout
+                        <li className="flex items-start gap-2">
+                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
+                          <span>All prices are validated by Odoo at checkout</span>
                         </li>
-                        <li>
-                          • Deals may have time restrictions or other conditions
+                        <li className="flex items-start gap-2">
+                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
+                          <span>Deals may have time restrictions or other conditions</span>
                         </li>
                       </ul>
                     </div>

@@ -291,7 +291,9 @@ export async function GET(request: NextRequest) {
               if (computePrice === "fixed" && item.fixed_price) {
                 productDealPrices.set(productId, item.fixed_price);
               } else if (computePrice === "percentage" && item.percent_price) {
-                productDealPercentages.set(productId, item.percent_price);
+                // Odoo uses negative percentages for discounts, convert to positive
+                const percentage = Math.abs(item.percent_price);
+                productDealPercentages.set(productId, percentage);
               }
             }
           }
@@ -308,7 +310,9 @@ export async function GET(request: NextRequest) {
               if (computePrice === "fixed" && item.fixed_price) {
                 categoryDealPrices.set(categoryId, item.fixed_price);
               } else if (computePrice === "percentage" && item.percent_price) {
-                categoryDealPercentages.set(categoryId, item.percent_price);
+                // Odoo uses negative percentages for discounts, convert to positive
+                const percentage = Math.abs(item.percent_price);
+                categoryDealPercentages.set(categoryId, percentage);
               }
             }
           }
@@ -320,7 +324,8 @@ export async function GET(request: NextRequest) {
               // Skip global fixed prices for now (they're usually base prices)
             } else if (computePrice === "percentage" && item.percent_price) {
               // Global percentage applies to all products
-              globalPercentage = item.percent_price;
+              // Odoo uses negative percentages for discounts, convert to positive
+              globalPercentage = Math.abs(item.percent_price);
             }
           }
         }
@@ -531,13 +536,27 @@ export async function GET(request: NextRequest) {
           description += ` (${timeWindowDescription})`;
         }
         
-        // Detect and create combo deals for Weekend Specials
+        // Detect and create combo deals
+        // Try native Odoo combo products first, then fallback to pricelist-based detection
         let combos: ComboDeal[] | undefined;
-        if (pricelist.name === "Weekend Specials" || pricelist.name.toLowerCase().includes("weekend")) {
-          console.log(`[DEALS API ${requestId}] Detecting combo deals for "${pricelist.name}"...`);
+        
+        // Check for native combo products (Odoo 19)
+        const hasNativeCombos = await client.hasComboProductSupport();
+        if (hasNativeCombos) {
+          console.log(`[DEALS API ${requestId}] Detecting native Odoo combo products...`);
+          combos = await detectNativeComboDeals(client, allProducts, dealIsActive);
+          if (combos && combos.length > 0) {
+            console.log(`[DEALS API ${requestId}] ✅ Found ${combos.length} native combo deal(s)`);
+          }
+        }
+        
+        // Fallback to pricelist-based combo detection (for Weekend Specials)
+        if ((!combos || combos.length === 0) && 
+            (pricelist.name === "Weekend Specials" || pricelist.name.toLowerCase().includes("weekend"))) {
+          console.log(`[DEALS API ${requestId}] Detecting pricelist-based combo deals for "${pricelist.name}"...`);
           combos = await detectComboDeals(client, pricelist.id, allProducts, dealIsActive);
           if (combos && combos.length > 0) {
-            console.log(`[DEALS API ${requestId}] ✅ Found ${combos.length} combo deal(s)`);
+            console.log(`[DEALS API ${requestId}] ✅ Found ${combos.length} pricelist-based combo deal(s)`);
           }
         }
         
@@ -785,6 +804,104 @@ async function detectComboDeals(
     return combos;
   } catch (error) {
     console.error("[DEALS API] Error detecting combo deals:", error);
+    return [];
+  }
+}
+
+/**
+ * Detect native Odoo 19 combo products
+ * Combo products are product.template with type='combo' and have choice sets
+ */
+async function detectNativeComboDeals(
+  client: ReturnType<typeof createOdooClient> | null,
+  allProducts: Awaited<ReturnType<typeof getProductsSafe>>["products"],
+  dealActive: boolean
+): Promise<ComboDeal[]> {
+  if (!client) {
+    return [];
+  }
+  
+  try {
+    // Check if native combo support exists
+    const hasSupport = await client.hasComboProductSupport();
+    if (!hasSupport) {
+      return []; // No native combo support
+    }
+    
+    // Get all combo products
+    const comboProducts = await client.getComboProducts();
+    if (!comboProducts || comboProducts.length === 0) {
+      return []; // No combo products found
+    }
+    
+    const combos: ComboDeal[] = [];
+    
+    for (const comboProduct of comboProducts) {
+      // Get choice sets for this combo
+      const choiceSets = await client.getComboChoiceSets(comboProduct.id);
+      if (!choiceSets || choiceSets.length < 2) {
+        continue; // Need at least 2 items for a combo
+      }
+      
+      const comboItems: ComboDeal["items"] = [];
+      let originalTotal = 0;
+      
+      // Build combo items from choice sets
+      for (const choice of choiceSets) {
+        const product = allProducts.find(p => parseInt(p.id, 10) === choice.product_id);
+        if (!product) continue;
+        
+        comboItems.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images?.[0],
+          categoryId: product.categoryId,
+        });
+        
+        originalTotal += product.price * (choice.quantity || 1);
+      }
+      
+      if (comboItems.length < 2) continue; // Need at least 2 valid products
+      
+      // Use combo product's list_price as deal price
+      let comboPrice = comboProduct.list_price || originalTotal;
+      
+      // Validate discount (max 30% for combos)
+      const discountPercent = originalTotal > 0
+        ? ((originalTotal - comboPrice) / originalTotal) * 100
+        : 0;
+      
+      const MAX_COMBO_DISCOUNT = 30; // Max 30% for combos
+      if (discountPercent > MAX_COMBO_DISCOUNT) {
+        console.warn(`[DEALS API] Native combo discount ${discountPercent.toFixed(1)}% exceeds max ${MAX_COMBO_DISCOUNT}%, clamping...`);
+        comboPrice = originalTotal * (1 - MAX_COMBO_DISCOUNT / 100);
+      }
+      
+      // Apply premium rounding
+      comboPrice = premiumRound(comboPrice);
+      
+      const savings = originalTotal - comboPrice;
+      const savingsPercent = originalTotal > 0
+        ? Math.round((savings / originalTotal) * 100)
+        : 0;
+      
+      combos.push({
+        id: `combo-native-${comboProduct.id}`,
+        name: comboProduct.name,
+        description: `Native combo: ${comboItems.map(i => i.name).join(" + ")}`,
+        items: comboItems,
+        originalTotal,
+        dealPrice: comboPrice,
+        dealActive,
+        savings,
+        savingsPercent,
+      });
+    }
+    
+    return combos;
+  } catch (error) {
+    console.error("[DEALS API] Error detecting native combo deals:", error);
     return [];
   }
 }
