@@ -24,21 +24,21 @@ model User {
   sessions      Session[]
   reviews       Review[]        @relation("UserReviews")
   addresses     Address[]       @relation("UserAddresses")
-  
+
   // New relations for analytics
   userSavings        UserSavings?
   userPoints         UserPoints?
   orderPoints        OrderPoints[]
   pointsTransactions PointsTransaction[]
-  
+
   // Gamification relations
-  achievements   UserAchievement[]
-  streaks       UserStreak[]
-  badges         UserBadge[]
-  rewardEvents   RewardEvent[]
-  
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  achievements UserAchievement[]
+  streaks      UserStreak[]
+  badges       UserBadge[]
+  rewardEvents RewardEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([status])
@@ -104,10 +104,10 @@ model LoyaltyLedger {
 }
 
 model Order {
-  id             String          @id @default(uuid())
-  user           User?           @relation(fields: [userId], references: [id])
+  id             String   @id @default(uuid())
+  user           User?    @relation(fields: [userId], references: [id])
   userId         String?
-  address        Address?        @relation(fields: [addressId], references: [id])
+  address        Address? @relation(fields: [addressId], references: [id])
   addressId      String?
   status         String
   paymentStatus  String
@@ -115,35 +115,44 @@ model Order {
   orderType      String
   subtotal       Decimal
   deliveryFee    Decimal
-  codFee         Decimal         @default(0)
+  codFee         Decimal  @default(0)
   discount       Decimal
   total          Decimal
   notes          String?
   saleOrderId    Int?
   posOrderId     Int?
   odooWebUrl     String?
-  odooStatusSale String          @default("pending")
-  odooStatusPos  String          @default("pending")
-  clientOrderRef String          @unique
-  
+  odooStatusSale String   @default("pending")
+  odooStatusPos  String   @default("pending")
+  clientOrderRef String   @unique
+
   // Retry tracking for Odoo sync (30-min max window)
   odooSyncAttempts      Int       @default(0)
   odooSyncLastError     String?
   odooSyncLastAttemptAt DateTime?
-  odooSyncNotifiedAt    DateTime?  // When customer was notified of sync failure
-  
+  odooSyncNotifiedAt    DateTime? // When customer was notified of sync failure
+
   // New fields for analytics
-  originalPrice   Decimal?        // Price before discounts
-  discountApplied Boolean         @default(false)
-  pointsEarned    Int             @default(0)
-  
-  items          OrderItem[]
-  ledger         LoyaltyLedger[] @relation("OrderLedger")
-  savings        OrderSavings?
-  points         OrderPoints?
-  
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  originalPrice   Decimal? // Price before discounts
+  discountApplied Boolean  @default(false)
+  pointsEarned    Int      @default(0)
+
+  // Paymob payment fields
+  paymobTransactionId String? @unique // Paymob transaction ID
+  paymobPaymentKey    String? // Temporary payment key for frontend (expires)
+  paymentIntentId     String? // Internal payment intent ID
+
+  items               OrderItem[]
+  ledger              LoyaltyLedger[]      @relation("OrderLedger")
+  savings             OrderSavings?
+  points              OrderPoints?
+  paymentTransactions PaymentTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymobTransactionId])
+  @@index([paymentStatus])
 }
 
 model CheckoutConfig {
@@ -210,7 +219,7 @@ model Address {
   id        String   @id @default(uuid())
   user      User     @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  label     String   // e.g., "Home", "Work", "Office"
+  label     String // e.g., "Home", "Work", "Office"
   street    String
   apartment String?
   city      String
@@ -218,7 +227,7 @@ model Address {
   zipCode   String?
   country   String   @default("Egypt")
   phone     String?
-  notes     String?  // Delivery instructions
+  notes     String? // Delivery instructions
   isDefault Boolean  @default(false)
   orders    Order[]
   createdAt DateTime @default(now())
@@ -231,137 +240,136 @@ model Address {
 // Analytics Models
 
 model OrderSavings {
-  id            String   @id @default(uuid())
-  orderId       String   @unique
-  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  originalPrice Decimal  // Price before discounts
-  finalPrice    Decimal  // Price after discounts
-  totalSavings  Decimal  // Calculated savings
-  
-  discounts     Json     // Array of discount objects
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  originalPrice Decimal // Price before discounts
+  finalPrice    Decimal // Price after discounts
+  totalSavings  Decimal // Calculated savings
+
+  discounts Json // Array of discount objects
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([orderId])
   @@index([createdAt])
 }
 
 model OrderPoints {
-  id              String    @id @default(uuid())
-  orderId         String    @unique
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  basePoints      Int       // Points from order value (total * 100)
-  bonusPoints     Int       @default(0)
-  multiplier      Decimal   @default(1.0)
-  totalPoints     Int       // Calculated total
-  
-  pointsBreakdown Json      // Detailed breakdown
-  
-  earnedAt        DateTime  @default(now())
-  expiresAt       DateTime? // Point expiration (1 year)
-  isExpired       Boolean   @default(false)
-  
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  basePoints  Int // Points from order value (total * 100)
+  bonusPoints Int     @default(0)
+  multiplier  Decimal @default(1.0)
+  totalPoints Int // Calculated total
+
+  pointsBreakdown Json // Detailed breakdown
+
+  earnedAt  DateTime  @default(now())
+  expiresAt DateTime? // Point expiration (1 year)
+  isExpired Boolean   @default(false)
+
   @@index([userId])
   @@index([orderId])
   @@index([earnedAt])
 }
 
 model UserSavings {
-  id                      String   @id @default(uuid())
-  userId                  String   @unique
-  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  totalSaved              Decimal  @default(0)
-  totalOrders             Int      @default(0)
-  averageSavingsPerOrder  Decimal  @default(0)
-  
-  savingsByMonth          Json     // Monthly breakdown
-  
-  lastUpdated             DateTime @updatedAt
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  totalSaved             Decimal @default(0)
+  totalOrders            Int     @default(0)
+  averageSavingsPerOrder Decimal @default(0)
+
+  savingsByMonth Json // Monthly breakdown
+
+  lastUpdated DateTime @updatedAt
+
   @@index([userId])
 }
 
 model UserPoints {
-  id            String   @id @default(uuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  totalPoints   Int      @default(0)     // Current balance
-  totalEarned   Int      @default(0)     // Lifetime earned
-  totalRedeemed Int      @default(0)     // Lifetime spent
-  
-  tier          String   @default("bronze") // bronze, silver, gold, platinum
-  nextTierAt    Int      @default(100000)   // 1,000 EGP in points
-  
-  lastUpdated   DateTime @updatedAt
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  totalPoints   Int @default(0) // Current balance
+  totalEarned   Int @default(0) // Lifetime earned
+  totalRedeemed Int @default(0) // Lifetime spent
+
+  tier       String @default("bronze") // bronze, silver, gold, platinum
+  nextTierAt Int    @default(100000) // 1,000 EGP in points
+
+  lastUpdated DateTime @updatedAt
+
   @@index([userId])
   @@index([tier])
 }
 
 model PointsTransaction {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type      String   // 'earn' | 'redeem' | 'expire' | 'adjust'
-  amount    Int      // Positive for earn, negative for redeem
-  balance   Int      // Balance after transaction
-  
-  reason    String   // Description of transaction
-  orderId   String?  // Related order if applicable
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    String // 'earn' | 'redeem' | 'expire' | 'adjust'
+  amount  Int // Positive for earn, negative for redeem
+  balance Int // Balance after transaction
+
+  reason  String // Description of transaction
+  orderId String? // Related order if applicable
+
   createdAt DateTime @default(now())
-  
+
   @@index([userId])
   @@index([createdAt])
   @@index([type])
 }
 
-
 // New POS-related models
 
 model Product {
-  id                 String   @id
-  name               String
-  description        String?
-  price              Decimal
-  sku                String?
-  barcode            String?
-  isArchived         Boolean  @default(false)
-  isFeatured         Boolean  @default(false)
-  
+  id          String  @id
+  name        String
+  description String?
+  price       Decimal
+  sku         String?
+  barcode     String?
+  isArchived  Boolean @default(false)
+  isFeatured  Boolean @default(false)
+
   // Odoo-specific fields
-  odooId             Int      @unique
-  sequence           Int?
-  
+  odooId   Int  @unique
+  sequence Int?
+
   // POS display fields
-  posAvailable       Boolean  @default(true)
-  posShortName       String?
-  
+  posAvailable Boolean @default(true)
+  posShortName String?
+
   // Categorization
-  categoryId         String?
-  category           Category? @relation(fields: [categoryId], references: [id])
-  
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
   // Inventory
-  stockQuantity      Int      @default(0)
-  
+  stockQuantity Int @default(0)
+
   // Timestamps
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  variants           ProductVariant[]
-  attributeValues    ProductAttributeValue[]
-  posCategory        PosCategory? @relation(fields: [posCategoryId], references: [id])
-  posCategoryId      String?
-  
+  variants        ProductVariant[]
+  attributeValues ProductAttributeValue[]
+  posCategory     PosCategory?            @relation(fields: [posCategoryId], references: [id])
+  posCategoryId   String?
+
   @@index([name])
   @@index([sku])
   @@index([isArchived])
@@ -371,108 +379,108 @@ model Product {
 }
 
 model Category {
-  id          String    @id
+  id          String  @id
   name        String
   description String?
-  
+
   // Odoo-specific fields
-  odooId      Int       @unique
-  
+  odooId Int @unique
+
   // Hierarchy
-  parentId    String?
-  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
-  
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
   // Relations
-  products    Product[]
+  products       Product[]
   dealCategories DealCategory[]
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
   @@index([parentId])
 }
 
 model Attribute {
-  id          String    @id
-  name        String    @unique
+  id          String  @id
+  name        String  @unique
   description String?
-  
+
   // Odoo-specific fields
-  odooId      Int       @unique
-  
+  odooId Int @unique
+
   // Display settings
-  displayType String    @default("radio") // e.g., 'radio', 'select', 'color'
-  
+  displayType String @default("radio") // e.g., 'radio', 'select', 'color'
+
   // Relations
-  values      AttributeValue[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  values AttributeValue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
 }
 
 model AttributeValue {
-  id          String    @id
-  name        String
-  
+  id   String @id
+  name String
+
   // Odoo-specific fields
-  odooId      Int       @unique
-  
+  odooId Int @unique
+
   // Relations
   attributeId String
   attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
-  
+
   // For display
-  htmlColor   String?
-  
+  htmlColor String?
+
   // Pricing
-  priceExtra  Decimal   @default(0)
-  
+  priceExtra Decimal @default(0)
+
   // Relations to Product
   productLinks ProductAttributeValue[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
   @@index([attributeId])
 }
 
 model ProductAttributeValue {
-  productId       String
+  productId        String
   attributeValueId String
-  
-  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  attributeValue  AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
-  
+
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
   @@id([productId, attributeValueId])
   @@index([productId])
   @@index([attributeValueId])
 }
 
 model ProductVariant {
-  id          String    @id
-  name        String
-  sku         String?
-  barcode     String?
-  price       Decimal
-  
+  id      String  @id
+  name    String
+  sku     String?
+  barcode String?
+  price   Decimal
+
   // Odoo-specific fields
-  odooId      Int       @unique
-  
+  odooId Int @unique
+
   // Relations
-  productId   String
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   // Combination of attribute values that define this variant
   attributeCombination Json
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([sku])
   @@index([productId])
 }
@@ -480,91 +488,91 @@ model ProductVariant {
 // POS-specific UI/UX models
 
 model PosCategory {
-  id          String    @id
-  name        String    @unique
-  sequence    Int       @default(0)
-  
+  id       String @id
+  name     String @unique
+  sequence Int    @default(0)
+
   // Relations
-  products    Product[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
   @@index([sequence])
 }
 
 model PosConfig {
-  id              String   @id @default("pos")
-  gridConfig      Json     // Defines the layout of the POS screen
-  defaultCategory String?  // ID of the default category to show
-  
-  updatedAt       DateTime @updatedAt
+  id              String  @id @default("pos")
+  gridConfig      Json // Defines the layout of the POS screen
+  defaultCategory String? // ID of the default category to show
+
+  updatedAt DateTime @updatedAt
 }
 
 // Gamification Models
 
 model Achievement {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  name          String
-  description   String
-  category      String
-  icon          String?
-  tier          String   @default("bronze")
-  
-  requirementType String
+  id          String  @id @default(uuid())
+  code        String  @unique
+  name        String
+  description String
+  category    String
+  icon        String?
+  tier        String  @default("bronze")
+
+  requirementType  String
   requirementValue Int
-  requirementData Json?
-  
-  rewards       AchievementReward[]
-  userProgress  UserAchievement[]
-  
-  isActive      Boolean  @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  requirementData  Json?
+
+  rewards      AchievementReward[]
+  userProgress UserAchievement[]
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([code])
   @@index([category])
   @@index([isActive])
 }
 
 model AchievementReward {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   achievementId String
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  
-  rewardType    String
-  rewardValue   Json
-  rewardName    String
-  
-  priority      Int      @default(0)
-  isActive      Boolean  @default(true)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+
+  rewardType  String
+  rewardValue Json
+  rewardName  String
+
+  priority Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([achievementId])
   @@index([rewardType])
 }
 
 model UserAchievement {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievementId String
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  
-  progress      Int      @default(0)
-  target        Int
-  isCompleted   Boolean  @default(false)
-  completedAt   DateTime?
-  
-  rewardsAwarded Json    @default("[]")
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+
+  progress    Int       @default(0)
+  target      Int
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  rewardsAwarded Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([userId, achievementId])
   @@index([userId])
   @@index([achievementId])
@@ -572,41 +580,41 @@ model UserAchievement {
 }
 
 model UserStreak {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  streakType    String
-  currentStreak Int      @default(0)
-  longestStreak Int      @default(0)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  streakType     String
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
   lastActivityAt DateTime?
-  
-  gracePeriodHours Int   @default(4)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+
+  gracePeriodHours Int @default(4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([userId, streakType])
   @@index([userId])
   @@index([streakType])
 }
 
 model RewardEvent {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  triggerType   String
-  triggerId     String?
-  triggerData   Json?
-  
-  rewards       Json
-  status        String   @default("pending")
-  errorMessage  String?
-  
-  createdAt     DateTime @default(now())
-  processedAt   DateTime?
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  triggerType String
+  triggerId   String?
+  triggerData Json?
+
+  rewards      Json
+  status       String  @default("pending")
+  errorMessage String?
+
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+
   @@index([userId])
   @@index([triggerType])
   @@index([status])
@@ -614,38 +622,38 @@ model RewardEvent {
 }
 
 model Badge {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  name          String
-  description   String
-  icon          String
-  category      String
-  rarity        String   @default("common")
-  
-  unlockType    String
-  unlockData    Json?
-  
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  userBadges    UserBadge[]
-  
+  id          String @id @default(uuid())
+  code        String @unique
+  name        String
+  description String
+  icon        String
+  category    String
+  rarity      String @default("common")
+
+  unlockType String
+  unlockData Json?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userBadges UserBadge[]
+
   @@index([code])
   @@index([category])
   @@index([rarity])
 }
 
 model UserBadge {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badgeId       String
-  badge         Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  
-  unlockedAt    DateTime @default(now())
-  isDisplayed    Boolean  @default(true)
-  
+  id      String @id @default(uuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId String
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  unlockedAt  DateTime @default(now())
+  isDisplayed Boolean  @default(true)
+
   @@unique([userId, badgeId])
   @@index([userId])
   @@index([badgeId])
@@ -655,35 +663,35 @@ model UserBadge {
 // Deal Management Models (Category-based Architecture)
 
 model Deal {
-  id            String   @id @default(uuid())
-  name          String
-  description   String?
-  slug          String   @unique
-  
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  slug        String  @unique
+
   // Odoo Integration
-  odooPricelistId Int?    @unique // Links to Odoo pricelist
+  odooPricelistId   Int?    @unique // Links to Odoo pricelist
   odooPricelistName String? // For reference
-  
+
   // Deal Configuration
-  discountType  String   // 'percentage' | 'fixed'
-  discountValue Decimal  // Percentage (0-100) or fixed amount
+  discountType  String // 'percentage' | 'fixed'
+  discountValue Decimal // Percentage (0-100) or fixed amount
   maxDiscount   Decimal? // Maximum discount cap (e.g., 40%)
-  
+
   // Time-based Validity
-  startDate     DateTime?
-  endDate       DateTime?
-  timeWindow    Json?    // { days: [0,1,2], startTime: "08:00", endTime: "13:00" }
-  
+  startDate  DateTime?
+  endDate    DateTime?
+  timeWindow Json? // { days: [0,1,2], startTime: "08:00", endTime: "13:00" }
+
   // Status
-  isActive      Boolean  @default(true)
-  priority      Int      @default(0) // Higher priority deals override lower ones
-  
+  isActive Boolean @default(true)
+  priority Int     @default(0) // Higher priority deals override lower ones
+
   // Relations
-  categories    DealCategory[]
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  categories DealCategory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([slug])
   @@index([isActive])
   @@index([odooPricelistId])
@@ -691,15 +699,52 @@ model Deal {
 }
 
 model DealCategory {
-  id          String   @id @default(uuid())
+  id         String   @id @default(uuid())
   dealId     String
   deal       Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  
+
+  createdAt DateTime @default(now())
+
   @@unique([dealId, categoryId])
   @@index([dealId])
   @@index([categoryId])
+}
+
+// Payment Transaction tracking for Paymob
+model PaymentTransaction {
+  id      String @id @default(uuid())
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  // Paymob transaction details
+  paymobTransactionId String? @unique
+  paymentKey          String? // Payment key returned from Paymob
+  integrationId       Int? // Integration ID used (cards, wallets, etc.)
+
+  // Transaction status
+  status String // 'pending' | 'success' | 'failed' | 'cancelled' | 'refunded'
+  amount Decimal // Transaction amount in EGP
+
+  // Paymob response data
+  paymobResponse Json? // Full Paymob API response
+  paymobError    String? // Error message if failed
+
+  // Webhook tracking
+  webhookReceived    Boolean   @default(false)
+  webhookProcessedAt DateTime?
+  webhookPayload     Json? // Webhook payload for debugging
+
+  // Retry tracking
+  retryCount  Int       @default(0)
+  lastRetryAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([paymobTransactionId])
+  @@index([status])
+  @@index([createdAt])
 }

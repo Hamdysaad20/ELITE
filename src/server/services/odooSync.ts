@@ -130,6 +130,16 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
     return;
   }
 
+  // For online payments, only sync if payment is confirmed
+  // Cash payments (COD) can sync immediately
+  const isCashPayment = order.paymentMethod === "CASH";
+  const isPaid = order.paymentStatus === "PAID";
+  
+  if (!isCashPayment && !isPaid) {
+    console.log(`[odooSync] Order ${payload.orderId} payment not confirmed (${order.paymentStatus}), skipping sync`);
+    return;
+  }
+
   const client = createOdooClient();
   if (!client) {
     console.error(`[odooSync] Failed to create Odoo client for order ${payload.orderId}`);

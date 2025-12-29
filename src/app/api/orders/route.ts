@@ -189,8 +189,48 @@ export async function POST(request: NextRequest) {
       include: { 
         items: true,
         address: true,
+        user: true,
       },
     });
+
+    // For online payment methods, create payment intent
+    // Note: Payment intent creation is separate - frontend will call /api/payments/create
+    // This allows user to review order before initiating payment
+    let paymentIntent = null;
+    const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
+    if (onlinePaymentMethods.includes(body.paymentMethod)) {
+      try {
+        const { getPaymentService } = await import("@/server/services/paymob/paymentService");
+        const { isPaymobConfigured } = await import("@/server/services/paymob/paymobClient");
+        
+        if (isPaymobConfigured()) {
+          const paymentService = getPaymentService();
+          if (paymentService) {
+            // Determine payment method for Paymob
+            const { PaymobPaymentMethod } = await import("@/types/payments");
+            const paymobPaymentMethod = body.paymentMethod === PaymentMethod.CARD 
+              ? PaymobPaymentMethod.CARD
+              : body.paymentMethod === PaymentMethod.WALLET 
+              ? PaymobPaymentMethod.WALLET
+              : PaymobPaymentMethod.CARD; // Default to card
+            
+            try {
+              paymentIntent = await paymentService.createPaymentIntent({
+                orderId: created.id,
+                paymentMethod: paymobPaymentMethod,
+              });
+            } catch (paymentError: unknown) {
+              // Log error but don't fail order creation
+              // Frontend can retry payment intent creation
+              console.error("[Order] Failed to create payment intent:", paymentError);
+            }
+          }
+        }
+      } catch (error) {
+        // Payment service not available - log but continue
+        console.warn("[Order] Payment service not available, order created without payment intent");
+      }
+    }
 
     // Get address details for Odoo sync if delivery order
     let addressInfo: {
@@ -214,33 +254,68 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Enqueue Odoo sync (fire-and-forget stub). Defaults: sale enabled, pos disabled.
-    const enableSale = body.odoo?.sale?.enable !== false;
-    const enablePos = body.odoo?.pos?.enable === true;
-    await enqueueOrderSync({
-      orderId: created.id,
-      clientOrderRef: clientOrderRef,
-      partner: {
-        name: body.odoo?.partner?.name || authUser?.name || "Website Customer",
-        email: body.odoo?.partner?.email || authUser?.email,
-        phone: addressInfo?.phone || body.odoo?.partner?.phone,
-        street: addressInfo?.street || body.odoo?.partner?.street,
-        city: addressInfo?.city || body.odoo?.partner?.city,
-        zip: addressInfo?.zip || body.odoo?.partner?.zip,
-      },
-      enableSale,
-      autoConfirm: body.odoo?.sale?.autoConfirm === true,
-      enablePos,
-      posConfigId: body.odoo?.pos?.posConfigId,
-      posConfigName: body.odoo?.pos?.posConfigName,
-      customerNotePerLine: body.odoo?.pos?.customerNotePerLine,
-    });
+    // Only sync to Odoo if payment is confirmed (PAID) or CASH (COD)
+    // For online payments, wait for payment confirmation via webhook
+    const isCashPayment = body.paymentMethod === PaymentMethod.CASH;
+    const isPaid = created.paymentStatus === PaymentStatus.PAID;
+    
+    if (isCashPayment || isPaid) {
+      // Enqueue Odoo sync (fire-and-forget stub). Defaults: sale enabled, pos disabled.
+      const enableSale = body.odoo?.sale?.enable !== false;
+      const enablePos = body.odoo?.pos?.enable === true;
+      await enqueueOrderSync({
+        orderId: created.id,
+        clientOrderRef: clientOrderRef,
+        partner: {
+          name: body.odoo?.partner?.name || authUser?.name || "Website Customer",
+          email: body.odoo?.partner?.email || authUser?.email,
+          phone: addressInfo?.phone || body.odoo?.partner?.phone,
+          street: addressInfo?.street || body.odoo?.partner?.street,
+          city: addressInfo?.city || body.odoo?.partner?.city,
+          zip: addressInfo?.zip || body.odoo?.partner?.zip,
+        },
+        enableSale,
+        autoConfirm: body.odoo?.sale?.autoConfirm === true,
+        enablePos,
+        posConfigId: body.odoo?.pos?.posConfigId,
+        posConfigName: body.odoo?.pos?.posConfigName,
+        customerNotePerLine: body.odoo?.pos?.customerNotePerLine,
+      });
+    } else {
+      // For online payments, Odoo sync will be triggered by webhook after payment confirmation
+      console.log(`[Order] Online payment order ${created.id} - Odoo sync will be triggered after payment confirmation`);
+    }
 
     // Clear cart after order
     cartDB.clear(userId);
 
+    // Prepare response
+    const response: {
+      order: ReturnType<typeof serializeOrder>;
+      integrationStatus: string;
+      paymentIntent?: {
+        paymentKey: string;
+        transactionId: string;
+        amount: number;
+        currency: string;
+      };
+    } = {
+      order: serializeOrder(created),
+      integrationStatus: isCashPayment || isPaid ? "pending" : "waiting_payment",
+    };
+
+    // Include payment intent if created
+    if (paymentIntent) {
+      response.paymentIntent = {
+        paymentKey: paymentIntent.paymentKey,
+        transactionId: paymentIntent.transactionId,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+      };
+    }
+
     return jsonResponse(
-      successResponse(serializeOrder(created), "Order created successfully"),
+      successResponse(response, "Order created successfully"),
       201,
     );
   } catch (error) {

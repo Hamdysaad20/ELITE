@@ -13,7 +13,8 @@ type ProductRecord = {
   active?: boolean;
   sale_ok?: boolean;
   available_in_pos?: boolean;
-  website_published?: boolean; // Primary field for controlling website visibility
+  // website_published is NOT available in Odoo v19 on product.product
+  // Use product filtering via regex patterns instead (see filtering logic below)
   image_128?: string | boolean;
   image_1024?: string | boolean;
   image_1920?: string | boolean;
@@ -246,7 +247,8 @@ async function performSync(): Promise<{ success: boolean; error?: string; data?:
 
     const productFields = [
       "id", "name", "default_code", "list_price", "categ_id", "active", "sale_ok", "available_in_pos",
-      "website_published", // Primary field for controlling website visibility (recommended approach)
+      // Note: website_published is NOT available in Odoo v19 on product.product
+      // Product filtering uses regex patterns as fallback (see filtering logic below)
       "image_128", "image_1024", "image_1920", "uom_id", "taxes_id", "product_tmpl_id",
       "description_sale", "qty_available", "virtual_available", "sequence",
     ];
@@ -359,22 +361,16 @@ async function performSync(): Promise<{ success: boolean; error?: string; data?:
     }
 
     /**
-     * Filter out POS-only products using a data-driven approach.
+     * Filter out POS-only products using regex patterns on product names.
      * 
-     * PRIMARY METHOD (Recommended): Use Odoo's `website_published` field
-     * - Set `website_published = false` in Odoo for products that should not appear on the website
-     * - This is the most maintainable and robust approach
-     * - Products with `website_published = false` are excluded from the website catalog
+     * NOTE: In Odoo v19, the `website_published` field is NOT available on `product.product`.
+     * It only exists on `product.template` (as `is_published`), but we query `product.product` variants.
      * 
-     * FALLBACK METHOD (Legacy): Regex patterns on product names
-     * - Used as a fallback when `website_published` is not set (undefined/null)
-     * - This is brittle and can break if product naming conventions change
-     * - Consider migrating to `website_published` field in Odoo for long-term maintainability
+     * Current approach: Use regex patterns to identify POS-only products by name.
+     * This works for known patterns but may need updates if naming conventions change.
      * 
-     * To configure in Odoo:
-     * 1. Go to Inventory > Products > [Product]
-     * 2. In the "Sales" tab, uncheck "Published on Website" (website_published field)
-     * 3. This will exclude the product from website sync automatically
+     * Future enhancement: Could query `product.template.is_published` separately and join,
+     * but the current regex-based approach is simpler and sufficient for now.
      */
     const posOnlyVariantPatterns = [
       /turkish coffee single/i,
@@ -385,26 +381,13 @@ async function performSync(): Promise<{ success: boolean; error?: string; data?:
     
     // Filter out POS-only variant products before normalization
     const websiteProductsRaw = productsRaw.filter(p => {
-      // PRIMARY: Use website_published field if available (data-driven approach)
-      // If website_published is explicitly false, exclude the product
-      if (p.website_published === false) {
-        return false;
-      }
-      
-      // If website_published is explicitly true, include the product
-      if (p.website_published === true) {
-        return true;
-      }
-      
-      // FALLBACK: When website_published is undefined/null, use regex patterns (legacy behavior)
-      // This maintains backward compatibility while encouraging migration to website_published
+      // Use regex patterns to exclude POS-only products
       const name = p.name?.toLowerCase() || '';
       const matchesPosOnlyPattern = posOnlyVariantPatterns.some(pattern => pattern.test(name));
       
       if (matchesPosOnlyPattern) {
-        console.warn(
-          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern. ` +
-          `Consider setting website_published=false in Odoo for a more robust solution.`
+        console.log(
+          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern (POS-only variant)`
         );
         return false;
       }

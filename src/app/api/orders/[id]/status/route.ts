@@ -84,6 +84,13 @@ export async function PATCH(
     // Fetch existing order
     const order = await prisma.order.findFirst({
       where: { id, userId },
+      select: {
+        id: true,
+        status: true,
+        paymentStatus: true,
+        paymentMethod: true,
+        userId: true,
+      },
     });
 
     if (!order) {
@@ -102,6 +109,7 @@ export async function PATCH(
         id: true,
         status: true,
         paymentStatus: true,
+        paymentMethod: true,
         userId: true,
         saleOrderId: true,
         posOrderId: true,
@@ -113,8 +121,13 @@ export async function PATCH(
       },
     });
 
-    // Award loyalty points if order is completed/delivered
-    if (status && ["DELIVERED", "COMPLETED"].includes(status) && updatedOrder.userId) {
+    // Award loyalty points if order is completed/delivered AND payment is confirmed
+    // For online payments, points are only awarded after payment is confirmed (PAID status)
+    const isPaid = updatedOrder.paymentStatus === "PAID";
+    const isCashPayment = updatedOrder.paymentMethod === "CASH";
+    const isCompleted = status && ["DELIVERED", "COMPLETED"].includes(status);
+    
+    if (isCompleted && updatedOrder.userId && (isPaid || isCashPayment)) {
       const result = await awardOrderPoints(id, updatedOrder.userId);
       if (result) {
         console.log(`✅ Awarded ${result.pointsAwarded} points for order ${id}`);

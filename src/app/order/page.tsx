@@ -184,7 +184,16 @@ export default function OrderPage() {
         throw new Error(errorData.error || "Failed to place order");
       }
       const json = await res.json();
-      setLastOrder(json.data);
+      const orderData = json.data;
+      
+      // Check if payment intent was created (for online payments)
+      if (orderData.paymentIntent && (paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET)) {
+        // Redirect to payment page
+        window.location.href = `/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`;
+        return;
+      }
+      
+      setLastOrder(orderData.order || orderData);
       push({ type: "success", message: "Order placed successfully!" });
       clearCart(); // Clear local cart after successful order
     } catch (e) {
