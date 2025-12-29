@@ -780,3 +780,108 @@ img[loading="lazy"] {
   will-change: transform;
   backface-visibility: hidden;
 }
+
+/* =====================================================
+   DESKTOP SIZE REDUCTION - Make components smaller on desktop
+   Applies to ALL pages globally
+   ===================================================== */
+
+/* Desktop scale factor - adjust this value to control how much smaller things are */
+/* 0.85 = 15% smaller, 0.9 = 10% smaller, 0.95 = 5% smaller */
+:root {
+  --desktop-scale: 0.85;
+}
+
+/* Apply scaling to desktop views (lg and above) - GLOBAL for all pages */
+/* Using font-size scaling which naturally scales ALL rem-based units (Tailwind uses rem) */
+@media (min-width: 1024px) {
+  /* Scale root font-size - this scales ALL rem-based units automatically */
+  html {
+    font-size: calc(16px * var(--desktop-scale));
+  }
+  
+  /* Scale down container max-widths - covers all Tailwind max-width classes */
+  .max-w-7xl {
+    max-width: calc(80rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-6xl {
+    max-width: calc(72rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-5xl {
+    max-width: calc(64rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-4xl {
+    max-width: calc(56rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-3xl {
+    max-width: calc(48rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-2xl {
+    max-width: calc(42rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-xl {
+    max-width: calc(36rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-lg {
+    max-width: calc(32rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-md {
+    max-width: calc(28rem * var(--desktop-scale)) !important;
+  }
+  
+  .max-w-sm {
+    max-width: calc(24rem * var(--desktop-scale)) !important;
+  }
+  
+  /* Scale down custom max-widths (like max-w-[1600px], max-w-[1400px], etc.) */
+  [class*="max-w-\[1600px\]"] {
+    max-width: calc(1600px * var(--desktop-scale)) !important;
+  }
+  
+  [class*="max-w-\[1400px\]"] {
+    max-width: calc(1400px * var(--desktop-scale)) !important;
+  }
+  
+  [class*="max-w-\[1200px\]"] {
+    max-width: calc(1200px * var(--desktop-scale)) !important;
+  }
+  
+  /* Generic handler for any custom max-width with pixel values */
+  [class*="max-w-\["][class*="px"] {
+    /* This will be handled by the font-size scaling since rem units scale */
+    /* But we add specific pixel-based overrides above */
+  }
+  
+  /* Scale down spacing utilities that use fixed pixel values (if any) */
+  /* Most Tailwind spacing uses rem, so font-size scaling handles it automatically */
+  
+  /* Ensure icons and images scale proportionally */
+  svg, img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Scale down border radius for a more compact look */
+  .rounded-3xl {
+    border-radius: calc(1.5rem * var(--desktop-scale));
+  }
+  
+  .rounded-2xl {
+    border-radius: calc(1rem * var(--desktop-scale));
+  }
+}
+
+/* More aggressive scaling for 2xl screens and above */
+@media (min-width: 1536px) {
+  :root {
+    --desktop-scale: 0.8;
+  }
+}
