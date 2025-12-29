@@ -132,58 +132,190 @@ export async function updateStreak(
       };
     }
 
-    // Calculate hours since last activity
-    const hoursSinceLastActivity =
-      (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+    // For daily streaks, use calendar date comparison instead of hours
+    // This ensures a purchase at 10 PM and 8 AM next day correctly increments the streak
+    // Use specific streak types to avoid false positives (e.g., "weekly_daily_checkin")
+    const isDailyStreak = streakType === "deal_purchase" || 
+                          streakType === "daily_checkin" ||
+                          streakType.startsWith("daily_");
+    
+    if (isDailyStreak) {
+      // Validate timestamps (handle clock skew - future timestamps)
+      if (now.getTime() < lastActivity.getTime()) {
+        console.warn(
+          `⚠️ Clock skew detected for streak ${streakType}: now (${now.toISOString()}) < lastActivity (${lastActivity.toISOString()})`
+        );
+        // Use lastActivity as "now" to prevent incorrect behavior
+        const adjustedNow = new Date(lastActivity);
+        adjustedNow.setTime(adjustedNow.getTime() + 1000); // Add 1 second to ensure it's after
+        return {
+          streak: {
+            streakType: streak.streakType,
+            currentStreak: streak.currentStreak,
+            longestStreak: streak.longestStreak,
+            lastActivityAt: streak.lastActivityAt || undefined,
+            gracePeriodHours: streak.gracePeriodHours,
+          },
+          incremented: false,
+          reset: false,
+        };
+      }
 
-    // Check if within grace period (e.g., 4 hours = can maintain streak if activity within 24-28 hours)
-    const expectedInterval = 24; // Daily streak
-    const maxInterval = expectedInterval + gracePeriodHours;
+      // Compare calendar dates
+      const lastDate = new Date(lastActivity);
+      lastDate.setHours(0, 0, 0, 0);
+      const currentDate = new Date(now);
+      currentDate.setHours(0, 0, 0, 0);
+      
+      const daysDifference = Math.floor(
+        (currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      
+      // Validate daysDifference (should be >= 0 after clock skew check)
+      if (daysDifference < 0) {
+        console.warn(
+          `⚠️ Negative days difference for streak ${streakType}: ${daysDifference}. This should not happen after clock skew check.`
+        );
+        // Treat as same day to be safe
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            lastActivityAt: now,
+          },
+        });
 
-    if (hoursSinceLastActivity <= maxInterval) {
-      // Within grace period - increment streak
-      const newStreak = streak.currentStreak + 1;
-      const updated = await prisma.userStreak.update({
-        where: { id: streak.id },
-        data: {
-          currentStreak: newStreak,
-          longestStreak: Math.max(newStreak, streak.longestStreak),
-          lastActivityAt: now,
-        },
-      });
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: updated.longestStreak,
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: false,
+          reset: false,
+        };
+      }
+      
+      if (daysDifference === 0) {
+        // Same day - don't increment, just update timestamp
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            lastActivityAt: now,
+          },
+        });
 
-      return {
-        streak: {
-          streakType: updated.streakType,
-          currentStreak: updated.currentStreak,
-          longestStreak: updated.longestStreak,
-          lastActivityAt: updated.lastActivityAt || undefined,
-          gracePeriodHours: updated.gracePeriodHours,
-        },
-        incremented: true,
-        reset: false,
-      };
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: updated.longestStreak,
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: false,
+          reset: false,
+        };
+      } else if (daysDifference === 1) {
+        // Consecutive day - increment streak
+        const newStreak = streak.currentStreak + 1;
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            currentStreak: newStreak,
+            longestStreak: Math.max(newStreak, streak.longestStreak),
+            lastActivityAt: now,
+          },
+        });
+
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: updated.longestStreak,
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: true,
+          reset: false,
+        };
+      } else {
+        // More than 1 day gap - reset streak
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            currentStreak: 1,
+            lastActivityAt: now,
+          },
+        });
+
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: streak.longestStreak, // Keep longest streak
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: false,
+          reset: true,
+        };
+      }
     } else {
-      // Outside grace period - reset streak
-      const updated = await prisma.userStreak.update({
-        where: { id: streak.id },
-        data: {
-          currentStreak: 1,
-          lastActivityAt: now,
-        },
-      });
+      // For non-daily streaks, use the original hour-based logic
+      const hoursSinceLastActivity =
+        (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
 
-      return {
-        streak: {
-          streakType: updated.streakType,
-          currentStreak: updated.currentStreak,
-          longestStreak: streak.longestStreak, // Keep longest streak
-          lastActivityAt: updated.lastActivityAt || undefined,
-          gracePeriodHours: updated.gracePeriodHours,
-        },
-        incremented: false,
-        reset: true,
-      };
+      // Check if within grace period (e.g., 4 hours = can maintain streak if activity within 24-28 hours)
+      const expectedInterval = 24; // Default interval
+      const maxInterval = expectedInterval + gracePeriodHours;
+
+      if (hoursSinceLastActivity <= maxInterval) {
+        // Within grace period - increment streak
+        const newStreak = streak.currentStreak + 1;
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            currentStreak: newStreak,
+            longestStreak: Math.max(newStreak, streak.longestStreak),
+            lastActivityAt: now,
+          },
+        });
+
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: updated.longestStreak,
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: true,
+          reset: false,
+        };
+      } else {
+        // Outside grace period - reset streak
+        const updated = await prisma.userStreak.update({
+          where: { id: streak.id },
+          data: {
+            currentStreak: 1,
+            lastActivityAt: now,
+          },
+        });
+
+        return {
+          streak: {
+            streakType: updated.streakType,
+            currentStreak: updated.currentStreak,
+            longestStreak: streak.longestStreak, // Keep longest streak
+            lastActivityAt: updated.lastActivityAt || undefined,
+            gracePeriodHours: updated.gracePeriodHours,
+          },
+          incremented: false,
+          reset: true,
+        };
+      }
     }
   } catch (error) {
     console.error(`Error updating streak ${streakType}:`, error);

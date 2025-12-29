@@ -376,16 +376,53 @@ export class RewardEngine {
           : typeof rewardValue === "number"
           ? rewardValue
           : 0;
-        const success = await awardPointsReward(userId, pointsValue, rewardName);
-        if (success) {
+        const pointsResult = await awardPointsReward(userId, pointsValue, rewardName);
+        
+        // Handle partial success - award points if at least one system succeeded
+        if (pointsResult.partialSuccess || pointsResult.success) {
+          // Determine which system succeeded for better messaging
+          const systemsSucceeded: string[] = [];
+          if (pointsResult.loyalty.succeeded) systemsSucceeded.push("loyalty");
+          if (pointsResult.analytics.succeeded) systemsSucceeded.push("analytics");
+          
           rewards.push({
             type: "points",
-            value: { points: pointsValue },
+            value: { 
+              points: pointsValue,
+              // Include detailed result for monitoring
+              ...(pointsResult.analytics.pointsAwarded && { 
+                analyticsPoints: pointsResult.analytics.pointsAwarded 
+              }),
+            },
             name: rewardName,
             awardedAt: new Date(),
           });
+
+          // Log partial success as warning if not fully successful
+          if (!pointsResult.success && pointsResult.partialSuccess) {
+            const failedSystems: string[] = [];
+            if (pointsResult.loyalty.attempted && !pointsResult.loyalty.succeeded) {
+              failedSystems.push(`loyalty: ${pointsResult.loyalty.error || "unknown error"}`);
+            }
+            if (pointsResult.analytics.attempted && !pointsResult.analytics.succeeded) {
+              failedSystems.push(`analytics: ${pointsResult.analytics.error || "unknown error"}`);
+            }
+            errors.push(
+              `Partial points award success: ${systemsSucceeded.join(", ")} succeeded, but ${failedSystems.join(", ")} failed`
+            );
+          }
         } else {
-          errors.push(`Failed to award points: ${pointsValue}`);
+          // Complete failure
+          const errorDetails: string[] = [];
+          if (pointsResult.loyalty.attempted && pointsResult.loyalty.error) {
+            errorDetails.push(`loyalty: ${pointsResult.loyalty.error}`);
+          }
+          if (pointsResult.analytics.attempted && pointsResult.analytics.error) {
+            errorDetails.push(`analytics: ${pointsResult.analytics.error}`);
+          }
+          errors.push(
+            `Failed to award points: ${pointsValue}. Errors: ${errorDetails.join("; ")}`
+          );
         }
         break;
 
