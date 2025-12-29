@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAddresses } from "@/hooks/useAddresses";
 import type { Address } from "@/types";
+import { validateAddressField, ADDRESS_VALIDATION } from "@/lib/validators/addressValidator";
 import {
   MapPin,
   Plus,
@@ -66,6 +67,19 @@ export default function AddressManager({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate all fields using shared validator
+    const validation = validateAddress(formData);
+    if (!validation.isValid) {
+      // Set errors from validation
+      const errorMap: Record<string, string> = {};
+      validation.errors.forEach((err) => {
+        errorMap[err.field] = err.message;
+      });
+      setErrors(errorMap);
+      return;
+    }
+    
     setSubmitting(true);
 
     try {
@@ -94,6 +108,10 @@ export default function AddressManager({
       });
     } catch (err) {
       console.error("Error saving address:", err);
+      // Show error message if it's a duplicate address error
+      if (err instanceof Error && err.message.includes("already exists")) {
+        alert(err.message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -329,6 +347,39 @@ function AddressForm({
   submitting,
   onCancel,
 }: AddressFormProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Use shared validation function
+  const validateField = (name: string, value: string | null | undefined) => {
+    const validation = validateAddressField(name, value);
+    const newErrors = { ...errors };
+    
+    if (!validation.isValid && validation.message) {
+      newErrors[name] = validation.message;
+    } else {
+      delete newErrors[name];
+    }
+    
+    setErrors(newErrors);
+  };
+
+  const handleFieldChange = (name: string, value: string) => {
+    // For city field, prevent numeric input in real-time
+    if (name === "city") {
+      // Remove any numeric characters
+      const cleanedValue = value.replace(/\d/g, "");
+      if (cleanedValue !== value) {
+        // If numbers were removed, update with cleaned value
+        setFormData({ ...formData, [name]: cleanedValue });
+        validateField(name, cleanedValue);
+        return;
+      }
+    }
+    
+    setFormData({ ...formData, [name]: value });
+    validateField(name, value);
+  };
+
   return (
     <div className="space-y-5">
       <h4 className="font-calistoga text-elite-black text-lg mb-4">
@@ -366,11 +417,20 @@ function AddressForm({
         <input
           type="text"
           required
+          maxLength={ADDRESS_VALIDATION.STREET_MAX_LENGTH}
           value={formData.street}
-          onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+          onChange={(e) => handleFieldChange("street", e.target.value)}
+          onBlur={(e) => validateField("street", e.target.value)}
           placeholder="123 Main Street"
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+          className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+            errors.street
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+              : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+          }`}
         />
+        {errors.street && (
+          <p className="mt-1 text-sm text-red-600 font-cabin">{errors.street}</p>
+        )}
       </div>
 
       {/* Apartment/Unit */}
@@ -380,13 +440,20 @@ function AddressForm({
         </label>
         <input
           type="text"
+          maxLength={ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH}
           value={formData.apartment}
-          onChange={(e) =>
-            setFormData({ ...formData, apartment: e.target.value })
-          }
+          onChange={(e) => handleFieldChange("apartment", e.target.value)}
+          onBlur={(e) => validateField("apartment", e.target.value)}
           placeholder="Apt 4B"
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+          className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+            errors.apartment
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+              : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+          }`}
         />
+        {errors.apartment && (
+          <p className="mt-1 text-sm text-red-600 font-cabin">{errors.apartment}</p>
+        )}
       </div>
 
       {/* City & State */}
@@ -398,11 +465,20 @@ function AddressForm({
           <input
             type="text"
             required
+            maxLength={ADDRESS_VALIDATION.CITY_MAX_LENGTH}
             value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            onChange={(e) => handleFieldChange("city", e.target.value)}
+            onBlur={(e) => validateField("city", e.target.value)}
             placeholder="Cairo"
-            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+              errors.city
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+            }`}
           />
+          {errors.city && (
+            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.city}</p>
+          )}
         </div>
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
@@ -410,11 +486,20 @@ function AddressForm({
           </label>
           <input
             type="text"
+            maxLength={ADDRESS_VALIDATION.STATE_MAX_LENGTH}
             value={formData.state}
-            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+            onChange={(e) => handleFieldChange("state", e.target.value)}
+            onBlur={(e) => validateField("state", e.target.value)}
             placeholder="Cairo Governorate"
-            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+              errors.state
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+            }`}
           />
+          {errors.state && (
+            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.state}</p>
+          )}
         </div>
       </div>
 
@@ -426,13 +511,20 @@ function AddressForm({
           </label>
           <input
             type="text"
+            maxLength={ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH}
             value={formData.zipCode}
-            onChange={(e) =>
-              setFormData({ ...formData, zipCode: e.target.value })
-            }
+            onChange={(e) => handleFieldChange("zipCode", e.target.value)}
+            onBlur={(e) => validateField("zipCode", e.target.value)}
             placeholder="12345"
-            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+              errors.zipCode
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+            }`}
           />
+          {errors.zipCode && (
+            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.zipCode}</p>
+          )}
         </div>
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
@@ -440,11 +532,20 @@ function AddressForm({
           </label>
           <input
             type="tel"
+            maxLength={ADDRESS_VALIDATION.PHONE_MAX_LENGTH}
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e) => handleFieldChange("phone", e.target.value)}
+            onBlur={(e) => validateField("phone", e.target.value)}
             placeholder="+20 123 456 7890"
-            className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin transition-all"
+            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+              errors.phone
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+            }`}
           />
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.phone}</p>
+          )}
         </div>
       </div>
 
@@ -454,12 +555,26 @@ function AddressForm({
           Delivery Instructions <span className="text-elite-black/40">(Optional)</span>
         </label>
         <textarea
+          maxLength={ADDRESS_VALIDATION.NOTES_MAX_LENGTH}
           value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          onChange={(e) => handleFieldChange("notes", e.target.value)}
+          onBlur={(e) => validateField("notes", e.target.value)}
           placeholder="e.g., Ring doorbell, leave at door, etc."
           rows={3}
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-2 focus:ring-elite-burgundy/20 focus:outline-none font-cabin resize-none transition-all"
+          className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin resize-none transition-all ${
+            errors.notes
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+              : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+          }`}
         />
+        <div className="flex justify-between items-center mt-1">
+          {errors.notes && (
+            <p className="text-sm text-red-600 font-cabin">{errors.notes}</p>
+          )}
+          <p className="text-xs text-elite-black/40 font-cabin ml-auto">
+            {formData.notes?.length || 0}/{ADDRESS_VALIDATION.NOTES_MAX_LENGTH} characters
+          </p>
+        </div>
       </div>
 
       {/* Action Buttons */}

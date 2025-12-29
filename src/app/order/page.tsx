@@ -637,7 +637,7 @@ export default function OrderPage() {
                           {getPaymentIcon()}
                         </div>
                         <div className="flex-1 min-w-0 overflow-hidden">
-                          <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                          <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
                             {getPaymentLabel()}
                           </div>
                           <div className={`font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 ${
