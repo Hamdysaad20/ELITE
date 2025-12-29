@@ -166,7 +166,10 @@ export default function DrinkCard({
   const CardContent = () => (
     <div
       className={cn(
-        "bg-white rounded-2xl sm:rounded-3xl shadow-lg border border-elite-burgundy/8 overflow-hidden h-full flex flex-col",
+        "bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-full flex flex-col",
+        // Premium multi-layer shadows
+        "shadow-[0_2px_8px_rgba(139,0,0,0.08),0_4px_16px_rgba(139,0,0,0.06)]",
+        "border border-elite-burgundy/10",
         "transition-all touch-manipulation",
         animDuration,
         // Entrance animation
@@ -174,9 +177,12 @@ export default function DrinkCard({
           ? "opacity-100" 
           : isVisible 
             ? "opacity-100 translate-y-0" 
-            : "opacity-0 translate-y-3",
-        // Hover effects (desktop only)
-        "md:hover:shadow-xl md:hover:border-elite-burgundy/15 md:hover:-translate-y-1",
+            : "opacity-0 translate-y-4",
+        // Enhanced hover effects (desktop only)
+        "md:hover:shadow-[0_8px_24px_rgba(139,0,0,0.12),0_4px_16px_rgba(139,0,0,0.08)]",
+        "md:hover:border-elite-burgundy/20",
+        "md:hover:-translate-y-1.5",
+        "md:hover:scale-[1.02]",
         // Active/press effect
         "active:scale-[0.98]",
         !isAvailable && "opacity-60",
@@ -192,21 +198,47 @@ export default function DrinkCard({
         <div
           className={cn(
             "relative bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 rounded-xl sm:rounded-2xl overflow-hidden",
+            "group-hover:shadow-inner",
             sizes.image
           )}
         >
-          <ImageWithFallback
-            src={validImages}
-            alt={displayName}
-            className={cn(
-              "w-full h-full object-cover transition-transform",
-              animDuration,
-              "group-hover:scale-105"
-            )}
-            fill={true}
-            objectFit="cover"
-            showErrorIcon={true}
-          />
+          {/* Image with enhanced hover effect */}
+          <div className="relative w-full h-full overflow-hidden rounded-xl sm:rounded-2xl">
+            <ImageWithFallback
+              src={validImages}
+              alt={displayName}
+              className={cn(
+                "w-full h-full object-cover transition-all",
+                animDuration,
+                "group-hover:scale-110"
+              )}
+              fill={true}
+              objectFit="cover"
+              showErrorIcon={true}
+            />
+            {/* Subtle gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-elite-burgundy/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          
+          {/* Enhanced FOMO Badge for Big Deals (on image corner) */}
+          {dealInfo && isDealsPage && dealInfo.savingsPercent >= 20 && (
+            <div className="absolute top-2 right-2 z-10">
+              <div className="relative">
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl blur-sm opacity-75 animate-pulse" />
+                {/* Badge */}
+                <div className="relative bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 text-white px-3.5 py-2 rounded-xl shadow-2xl border-2 border-white/40 transform rotate-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-sm font-calistoga font-bold drop-shadow-sm">
+                      🔥 {dealInfo.savingsPercent.toFixed(0)}% OFF
+                    </span>
+                  </div>
+                  {/* Decorative corner dot */}
+                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-teal-800 rounded-full border-2 border-white/40 shadow-lg" />
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Unavailable overlay */}
           {!isAvailable && (
@@ -231,43 +263,51 @@ export default function DrinkCard({
           {displayName}
         </h4>
         
-        {/* Price Display - Deal-aware */}
+        {/* Price Display - Deal-aware with enhanced styling */}
         {displayPrice !== null && (
-          <div className="space-y-0.5 sm:space-y-1">
+          <div className="mt-2.5 space-y-1.5">
             {dealInfo && isDealsPage ? (
-              // Deal page: Show deal details inside card
-              <div className="space-y-1">
-                {dealInfo.dealActive && dealInfo.savings > 0 ? (
-                  <>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className={cn(
-                        "font-cabin text-elite-burgundy font-bold",
-                        adaptivePriceSize
-                      )}>
-                        EGP {dealInfo.dealPrice.toFixed(0)}
-                      </p>
-                      <span className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-cabin font-semibold">
-                        Save {dealInfo.savingsPercent}%
-                      </span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs font-cabin text-elite-black/50 line-through">
-                      {dealInfo.originalPrice.toFixed(0)} EGP
-                    </p>
-                  </>
-                ) : (
-                  <>
+              // Deal page: Show deal details inside card with premium styling
+              <div className="space-y-2">
+                {/* Original Price (strikethrough, grayed out) - More subtle */}
+                {/* Show original price if it's different from deal price (even if savings is 0 due to rounding) */}
+                {dealInfo.originalPrice !== dealInfo.dealPrice && dealInfo.originalPrice > 0 && (
+                  <p className="text-xs sm:text-sm font-cabin text-elite-black/35 line-through decoration-elite-black/30">
+                    {dealInfo.originalPrice.toFixed(0)} EGP
+                  </p>
+                )}
+                
+                {/* Deal Price (bigger, more attractive with gradient effect) */}
+                <div className="flex items-baseline gap-2.5 flex-wrap">
+                  <div className="relative">
+                    {/* Subtle text shadow for depth */}
                     <p className={cn(
-                      "font-cabin text-elite-burgundy font-bold",
-                      adaptivePriceSize
+                      "font-calistoga font-bold leading-tight",
+                      "bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent",
+                      "drop-shadow-sm",
+                      dealInfo.savingsPercent >= 20 
+                        ? "text-2xl sm:text-3xl" // Bigger for big deals
+                        : adaptivePriceSize
                     )}>
-                      EGP {displayPrice.toFixed(0)}
+                      {dealInfo.dealPrice.toFixed(0)} <span className="text-lg sm:text-xl">EGP</span>
                     </p>
-                    {!dealInfo.dealActive && dealInfo.dealPrice !== dealInfo.originalPrice && (
-                      <p className="text-[10px] sm:text-xs font-cabin text-amber-600">
-                        Deal: {dealInfo.dealPrice.toFixed(0)} EGP
-                      </p>
-                    )}
-                  </>
+                  </div>
+                  
+                  {/* Enhanced Savings Pill (only for deals < 20% - big deals have FOMO badge on image) */}
+                  {/* Show savings pill if there's any savings and it's less than 20% (big deals show FOMO badge) */}
+                  {dealInfo.savings > 0 && dealInfo.savingsPercent > 0 && dealInfo.savingsPercent < 20 && (
+                    <span className="inline-flex items-center bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 px-3 py-1.5 rounded-full text-xs font-cabin font-bold shadow-sm border border-emerald-200/50">
+                      Save {dealInfo.savingsPercent.toFixed(0)}%
+                    </span>
+                  )}
+                </div>
+                
+                {/* Deal Status Message */}
+                {!dealInfo.dealActive && (
+                  <p className="text-xs font-cabin text-amber-600 mt-1.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                    Deal not currently active
+                  </p>
                 )}
               </div>
             ) : (
@@ -282,20 +322,20 @@ export default function DrinkCard({
           </div>
         )}
         
-        {/* Action Button - Rounded pill style */}
+        {/* Enhanced Action Button - Premium rounded pill style */}
         {showAddToOrder && menuItemId && isAvailable && (
-          <div className="mt-auto pt-2 sm:pt-3">
+          <div className="mt-auto pt-3 sm:pt-4">
             <button
               onClick={handleAddToOrder}
               disabled={addToOrderState.adding}
               className={cn(
-                "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-cabin font-bold",
-                "shadow-md transition-all touch-manipulation active:scale-[0.97]",
+                "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-cabin font-bold",
+                "transition-all touch-manipulation active:scale-[0.97]",
+                "min-h-[44px] sm:min-h-[48px]",
                 animDuration,
-                "min-h-[40px] sm:min-h-[48px]",
                 addToOrderState.added
-                  ? "bg-emerald-500 text-white shadow-emerald-500/25"
-                  : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25"
+                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
+                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
               )}
               aria-live="polite"
             >

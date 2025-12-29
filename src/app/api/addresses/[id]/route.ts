@@ -3,6 +3,8 @@ import { prisma } from "@/server/db/client";
 import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { createOdooClient } from "@/server/utils/odooClient";
+import { updateAddressSchema } from "@/server/validators/addressSchemas";
+import type { ZodIssue } from "zod";
 
 // GET /api/addresses/[id] - Get single address
 export async function GET(
@@ -77,6 +79,59 @@ export async function PATCH(
       );
     }
 
+    // Validate with Zod schema
+    const validationResult = updateAddressSchema.safeParse(body);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err: ZodIssue) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Validation failed",
+          errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = validationResult.data;
+
+    // Check for duplicate address (excluding current address, case-insensitive)
+    if (validatedData.street && validatedData.city) {
+      const normalizedStreet = validatedData.street.trim().toLowerCase();
+      const normalizedCity = validatedData.city.trim().toLowerCase();
+      const normalizedApartment = (validatedData.apartment || "").trim().toLowerCase();
+      
+      // Get all user addresses except current one
+      const userAddresses = await prisma.address.findMany({
+        where: {
+          userId: session.user.id,
+          id: { not: id },
+        },
+      });
+
+      const isDuplicate = userAddresses.some((addr) => {
+        const addrStreet = (addr.street || "").trim().toLowerCase();
+        const addrCity = (addr.city || "").trim().toLowerCase();
+        const addrApartment = (addr.apartment || "").trim().toLowerCase();
+        
+        return (
+          addrStreet === normalizedStreet &&
+          addrCity === normalizedCity &&
+          addrApartment === normalizedApartment
+        );
+      });
+
+      if (isDuplicate) {
+        return NextResponse.json(
+          { success: false, error: "This address already exists in your address book" },
+          { status: 400 }
+        );
+      }
+    }
+
     // If setting as default, unset other defaults
     if (body.isDefault === true) {
       await prisma.address.updateMany({
@@ -85,20 +140,22 @@ export async function PATCH(
       });
     }
 
+    // Merge validated data with existing address (only update provided fields)
+    const updateData: Record<string, unknown> = {};
+    if (validatedData.label !== undefined) updateData.label = validatedData.label;
+    if (validatedData.street !== undefined) updateData.street = validatedData.street;
+    if (validatedData.apartment !== undefined) updateData.apartment = validatedData.apartment;
+    if (validatedData.city !== undefined) updateData.city = validatedData.city;
+    if (validatedData.state !== undefined) updateData.state = validatedData.state;
+    if (validatedData.zipCode !== undefined) updateData.zipCode = validatedData.zipCode;
+    if (validatedData.country !== undefined) updateData.country = validatedData.country;
+    if (validatedData.phone !== undefined) updateData.phone = validatedData.phone;
+    if (validatedData.notes !== undefined) updateData.notes = validatedData.notes;
+    if (validatedData.isDefault !== undefined) updateData.isDefault = validatedData.isDefault;
+
     const address = await prisma.address.update({
       where: { id },
-      data: {
-        label: body.label,
-        street: body.street,
-        apartment: body.apartment,
-        city: body.city,
-        state: body.state,
-        zipCode: body.zipCode,
-        country: body.country,
-        phone: body.phone,
-        notes: body.notes,
-        isDefault: body.isDefault,
-      },
+      data: updateData,
     });
 
     // Sync updated address to Odoo

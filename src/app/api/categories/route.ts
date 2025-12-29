@@ -40,28 +40,49 @@ export async function GET(_request: NextRequest) {
       const syncResult = await syncProductsFromOdoo();
       
       if (!syncResult.success) {
-        return jsonResponse(
-          errorResponse(
-            "Category list is being synchronized. Please refresh the page in a moment.",
-          ),
-          503,
-        );
+        // Check if sync is in progress - wait briefly for it
+        const isLocked = await redisGet("sync:in_progress");
+        if (isLocked) {
+          console.log('[CATEGORIES] Sync in progress, waiting briefly...');
+          // Wait up to 3 seconds for sync to complete
+          for (let i = 0; i < 6; i++) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const waitCategories = await redisGet<Category[]>("categories:list");
+            const waitLastUpdate = await redisGet<string>("sync:last_update");
+            if (waitCategories) {
+              allCategories = waitCategories;
+              lastUpdate = waitLastUpdate;
+              break;
+            }
+          }
+        }
+        
+        // If still no data after waiting, return 503
+        if (!allCategories) {
+          return jsonResponse(
+            errorResponse(
+              "Category list is being synchronized. Please refresh the page in a moment.",
+            ),
+            503,
+          );
+        }
+      } else {
+        // Sync succeeded, fetch fresh data
+        const freshCategories = await redisGet<Category[]>("categories:list");
+        const freshLastUpdate = await redisGet<string>("sync:last_update");
+        
+        if (freshCategories) {
+          allCategories = freshCategories;
+          lastUpdate = freshLastUpdate;
+        } else {
+          // Sync said it succeeded but no data - this shouldn't happen, but handle gracefully
+          console.error('[CATEGORIES] Sync succeeded but no categories found');
+          return jsonResponse(
+            errorResponse("Failed to load categories after sync. Please try again."),
+            503,
+          );
+        }
       }
-      
-      // Fetch again after sync
-      const freshCategories = await redisGet<Category[]>("categories:list");
-      const freshLastUpdate = await redisGet<string>("sync:last_update");
-      
-      if (!freshCategories) {
-        return jsonResponse(
-          errorResponse("Failed to load categories after sync. Please try again."),
-          503,
-        );
-      }
-      
-      // Update variables
-      allCategories = freshCategories;
-      lastUpdate = freshLastUpdate;
     }
     
     // Filter out excluded categories
@@ -77,6 +98,8 @@ export async function GET(_request: NextRequest) {
     return response;
   } catch (err: any) {
     const msg = err?.message || "Failed to fetch categories";
+    // Log full error for debugging but return user-friendly message
+    console.error('[API] /api/categories error:', err);
     return jsonResponse(errorResponse(msg), 500);
   }
 }

@@ -90,3 +90,23 @@ export function isValidDiscountPercentage(
   return percentage > 0 && percentage <= maxPercentage;
 }
 
+/**
+ * Premium Rounding: Round prices to the nearest 5 EGP for brand aesthetics
+ * This maintains a premium "Elite" feel by avoiding odd prices like 113 EGP
+ * 
+ * @param price Original price to round
+ * @returns Price rounded to nearest 5 EGP
+ * 
+ * @example
+ * premiumRound(113) // Returns 115
+ * premiumRound(127) // Returns 125
+ * premiumRound(98)  // Returns 100
+ * premiumRound(87.3) // Returns 85
+ * 
+ * Formula: 5 × round(price / 5)
+ */
+export function premiumRound(price: number): number {
+  if (price <= 0) return 0;
+  return Math.round(price / 5) * 5;
+}
+

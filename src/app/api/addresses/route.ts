@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { createOdooClient } from "@/server/utils/odooClient";
+import { createAddressSchema } from "@/server/validators/addressSchemas";
 
 // GET /api/addresses - Get all addresses for current user
 export async function GET(req: NextRequest) {
@@ -53,6 +54,25 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    // Validate with Zod schema
+    const validationResult = createAddressSchema.safeParse(body);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Validation failed",
+          errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = validationResult.data;
     const {
       label,
       street,
@@ -64,12 +84,33 @@ export async function POST(req: NextRequest) {
       phone,
       notes,
       isDefault = false,
-    } = body;
+    } = validatedData;
 
-    // Validation
-    if (!label || !street || !city) {
+    // Check for duplicate address (case-insensitive comparison)
+    const normalizedStreet = (street as string).trim().toLowerCase();
+    const normalizedCity = (city as string).trim().toLowerCase();
+    const normalizedApartment = (apartment as string | null | undefined)?.trim().toLowerCase() || "";
+    
+    // Get all user addresses and check for duplicates
+    const userAddresses = await prisma.address.findMany({
+      where: { userId: session.user.id },
+    });
+
+    const isDuplicate = userAddresses.some((addr) => {
+      const addrStreet = (addr.street || "").trim().toLowerCase();
+      const addrCity = (addr.city || "").trim().toLowerCase();
+      const addrApartment = (addr.apartment || "").trim().toLowerCase();
+      
+      return (
+        addrStreet === normalizedStreet &&
+        addrCity === normalizedCity &&
+        addrApartment === normalizedApartment
+      );
+    });
+
+    if (isDuplicate) {
       return NextResponse.json(
-        { success: false, error: "Label, street, and city are required" },
+        { success: false, error: "This address already exists in your address book" },
         { status: 400 }
       );
     }
@@ -90,16 +131,16 @@ export async function POST(req: NextRequest) {
     const address = await prisma.address.create({
       data: {
         userId: session.user.id,
-        label,
-        street,
-        apartment,
-        city,
-        state,
-        zipCode,
-        country,
-        phone,
-        notes,
-        isDefault: isDefault || addressCount === 0,
+        label: label as string,
+        street: street as string,
+        apartment: apartment as string | null | undefined,
+        city: city as string,
+        state: state as string | null | undefined,
+        zipCode: zipCode as string | null | undefined,
+        country: country as string,
+        phone: phone as string | null | undefined,
+        notes: notes as string | null | undefined,
+        isDefault: (isDefault as boolean) || addressCount === 0,
       },
     });
 

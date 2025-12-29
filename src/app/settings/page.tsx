@@ -20,11 +20,30 @@ export default function SettingsPage() {
   const [savingName, setSavingName] = useState(false);
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
   
-  // Notification preferences
+  // Notification preferences - load from localStorage on mount
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [orderUpdates, setOrderUpdates] = useState(true);
   const [promotions, setPromotions] = useState(false);
   const [savingNotifications, setSavingNotifications] = useState(false);
+
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedEmailNotifications = localStorage.getItem("emailNotifications");
+      const savedOrderUpdates = localStorage.getItem("orderUpdates");
+      const savedPromotions = localStorage.getItem("promotions");
+      
+      if (savedEmailNotifications !== null) {
+        setEmailNotifications(savedEmailNotifications === "true");
+      }
+      if (savedOrderUpdates !== null) {
+        setOrderUpdates(savedOrderUpdates === "true");
+      }
+      if (savedPromotions !== null) {
+        setPromotions(savedPromotions === "true");
+      }
+    }
+  }, []);
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -82,15 +101,44 @@ export default function SettingsPage() {
         if (!value) {
           setOrderUpdates(false);
           setPromotions(false);
+          // Save to localStorage
+          if (typeof window !== "undefined") {
+            localStorage.setItem("emailNotifications", "false");
+            localStorage.setItem("orderUpdates", "false");
+            localStorage.setItem("promotions", "false");
+          }
+        } else {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("emailNotifications", "true");
+          }
         }
       } else if (type === "order") {
         setOrderUpdates(value);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("orderUpdates", value.toString());
+        }
       } else if (type === "promo") {
         setPromotions(value);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("promotions", value.toString());
+        }
       }
 
-      // TODO: Add API call to save notification preferences
-      // await fetch("/api/user/preferences", { ... });
+      // Save to backend API (if endpoint exists)
+      try {
+        await fetch("/api/user/preferences", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            emailNotifications: type === "email" ? value : emailNotifications,
+            orderUpdates: type === "order" ? value : orderUpdates,
+            promotions: type === "promo" ? value : promotions,
+          }),
+        });
+      } catch (apiError) {
+        // API endpoint might not exist yet, that's okay - localStorage is the fallback
+        console.log("Preferences API not available, using localStorage only");
+      }
       
     } catch (error) {
       console.error("Error updating notifications:", error);

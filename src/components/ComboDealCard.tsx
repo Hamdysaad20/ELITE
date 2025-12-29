@@ -100,28 +100,39 @@ export default function ComboDealCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl sm:rounded-3xl shadow-lg border border-elite-burgundy/8 overflow-hidden",
+        "bg-white rounded-2xl sm:rounded-3xl overflow-hidden",
+        // Premium multi-layer shadows
+        "shadow-[0_4px_12px_rgba(139,0,0,0.1),0_2px_8px_rgba(139,0,0,0.08)]",
+        "border border-elite-burgundy/10",
         "transition-all duration-300",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3",
-        "md:hover:shadow-xl md:hover:border-elite-burgundy/15 md:hover:-translate-y-1",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        // Enhanced hover effects
+        "md:hover:shadow-[0_12px_32px_rgba(139,0,0,0.15),0_4px_16px_rgba(139,0,0,0.1)]",
+        "md:hover:border-elite-burgundy/20",
+        "md:hover:-translate-y-2",
+        "md:hover:scale-[1.02]",
         !combo.dealActive && "opacity-60",
         className
       )}
     >
-      {/* Image Slider */}
-      <div className="relative h-48 sm:h-56 bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8">
+      {/* Enhanced Image Slider */}
+      <div className="relative h-52 sm:h-64 bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 overflow-hidden">
         {validImages.length > 0 ? (
           <>
-            <ImageWithFallback
-              src={validImages[currentIndex % validImages.length] || validImages[0]}
-              alt={currentItem.name}
-              className="w-full h-full object-cover"
-              fill={true}
-              objectFit="cover"
-              showErrorIcon={true}
-            />
+            <div className="relative w-full h-full">
+              <ImageWithFallback
+                src={validImages[currentIndex % validImages.length] || validImages[0]}
+                alt={currentItem.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                fill={true}
+                objectFit="cover"
+                showErrorIcon={true}
+              />
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-elite-burgundy/10 to-transparent" />
+            </div>
             
-            {/* Slider Controls */}
+            {/* Enhanced Slider Controls */}
             {hasMultipleItems && (
               <>
                 <button
@@ -129,24 +140,24 @@ export default function ComboDealCard({
                     e.stopPropagation();
                     prevItem();
                   }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-all"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white rounded-full p-2 shadow-lg border border-elite-burgundy/10 hover:border-elite-burgundy/20 transition-all hover:scale-110 z-10"
                   aria-label="Previous item"
                 >
-                  <ChevronLeft className="w-4 h-4 text-elite-burgundy" />
+                  <ChevronLeft className="w-5 h-5 text-elite-burgundy" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     nextItem();
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-all"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white rounded-full p-2 shadow-lg border border-elite-burgundy/10 hover:border-elite-burgundy/20 transition-all hover:scale-110 z-10"
                   aria-label="Next item"
                 >
-                  <ChevronRight className="w-4 h-4 text-elite-burgundy" />
+                  <ChevronRight className="w-5 h-5 text-elite-burgundy" />
                 </button>
                 
-                {/* Dots Indicator */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {/* Enhanced Dots Indicator */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-elite-burgundy/10">
                   {combo.items.map((_, idx) => (
                     <button
                       key={idx}
@@ -155,10 +166,10 @@ export default function ComboDealCard({
                         setCurrentIndex(idx);
                       }}
                       className={cn(
-                        "w-1.5 h-1.5 rounded-full transition-all",
+                        "rounded-full transition-all duration-300",
                         idx === currentIndex
-                          ? "bg-elite-burgundy w-4"
-                          : "bg-white/60 hover:bg-white/80"
+                          ? "bg-elite-burgundy w-6 h-2 shadow-sm"
+                          : "bg-elite-burgundy/30 hover:bg-elite-burgundy/50 w-2 h-2"
                       )}
                       aria-label={`Go to item ${idx + 1}`}
                     />
@@ -174,69 +185,99 @@ export default function ComboDealCard({
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-4 sm:p-5 flex flex-col h-full">
+      {/* Enhanced Content */}
+      <div className="p-5 sm:p-6 flex flex-col h-full">
         <h3 className={cn(
-          "font-calistoga text-elite-black font-bold mb-2 line-clamp-2",
+          "font-calistoga text-elite-black font-bold mb-3 line-clamp-2",
           getTitleSize()
         )}>
           {combo.name}
         </h3>
 
-        {/* Items List */}
-        <div className="mb-3 space-y-1">
-          {combo.items.map((item, idx) => (
-            <div key={item.id} className="flex items-center gap-2 text-xs sm:text-sm">
-              <span className="text-elite-burgundy font-semibold">•</span>
-              <span className="font-cabin text-elite-black/70 flex-1 line-clamp-1">
-                {item.name}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Price Section */}
-        <div className="mt-auto space-y-1.5">
-          {combo.dealActive && combo.savings > 0 ? (
-            <>
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
-                  EGP {combo.dealPrice.toFixed(0)}
-                </p>
-                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-cabin font-semibold">
-                  Save {combo.savingsPercent}%
+        {/* Enhanced Items List with Premium Card Style */}
+        <div className="mb-5 space-y-2.5 bg-gradient-to-br from-elite-cream/40 to-elite-cream/20 rounded-2xl p-4 border border-elite-burgundy/10 shadow-sm">
+          <p className="text-xs font-cabin font-bold text-elite-black/80 mb-3 uppercase tracking-wide">
+            Items included:
+          </p>
+          <div className="space-y-2">
+            {combo.items.map((item, idx) => (
+              <div 
+                key={item.id} 
+                className="flex items-center justify-between bg-white/60 rounded-xl p-2.5 border border-elite-burgundy/5 hover:bg-white/80 transition-colors"
+              >
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-xs font-bold font-cabin">{idx + 1}</span>
+                  </div>
+                  <span className="font-cabin text-elite-black/90 font-medium truncate text-sm">
+                    {item.name}
+                  </span>
+                </div>
+                <span className="font-cabin text-elite-burgundy font-semibold text-sm ml-3 flex-shrink-0">
+                  {item.price.toFixed(0)} EGP
                 </span>
               </div>
-              <p className="text-xs font-cabin text-elite-black/50 line-through">
-                {combo.originalTotal.toFixed(0)} EGP
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-cabin text-elite-burgundy font-bold text-lg sm:text-xl">
-                EGP {combo.dealPrice.toFixed(0)}
-              </p>
-              {!combo.dealActive && (
-                <p className="text-xs font-cabin text-amber-600">
-                  Deal: {combo.dealPrice.toFixed(0)} EGP
-                </p>
-              )}
-            </>
+            ))}
+          </div>
+        </div>
+
+        {/* Enhanced Price Section with Premium Styling */}
+        <div className="mt-auto space-y-3 bg-gradient-to-br from-white to-elite-cream/30 rounded-2xl p-5 border-2 border-elite-burgundy/15 shadow-md">
+          {/* Original Total */}
+          <div className="flex items-center justify-between pb-2 border-b border-elite-burgundy/10">
+            <span className="font-cabin text-elite-black/60 text-sm font-medium">
+              Original Total:
+            </span>
+            <span className="font-cabin text-elite-black/40 text-sm line-through decoration-elite-black/40">
+              {combo.originalTotal.toFixed(0)} EGP
+            </span>
+          </div>
+          
+          {/* Deal Price - Enhanced */}
+          <div className="flex items-center justify-between py-2">
+            <span className="font-cabin text-elite-black/80 text-sm font-bold">
+              Combo Price:
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-calistoga text-elite-burgundy font-bold text-2xl sm:text-3xl bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent">
+                {combo.dealPrice.toFixed(0)}
+              </span>
+              <span className="font-cabin text-elite-burgundy font-semibold text-sm">EGP</span>
+            </div>
+          </div>
+          
+          {/* Enhanced Savings (Very Prominent) */}
+          {combo.dealActive && combo.savings > 0 && (
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-3.5 border-2 border-emerald-200/50 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-cabin text-emerald-800 font-bold text-sm uppercase tracking-wide">
+                  You Save:
+                </span>
+                <div className="flex items-center gap-2.5">
+                  <span className="font-calistoga text-emerald-700 font-bold text-lg">
+                    {combo.savings.toFixed(0)} EGP
+                  </span>
+                  <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-md">
+                    {combo.savingsPercent.toFixed(0)}% OFF
+                  </span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Add Button */}
+        {/* Enhanced Add Button */}
         {combo.dealActive && (
           <button
             onClick={handleAddToCart}
             disabled={adding}
             className={cn(
-              "w-full mt-3 flex items-center justify-center gap-2 py-3 rounded-xl sm:rounded-2xl text-sm font-cabin font-bold",
-              "shadow-md transition-all touch-manipulation active:scale-[0.97]",
-              "min-h-[44px]",
+              "w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-xl sm:rounded-2xl text-sm font-cabin font-bold",
+              "transition-all touch-manipulation active:scale-[0.97]",
+              "min-h-[48px]",
               added
-                ? "bg-emerald-500 text-white shadow-emerald-500/25"
-                : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25"
+                ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
+                : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
             )}
             aria-live="polite"
           >

@@ -1,4 +1,4 @@
-import { redisGet, redisSet, redisDel } from "../cache/redis";
+import { redisGet, redisSet, redisDel, redisSetNx } from "../cache/redis";
 import { syncProductsFromOdoo } from "../utils/syncProducts";
 
 // Define types locally to match usage
@@ -22,7 +22,7 @@ export type Product = {
 const CACHE_KEYS = {
   DATA: "products:all",
   TIMESTAMP: "sync:last_update",
-  LOCK: "sync:lock",
+  LOCK: "sync:in_progress", // Must match SYNC_LOCK_KEY in syncProducts.ts
   CATEGORIES: "categories:list",
   VERSION: "cache:version"
 };
@@ -44,44 +44,108 @@ async function ensureFreshness(lastUpdate: string | null) {
   const isStale = !lastUpdate || (now - lastSyncTime > SOFT_TTL);
 
   if (isStale) {
-    const isLocked = await redisGet(CACHE_KEYS.LOCK);
-    if (!isLocked) {
+    // Use atomic lock to prevent race conditions (multiple requests triggering syncs)
+    // Lock expires in 5 minutes (sync should complete faster, but protects against crashes)
+    const lockAcquired = await redisSetNx(CACHE_KEYS.LOCK, Date.now().toString(), 300).catch(() => false);
+    
+    if (lockAcquired) {
       console.log('[CACHE] Data is stale, triggering background sync...');
-      await redisSet(CACHE_KEYS.LOCK, "true", 60);
+      // Don't await - run in background
       syncProductsFromOdoo()
         .then((result) => {
-          if (result.success) console.log('[CACHE] Background sync completed');
-          else console.error('[CACHE] Background sync failed:', result.error);
-          return redisSet(CACHE_KEYS.LOCK, "", 1);
+          if (result.success) {
+            console.log('[CACHE] Background sync completed');
+          } else {
+            console.error('[CACHE] Background sync failed:', result.error);
+          }
         })
         .catch(err => {
           console.error("[CACHE] Background sync error:", err);
-          redisSet(CACHE_KEYS.LOCK, "", 1).catch(console.error);
+        })
+        .finally(() => {
+          // Clean up lock (best effort, lock also has TTL as safety)
+          redisDel(CACHE_KEYS.LOCK).catch(() => {
+            // Ignore cleanup errors - TTL will handle it
+          });
         });
     }
+    // If lock not acquired, another request is already syncing - that's fine
   }
 }
 
 export async function getCatalogSafe(): Promise<{ products: Product[], categories: Category[], lastUpdate: string | null }> {
-  const [products, categories, lastUpdate] = await Promise.all([
-    redisGet<Product[]>(CACHE_KEYS.DATA),
-    redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
-    redisGet<string>(CACHE_KEYS.TIMESTAMP)
-  ]);
+  // Handle Redis failures gracefully
+  let products: Product[] | null = null;
+  let categories: Category[] | null = null;
+  let lastUpdate: string | null = null;
+  
+  try {
+    [products, categories, lastUpdate] = await Promise.all([
+      redisGet<Product[]>(CACHE_KEYS.DATA),
+      redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
+      redisGet<string>(CACHE_KEYS.TIMESTAMP)
+    ]);
+  } catch (err) {
+    // Redis might be down - log but continue
+    console.error('[CACHE] Redis read failed, treating as cache miss:', err instanceof Error ? err.message : String(err));
+    products = null;
+    categories = null;
+    lastUpdate = null;
+  }
 
-  await ensureFreshness(lastUpdate);
+  // Only trigger freshness check if we successfully read from Redis
+  if (lastUpdate !== null) {
+    try {
+      await ensureFreshness(lastUpdate);
+    } catch (err) {
+      // Background sync failure is non-critical - log and continue
+      console.warn('[CACHE] Failed to ensure freshness:', err instanceof Error ? err.message : String(err));
+    }
+  }
 
+  // If we have cached data, return it (even if stale - better than error)
   if (products && categories) {
     return { products, categories, lastUpdate };
   }
 
-  console.log('[CACHE] Cache miss (cold start), waiting for sync...');
+  // Cache miss - try to sync, but handle failures gracefully
+  console.log('[CACHE] Cache miss (cold start), attempting sync...');
   const result = await syncProductsFromOdoo();
   
   if (!result.success) {
-    throw new Error(result.error || "Failed to sync catalog");
+    // If sync failed but we have stale data, return it
+    if (products || categories) {
+      console.log('[CACHE] Sync failed but returning stale data:', result.error);
+      return { 
+        products: products || [], 
+        categories: categories || [],
+        lastUpdate 
+      };
+    }
+    
+    // No data at all - check if sync is in progress and wait a bit
+    const isLocked = await redisGet(CACHE_KEYS.LOCK);
+    if (isLocked) {
+      console.log('[CACHE] Sync in progress, waiting briefly...');
+      // Wait up to 3 seconds for sync to complete
+      for (let i = 0; i < 6; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const [waitProducts, waitCategories, waitUpdate] = await Promise.all([
+          redisGet<Product[]>(CACHE_KEYS.DATA),
+          redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
+          redisGet<string>(CACHE_KEYS.TIMESTAMP)
+        ]);
+        if (waitProducts && waitCategories) {
+          return { products: waitProducts, categories: waitCategories, lastUpdate: waitUpdate };
+        }
+      }
+    }
+    
+    // Still no data - throw error (this is a real problem)
+    throw new Error(result.error || "Failed to sync catalog and no cached data available");
   }
 
+  // Sync succeeded, fetch fresh data
   const [freshProducts, freshCategories, freshUpdate] = await Promise.all([
     redisGet<Product[]>(CACHE_KEYS.DATA),
     redisGet<Category[]>(CACHE_KEYS.CATEGORIES),

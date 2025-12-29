@@ -18,6 +18,8 @@ import { getCheckoutConfig } from "@/server/services/checkoutConfig";
 import { cartDB } from "@/server/utils/jsonDatabase";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
+// Auto-start Points Retry worker when orders API is first accessed
+import "@/server/services/startPointsRetryWorkerOnInit";
 
 type DbOrderWithItems = PrismaOrder & { items: PrismaOrderItem[] };
 

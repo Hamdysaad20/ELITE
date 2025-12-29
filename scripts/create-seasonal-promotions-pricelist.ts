@@ -114,7 +114,9 @@ async function createCategoryRules(
   client: any,
   pricelistId: number,
   categoryNames: string[],
-  discount: number
+  discount: number,
+  dateFrom: string,
+  dateTo: string
 ): Promise<void> {
   // Get category IDs
   const categories = await client.searchRead<any>(
@@ -141,18 +143,18 @@ async function createCategoryRules(
     log(`✅ Removed ${ruleIds.length} existing rule(s)`, "blue");
   }
   
-  // Create category-based percentage rules
+  // Create category-based percentage rules with date ranges
   for (const category of categories) {
     await client.rpc("product.pricelist.item", "create", [{
       pricelist_id: pricelistId,
       categ_id: category.id,
       compute_price: "percentage",
       percent_price: -discount, // Negative for discount
-      date_start: null, // Will be set at pricelist level if needed
-      date_end: null,
+      date_start: dateFrom, // Set date range on pricelist item
+      date_end: dateTo,
     }]);
     
-    log(`✅ Created rule: ${category.name} → ${discount}% discount`, "green");
+    log(`✅ Created rule: ${category.name} → ${discount}% discount (${dateFrom} to ${dateTo})`, "green");
   }
 }
 
@@ -178,7 +180,14 @@ async function main() {
       
       const pricelistId = await createOrFindPricelist(client, config);
       
-      await createCategoryRules(client, pricelistId, config.categories, config.discount);
+      await createCategoryRules(
+        client, 
+        pricelistId, 
+        config.categories, 
+        config.discount,
+        config.dateFrom,
+        config.dateTo
+      );
       
       log(`✅ ${config.name} setup complete!`, "green");
     }
