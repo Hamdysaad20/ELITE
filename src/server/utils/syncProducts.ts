@@ -153,10 +153,10 @@ async function withTimeout<T>(
   return Promise.race([promise, timeout]);
 }
 
-export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?: string; data?: any }> {
+export async function syncProductsFromOdoo(options?: { bypassCircuitBreaker?: boolean }): Promise<{ success: boolean; error?: string; data?: any }> {
   // Wrap entire sync in timeout to prevent hanging
   return withTimeout(
-    performSync(),
+    performSync(options?.bypassCircuitBreaker),
     SYNC_TIMEOUT_MS,
     `Sync operation timed out after ${SYNC_TIMEOUT_MS}ms`
   ).catch(err => {
@@ -165,13 +165,17 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
   });
 }
 
-async function performSync(): Promise<{ success: boolean; error?: string; data?: any }> {
-  // Check circuit breaker before attempting sync
-  const allowed = await isRequestAllowed();
-  if (!allowed) {
-    const errorMsg = 'Circuit breaker is OPEN - Odoo is consistently failing. Sync blocked to prevent cascading failures.';
-    console.error(`[AUTO-SYNC] ${errorMsg}`);
-    return { success: false, error: errorMsg };
+async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ success: boolean; error?: string; data?: any }> {
+  // Check circuit breaker before attempting sync (unless bypassed)
+  if (!bypassCircuitBreaker) {
+    const allowed = await isRequestAllowed();
+    if (!allowed) {
+      const errorMsg = 'Circuit breaker is OPEN - Odoo is consistently failing. Sync blocked to prevent cascading failures.';
+      console.error(`[AUTO-SYNC] ${errorMsg}`);
+      return { success: false, error: errorMsg };
+    }
+  } else {
+    console.log('[MANUAL-SYNC] Circuit breaker bypass enabled (admin-triggered sync)');
   }
 
   // Try to acquire distributed lock (atomic operation)
