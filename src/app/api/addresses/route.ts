@@ -87,9 +87,9 @@ export async function POST(req: NextRequest) {
     } = validatedData;
 
     // Check for duplicate address (case-insensitive comparison)
-    const normalizedStreet = street.trim().toLowerCase();
-    const normalizedCity = city.trim().toLowerCase();
-    const normalizedApartment = apartment?.trim().toLowerCase() || "";
+    const normalizedStreet = (street as string).trim().toLowerCase();
+    const normalizedCity = (city as string).trim().toLowerCase();
+    const normalizedApartment = (apartment as string | null | undefined)?.trim().toLowerCase() || "";
     
     // Get all user addresses and check for duplicates
     const userAddresses = await prisma.address.findMany({
@@ -131,16 +131,16 @@ export async function POST(req: NextRequest) {
     const address = await prisma.address.create({
       data: {
         userId: session.user.id,
-        label,
-        street,
-        apartment,
-        city,
-        state,
-        zipCode,
-        country,
-        phone,
-        notes,
-        isDefault: isDefault || addressCount === 0,
+        label: label as string,
+        street: street as string,
+        apartment: apartment as string | null | undefined,
+        city: city as string,
+        state: state as string | null | undefined,
+        zipCode: zipCode as string | null | undefined,
+        country: country as string,
+        phone: phone as string | null | undefined,
+        notes: notes as string | null | undefined,
+        isDefault: (isDefault as boolean) || addressCount === 0,
       },
     });
 

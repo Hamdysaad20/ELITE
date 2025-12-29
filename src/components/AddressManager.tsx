@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useAddresses } from "@/hooks/useAddresses";
 import type { Address } from "@/types";
-import { validateAddressField, ADDRESS_VALIDATION } from "@/lib/validators/addressValidator";
+import { validateAddressField, validateAddress, ADDRESS_VALIDATION } from "@/lib/validators/addressValidator";
 import {
   MapPin,
   Plus,
@@ -56,6 +56,7 @@ export default function AddressManager({
     notes: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const getLabelIcon = (label: string) => {
     const lower = label.toLowerCase();
@@ -73,7 +74,7 @@ export default function AddressManager({
     if (!validation.isValid) {
       // Set errors from validation
       const errorMap: Record<string, string> = {};
-      validation.errors.forEach((err) => {
+      validation.errors.forEach((err: { field: string; message: string }) => {
         errorMap[err.field] = err.message;
       });
       setErrors(errorMap);

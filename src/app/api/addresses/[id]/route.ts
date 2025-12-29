@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { createOdooClient } from "@/server/utils/odooClient";
 import { updateAddressSchema } from "@/server/validators/addressSchemas";
+import type { ZodIssue } from "zod";
 
 // GET /api/addresses/[id] - Get single address
 export async function GET(
@@ -81,7 +82,7 @@ export async function PATCH(
     // Validate with Zod schema
     const validationResult = updateAddressSchema.safeParse(body);
     if (!validationResult.success) {
-      const errors = validationResult.error.errors.map((err) => ({
+      const errors = validationResult.error.errors.map((err: ZodIssue) => ({
         field: err.path.join("."),
         message: err.message,
       }));

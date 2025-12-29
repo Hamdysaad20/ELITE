@@ -91,8 +91,8 @@ const validateZipCountry = (zip: string, country: string = "Egypt"): boolean => 
   return ADDRESS_VALIDATION.ZIP_REGEX.test(zip);
 };
 
-// Base address schema with all validations
-export const addressSchema = z.object({
+// Base address schema object (before superRefine)
+const baseAddressSchema = z.object({
   label: AddressLabel,
   
   street: z
@@ -167,11 +167,11 @@ export const addressSchema = z.object({
   zipCode: z
     .string()
     .trim()
-    .transform(sanitizeInput)
     .min(ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH, `Zip code must be at least ${ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH} characters if provided`)
     .max(ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH, `Zip code must be less than ${ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH} characters`)
+    .transform(sanitizeInput)
     .refine(
-      (val) => !val || val === "" || ADDRESS_VALIDATION.ZIP_REGEX.test(val),
+      (val: string) => !val || val === "" || ADDRESS_VALIDATION.ZIP_REGEX.test(val),
       { message: "Please enter a valid zip/postal code (3-20 alphanumeric characters)" }
     )
     .optional()
@@ -180,11 +180,11 @@ export const addressSchema = z.object({
   phone: z
     .string()
     .trim()
-    .transform(sanitizeInput)
     .min(ADDRESS_VALIDATION.PHONE_MIN_LENGTH, `Phone number must be at least ${ADDRESS_VALIDATION.PHONE_MIN_LENGTH} digits if provided`)
     .max(ADDRESS_VALIDATION.PHONE_MAX_LENGTH, `Phone number must be less than ${ADDRESS_VALIDATION.PHONE_MAX_LENGTH} characters`)
+    .transform(sanitizeInput)
     .refine(
-      (val) => !val || val === "" || ADDRESS_VALIDATION.PHONE_REGEX.test(val.replace(/\s/g, "")),
+      (val: string) => !val || val === "" || ADDRESS_VALIDATION.PHONE_REGEX.test(val.replace(/\s/g, "")),
       { message: "Please enter a valid phone number (e.g., +20 123 456 7890)" }
     )
     .optional()
@@ -193,19 +193,22 @@ export const addressSchema = z.object({
   notes: z
     .string()
     .trim()
-    .transform(sanitizeInput)
     .min(ADDRESS_VALIDATION.NOTES_MIN_LENGTH, `Notes must be at least ${ADDRESS_VALIDATION.NOTES_MIN_LENGTH} character if provided`)
     .max(ADDRESS_VALIDATION.NOTES_MAX_LENGTH, `Notes must be less than ${ADDRESS_VALIDATION.NOTES_MAX_LENGTH} characters`)
-    .refine((val) => !val || validateNoXSS(val), { message: "Notes contains invalid characters" })
-    .refine((val) => !val || validateNoSQLInjection(val), { message: "Notes contains invalid characters" })
+    .transform(sanitizeInput)
+    .refine((val: string) => !val || validateNoXSS(val), { message: "Notes contains invalid characters" })
+    .refine((val: string) => !val || validateNoSQLInjection(val), { message: "Notes contains invalid characters" })
     .optional()
     .nullable(),
   
   isDefault: z.boolean().optional().default(false),
-}).superRefine((data, ctx) => {
+});
+
+// Full address schema with superRefine validations
+export const addressSchema = baseAddressSchema.superRefine((data, ctx) => {
   // Country-specific validation for zip code
-  if (data.zipCode && data.zipCode.trim()) {
-    const country = data.country || "Egypt";
+  if (data.zipCode && typeof data.zipCode === 'string' && data.zipCode.trim()) {
+    const country = (data.country || "Egypt") as string;
     if (!validateZipCountry(data.zipCode, country)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -218,8 +221,8 @@ export const addressSchema = z.object({
   }
 
   // Country-specific validation for phone
-  if (data.phone && data.phone.trim()) {
-    const country = data.country || "Egypt";
+  if (data.phone && typeof data.phone === 'string' && data.phone.trim()) {
+    const country = (data.country || "Egypt") as string;
     if (!validatePhoneCountry(data.phone, country)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -249,8 +252,39 @@ export const addressSchema = z.object({
 export const createAddressSchema = addressSchema;
 
 // Schema for updating an address (all fields optional)
-export const updateAddressSchema = addressSchema.partial().extend({
+// Use the base schema and make it partial, then apply a modified superRefine
+export const updateAddressSchema = baseAddressSchema.partial().extend({
   label: AddressLabel.optional(),
+}).superRefine((data, ctx) => {
+  // Only validate if fields are provided (skip validation for undefined fields)
+  // Country-specific validation for zip code
+  if (data.zipCode && typeof data.zipCode === 'string' && data.zipCode.trim()) {
+    const country = (data.country || "Egypt") as string;
+    if (!validateZipCountry(data.zipCode, country)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: country === "Egypt" 
+          ? "Egyptian postal codes must be 5 digits (e.g., 12345)"
+          : "Please enter a valid zip/postal code",
+        path: ["zipCode"],
+      });
+    }
+  }
+
+  // Country-specific validation for phone
+  if (data.phone && typeof data.phone === 'string' && data.phone.trim()) {
+    const country = (data.country || "Egypt") as string;
+    if (!validatePhoneCountry(data.phone, country)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: country === "Egypt"
+          ? "Please enter a valid Egyptian phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)"
+          : "Please enter a valid phone number (e.g., +20 123 456 7890)",
+        path: ["phone"],
+      });
+    }
+  }
+  // Note: We skip the completeness check for updates since partial updates are allowed
 });
 
 // Type exports
