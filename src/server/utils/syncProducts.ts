@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from "node:crypto";
 import { isOdooConfigured, createOdooClient } from "./odooClient";
-import { redisSet, redisGet } from "../cache/redis";
+import { redisSet, redisGet, redisSetNx, redisDel } from "../cache/redis";
+import { isRequestAllowed, recordSuccess, recordFailure } from "./circuitBreaker";
 
 type ProductRecord = {
   id: number;
@@ -126,27 +127,97 @@ function normalizeCategory(rec: CategoryRecord) {
   };
 }
 
-// Track ongoing syncs to prevent duplicates
-let syncInProgress = false;
-let lastSyncAttempt = 0;
+// Redis keys for distributed locking (works across serverless instances)
+const SYNC_LOCK_KEY = "sync:in_progress";
+const SYNC_LAST_ATTEMPT_KEY = "sync:last_attempt";
+const SYNC_LOCK_TTL = 300; // 5 minutes max lock duration (sync should complete faster)
+const SYNC_RATE_LIMIT_SECONDS = 10; // Reduced from 30s to 10s for better responsiveness
+const SYNC_TIMEOUT_MS = 120000; // 2 minutes max sync time (prevents hanging)
+
+// Batch size limits for pagination
+const DEFAULT_BATCH_SIZE = 1000; // Products per batch
+const MAX_BATCH_SIZE = 5000; // Hard limit to prevent memory issues
+
+/**
+ * Wrapper to add timeout to sync operation
+ */
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  errorMessage: string
+): Promise<T> {
+  const timeout = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]);
+}
 
 export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?: string; data?: any }> {
-  // Prevent concurrent syncs
-  if (syncInProgress) {
+  // Wrap entire sync in timeout to prevent hanging
+  return withTimeout(
+    performSync(),
+    SYNC_TIMEOUT_MS,
+    `Sync operation timed out after ${SYNC_TIMEOUT_MS}ms`
+  ).catch(err => {
+    console.error('[AUTO-SYNC] Sync timeout or error:', err);
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
+  });
+}
+
+async function performSync(): Promise<{ success: boolean; error?: string; data?: any }> {
+  // Check circuit breaker before attempting sync
+  const allowed = await isRequestAllowed();
+  if (!allowed) {
+    const errorMsg = 'Circuit breaker is OPEN - Odoo is consistently failing. Sync blocked to prevent cascading failures.';
+    console.error(`[AUTO-SYNC] ${errorMsg}`);
+    return { success: false, error: errorMsg };
+  }
+
+  // Try to acquire distributed lock (atomic operation)
+  let lockAcquired = false;
+  try {
+    lockAcquired = await redisSetNx(
+      SYNC_LOCK_KEY,
+      Date.now().toString(),
+      SYNC_LOCK_TTL
+    );
+  } catch (err) {
+    // Redis might be down - log but continue (will fail later if Redis is needed)
+    console.warn('[AUTO-SYNC] Failed to check lock (Redis may be down):', err);
+  }
+
+  if (!lockAcquired) {
     console.log('[AUTO-SYNC] Sync already in progress, skipping...');
     return { success: false, error: 'Sync already in progress' };
   }
 
-  // Rate limit: don't sync more than once per 30 seconds
-  const now = Date.now();
-  if (now - lastSyncAttempt < 30000) {
-    console.log('[AUTO-SYNC] Rate limited, last sync was too recent');
-    return { success: false, error: 'Rate limited' };
+  // Check rate limiting using Redis (works across instances)
+  try {
+    const lastAttemptStr = await redisGet<string>(SYNC_LAST_ATTEMPT_KEY);
+    if (lastAttemptStr) {
+      const lastAttempt = parseInt(lastAttemptStr, 10);
+      const now = Date.now();
+      const timeSinceLastAttempt = (now - lastAttempt) / 1000; // seconds
+      
+      if (timeSinceLastAttempt < SYNC_RATE_LIMIT_SECONDS) {
+        console.log(`[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`);
+        // Release lock since we're not syncing
+        await redisDel(SYNC_LOCK_KEY).catch(() => {});
+        return { success: false, error: 'Rate limited' };
+      }
+    }
+  } catch (err) {
+    // Redis error - log but continue (rate limiting is best-effort)
+    console.warn('[AUTO-SYNC] Failed to check rate limit:', err);
   }
 
   try {
-    syncInProgress = true;
-    lastSyncAttempt = now;
+    // Update last attempt timestamp
+    try {
+      await redisSet(SYNC_LAST_ATTEMPT_KEY, Date.now().toString(), 60); // Keep for 1 minute
+    } catch (err) {
+      console.warn('[AUTO-SYNC] Failed to update last attempt timestamp:', err);
+    }
     
     console.log('[AUTO-SYNC] Starting product sync from Odoo...');
 
@@ -159,8 +230,17 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     }
 
     const client = createOdooClient();
-    if (!client) throw new Error("Failed to init Odoo client");
+    if (!client) {
+      throw new Error("Failed to init Odoo client");
+    }
 
+    // Get batch size from env or use default
+    const batchSizeEnv = Number(process.env.SYNC_PRODUCTS_BATCH_SIZE || String(DEFAULT_BATCH_SIZE));
+    const batchSize = Number.isFinite(batchSizeEnv) && batchSizeEnv > 0 
+      ? Math.min(batchSizeEnv, MAX_BATCH_SIZE) 
+      : DEFAULT_BATCH_SIZE;
+
+    // Legacy limit support (for testing/development)
     const limitEnv = Number(process.env.SYNC_PRODUCTS_LIMIT || "0");
     const limit = Number.isFinite(limitEnv) && limitEnv > 0 ? limitEnv : undefined;
 
@@ -171,21 +251,54 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
       "description_sale", "qty_available", "virtual_available", "sequence",
     ];
 
-    // 1. Fetch Products and Categories in parallel (Independent)
-    // Filter: sale_ok=true (we'll filter POS-only variants using website_published field and name patterns)
-    const [productsRaw, categoriesRaw] = await Promise.all([
-      client.searchRead<ProductRecord>(
-        "product.product",
-        [["sale_ok", "=", true]],
-        productFields,
-        limit ? { limit } : {},
-      ),
-      client.searchRead<CategoryRecord>(
-        "product.category",
-        [],
-        ["id", "name", "parent_id", "display_name", "complete_name"],
-      )
-    ]);
+    console.log(`[AUTO-SYNC] Fetching products with batch size: ${batchSize}${limit ? ` (limited to ${limit})` : ''}`);
+
+    // 1. Fetch Products and Categories
+    // Use pagination for products if no limit is set, otherwise use simple searchRead
+    let productsRaw: ProductRecord[];
+    let categoriesRaw: CategoryRecord[];
+    
+    try {
+      if (limit) {
+        // Legacy mode: use simple searchRead with limit
+        [productsRaw, categoriesRaw] = await Promise.all([
+          client.searchRead<ProductRecord>(
+            "product.product",
+            [["sale_ok", "=", true]],
+            productFields,
+            { limit },
+          ),
+          client.searchRead<CategoryRecord>(
+            "product.category",
+            [],
+            ["id", "name", "parent_id", "display_name", "complete_name"],
+          )
+        ]);
+      } else {
+        // Production mode: use pagination for large catalogs
+        [productsRaw, categoriesRaw] = await Promise.all([
+          client.searchReadPaginated<ProductRecord>(
+            "product.product",
+            [["sale_ok", "=", true]],
+            productFields,
+            batchSize,
+          ),
+          client.searchRead<CategoryRecord>(
+            "product.category",
+            [],
+            ["id", "name", "parent_id", "display_name", "complete_name"],
+          )
+        ]);
+      }
+      
+      // Record success for circuit breaker
+      await recordSuccess();
+      console.log(`[AUTO-SYNC] Fetched ${productsRaw.length} products, ${categoriesRaw.length} categories`);
+    } catch (err) {
+      // Record failure for circuit breaker
+      await recordFailure();
+      throw err;
+    }
 
     const templateIds = Array.from(
       new Set(
@@ -196,22 +309,29 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     );
     
     // 2. Fetch Templates and Attributes in parallel (Dependent on Products)
-    const [templatesRaw, ptavsRaw] = await Promise.all([
-      templateIds.length > 0
-        ? client.searchRead<ProductTemplateRecord>(
+    let templatesRaw: ProductTemplateRecord[] = [];
+    let ptavsRaw: AttributeValueRecord[] = [];
+    
+    if (templateIds.length > 0) {
+      try {
+        [templatesRaw, ptavsRaw] = await Promise.all([
+          client.searchRead<ProductTemplateRecord>(
             "product.template",
             [["id", "in", templateIds]],
             ["id", "available_in_pos", "image_128", "image_1024", "image_1920", "attribute_line_ids"]
-          )
-        : Promise.resolve([]),
-      templateIds.length > 0
-        ? client.searchRead<AttributeValueRecord>(
+          ),
+          client.searchRead<AttributeValueRecord>(
             "product.template.attribute.value",
             [["product_tmpl_id", "in", templateIds]],
             ["id", "name", "attribute_id", "price_extra", "product_tmpl_id"]
           )
-        : Promise.resolve([])
-    ]);
+        ]);
+        await recordSuccess(); // Record success for additional Odoo calls
+      } catch (err) {
+        await recordFailure();
+        throw err;
+      }
+    }
     
     const templateImages = new Map(templatesRaw.map(t => [t.id, t]));
 
@@ -318,13 +438,38 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     // Note: We don't delete all keys to avoid race conditions, but we overwrite the main ones
     console.log(`[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`);
 
-    await redisSet("categories:list", categories, cacheTTL);
-
-    for (const p of products) {
-      await redisSet(`products:${p.id}`, p, cacheTTL);
+    // Cache with partial failure handling - cache what we can even if some writes fail
+    const cacheErrors: string[] = [];
+    
+    try {
+      await redisSet("categories:list", categories, cacheTTL);
+    } catch (err) {
+      cacheErrors.push(`Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('[AUTO-SYNC] Failed to cache categories:', err);
     }
 
-    await redisSet("products:all", products, cacheTTL);
+    // Cache products individually to allow partial success
+    let cachedCount = 0;
+    for (const p of products) {
+      try {
+        await redisSet(`products:${p.id}`, p, cacheTTL);
+        cachedCount++;
+      } catch (err) {
+        cacheErrors.push(`Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`);
+        // Continue caching other products
+      }
+    }
+
+    try {
+      await redisSet("products:all", products, cacheTTL);
+    } catch (err) {
+      cacheErrors.push(`Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('[AUTO-SYNC] Failed to cache products:all:', err);
+    }
+    
+    if (cacheErrors.length > 0) {
+      console.warn(`[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors), but ${cachedCount}/${products.length} products cached`);
+    }
 
     const pageSize = 50;
     const summaries = products.slice(0, pageSize).map((p) => ({
@@ -335,12 +480,36 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
       available: p.available,
       images: p.images?.slice(0, 1) || [],
     }));
-    await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
+    try {
+      await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
+    } catch (err) {
+      cacheErrors.push(`Failed to cache products list summary: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
-    await redisSet("sync:last_update", lastUpdate, cacheTTL);
-    await redisSet("sync:etag", etag, cacheTTL);
+    try {
+      await redisSet("sync:last_update", lastUpdate, cacheTTL);
+    } catch (err) {
+      cacheErrors.push(`Failed to cache last_update: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('[AUTO-SYNC] Failed to cache last_update:', err);
+    }
 
-    console.log(`[AUTO-SYNC] Completed successfully: ${products.length} products, ${categories.length} categories`);
+    try {
+      await redisSet("sync:etag", etag, cacheTTL);
+    } catch (err) {
+      cacheErrors.push(`Failed to cache etag: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // Consider sync successful if we cached at least some products
+    const isSuccess = cachedCount > 0 || (products.length === 0 && categories.length > 0);
+    
+    if (isSuccess) {
+      console.log(`[AUTO-SYNC] Completed: ${cachedCount}/${products.length} products, ${categories.length} categories cached`);
+      if (cacheErrors.length > 0) {
+        console.warn(`[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors)`);
+      }
+    } else {
+      throw new Error(`Failed to cache any data: ${cacheErrors.join('; ')}`);
+    }
 
     return {
       success: true,
@@ -356,7 +525,10 @@ export async function syncProductsFromOdoo(): Promise<{ success: boolean; error?
     console.error("[AUTO-SYNC] Error:", msg, err);
     return { success: false, error: msg };
   } finally {
-    syncInProgress = false;
+    // Always release the lock
+    await redisDel(SYNC_LOCK_KEY).catch(err => {
+      console.error('[AUTO-SYNC] Failed to release lock:', err);
+    });
   }
 }
 

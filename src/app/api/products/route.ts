@@ -174,6 +174,8 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (err: any) {
     const msg = err?.message || "Failed to fetch products";
+    // Log full error for debugging but return user-friendly message
+    console.error('[API] /api/products error:', err);
     return jsonResponse(errorResponse(msg), 500);
   }
 }

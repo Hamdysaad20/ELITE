@@ -6,10 +6,15 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { odooQueue } from "@/server/queue/odooQueue";
+import { getCircuitStatus } from "@/server/utils/circuitBreaker";
 
 export async function GET(_req: NextRequest) {
   try {
-    const lastUpdate = await redisGet<string>("sync:last_update");
+    const [lastUpdate, circuitStatus] = await Promise.all([
+      redisGet<string>("sync:last_update"),
+      getCircuitStatus(),
+    ]);
+    
     let queueCounts: Record<string, number> | null = null;
     if (odooQueue) {
       const counts = await odooQueue.getJobCounts("wait", "active", "failed");
@@ -20,6 +25,12 @@ export async function GET(_req: NextRequest) {
       successResponse({
         lastUpdate: lastUpdate || null,
         queue: queueCounts,
+        circuitBreaker: {
+          state: circuitStatus.state,
+          failures: circuitStatus.failures,
+          successes: circuitStatus.successes,
+          openedAt: circuitStatus.openedAt ? new Date(circuitStatus.openedAt).toISOString() : null,
+        },
       }),
     );
   } catch (err) {

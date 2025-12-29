@@ -156,6 +156,57 @@ export class OdooClient {
   }
 
   /**
+   * Search and read with pagination support for large datasets
+   * Automatically handles pagination to fetch all records
+   * 
+   * @param model - Odoo model name
+   * @param domain - Search domain
+   * @param fields - Fields to fetch
+   * @param batchSize - Number of records per batch (default: 1000, max: 5000)
+   * @param kwargs - Additional search_read options
+   * @returns All records matching the domain
+   */
+  async searchReadPaginated<T = any>(
+    model: string,
+    domain: any[] = [],
+    fields?: string[],
+    batchSize: number = 1000,
+    kwargs: Record<string, unknown> = {},
+  ): Promise<T[]> {
+    // Enforce max batch size to prevent memory issues
+    const safeBatchSize = Math.min(Math.max(1, batchSize), 5000);
+    
+    const allResults: T[] = [];
+    let offset = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const batchOptions = {
+        ...(fields ? { fields } : {}),
+        ...kwargs,
+        limit: safeBatchSize,
+        offset,
+      } as Record<string, unknown>;
+
+      const batch = await this.rpc<T[]>(model, "search_read", [domain], batchOptions);
+      
+      if (batch.length === 0) {
+        hasMore = false;
+      } else {
+        allResults.push(...batch);
+        offset += batch.length;
+        
+        // If we got fewer results than requested, we've reached the end
+        if (batch.length < safeBatchSize) {
+          hasMore = false;
+        }
+      }
+    }
+
+    return allResults;
+  }
+
+  /**
    * Search for a pricelist by name
    */
   async findPricelistByName(name: string): Promise<number | null> {
