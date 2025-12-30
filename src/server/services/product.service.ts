@@ -110,7 +110,17 @@ export async function getCatalogSafe(): Promise<{ products: Product[], categorie
 
   // Cache miss - try to sync, but handle failures gracefully
   console.log('[CACHE] Cache miss (cold start), attempting sync...');
-  const result = await syncProductsFromOdoo();
+  let result = await syncProductsFromOdoo();
+  
+  // If sync failed due to circuit breaker and we have NO data at all,
+  // try bypassing circuit breaker as last resort (root cause may be fixed)
+  if (!result.success && !products && !categories) {
+    const isCircuitBreakerError = result.error?.includes('Circuit breaker') || result.error?.includes('OPEN');
+    if (isCircuitBreakerError) {
+      console.log('[CACHE] Sync blocked by circuit breaker, attempting bypass as last resort...');
+      result = await syncProductsFromOdoo({ bypassCircuitBreaker: true });
+    }
+  }
   
   if (!result.success) {
     // If sync failed but we have stale data, return it

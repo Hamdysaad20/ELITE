@@ -1,7 +1,7 @@
 # ELITE System Overview
 
-> **Last Updated**: December 11, 2025  
-> **Version**: Production v1.0  
+> **Last Updated**: December 29, 2024  
+> **Version**: Production v1.1  
 > **Status**: ✅ Deployed & Active
 
 ## Table of Contents
@@ -75,6 +75,7 @@ ELITE is a full-stack e-commerce platform for a premium coffee shop with POS int
 
 ### External Integrations
 - **ERP**: Odoo 17 (JSON-RPC API)
+- **Payment Gateway**: Paymob (Cards, Wallets, Fawry)
 - **Email**: Resend (Magic Link + Transactional)
 - **Image Upload**: Cloudinary
 - **Deployment**: Vercel
@@ -114,6 +115,9 @@ ELITE is a full-stack e-commerce platform for a premium coffee shop with POS int
 - Order status tracking (9 states)
 - Delivery address management
 - Order history & reordering
+- Rate limiting (10 orders/minute)
+- Request timeouts (30s for order creation)
+- Analytics tracking
 
 **Order States**:
 ```
@@ -122,7 +126,7 @@ OUT_FOR_DELIVERY → DELIVERED → COMPLETED
 ```
 
 **Status**: ✅ Production Ready  
-**Docs**: [ORDER_FLOW.md](./ORDER_FLOW.md)
+**Docs**: [ORDER_FLOW.md](./ORDER_FLOW.md), [PRODUCTION_IMPROVEMENTS.md](./PRODUCTION_IMPROVEMENTS.md)
 
 ---
 
@@ -167,7 +171,24 @@ OUT_FOR_DELIVERY → DELIVERED → COMPLETED
 
 ---
 
-### 7. **Review System**
+### 7. **Payment Gateway (Paymob)**
+- Credit/Debit Card payments
+- Mobile Wallet payments (Vodafone Cash, Orange Money)
+- Fawry payments
+- Cash on Delivery (COD)
+- Payment intent creation
+- Webhook processing with HMAC verification
+- Payment status tracking
+- Rate limiting (5 payment attempts/minute)
+- Request timeouts (20s for payment creation)
+- Comprehensive analytics tracking
+
+**Status**: ✅ Production Ready  
+**Docs**: [PAYMOB_INTEGRATION.md](./PAYMOB_INTEGRATION.md), [PAYMOB_QUICK_START.md](./PAYMOB_QUICK_START.md)
+
+---
+
+### 8. **Review System**
 - Purchase-verified reviews
 - 5-star rating system
 - Review moderation
@@ -218,8 +239,33 @@ Website Action → Database Update → Queue Job → Odoo API Call
 - Product details (10 min TTL)
 - User sessions (NextAuth)
 - Order queue jobs
+- Rate limiting counters
+- Distributed locks
 
 **Implementation**: `/src/server/utils/redis.ts`
+
+---
+
+### Production Hardening
+**Features**:
+- Redis-based rate limiting (distributed)
+- Request timeouts for all operations
+- Comprehensive analytics tracking
+- User-friendly error messages
+- Performance monitoring
+
+**Rate Limits**:
+- Order Create: 10 requests/minute
+- Payment Create: 5 requests/minute
+- Payment Status: 20-30 requests/minute
+
+**Timeouts**:
+- Order Create: 30 seconds
+- Payment Create: 20 seconds
+- Payment Status: 10 seconds
+
+**Status**: ✅ Production Ready  
+**Docs**: [PRODUCTION_IMPROVEMENTS.md](./PRODUCTION_IMPROVEMENTS.md)
 
 ---
 
@@ -232,6 +278,8 @@ Website Action → Database Update → Queue Job → Odoo API Call
 - [Deployment Guide](./DEPLOYMENT.md)
 - [Environment Setup](./ENVIRONMENT_SETUP.md)
 - [Troubleshooting](./TROUBLESHOOTING.md)
+- [Paymob Integration](./PAYMOB_INTEGRATION.md)
+- [Production Improvements](./PRODUCTION_IMPROVEMENTS.md)
 
 ### Development
 - [Getting Started](./GETTING_STARTED.md)
@@ -251,7 +299,7 @@ Website Action → Database Update → Queue Job → Odoo API Call
 ### ✅ Production Ready
 - [x] Authentication system functional
 - [x] Order flow complete
-- [x] Payment integration (COD)
+- [x] Payment integration (Paymob: Cards, Wallets, Fawry + COD)
 - [x] Odoo sync operational
 - [x] Email system working
 - [x] Cache layer optimized
@@ -260,6 +308,10 @@ Website Action → Database Update → Queue Job → Odoo API Call
 - [x] SEO optimized
 - [x] Performance optimized
 - [x] Security hardened
+- [x] Rate limiting implemented
+- [x] Request timeouts configured
+- [x] Analytics tracking active
+- [x] Improved error messages
 
 ### 🚀 Deployed Services
 - [x] Vercel (Frontend + API)
@@ -268,6 +320,7 @@ Website Action → Database Update → Queue Job → Odoo API Call
 - [x] Cloudinary (Images)
 - [x] Resend (Email)
 - [x] Odoo (ERP)
+- [x] Paymob (Payment Gateway)
 
 ---
 
@@ -285,12 +338,15 @@ Website Action → Database Update → Queue Job → Odoo API Call
 
 - ✅ HTTPS enforced
 - ✅ CSRF protection
-- ✅ Rate limiting
+- ✅ Rate limiting (Redis-based, distributed)
 - ✅ SQL injection prevention (Prisma)
 - ✅ XSS protection
 - ✅ Authentication required for sensitive routes
 - ✅ Environment variables secured
 - ✅ API keys rotated
+- ✅ Payment webhook HMAC verification
+- ✅ Request timeouts (prevent hanging requests)
+- ✅ Error message sanitization
 
 ---
 

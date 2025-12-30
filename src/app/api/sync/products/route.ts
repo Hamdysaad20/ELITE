@@ -14,7 +14,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[MANUAL-SYNC] Admin triggered product sync');
-    const result = await syncProductsFromOdoo();
+    // Bypass circuit breaker for manual admin-triggered syncs
+    // This allows recovery even if circuit breaker is open
+    const result = await syncProductsFromOdoo({ bypassCircuitBreaker: true });
     
     if (!result.success) {
       return jsonResponse(errorResponse(result.error || "Sync failed"), 500);

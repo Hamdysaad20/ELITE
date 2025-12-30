@@ -36,7 +36,9 @@ export async function awardOrderPoints(
       select: { 
         total: true, 
         status: true,
-        userId: true 
+        userId: true,
+        paymentStatus: true,
+        paymentMethod: true,
       },
     });
 
@@ -48,6 +50,17 @@ export async function awardOrderPoints(
     // Only award points for delivered/completed orders
     if (!["DELIVERED", "COMPLETED"].includes(order.status)) {
       console.log(`ℹ️ Order ${orderId} status is ${order.status}, not awarding points yet`);
+      return null;
+    }
+
+    // Only award points if payment is confirmed
+    // Cash payments (COD) are considered paid immediately
+    // Online payments must have PAID status
+    const isCashPayment = order.paymentMethod === "CASH";
+    const isPaid = order.paymentStatus === "PAID";
+    
+    if (!isCashPayment && !isPaid) {
+      console.log(`ℹ️ Order ${orderId} payment not confirmed (${order.paymentStatus}), not awarding points yet`);
       return null;
     }
 
