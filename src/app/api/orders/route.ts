@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import type { Order as PrismaOrder, OrderItem as PrismaOrderItem } from "@prisma/client";
 import {
   successResponse,
+  errorResponse,
   jsonResponse,
   handleApiError,
   parseRequestBody,
@@ -11,11 +12,14 @@ import {
 } from "@/server/utils/apiHelpers";
 import { OrderStatus, PaymentStatus, OrderType, PaymentMethod, type Order } from "@/types";
 import { createOrderSchema } from "@/server/validators/orderSchemas";
-import { BadRequestError } from "@/server/utils/errors";
+import { BadRequestError, ServiceUnavailableError } from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
 import { getAuthUser } from "@/server/auth/session";
 import { getCheckoutConfig } from "@/server/services/checkoutConfig";
 import { cartDB } from "@/server/utils/jsonDatabase";
+import { checkOrderRateLimit } from "@/server/utils/rateLimit";
+import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
+import { trackOrderEvent, trackApiPerformance } from "@/server/utils/analytics";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
 // Auto-start Points Retry worker when orders API is first accessed
@@ -106,9 +110,23 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
+    
+    // Rate limiting
+    const rateLimitResult = await checkOrderRateLimit(userId, "ORDER_CREATE");
+    if (!rateLimitResult.allowed) {
+      const resetTime = rateLimitResult.resetAt 
+        ? new Date(rateLimitResult.resetAt).toLocaleTimeString()
+        : "in a moment";
+      return jsonResponse(
+        errorResponse("Too many orders. Please wait a moment and try again."),
+        429
+      );
+    }
+    
     const raw = await parseRequestBody(request);
     const body = createOrderSchema.parse(raw);
 
@@ -117,12 +135,12 @@ export async function POST(request: NextRequest) {
     // Use items from request body (LocalCartItem format from client)
     const cartItems = body.items;
     if (!cartItems || cartItems.length === 0) {
-      throw new BadRequestError("Cart is empty");
+      throw new BadRequestError("Your cart is empty. Add items to continue.");
     }
 
     // Validate address for delivery orders
     if (body.orderType === "DELIVERY" && !body.addressId) {
-      throw new BadRequestError("Delivery address is required for delivery orders");
+      throw new BadRequestError("Please select a delivery address.");
     }
 
     // If addressId provided, verify it exists and belongs to user
@@ -146,52 +164,57 @@ export async function POST(request: NextRequest) {
     const total = subtotal + deliveryFee + codFee;
     const clientOrderRef = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-    const created = await prisma.order.create({
-      data: {
-        userId,
-        addressId: body.addressId || null,
-        status: OrderStatus.PENDING,
-        paymentStatus: PaymentStatus.PENDING,
-        paymentMethod: body.paymentMethod,
-        orderType: body.orderType,
-        subtotal,
-        deliveryFee,
-        codFee,
-        discount: 0,
-        total,
-        notes: body.notes || null,
-        clientOrderRef,
-        items: {
-          create: cartItems.map((item) => {
-            // Calculate unit price (base + extras)
-            const unitPrice = item.totalPrice / item.quantity;
-            // Format attributes for storage
-            const attributesList = Object.entries(item.attributes).flatMap(
-              ([attrName, values]) => values.map(v => `${attrName}: ${v.valueName}`)
-            );
-            return {
-              productId: item.productId,
-              sku: item.productId,
-              name: item.name,
-              categoryId: undefined,
-              quantity: item.quantity,
-              unitPrice,
-              totalPrice: item.totalPrice,
-              attributes: {
-                basePrice: item.basePrice,
-                selections: item.attributes,
-                formatted: attributesList,
-              },
-            };
-          }),
+    // Create order with timeout
+    const created = await withTimeout(
+      prisma.order.create({
+        data: {
+          userId,
+          addressId: body.addressId || null,
+          status: OrderStatus.PENDING,
+          paymentStatus: PaymentStatus.PENDING,
+          paymentMethod: body.paymentMethod,
+          orderType: body.orderType,
+          subtotal,
+          deliveryFee,
+          codFee,
+          discount: 0,
+          total,
+          notes: body.notes || null,
+          clientOrderRef,
+          items: {
+            create: cartItems.map((item) => {
+              // Calculate unit price (base + extras)
+              const unitPrice = item.totalPrice / item.quantity;
+              // Format attributes for storage
+              const attributesList = Object.entries(item.attributes).flatMap(
+                ([attrName, values]) => values.map(v => `${attrName}: ${v.valueName}`)
+              );
+              return {
+                productId: item.productId,
+                sku: item.productId,
+                name: item.name,
+                categoryId: undefined,
+                quantity: item.quantity,
+                unitPrice,
+                totalPrice: item.totalPrice,
+                attributes: {
+                  basePrice: item.basePrice,
+                  selections: item.attributes,
+                  formatted: attributesList,
+                },
+              };
+            }),
+          },
         },
-      },
-      include: { 
-        items: true,
-        address: true,
-        user: true,
-      },
-    });
+        include: { 
+          items: true,
+          address: true,
+          user: true,
+        },
+      }),
+      REQUEST_TIMEOUTS.ORDER_CREATE,
+      "Order creation took too long. Please try again."
+    );
 
     // For online payment methods, create payment intent
     // Note: Payment intent creation is separate - frontend will call /api/payments/create
@@ -215,14 +238,19 @@ export async function POST(request: NextRequest) {
               : PaymobPaymentMethod.CARD; // Default to card
             
             try {
-              paymentIntent = await paymentService.createPaymentIntent({
-                orderId: created.id,
-                paymentMethod: paymobPaymentMethod,
-              });
+              paymentIntent = await withTimeout(
+                paymentService.createPaymentIntent({
+                  orderId: created.id,
+                  paymentMethod: paymobPaymentMethod,
+                }),
+                REQUEST_TIMEOUTS.PAYMENT_CREATE,
+                "Payment setup took too long. Please try again."
+              );
             } catch (paymentError: unknown) {
               // Log error but don't fail order creation
               // Frontend can retry payment intent creation
-              console.error("[Order] Failed to create payment intent:", paymentError);
+              const errorMessage = paymentError instanceof Error ? paymentError.message : "Payment setup failed";
+              console.error("[Order] Failed to create payment intent:", errorMessage);
             }
           }
         }
@@ -289,6 +317,18 @@ export async function POST(request: NextRequest) {
     // Clear cart after order
     cartDB.clear(userId);
 
+    // Track order creation
+    await trackOrderEvent("order_created", {
+      orderId: created.id,
+      userId,
+      amount: total,
+      paymentMethod: body.paymentMethod,
+    });
+
+    // Track API performance
+    const duration = Date.now() - startTime;
+    await trackApiPerformance("/api/orders", duration, 201);
+
     // Prepare response
     const response: {
       order: ReturnType<typeof serializeOrder>;
@@ -319,9 +359,30 @@ export async function POST(request: NextRequest) {
       201,
     );
   } catch (error) {
+    const duration = Date.now() - startTime;
+    await trackApiPerformance("/api/orders", duration, error instanceof BadRequestError ? 400 : 500);
+    
     if (error instanceof Error && "issues" in error) {
-      return handleApiError(new BadRequestError("Invalid request body"));
+      await trackOrderEvent("order_failed", {
+        userId: getUserId(request),
+        error: "Invalid request body",
+      });
+      return handleApiError(new BadRequestError("Please check your information and try again."));
     }
+    
+    if (error instanceof Error && error.message.includes("timeout")) {
+      await trackOrderEvent("order_failed", {
+        userId: getUserId(request),
+        error: "Timeout",
+      });
+      return handleApiError(new ServiceUnavailableError("Request took too long. Please try again."));
+    }
+    
+    await trackOrderEvent("order_failed", {
+      userId: getUserId(request),
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    
     return handleApiError(error);
   }
 }

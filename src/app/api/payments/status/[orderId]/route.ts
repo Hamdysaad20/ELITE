@@ -7,6 +7,9 @@ import {
 import { getAuthUser } from "@/server/auth/session";
 import { getPaymentService } from "@/server/services/paymob/paymentService";
 import { isPaymobConfigured } from "@/server/services/paymob/paymobClient";
+import { checkPaymentRateLimit } from "@/server/utils/rateLimit";
+import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
+import { trackApiPerformance } from "@/server/utils/analytics";
 
 /**
  * GET /api/payments/status/[orderId]
@@ -16,13 +19,14 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
+  const startTime = Date.now();
   try {
     const { orderId } = await params;
 
     // Check if Paymob is configured
     if (!isPaymobConfigured()) {
       return jsonResponse(
-        errorResponse("Payment gateway is not configured"),
+        errorResponse("Payment service is temporarily unavailable."),
         503
       );
     }
@@ -30,7 +34,16 @@ export async function GET(
     // Authenticate user
     const authUser = await getAuthUser(request);
     if (!authUser?.id) {
-      return jsonResponse(errorResponse("Unauthorized"), 401);
+      return jsonResponse(errorResponse("Please sign in to continue."), 401);
+    }
+
+    // Rate limiting
+    const rateLimitResult = await checkPaymentRateLimit(authUser.id, "PAYMENT_STATUS");
+    if (!rateLimitResult.allowed) {
+      return jsonResponse(
+        errorResponse("Too many requests. Please wait a moment."),
+        429
+      );
     }
 
     // Verify order belongs to user
@@ -41,28 +54,39 @@ export async function GET(
     });
 
     if (!order) {
-      return jsonResponse(errorResponse("Order not found"), 404);
+      return jsonResponse(errorResponse("Order not found."), 404);
     }
 
     if (order.userId !== authUser.id) {
-      return jsonResponse(errorResponse("Unauthorized"), 403);
+      return jsonResponse(errorResponse("This order does not belong to you."), 403);
     }
 
     // Get payment status
     const paymentService = getPaymentService();
     if (!paymentService) {
       return jsonResponse(
-        errorResponse("Payment service is not available"),
+        errorResponse("Payment service is temporarily unavailable."),
         503
       );
     }
 
-    const status = await paymentService.getPaymentStatus(orderId);
+    const status = await withTimeout(
+      paymentService.getPaymentStatus(orderId),
+      REQUEST_TIMEOUTS.PAYMENT_STATUS,
+      "Status check took too long. Please try again."
+    );
+
+    // Track API performance
+    const duration = Date.now() - startTime;
+    await trackApiPerformance("/api/payments/status", duration, 200);
 
     return jsonResponse(successResponse(status));
   } catch (error: unknown) {
+    const duration = Date.now() - startTime;
+    await trackApiPerformance("/api/payments/status", duration, 500);
+    
     console.error("[Payment Status] Error:", error);
-    const message = (error as { message?: string })?.message || "Failed to get payment status";
+    const message = (error as { message?: string })?.message || "Could not check payment status. Please try again.";
     return jsonResponse(errorResponse(message), 500);
   }
 }

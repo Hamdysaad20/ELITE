@@ -25,14 +25,21 @@ export const UI_CONFIG = {
   ITEMS_PER_PAGE: 20,
 } as const;
 
-// Error Messages
+// Error Messages - Simple, informative, actionable
 export const ERROR_MESSAGES = {
-  GENERIC: "An unexpected error occurred. Please try again.",
-  NETWORK: "Network error. Please check your connection.",
-  VALIDATION: "Please check your input and try again.",
-  NOT_FOUND: "The requested resource was not found.",
-  CART_EMPTY: "Your cart is empty.",
-  MENU_ITEM_NOT_FOUND: "Menu item not found.",
+  GENERIC: "Something went wrong. Please try again.",
+  NETWORK: "Connection problem. Check your internet and try again.",
+  TIMEOUT: "Request took too long. Please try again.",
+  VALIDATION: "Please check your information and try again.",
+  NOT_FOUND: "Item not found.",
+  CART_EMPTY: "Your cart is empty. Add items to continue.",
+  ADDRESS_REQUIRED: "Please select a delivery address.",
+  RATE_LIMIT: "Too many requests. Please wait a moment and try again.",
+  ORDER_FAILED: "Could not place order. Please try again.",
+  PAYMENT_FAILED: "Payment could not be processed. Please try again.",
+  PAYMENT_CANCELLED: "Payment was cancelled. You can try again.",
+  PAYMENT_TIMEOUT: "Payment took too long. Please try again.",
+  SESSION_EXPIRED: "Your session expired. Please sign in again.",
 } as const;
 
 // Success Messages

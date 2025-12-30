@@ -134,17 +134,17 @@ export default function OrderPage() {
 
     // Validate cart has items
     if (!cartItems || cartItems.length === 0) {
-      setSubmitError("Your cart is empty");
+      setSubmitError("Your cart is empty. Add items to continue.");
       setSubmitting(false);
-      push({ type: "error", message: "Your cart is empty" });
+      push({ type: "error", message: "Your cart is empty. Add items to continue." });
       return;
     }
 
     // Validate address for delivery orders
     if (orderType === "DELIVERY" && !selectedAddress) {
-      setSubmitError("Please select a delivery address");
+      setSubmitError("Please select a delivery address.");
       setSubmitting(false);
-      push({ type: "error", message: "Please select a delivery address" });
+      push({ type: "error", message: "Please select a delivery address." });
       return;
     }
 
@@ -153,12 +153,17 @@ export default function OrderPage() {
         session?.user?.name ||
         session?.user?.email?.split("@")[0] ||
         "Website Customer";
+      // Add timeout to order creation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include", // Include cookies for NextAuth
+        signal: controller.signal,
         body: JSON.stringify({
           paymentMethod,
           orderType,
@@ -179,9 +184,12 @@ export default function OrderPage() {
           },
         }),
       });
+      clearTimeout(timeoutId);
+      
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to place order");
+        const errorMessage = errorData.error || "Could not place order. Please try again.";
+        throw new Error(errorMessage);
       }
       const json = await res.json();
       const orderData = json.data;
@@ -197,7 +205,19 @@ export default function OrderPage() {
       push({ type: "success", message: "Order placed successfully!" });
       clearCart(); // Clear local cart after successful order
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Unknown error";
+      let msg = "Could not place order. Please try again.";
+      
+      if (e instanceof Error) {
+        if (e.name === "AbortError" || e.message.includes("timeout")) {
+          msg = "Request took too long. Please try again.";
+        } else if (e.message.includes("rate limit") || e.message.includes("Too many")) {
+          msg = "Too many requests. Please wait a moment and try again.";
+        } else if (e.message) {
+          // Use the error message if it's user-friendly
+          msg = e.message;
+        }
+      }
+      
       setSubmitError(msg);
       push({ type: "error", message: msg });
     } finally {

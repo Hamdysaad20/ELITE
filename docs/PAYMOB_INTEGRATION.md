@@ -147,6 +147,9 @@ Tracks all payment attempts and their status:
 2. **PCI Compliance**: No card data is stored (handled by Paymob)
 3. **Idempotency**: Payment requests use unique order IDs
 4. **Error Handling**: Comprehensive error handling with user-friendly messages
+5. **Rate Limiting**: Redis-based rate limiting protects payment endpoints (5 requests/minute for payment creation)
+6. **Request Timeouts**: All payment operations have timeouts (20s for payment creation, 10s for status checks)
+7. **Analytics Tracking**: All payment events are tracked for monitoring and debugging
 
 ## Payment Flow Integration
 
@@ -203,4 +206,23 @@ Monitor payment transactions via:
 - Webhook logs in server console
 - Order payment status updates
 - Paymob dashboard transaction history
+- Analytics events (payment_intent_created, payment_intent_failed, webhook_processed_successfully, etc.)
+- Performance monitoring (slow request detection)
+- Rate limit tracking (payment_intent_rate_limited events)
+
+### Analytics Events
+
+The following payment events are tracked:
+- `payment_intent_created` - Payment intent successfully created
+- `payment_intent_failed` - Payment intent creation failed
+- `payment_intent_rate_limited` - Rate limit exceeded
+- `payment_status_checked` - Payment status queried
+- `payment_status_failed` - Status check failed
+- `webhook_processed_successfully` - Webhook processed successfully
+- `webhook_processing_failed` - Webhook processing failed
+- `payment_iframe_ready` - Payment iframe loaded
+- `payment_iframe_error` - Payment iframe error
+- `payment_iframe_closed` - User closed payment window
+
+See `docs/PRODUCTION_IMPROVEMENTS.md` for more details on analytics tracking.
 
