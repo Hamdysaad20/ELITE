@@ -198,16 +198,87 @@ export class PaymobClient {
 
   /**
    * Verify HMAC signature from webhook
+   * 
+   * According to Paymob documentation, HMAC is calculated using:
+   * - Multiple fields from the transaction object (obj)
+   * - Fields sorted alphabetically by key
+   * - HMAC secret used as the key for crypto.createHmac()
+   * 
+   * @param transaction - The transaction object from webhook payload (obj field)
+   * @param hmac - The HMAC signature from webhook payload
+   * @returns true if HMAC is valid, false otherwise
    */
-  verifyWebhookSignature(amountCents: number, created_at: string, hmac: string): boolean {
+  verifyWebhookSignature(transaction: {
+    amount_cents: number;
+    created_at: string;
+    currency: string;
+    error_occured?: boolean;
+    has_parent_transaction: boolean;
+    id: number;
+    integration_id: number;
+    is_3d_secure: boolean;
+    is_auth: boolean;
+    is_capture: boolean;
+    is_refunded: boolean;
+    is_standalone_payment?: boolean;
+    is_voided: boolean;
+    order: { id: number };
+    owner?: number;
+    pending: boolean;
+    source_data?: {
+      pan?: string;
+      sub_type?: string;
+      type?: string;
+    };
+    success: boolean;
+  }, hmac: string): boolean {
     try {
-      const hmacString = `${amountCents}${created_at}${this.config.hmacSecret}`;
+      // Build HMAC data string from transaction fields, sorted alphabetically
+      // Note: Some fields may be optional, so we handle them safely
+      const hmacDataSource: Record<string, string | number | boolean> = {
+        amount_cents: transaction.amount_cents,
+        created_at: transaction.created_at,
+        currency: transaction.currency,
+        error_occured: transaction.error_occured ?? false,
+        has_parent_transaction: transaction.has_parent_transaction,
+        id: transaction.id,
+        integration_id: transaction.integration_id,
+        is_3d_secure: transaction.is_3d_secure,
+        is_auth: transaction.is_auth,
+        is_capture: transaction.is_capture,
+        is_refunded: transaction.is_refunded,
+        is_standalone_payment: transaction.is_standalone_payment ?? false,
+        is_voided: transaction.is_voided,
+        order: transaction.order.id,
+        owner: transaction.owner ?? 0,
+        pending: transaction.pending,
+        "source_data.pan": transaction.source_data?.pan ?? "",
+        "source_data.sub_type": transaction.source_data?.sub_type ?? "",
+        "source_data.type": transaction.source_data?.type ?? "",
+        success: transaction.success,
+      };
+
+      // Sort keys alphabetically and concatenate values
+      const hmacString = Object.keys(hmacDataSource)
+        .sort()
+        .map(key => String(hmacDataSource[key]))
+        .join("");
+
+      // Calculate HMAC using the secret as the key (not as part of the data)
       const calculatedHmac = crypto
-        .createHash("sha512")
+        .createHmac("sha512", this.config.hmacSecret)
         .update(hmacString)
         .digest("hex");
 
-      return calculatedHmac === hmac;
+      // Use timing-safe comparison to prevent timing attacks
+      if (calculatedHmac.length !== hmac.length) {
+        return false;
+      }
+
+      return crypto.timingSafeEqual(
+        Buffer.from(calculatedHmac, "hex"),
+        Buffer.from(hmac, "hex")
+      );
     } catch (error) {
       console.error("[Paymob] HMAC verification error:", error);
       return false;

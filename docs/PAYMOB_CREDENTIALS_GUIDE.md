@@ -97,8 +97,8 @@ PAYMOB_ENVIRONMENT=sandbox  # or 'production'
 
 **Solution 2**: Contact Paymob Support
 - Email: support@paymob.com
-- Phone: +959972790066
 - Available 24/7
+- For phone support, check the Paymob dashboard or contact your account manager
 
 **Solution 3**: Check Account Status
 - Ensure your account is fully activated
@@ -137,8 +137,8 @@ If you still can't find your credentials:
 
 1. **Paymob Support**:
    - Email: support@paymob.com
-   - Phone: +959972790066
    - Available 24/7
+   - For phone support, check the Paymob dashboard or contact your account manager
 
 2. **Dashboard Help**:
    - Look for "Help" or "?" icon in dashboard

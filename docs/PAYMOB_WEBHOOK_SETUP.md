@@ -54,9 +54,15 @@ In your Paymob Dashboard, navigate to **Developers** > **Webhooks** and configur
 The webhook handler automatically verifies HMAC signatures using the following process:
 
 1. Paymob sends webhook with HMAC signature in the payload
-2. Our handler calculates HMAC using: `SHA512(amount_cents + created_at + HMAC_SECRET)`
-3. Compares calculated HMAC with received HMAC
+2. Our handler calculates HMAC using:
+   - Multiple fields from the transaction object (`obj` field)
+   - Fields sorted alphabetically by key
+   - HMAC secret used as the key for `crypto.createHmac("sha512", HMAC_SECRET)`
+   - Fields included: `amount_cents`, `created_at`, `currency`, `error_occured`, `has_parent_transaction`, `id`, `integration_id`, `is_3d_secure`, `is_auth`, `is_capture`, `is_refunded`, `is_standalone_payment`, `is_voided`, `order.id`, `owner`, `pending`, `source_data.pan`, `source_data.sub_type`, `source_data.type`, `success`
+3. Uses timing-safe comparison to prevent timing attacks
 4. Only processes webhook if signatures match
+
+**Important**: The HMAC calculation uses `crypto.createHmac()` (not `crypto.createHash()`), and the HMAC secret is used as the key, not as part of the data string.
 
 ## Troubleshooting
 

@@ -21,11 +21,17 @@ const vars = [
 
 vars.forEach((varName) => {
   const value = process.env[varName];
+  const isOptional = varName === "PAYMOB_WALLET_INTEGRATION_ID" || varName === "PAYMOB_ENVIRONMENT";
+  
   if (value) {
     const masked = value.substring(0, 8) + "..." + value.substring(value.length - 4);
     console.log(`✅ ${varName}: ${masked} (${value.length} chars)`);
   } else {
-    console.log(`❌ ${varName}: NOT SET`);
+    if (isOptional) {
+      console.log(`ℹ️  ${varName}: NOT SET (optional)`);
+    } else {
+      console.log(`❌ ${varName}: NOT SET`);
+    }
   }
 });
 

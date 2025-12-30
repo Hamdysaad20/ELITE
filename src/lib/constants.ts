@@ -32,6 +32,7 @@ export const ERROR_MESSAGES = {
   TIMEOUT: "Request took too long. Please try again.",
   VALIDATION: "Please check your information and try again.",
   NOT_FOUND: "Item not found.",
+  MENU_ITEM_NOT_FOUND: "Menu item not found.",
   CART_EMPTY: "Your cart is empty. Add items to continue.",
   ADDRESS_REQUIRED: "Please select a delivery address.",
   RATE_LIMIT: "Too many requests. Please wait a moment and try again.",

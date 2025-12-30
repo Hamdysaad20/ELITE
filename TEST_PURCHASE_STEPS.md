@@ -7,8 +7,8 @@ Your Paymob integration is configured:
 - ✅ Secret Key: Set  
 - ✅ Public Key: Set
 - ✅ HMAC Secret: Set
-- ✅ Integration ID: 983629
-- ✅ Wallet Integration ID: 5452964
+- ✅ Integration ID: Configured
+- ✅ Wallet Integration ID: Configured (optional)
 - ✅ Environment: sandbox
 
 ## 🚀 Step-by-Step Test Process

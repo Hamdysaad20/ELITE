@@ -4,7 +4,7 @@
  */
 
 import { prisma } from "@/server/db/client";
-import { Prisma } from "@prisma/client";
+import { Prisma, type Order, type User, type Address } from "@prisma/client";
 import { PaymobClient, createPaymobClient, isPaymobConfigured } from "./paymobClient";
 import {
   PaymentTransactionStatus,
@@ -14,6 +14,33 @@ import {
   type PaymobWebhookPayload,
 } from "@/types/payments";
 import { PaymentMethod } from "@/types";
+
+// Type for payment transaction (using Prisma's generated type)
+type PaymentTransaction = {
+  id: string;
+  orderId: string;
+  paymobTransactionId: string | null;
+  paymentKey: string | null;
+  integrationId: number | null;
+  status: string;
+  amount: Prisma.Decimal;
+  paymobResponse: Prisma.JsonValue | null;
+  paymobError: string | null;
+  webhookReceived: boolean;
+  webhookProcessedAt: Date | null;
+  webhookPayload: Prisma.JsonValue | null;
+  retryCount: number;
+  lastRetryAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Type for order with relations
+type OrderWithRelations = Order & {
+  paymentTransactions?: PaymentTransaction[];
+  user?: User | null;
+  address?: Address | null;
+};
 
 export class PaymentService {
   private client: PaymobClient;
@@ -116,6 +143,9 @@ export class PaymentService {
 
   /**
    * Prepare billing data from order
+   * 
+   * Validates that required billing information is available.
+   * For online payments, valid billing data is required by Paymob.
    */
   private prepareBillingData(order: {
     user: { name: string | null; email: string | null; phone: string | null } | null;
@@ -132,26 +162,50 @@ export class PaymentService {
     const user = order.user;
     const address = order.address;
 
+    // Validate required fields
+    if (!user?.email) {
+      throw new Error("User email is required for online payment");
+    }
+
+    if (!address) {
+      throw new Error("Delivery address is required for online payment");
+    }
+
+    if (!address.street || !address.city) {
+      throw new Error("Street and city are required in delivery address");
+    }
+
+    const phoneNumber = address.phone || user.phone;
+    if (!phoneNumber) {
+      throw new Error("Phone number is required for online payment");
+    }
+
+    // Validate phone number format (Egyptian format: starts with 0 or +20)
+    const phoneRegex = /^(\+20|0)?1[0-9]{9}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ""))) {
+      throw new Error("Invalid phone number format. Please use Egyptian format (e.g., 01000000000)");
+    }
+
     // Extract first and last name
-    const fullName = user?.name || "Customer";
-    const nameParts = fullName.split(" ");
+    const fullName = user.name || "Customer";
+    const nameParts = fullName.trim().split(/\s+/);
     const firstName = nameParts[0] || "Customer";
     const lastName = nameParts.slice(1).join(" ") || "Customer";
 
     return {
-      apartment: address?.apartment || "N/A",
-      email: user?.email || "customer@example.com",
-      floor: "N/A",
+      apartment: address.apartment || "",
+      email: user.email,
+      floor: "",
       first_name: firstName,
-      street: address?.street || "N/A",
-      building: "N/A",
-      phone_number: address?.phone || user?.phone || "01000000000",
+      street: address.street,
+      building: "",
+      phone_number: phoneNumber.replace(/\s/g, ""),
       shipping_method: "PKG",
-      postal_code: address?.zipCode || "00000",
-      city: address?.city || "Cairo",
-      country: address?.country || "Egypt",
+      postal_code: address.zipCode || "",
+      city: address.city,
+      country: address.country || "Egypt",
       last_name: lastName,
-      state: address?.state || "Cairo",
+      state: address.state || address.city,
     };
   }
 
@@ -164,8 +218,7 @@ export class PaymentService {
     // Verify HMAC signature
     if (payload.hmac) {
       const isValid = this.client.verifyWebhookSignature(
-        transaction.amount_cents,
-        transaction.created_at,
+        transaction,
         payload.hmac
       );
 
@@ -209,7 +262,8 @@ export class PaymentService {
     }
 
     // Update or create payment transaction
-    const existingTransaction = order.paymentTransactions.find(
+    const orderWithRelations = order as OrderWithRelations;
+    const existingTransaction = orderWithRelations.paymentTransactions?.find(
       (pt) => pt.paymobTransactionId === String(transaction.id)
     );
 
@@ -268,12 +322,12 @@ export class PaymentService {
           orderId: order.id,
           clientOrderRef: order.clientOrderRef,
           partner: {
-            name: order.user?.name || "Customer",
-            email: order.user?.email || undefined,
-            phone: order.address?.phone || order.user?.phone || undefined,
-            street: order.address?.street || undefined,
-            city: order.address?.city || undefined,
-            zip: order.address?.zipCode || undefined,
+            name: orderWithRelations.user?.name || "Customer",
+            email: orderWithRelations.user?.email || undefined,
+            phone: orderWithRelations.address?.phone || orderWithRelations.user?.phone || undefined,
+            street: orderWithRelations.address?.street || undefined,
+            city: orderWithRelations.address?.city || undefined,
+            zip: orderWithRelations.address?.zipCode || undefined,
           },
           enableSale: true,
           autoConfirm: false,
@@ -319,7 +373,8 @@ export class PaymentService {
       throw new Error("Order not found");
     }
 
-    const latestTransaction = order.paymentTransactions[0];
+    const orderWithRelations = order as OrderWithRelations;
+    const latestTransaction = orderWithRelations.paymentTransactions?.[0];
 
     return {
       status: (latestTransaction?.status as PaymentTransactionStatus) || PaymentTransactionStatus.PENDING,

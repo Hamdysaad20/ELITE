@@ -82,19 +82,10 @@ async function testFullPaymentFlow() {
       throw new Error("Payment service not available");
     }
 
-    const paymentIntent = await paymentService.createPaymentIntent(
-      {
-        orderId: testOrder.id,
-        paymentMethod: "card",
-        billingData: {
-          firstName: "Test",
-          lastName: "User",
-          email: testUser.email || "test@paymob-test.com",
-          phoneNumber: "01000000000",
-        },
-      },
-      testUser.id
-    );
+    const paymentIntent = await paymentService.createPaymentIntent({
+      orderId: testOrder.id,
+      paymentMethod: "card",
+    });
 
     console.log(`   ✅ Payment intent created`);
     console.log(`   🔑 Payment Key: ${paymentIntent.paymentKey.substring(0, 20)}...`);

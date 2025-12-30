@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof BadRequestError) {
       await trackPaymentEvent("payment_failed", {
-        orderId: (error as any).orderId,
+        orderId: undefined,
         userId: (await getAuthUser(request))?.id,
         error: error.message,
       });

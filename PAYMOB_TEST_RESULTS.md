@@ -10,8 +10,8 @@
 ### 1. Configuration ✅
 - ✅ All environment variables are set correctly
 - ✅ Paymob API credentials are valid
-- ✅ Integration ID: `983629`
-- ✅ Wallet Integration ID: `5452964` (optional)
+- ✅ Integration ID: `your_integration_id` (configured)
+- ✅ Wallet Integration ID: `your_wallet_integration_id` (optional, if configured)
 - ✅ HMAC Secret: Configured
 - ✅ Environment: `sandbox`
 
@@ -30,7 +30,7 @@
 ### 4. Server Status ✅
 - ✅ Development server running on `http://localhost:3000`
 - ✅ Payment config endpoint responding correctly
-- ✅ Public key retrieved successfully: `egy_pk_test_8At0RAuZrbmpwmf2a5Aa74xwBTBvKtuc`
+- ✅ Public key retrieved successfully (configured)
 
 ## 🧪 Manual Testing Required
 
