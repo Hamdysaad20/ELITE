@@ -6,6 +6,7 @@
 ## 📚 Core Documentation (20 Active Docs)
 
 ### 🚀 Getting Started
+- **[Agent Roles & Standards](./AGENT_ROLES_AND_STANDARDS.md)** - **MUST READ** for all contributors
 - **[Getting Started Guide](./GETTING_STARTED.md)** - Setup and installation
 - **[System Overview](./SYSTEM_OVERVIEW.md)** - Architecture and features overview
 - **[Environment Setup](./ENV_EXAMPLE.md)** - Environment variables
