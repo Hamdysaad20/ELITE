@@ -1,0 +1,23 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Soft directional lighting emphasizing texture and steam
+Camera: Macro lens, shallow depth of field (bokeh background), close-up top-down angle
+Composition: Filling the frame with the drink surface
+
+[Subject]
+Micro-closeup of the top surface of a {{name}}.
+Focus on the texture: {{surfaceTexture}}.
+Capture the rich details of the foam, latte art, or steam rising.
+Feel the warmth and quality.
+
+[Toppings/Garnish]
+{{toppings}}
+
+[Background/Environment]
+Background is extremely blurred (bokeh), indistinguishable.
+Focus is entirely on the drink surface.
+
+[Style/Vibe]
+Sensory detail, appetizing, premium texture, warm feeling.
+NO text, NO logos, pure texture.

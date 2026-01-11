@@ -53,3 +53,10 @@ next-env.d.ts
 
 /.github
 .env*.local
+
+# Image Generation Assets
+data/flux-dataset.json
+# public/products/ <-- Kept for website hosting
+data/catalog-review.json
+data/*-backup-*.json
+scripts/image-generation/templates/__tests__/
