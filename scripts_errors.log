@@ -1,0 +1,343 @@
+scripts/add_all_old_products.ts(16,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_all_old_products.ts(25,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_all_old_products.ts(34,34): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_all_old_products.ts(143,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_all_old_products.ts(143,32): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_all_old_products.ts(170,32): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_chocolate_option_to_mocha.ts(27,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_chocolate_option_to_mocha.ts(35,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_chocolate_option_to_mocha.ts(41,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_chocolate_option_to_mocha.ts(88,35): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_chocolate_option_to_mocha.ts(98,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_comprehensive_extras.ts(178,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_final_missing_item.ts(55,32): error TS2339: Property 'create' does not exist on type 'OdooClient'.
+scripts/add_milkshake_attributes.ts(45,27): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_milkshake_attributes.ts(54,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_milkshake_attributes.ts(88,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_milkshake_attributes.ts(186,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_milkshake_attributes.ts(209,24): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_missing_products.ts(16,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_missing_products.ts(25,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_missing_products.ts(34,34): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_missing_products.ts(170,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_missing_products.ts(170,32): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_missing_products.ts(197,32): error TS18047: 'odoo' is possibly 'null'.
+scripts/add_passion_fruit_soda_sizes.ts(47,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(68,33): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(81,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(94,33): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(125,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(132,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(142,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_passion_fruit_soda_sizes.ts(185,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/add_size_pricing.ts(54,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/analyze_categorization.ts(31,30): error TS18047: 'odoo' is possibly 'null'.
+scripts/apply_attributes_to_categories.ts(146,41): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_attributes_to_categories.ts(157,34): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ 'Oat Milk': number; 'Almond Milk': number; 'Soy Milk': number; 'Lactose-Free Milk': number; 'Double Shot'?: undefined; 'Triple Shot'?: undefined; 'Whipped Cream'?: undefined; 'Caramel Drizzle'?: undefined; 'Chocolate Sauce'?: undefined; 'Vanilla Syrup'?: undefined; 'Hazelnut Syrup'?: undefined; } | ... 12 more ......'.
+scripts/apply_attributes_to_categories.ts(159,26): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_essential_attributes_phase1.ts(78,41): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_essential_attributes_phase1.ts(86,32): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ 'Oat Milk': number; 'Almond Milk': number; 'Soy Milk': number; 'Lactose-Free Milk': number; } | { 'Oat Milk': number; 'Almond Milk': number; 'Soy Milk': number; 'Lactose-Free Milk'?: undefined; } | { 'Oat Milk'?: undefined; 'Almond Milk'?: undefined; 'Soy Milk'?: undefined; 'Lactose-Free Milk'?: undefined; }'.
+scripts/apply_essential_attributes_phase1.ts(87,24): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_new_sugar_values.ts(10,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/apply_pricing.ts(105,38): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_pricing.ts(129,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_pricing.ts(182,26): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_pricing.ts(184,35): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/apply_pricing.ts(215,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/check_archived_products.ts(13,34): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_archived_products.ts(37,32): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(13,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(26,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(48,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(70,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(79,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/check_pos_products.ts(87,34): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(15,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(49,15): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(49,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/cleanup_and_finalize.ts(65,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(73,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(84,34): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(141,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_and_finalize.ts(141,32): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/cleanup_and_finalize.ts(162,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/cleanup_duplicate_categories.ts(95,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/cleanup_duplicate_categories.ts(108,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/cleanup_size_variants.ts(50,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/complete_inventory_check.ts(15,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/comprehensive_product_analysis.ts(99,30): error TS18047: 'odoo' is possibly 'null'.
+scripts/configure_pos_display.ts(28,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/configure_pos_display.ts(55,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/configure_pos_display.ts(73,9): error TS18047: 'odoo' is possibly 'null'.
+scripts/configure_pos_display.ts(73,14): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/configure_pos_display.ts(82,25): error TS18047: 'odoo' is possibly 'null'.
+scripts/configure_size_pricing.ts(97,24): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create-elite-yearly-event-pricelist.ts(52,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-elite-yearly-event-pricelist.ts(71,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-elite-yearly-event-pricelist.ts(88,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-flash-sales-pricelist.ts(49,24): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-flash-sales-pricelist.ts(56,22): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-flash-sales-pricelist.ts(76,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-flash-sales-pricelist.ts(96,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-flash-sales-pricelist.ts(115,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(52,24): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(60,22): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(81,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(99,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(120,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(140,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-happy-hour-pricelist.ts(158,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-holiday-specials-pricelist.ts(68,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-holiday-specials-pricelist.ts(87,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-holiday-specials-pricelist.ts(103,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-holiday-specials-pricelist.ts(117,30): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-holiday-specials-pricelist.ts(141,30): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-late-night-pricelist.ts(55,30): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-late-night-pricelist.ts(76,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-late-night-pricelist.ts(96,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-late-night-pricelist.ts(113,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(68,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(77,24): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(86,24): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(95,33): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(125,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(147,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(177,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(197,13): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(219,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-monday-deals-pricelist.ts(239,13): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-new-product-launch-pricelist.ts(45,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-new-product-launch-pricelist.ts(65,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-new-product-launch-pricelist.ts(85,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-new-product-launch-pricelist.ts(94,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-new-product-launch-pricelist.ts(125,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-seasonal-promotions-pricelist.ts(83,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-seasonal-promotions-pricelist.ts(103,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-seasonal-promotions-pricelist.ts(122,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-seasonal-promotions-pricelist.ts(134,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-weekend-combo-pricelist.ts(50,23): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-weekend-combo-pricelist.ts(57,21): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-weekend-combo-pricelist.ts(83,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-weekend-combo-pricelist.ts(103,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create-weekend-combo-pricelist.ts(126,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/create_essential_attributes.ts(188,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_essential_attributes.ts(200,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_essential_attributes.ts(217,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_turkish_sugar_attribute.ts(23,37): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_turkish_sugar_attribute.ts(41,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_turkish_sugar_attribute.ts(75,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/create_turkish_sugar_attribute.ts(94,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/diagnose_pos_issue.ts(12,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/diagnose_pos_issue.ts(31,40): error TS18047: 'odoo' is possibly 'null'.
+scripts/diagnose_pos_issue.ts(45,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/diagnose_pos_issue.ts(80,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/diagnose_pos_issue.ts(96,38): error TS18047: 'odoo' is possibly 'null'.
+scripts/expand_extras_category.ts(48,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(53,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(58,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(166,27): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(184,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(313,27): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(338,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_extras_category.ts(383,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(110,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(186,35): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(208,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(239,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(291,29): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(300,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(330,33): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(340,23): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ 'White Bread': number; 'Whole Wheat Bread (+5 EGP)': number; 'Ciabatta (+8 EGP)': number; 'Baguette (+8 EGP)': number; 'Wrap (+5 EGP)': number; 'Grilled Chicken (+25 EGP)'?: undefined; 'Turkey (+20 EGP)'?: undefined; ... 26 more ...; 'Pesto (+12 EGP)'?: undefined; } | { ...; } | { ...; } | { ...; } | { ...; }'.
+scripts/expand_sandwich_menu.ts(348,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(367,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/expand_sandwich_menu.ts(378,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/final_pos_check.ts(16,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/final_pos_check.ts(43,33): error TS18047: 'odoo' is possibly 'null'.
+scripts/final_pos_check.ts(58,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/final_pos_check.ts(78,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/find_and_restore_sandwiches.ts(114,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_all_categorization.ts(15,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(67,13): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(67,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_all_categorization.ts(86,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(100,13): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(100,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_all_categorization.ts(117,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(125,33): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(156,13): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_all_categorization.ts(156,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_all_categorization.ts(178,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/fix_attribute_pricing_and_selective_application.ts(77,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_attribute_pricing_and_selective_application.ts(103,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_attribute_pricing_and_selective_application.ts(111,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_attribute_pricing_and_selective_application.ts(160,37): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_attribute_pricing_and_selective_application.ts(168,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_attribute_pricing_and_selective_application.ts(230,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_categories_short_names.ts(177,9): error TS7034: Variable 'categorized' implicitly has type 'any[]' in some locations where its type cannot be determined.
+scripts/fix_categories_short_names.ts(202,22): error TS7005: Variable 'categorized' implicitly has an 'any[]' type.
+scripts/fix_categories_sugar.ts(13,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/fix_espresso_shots.ts(25,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_espresso_shots.ts(83,35): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_espresso_shots.ts(128,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_marshmallow_and_shots_pricing.ts(37,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_marshmallow_and_shots_pricing.ts(87,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_marshmallow_and_shots_pricing.ts(102,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_marshmallow_and_shots_pricing.ts(117,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(21,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(60,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(86,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(105,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(167,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(185,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(244,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_product_issues.ts(248,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_smoothies_sodas.ts(28,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_smoothies_sodas.ts(67,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_turkish_sugar_levels.ts(38,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_turkish_sugar_levels.ts(53,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_turkish_sugar_levels.ts(77,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/fix_turkish_sugar_levels.ts(88,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/force_full_pos_sync.ts(34,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/force_full_pos_sync.ts(72,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/force_full_pos_sync.ts(119,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/force_full_pos_sync.ts(161,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/image-generation/lib/compositor.ts(55,25): error TS1117: An object literal cannot have multiple properties with the same name.
+scripts/image-generation/lib/generator.ts(84,13): error TS2322: Type 'Buffer<ArrayBufferLike>' is not assignable to type 'Buffer<ArrayBuffer>'.
+  Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+    Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+scripts/implement_size_attributes.ts(29,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_attributes.ts(53,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_attributes.ts(141,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_correctly.ts(30,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_correctly.ts(36,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_correctly.ts(65,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_correctly.ts(128,42): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/implement_size_correctly.ts(154,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/initialize_analytics.ts(41,58): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/initialize_analytics.ts(74,45): error TS2365: Operator '>=' cannot be applied to types 'Decimal' and 'number'.
+scripts/initialize_analytics.ts(75,41): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/initialize_analytics.ts(96,15): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+scripts/initialize_analytics.ts(123,15): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+scripts/initialize_analytics.ts(127,39): error TS2339: Property 'orderNumber' does not exist on type '{ user: { id: string; name: string | null; createdAt: Date; updatedAt: Date; email: string; phone: string | null; status: string; emailVerified: Date | null; image: string | null; role: string; lastLoginAt: Date | null; } | null; items: { ...; }[]; } & { ...; }'.
+scripts/initialize_analytics.ts(169,27): error TS2365: Operator '+' cannot be applied to types 'number' and 'number | Decimal'.
+scripts/initialize_analytics.ts(173,31): error TS2365: Operator '>' cannot be applied to types 'Decimal' and 'number'.
+scripts/inspect_pos_category.ts(13,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/inspect_pos_category.ts(13,33): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/inspect_pos_category.ts(13,61): error TS2345: Argument of type '{ model: string; method: string; args: never[]; kwargs: {}; }' is not assignable to parameter of type 'string'.
+scripts/inspect_pos_category.ts(26,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/inspect_pos_category.ts(26,33): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/inspect_pos_category.ts(26,61): error TS2345: Argument of type '{ model: string; method: string; args: never[][]; kwargs: { fields: string[]; order: string; }; }' is not assignable to parameter of type 'string'.
+scripts/investigate_deeper.ts(47,10): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+scripts/investigate_deeper.ts(47,34): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+scripts/investigate_deeper.ts(48,5): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+scripts/investigate_deeper.ts(60,21): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ 13: string; 14: string; 18: string; 19: string; 20: string; 21: string; 23: string; 26: string; 25: string; }'.
+scripts/investigate_deeper.ts(61,19): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+scripts/investigate_issues.ts(10,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/link_products_to_pos_categ.ts(27,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/link_products_to_pos_categ.ts(38,35): error TS18047: 'odoo' is possibly 'null'.
+scripts/link_products_to_pos_categ.ts(49,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/link_products_to_pos_categ.ts(97,13): error TS18047: 'odoo' is possibly 'null'.
+scripts/link_products_to_pos_categ.ts(97,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/list_pos_categories_simple.ts(13,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/list_pos_categories_simple.ts(29,28): error TS18047: 'odoo' is possibly 'null'.
+scripts/phase1_categorize_products.ts(15,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase1_cleanup_duplicates.ts(14,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase1_manual_fixes.ts(10,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase2_create_attributes.ts(15,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase2_fix_attributes.ts(10,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase2_recategorize.ts(10,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase3_cleanup_values.ts(15,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase3b_archive_old_values.ts(12,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase4_apply_attributes.ts(15,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/phase4_consolidate_latte_cappuccino.ts(107,41): error TS18046: 'p' is of type 'unknown'.
+scripts/phase4_consolidate_latte_cappuccino.ts(121,22): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/phase4_consolidate_latte_cappuccino.ts(121,35): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/phase4_consolidate_spanish_latte_hot.ts(66,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+scripts/phase4_consolidate_spanish_latte_hot.ts(66,37): error TS7006: Parameter 'b' implicitly has an 'any' type.
+scripts/phase4_move_extras_by_ids.ts(41,34): error TS7006: Parameter 't' implicitly has an 'any' type.
+scripts/phase6_test_sync.ts(12,11): error TS2430: Interface 'OdooClientWithRpc' incorrectly extends interface 'OdooClient'.
+  Property 'rpc' is private in type 'OdooClient' but not in type 'OdooClientWithRpc'.
+scripts/pos_iced_fast_fix.ts(70,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/pos_iced_fast_fix.ts(78,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/pos_iced_fast_fix.ts(81,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/pos_iced_fast_fix.ts(88,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/pos_iced_fast_fix.ts(91,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/remove-30-percent-discount.ts(72,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/remove_espresso_size_and_milk.ts(55,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/remove_size_variants.ts(15,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/remove_size_variants.ts(35,15): error TS18047: 'odoo' is possibly 'null'.
+scripts/remove_size_variants.ts(35,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/remove_size_variants.ts(56,31): error TS18047: 'odoo' is possibly 'null'.
+scripts/restore_archived_products.ts(32,29): error TS18047: 'odoo' is possibly 'null'.
+scripts/restore_archived_products.ts(87,13): error TS18047: 'odoo' is possibly 'null'.
+scripts/restore_archived_products.ts(87,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/rotate-flash-sales-product.ts(61,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-flash-sales-product.ts(75,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-flash-sales-product.ts(93,32): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-flash-sales-product.ts(137,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-flash-sales-product.ts(151,23): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-flash-sales-product.ts(179,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(58,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(72,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(90,32): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(134,28): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(148,23): error TS2347: Untyped function calls may not accept type arguments.
+scripts/rotate-happy-hour-product.ts(175,31): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(80,35): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(95,36): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(103,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(150,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(170,29): error TS2347: Untyped function calls may not accept type arguments.
+scripts/setup-general-deals-pricelist.ts(196,26): error TS2347: Untyped function calls may not accept type arguments.
+scripts/sync-unsynced-orders.ts(78,9): error TS2322: Type '{ name: string; email: string | undefined; phone: string | null | undefined; street: string | undefined; city: string | undefined; zip: string | null | undefined; }' is not assignable to type '{ name?: string | undefined; email?: string | undefined; phone?: string | undefined; street?: string | undefined; city?: string | undefined; zip?: string | undefined; }'.
+  Types of property 'phone' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+scripts/sync_all_to_pos.ts(38,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/sync_all_to_pos.ts(78,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/sync_sandwiches_to_pos.ts(34,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/sync_sandwiches_to_pos.ts(56,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/test-payment-edge-cases.ts(79,9): error TS2554: Expected 1 arguments, but got 2.
+scripts/test-payment-edge-cases.ts(90,9): error TS2554: Expected 1 arguments, but got 2.
+scripts/test-payment-edge-cases.ts(101,9): error TS2554: Expected 1 arguments, but got 2.
+scripts/test-payment-edge-cases.ts(148,11): error TS2554: Expected 1 arguments, but got 2.
+scripts/test-payment-edge-cases.ts(193,11): error TS2554: Expected 1 arguments, but got 2.
+scripts/test-paymob-full-flow.ts(87,7): error TS2322: Type '"card"' is not assignable to type 'PaymobPaymentMethod'.
+scripts/test-paymob-full-flow.ts(92,52): error TS2339: Property 'iframeUrl' does not exist on type 'CreatePaymentIntentResponse'.
+scripts/update_milkshake_whipped_cream.ts(48,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_milkshake_whipped_cream.ts(72,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_milkshake_whipped_cream.ts(85,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(95,32): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(104,30): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(128,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(137,34): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(146,30): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(223,25): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(231,22): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(251,27): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(255,24): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_products.ts(265,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_attributes.ts(23,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_attributes.ts(49,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_attributes.ts(69,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_attributes.ts(95,24): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_pricing.ts(52,20): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_pricing.ts(60,18): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_pricing.ts(88,36): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/update_sandwich_pricing.ts(108,16): error TS2341: Property 'rpc' is private and only accessible within class 'OdooClient'.
+scripts/verify_pos_setup.ts(12,27): error TS18047: 'odoo' is possibly 'null'.
+scripts/verify_pos_setup.ts(48,29): error TS18047: 'odoo' is possibly 'null'.

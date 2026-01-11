@@ -77,7 +77,7 @@ export class FluxGenerator {
     private async saveBase64(base64Data: string, destPath: string, applyLogo: boolean) {
         await fs.mkdir(path.dirname(destPath), { recursive: true });
 
-        let buffer = Buffer.from(base64Data, 'base64');
+        let buffer: Buffer = Buffer.from(base64Data, 'base64');
 
         // Apply Logo Overlay ONLY if requested
         if (applyLogo) {
@@ -91,11 +91,11 @@ export class FluxGenerator {
         await fs.mkdir(path.dirname(destPath), { recursive: true });
 
         const response = await axios({ url, responseType: "arraybuffer" });
-        let buffer = Buffer.from(response.data);
+        let buffer: Buffer = Buffer.from(response.data);
 
         // Apply Logo Overlay ONLY if requested
         if (applyLogo) {
-            buffer = await this.compositor.composite(buffer);
+            buffer = await this.compositor.composite(buffer as Buffer);
         }
 
         await fs.writeFile(destPath, buffer);

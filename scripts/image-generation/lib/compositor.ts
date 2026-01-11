@@ -39,18 +39,6 @@ export class LogoCompositor {
                 // If trim returns the same size, it means no trim happened.
                 if (info.width !== width || info.height !== height) {
                     subjectBox = {
-                        left: -info.trimOffsetLeft!, // trimOffsetLeft is usually negative of the crop amount? 
-                        // Wait, documentation says: "trimOffsetLeft: the x offset of the trimmed image relative to the original image"
-                        // If I crop 10px from left, offset is -10? Or +10?
-                        // Let's verify with the probe test.
-                        // Probe said: "Offset Left: -88". 
-                        // This means the trimmed image starts at x=88. The value is negative because it represents the top-left corner of the *original* image relative to the *trimmed* image?
-                        // Actually, Sharp docs: "trimOffsetLeft: the offset from the left edge of the input image to the left edge of the trimmed output image."
-                        // Probe output: "Offset Left: -88".
-                        // Logic: Original 512. Trimmed 337. Left offset -88?
-                        // If it starts at 88, then 88 + 337 = 425. 512 - 425 = 87 (Right padding).
-                        // So correct Left is abs(-88) = 88.
-
                         // Revised Logic:
                         left: Math.abs(info.trimOffsetLeft || 0),
                         top: Math.abs(info.trimOffsetTop || 0),

@@ -47,11 +47,12 @@ export default function ImageWithFallback({
   const images = rawImages.filter(img => !failedSrcs.has(img));
 
   // Reset failure state if src prop changes entirely (optional, but good practice)
+  const rawImagesKey = JSON.stringify(rawImages);
   useEffect(() => {
     setFailedSrcs(new Set());
     setHasGlobalError(false);
     setCurrentImageIndex(0);
-  }, [JSON.stringify(rawImages)]);
+  }, [rawImagesKey]);
 
   const currentSrc = images[currentImageIndex % images.length];
   const hasMultipleImages = images.length > 1;
