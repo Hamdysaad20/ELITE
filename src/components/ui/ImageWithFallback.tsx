@@ -37,29 +37,50 @@ export default function ImageWithFallback({
   onLoad,
 }: ImageWithFallbackProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imageError, setImageError] = useState(false);
+  const [hasGlobalError, setHasGlobalError] = useState(false);
+  const [failedSrcs, setFailedSrcs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
   // Handle multiple images - create array
-  const images = Array.isArray(src) ? src : src ? [src] : [];
-  const currentSrc = images[currentImageIndex];
+  const rawImages = Array.isArray(src) ? src : src ? [src] : [];
+  // Filter out images that have failed to load
+  const images = rawImages.filter(img => !failedSrcs.has(img));
+
+  // Reset failure state if src prop changes entirely (optional, but good practice)
+  useEffect(() => {
+    setFailedSrcs(new Set());
+    setHasGlobalError(false);
+    setCurrentImageIndex(0);
+  }, [JSON.stringify(rawImages)]);
+
+  const currentSrc = images[currentImageIndex % images.length];
   const hasMultipleImages = images.length > 1;
 
   // Auto-rotate images if multiple
   useEffect(() => {
-    if (!hasMultipleImages || imageError) return;
+    if (!hasMultipleImages) return;
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [hasMultipleImages, images.length, imageError]);
+  }, [hasMultipleImages, images.length]);
 
   const handleError = () => {
-    setImageError(true);
-    setIsLoading(false);
-    onError?.();
+    if (currentSrc) {
+      console.warn(`Image load failed: ${currentSrc}`);
+      setFailedSrcs(prev => {
+        const next = new Set(prev);
+        next.add(currentSrc);
+        return next;
+      });
+      // Reset loading to allow next image to try loading
+      setIsLoading(true);
+    } else {
+      // Should not happen if filtered correctly, but safety net
+      setHasGlobalError(true);
+    }
   };
 
   const handleLoad = () => {
@@ -68,7 +89,7 @@ export default function ImageWithFallback({
   };
 
   // No images provided or all failed - show fallback
-  if (!currentSrc || imageError) {
+  if (!currentSrc || hasGlobalError || images.length === 0) {
     return (
       <div
         className={cn(
@@ -79,9 +100,9 @@ export default function ImageWithFallback({
           fill
             ? undefined
             : {
-                width: width || "100%",
-                height: height || "100%",
-              }
+              width: width || "100%",
+              height: height || "100%",
+            }
         }
       >
         {showErrorIcon ? (
@@ -131,15 +152,15 @@ export default function ImageWithFallback({
           style={
             fill
               ? {
-                  width: "100%",
-                  height: "100%",
-                  objectFit,
-                }
+                width: "100%",
+                height: "100%",
+                objectFit,
+              }
               : {
-                  width: width || "100%",
-                  height: height || "100%",
-                  objectFit,
-                }
+                width: width || "100%",
+                height: height || "100%",
+                objectFit,
+              }
           }
         />
       ) : (
@@ -159,7 +180,7 @@ export default function ImageWithFallback({
       )}
 
       {/* Image dots indicator for multiple images */}
-      {hasMultipleImages && !imageError && images.length > 1 && (
+      {hasMultipleImages && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
           {images.map((_, index) => (
             <button
@@ -167,7 +188,7 @@ export default function ImageWithFallback({
               onClick={() => setCurrentImageIndex(index)}
               className={cn(
                 "w-1.5 h-1.5 rounded-full transition-all",
-                index === currentImageIndex
+                index === (currentImageIndex % images.length)
                   ? "bg-elite-cream w-4"
                   : "bg-elite-cream/50 hover:bg-elite-cream/75"
               )}
