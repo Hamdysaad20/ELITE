@@ -1,6 +1,6 @@
 /**
  * Reward Engine
- * 
+ *
  * Core service for processing multiple rewards from a single trigger
  */
 
@@ -19,7 +19,14 @@ export interface RewardTrigger {
 }
 
 export interface Reward {
-  type: "points" | "badge" | "streak" | "achievement" | "coupon" | "tier_upgrade" | "discount";
+  type:
+    | "points"
+    | "badge"
+    | "streak"
+    | "achievement"
+    | "coupon"
+    | "tier_upgrade"
+    | "discount";
   value: Record<string, unknown> | number | string; // Flexible value based on type
   name: string;
   priority?: number;
@@ -60,7 +67,9 @@ export class RewardEngine {
         });
 
         if (existing) {
-          console.log(`Reward event already exists for trigger ${trigger.type}:${trigger.triggerId}`);
+          console.log(
+            `Reward event already exists for trigger ${trigger.type}:${trigger.triggerId}`,
+          );
           const existingRewards = existing.rewards as Reward[] | null;
           return {
             success: true,
@@ -126,7 +135,7 @@ export class RewardEngine {
       };
     } catch (error) {
       console.error(`Error processing reward trigger:`, error);
-      
+
       // Update reward event status to failed if it was created
       if (rewardEventId) {
         try {
@@ -134,7 +143,8 @@ export class RewardEngine {
             where: { id: rewardEventId },
             data: {
               status: "failed",
-              errorMessage: error instanceof Error ? error.message : String(error),
+              errorMessage:
+                error instanceof Error ? error.message : String(error),
               processedAt: new Date(),
             },
           });
@@ -157,7 +167,7 @@ export class RewardEngine {
   private async processDealPurchase(
     trigger: RewardTrigger,
     rewards: Reward[],
-    errors: string[]
+    errors: string[],
   ): Promise<void> {
     const { userId, data } = trigger;
     const dealType = data?.dealType as string;
@@ -167,25 +177,52 @@ export class RewardEngine {
       // 1. Update deal purchase achievement
       if (dealType) {
         const achievementCode = `deal_${dealType.toLowerCase().replace(/\s+/g, "_")}`;
-        const result = await updateAchievementProgress(userId, achievementCode, 1);
+        const result = await updateAchievementProgress(
+          userId,
+          achievementCode,
+          1,
+        );
 
         if (result.completed) {
           // Achievement completed - award all rewards
-          await this.awardAchievementRewards(userId, achievementCode, rewards, errors);
+          await this.awardAchievementRewards(
+            userId,
+            achievementCode,
+            rewards,
+            errors,
+          );
         }
       }
 
       // 2. Update generic deal purchase achievement
-      const genericResult = await updateAchievementProgress(userId, "deal_purchases", 1);
+      const genericResult = await updateAchievementProgress(
+        userId,
+        "deal_purchases",
+        1,
+      );
       if (genericResult.completed) {
-        await this.awardAchievementRewards(userId, "deal_purchases", rewards, errors);
+        await this.awardAchievementRewards(
+          userId,
+          "deal_purchases",
+          rewards,
+          errors,
+        );
       }
 
       // 3. Update combo purchase achievement (if applicable)
       if (products.length > 1) {
-        const comboResult = await updateAchievementProgress(userId, "combo_purchases", 1);
+        const comboResult = await updateAchievementProgress(
+          userId,
+          "combo_purchases",
+          1,
+        );
         if (comboResult.completed) {
-          await this.awardAchievementRewards(userId, "combo_purchases", rewards, errors);
+          await this.awardAchievementRewards(
+            userId,
+            "combo_purchases",
+            rewards,
+            errors,
+          );
         }
       }
 
@@ -213,12 +250,14 @@ export class RewardEngine {
               },
             },
             rewards,
-            errors
+            errors,
           );
         }
       }
     } catch (error) {
-      errors.push(`Error processing deal purchase rewards: ${error instanceof Error ? error.message : String(error)}`);
+      errors.push(
+        `Error processing deal purchase rewards: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -228,19 +267,25 @@ export class RewardEngine {
   private async processAchievementUnlock(
     trigger: RewardTrigger,
     rewards: Reward[],
-    errors: string[]
+    errors: string[],
   ): Promise<void> {
     const { userId, data } = trigger;
-    const achievementCode = data && typeof data === "object" && "achievementCode" in data
-      ? String(data.achievementCode)
-      : "";
+    const achievementCode =
+      data && typeof data === "object" && "achievementCode" in data
+        ? String(data.achievementCode)
+        : "";
 
     if (!achievementCode) {
       errors.push("Missing achievementCode in trigger data");
       return;
     }
 
-    await this.awardAchievementRewards(userId, achievementCode, rewards, errors);
+    await this.awardAchievementRewards(
+      userId,
+      achievementCode,
+      rewards,
+      errors,
+    );
   }
 
   /**
@@ -249,28 +294,51 @@ export class RewardEngine {
   private async processStreakMilestone(
     trigger: RewardTrigger,
     rewards: Reward[],
-    errors: string[]
+    errors: string[],
   ): Promise<void> {
     const { userId, data } = trigger;
-    const streakType = data && typeof data === "object" && "streakType" in data
-      ? String(data.streakType)
-      : "deal_purchase";
-    const currentStreak = data && typeof data === "object" && "currentStreak" in data && typeof data.currentStreak === "number"
-      ? data.currentStreak
-      : 0;
+    const streakType =
+      data && typeof data === "object" && "streakType" in data
+        ? String(data.streakType)
+        : "deal_purchase";
+    const currentStreak =
+      data &&
+      typeof data === "object" &&
+      "currentStreak" in data &&
+      typeof data.currentStreak === "number"
+        ? data.currentStreak
+        : 0;
 
     // Check for milestone achievements (e.g., 7-day streak, 30-day streak)
     if (currentStreak === 7) {
-      const result = await updateAchievementProgress(userId, "streak_7_days", 1);
+      const result = await updateAchievementProgress(
+        userId,
+        "streak_7_days",
+        1,
+      );
       if (result.completed) {
-        await this.awardAchievementRewards(userId, "streak_7_days", rewards, errors);
+        await this.awardAchievementRewards(
+          userId,
+          "streak_7_days",
+          rewards,
+          errors,
+        );
       }
     }
 
     if (currentStreak === 30) {
-      const result = await updateAchievementProgress(userId, "streak_30_days", 1);
+      const result = await updateAchievementProgress(
+        userId,
+        "streak_30_days",
+        1,
+      );
       if (result.completed) {
-        await this.awardAchievementRewards(userId, "streak_30_days", rewards, errors);
+        await this.awardAchievementRewards(
+          userId,
+          "streak_30_days",
+          rewards,
+          errors,
+        );
       }
     }
   }
@@ -282,7 +350,7 @@ export class RewardEngine {
     userId: string,
     achievementCode: string,
     rewards: Reward[],
-    errors: string[]
+    errors: string[],
   ): Promise<void> {
     try {
       const achievement = await prisma.achievement.findUnique({
@@ -331,7 +399,9 @@ export class RewardEngine {
             // Mark as awarded
             updatedRewardsAwarded.push(rewardDef.id);
           } catch (error) {
-            errors.push(`Error awarding reward ${rewardDef.id}: ${error instanceof Error ? error.message : String(error)}`);
+            errors.push(
+              `Error awarding reward ${rewardDef.id}: ${error instanceof Error ? error.message : String(error)}`,
+            );
           }
         }
 
@@ -343,7 +413,10 @@ export class RewardEngine {
       });
 
       // Check for badge unlocks
-      const unlockedBadges = await checkBadgeUnlockFromAchievement(userId, achievementCode);
+      const unlockedBadges = await checkBadgeUnlockFromAchievement(
+        userId,
+        achievementCode,
+      );
       for (const badge of unlockedBadges) {
         rewards.push({
           type: "badge",
@@ -353,7 +426,9 @@ export class RewardEngine {
         });
       }
     } catch (error) {
-      errors.push(`Error awarding achievement rewards: ${error instanceof Error ? error.message : String(error)}`);
+      errors.push(
+        `Error awarding achievement rewards: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -362,36 +437,49 @@ export class RewardEngine {
    */
   private async awardReward(
     userId: string,
-    rewardDef: { id: string; rewardType: string; rewardValue: Prisma.JsonValue; rewardName: string },
+    rewardDef: {
+      id: string;
+      rewardType: string;
+      rewardValue: Prisma.JsonValue;
+      rewardName: string;
+    },
     rewards: Reward[],
-    errors: string[]
+    errors: string[],
   ): Promise<void> {
     const { rewardType, rewardValue, rewardName } = rewardDef;
 
     switch (rewardType) {
       case "points":
         // Handle both object format { points: number } and direct number
-        const pointsValue = typeof rewardValue === "object" && rewardValue !== null && "points" in rewardValue
-          ? (rewardValue as { points: number }).points
-          : typeof rewardValue === "number"
-          ? rewardValue
-          : 0;
-        const pointsResult = await awardPointsReward(userId, pointsValue, rewardName);
-        
+        const pointsValue =
+          typeof rewardValue === "object" &&
+          rewardValue !== null &&
+          "points" in rewardValue
+            ? (rewardValue as { points: number }).points
+            : typeof rewardValue === "number"
+              ? rewardValue
+              : 0;
+        const pointsResult = await awardPointsReward(
+          userId,
+          pointsValue,
+          rewardName,
+        );
+
         // Handle partial success - award points if at least one system succeeded
         if (pointsResult.partialSuccess || pointsResult.success) {
           // Determine which system succeeded for better messaging
           const systemsSucceeded: string[] = [];
           if (pointsResult.loyalty.succeeded) systemsSucceeded.push("loyalty");
-          if (pointsResult.analytics.succeeded) systemsSucceeded.push("analytics");
-          
+          if (pointsResult.analytics.succeeded)
+            systemsSucceeded.push("analytics");
+
           rewards.push({
             type: "points",
-            value: { 
+            value: {
               points: pointsValue,
               // Include detailed result for monitoring
-              ...(pointsResult.analytics.pointsAwarded && { 
-                analyticsPoints: pointsResult.analytics.pointsAwarded 
+              ...(pointsResult.analytics.pointsAwarded && {
+                analyticsPoints: pointsResult.analytics.pointsAwarded,
               }),
             },
             name: rewardName,
@@ -401,14 +489,24 @@ export class RewardEngine {
           // Log partial success as warning if not fully successful
           if (!pointsResult.success && pointsResult.partialSuccess) {
             const failedSystems: string[] = [];
-            if (pointsResult.loyalty.attempted && !pointsResult.loyalty.succeeded) {
-              failedSystems.push(`loyalty: ${pointsResult.loyalty.error || "unknown error"}`);
+            if (
+              pointsResult.loyalty.attempted &&
+              !pointsResult.loyalty.succeeded
+            ) {
+              failedSystems.push(
+                `loyalty: ${pointsResult.loyalty.error || "unknown error"}`,
+              );
             }
-            if (pointsResult.analytics.attempted && !pointsResult.analytics.succeeded) {
-              failedSystems.push(`analytics: ${pointsResult.analytics.error || "unknown error"}`);
+            if (
+              pointsResult.analytics.attempted &&
+              !pointsResult.analytics.succeeded
+            ) {
+              failedSystems.push(
+                `analytics: ${pointsResult.analytics.error || "unknown error"}`,
+              );
             }
             errors.push(
-              `Partial points award success: ${systemsSucceeded.join(", ")} succeeded, but ${failedSystems.join(", ")} failed`
+              `Partial points award success: ${systemsSucceeded.join(", ")} succeeded, but ${failedSystems.join(", ")} failed`,
             );
           }
         } else {
@@ -417,22 +515,28 @@ export class RewardEngine {
           if (pointsResult.loyalty.attempted && pointsResult.loyalty.error) {
             errorDetails.push(`loyalty: ${pointsResult.loyalty.error}`);
           }
-          if (pointsResult.analytics.attempted && pointsResult.analytics.error) {
+          if (
+            pointsResult.analytics.attempted &&
+            pointsResult.analytics.error
+          ) {
             errorDetails.push(`analytics: ${pointsResult.analytics.error}`);
           }
           errors.push(
-            `Failed to award points: ${pointsValue}. Errors: ${errorDetails.join("; ")}`
+            `Failed to award points: ${pointsValue}. Errors: ${errorDetails.join("; ")}`,
           );
         }
         break;
 
       case "badge":
         // Handle both object format { badgeCode: string } and direct string
-        const badgeCodeValue = typeof rewardValue === "object" && rewardValue !== null && "badgeCode" in rewardValue
-          ? (rewardValue as { badgeCode: string }).badgeCode
-          : typeof rewardValue === "string"
-          ? rewardValue
-          : "";
+        const badgeCodeValue =
+          typeof rewardValue === "object" &&
+          rewardValue !== null &&
+          "badgeCode" in rewardValue
+            ? (rewardValue as { badgeCode: string }).badgeCode
+            : typeof rewardValue === "string"
+              ? rewardValue
+              : "";
         const badgeResult = await unlockBadge(userId, badgeCodeValue);
         if (badgeResult.success && badgeResult.badge) {
           rewards.push({
@@ -460,7 +564,9 @@ export class RewardEngine {
         // Unknown reward type - log but don't fail
         rewards.push({
           type: rewardType as Reward["type"],
-          value: (typeof rewardValue === "object" ? rewardValue : { value: rewardValue }) as Reward["value"],
+          value: (typeof rewardValue === "object"
+            ? rewardValue
+            : { value: rewardValue }) as Reward["value"],
           name: rewardName,
           awardedAt: new Date(),
         });
@@ -470,4 +576,3 @@ export class RewardEngine {
 
 // Export singleton instance
 export const rewardEngine = new RewardEngine();
-

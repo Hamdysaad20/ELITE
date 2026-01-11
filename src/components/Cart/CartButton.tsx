@@ -31,16 +31,16 @@ export default function CartButton() {
           {/* Badge */}
           {itemCount > 0 && (
             <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-white text-elite-burgundy text-xs sm:text-sm font-bold font-calistoga rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow-lg border-2 border-elite-burgundy animate-in zoom-in duration-300">
-              {itemCount > 99 ? '99+' : itemCount}
+              {itemCount > 99 ? "99+" : itemCount}
             </span>
           )}
         </div>
       </button>
 
       {/* Cart Drawer */}
-      <CartDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
+      <CartDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
       />
     </>
   );

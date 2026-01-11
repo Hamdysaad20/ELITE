@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ShoppingCart, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ShoppingCart,
+  Check,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
@@ -43,7 +49,9 @@ export default function ComboDealCard({
 
   const hasMultipleItems = combo.items.length > 1;
   const currentItem = combo.items[currentIndex];
-  const validImages = sanitizeImages(combo.items.map(item => item.image).filter(Boolean) as string[]);
+  const validImages = sanitizeImages(
+    combo.items.map((item) => item.image).filter(Boolean) as string[],
+  );
 
   const nextItem = () => {
     if (hasMultipleItems) {
@@ -53,7 +61,9 @@ export default function ComboDealCard({
 
   const prevItem = () => {
     if (hasMultipleItems) {
-      setCurrentIndex((prev) => (prev - 1 + combo.items.length) % combo.items.length);
+      setCurrentIndex(
+        (prev) => (prev - 1 + combo.items.length) % combo.items.length,
+      );
     }
   };
 
@@ -112,7 +122,7 @@ export default function ComboDealCard({
         "md:hover:-translate-y-2",
         "md:hover:scale-[1.02]",
         !combo.dealActive && "opacity-60",
-        className
+        className,
       )}
     >
       {/* Enhanced Image Slider */}
@@ -121,7 +131,10 @@ export default function ComboDealCard({
           <>
             <div className="relative w-full h-full">
               <ImageWithFallback
-                src={validImages[currentIndex % validImages.length] || validImages[0]}
+                src={
+                  validImages[currentIndex % validImages.length] ||
+                  validImages[0]
+                }
                 alt={currentItem.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 fill={true}
@@ -131,7 +144,7 @@ export default function ComboDealCard({
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-elite-burgundy/10 to-transparent" />
             </div>
-            
+
             {/* Enhanced Slider Controls */}
             {hasMultipleItems && (
               <>
@@ -155,7 +168,7 @@ export default function ComboDealCard({
                 >
                   <ChevronRight className="w-5 h-5 text-elite-burgundy" />
                 </button>
-                
+
                 {/* Enhanced Dots Indicator */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-elite-burgundy/10">
                   {combo.items.map((_, idx) => (
@@ -169,7 +182,7 @@ export default function ComboDealCard({
                         "rounded-full transition-all duration-300",
                         idx === currentIndex
                           ? "bg-elite-burgundy w-6 h-2 shadow-sm"
-                          : "bg-elite-burgundy/30 hover:bg-elite-burgundy/50 w-2 h-2"
+                          : "bg-elite-burgundy/30 hover:bg-elite-burgundy/50 w-2 h-2",
                       )}
                       aria-label={`Go to item ${idx + 1}`}
                     />
@@ -187,10 +200,12 @@ export default function ComboDealCard({
 
       {/* Enhanced Content */}
       <div className="p-5 sm:p-6 flex flex-col h-full">
-        <h3 className={cn(
-          "font-calistoga text-elite-black font-bold mb-3 line-clamp-2",
-          getTitleSize()
-        )}>
+        <h3
+          className={cn(
+            "font-calistoga text-elite-black font-bold mb-3 line-clamp-2",
+            getTitleSize(),
+          )}
+        >
           {combo.name}
         </h3>
 
@@ -201,13 +216,15 @@ export default function ComboDealCard({
           </p>
           <div className="space-y-2">
             {combo.items.map((item, idx) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 className="flex items-center justify-between bg-white/60 rounded-xl p-2.5 border border-elite-burgundy/5 hover:bg-white/80 transition-colors"
               >
                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold font-cabin">{idx + 1}</span>
+                    <span className="text-white text-xs font-bold font-cabin">
+                      {idx + 1}
+                    </span>
                   </div>
                   <span className="font-cabin text-elite-black/90 font-medium truncate text-sm">
                     {item.name}
@@ -232,7 +249,7 @@ export default function ComboDealCard({
               {combo.originalTotal.toFixed(0)} EGP
             </span>
           </div>
-          
+
           {/* Deal Price - Enhanced */}
           <div className="flex items-center justify-between py-2">
             <span className="font-cabin text-elite-black/80 text-sm font-bold">
@@ -242,10 +259,12 @@ export default function ComboDealCard({
               <span className="font-calistoga text-elite-burgundy font-bold text-2xl sm:text-3xl bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent">
                 {combo.dealPrice.toFixed(0)}
               </span>
-              <span className="font-cabin text-elite-burgundy font-semibold text-sm">EGP</span>
+              <span className="font-cabin text-elite-burgundy font-semibold text-sm">
+                EGP
+              </span>
             </div>
           </div>
-          
+
           {/* Enhanced Savings (Very Prominent) */}
           {combo.dealActive && combo.savings > 0 && (
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-3.5 border-2 border-emerald-200/50 shadow-sm">
@@ -277,7 +296,7 @@ export default function ComboDealCard({
               "min-h-[48px]",
               added
                 ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
-                : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
+                : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
             )}
             aria-live="polite"
           >
@@ -300,4 +319,3 @@ export default function ComboDealCard({
     </div>
   );
 }
-

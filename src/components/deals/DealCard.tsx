@@ -91,13 +91,11 @@ export default function DealCard({
   const animDuration = "duration-300";
 
   // Adaptive text sizing based on content length
-  const adaptiveTitleSize = displayName.length > 20
-    ? "text-xs sm:text-sm"
-    : sizes.title;
+  const adaptiveTitleSize =
+    displayName.length > 20 ? "text-xs sm:text-sm" : sizes.title;
 
-  const adaptivePriceSize = dealPrice.toString().length > 4
-    ? "text-base sm:text-lg"
-    : sizes.price;
+  const adaptivePriceSize =
+    dealPrice.toString().length > 4 ? "text-base sm:text-lg" : sizes.price;
 
   const handleAddToOrder = async () => {
     if (!isAvailable || addToOrderState.adding) return;
@@ -136,7 +134,7 @@ export default function DealCard({
         "md:hover:shadow-xl md:hover:border-elite-burgundy/15 md:hover:-translate-y-1",
         !isVisible && "opacity-0 translate-y-4",
         isVisible && "opacity-100 translate-y-0",
-        sizes.padding
+        sizes.padding,
       )}
     >
       {/* Image Container */}
@@ -145,7 +143,7 @@ export default function DealCard({
           className={cn(
             "relative bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 rounded-xl sm:rounded-2xl overflow-hidden",
             "group-hover:shadow-inner",
-            sizes.image
+            sizes.image,
           )}
         >
           <div className="relative w-full h-full overflow-hidden rounded-xl sm:rounded-2xl">
@@ -155,7 +153,7 @@ export default function DealCard({
               className={cn(
                 "w-full h-full object-cover transition-all",
                 animDuration,
-                "group-hover:scale-110"
+                "group-hover:scale-110",
               )}
               fill={true}
               objectFit="cover"
@@ -199,7 +197,7 @@ export default function DealCard({
         <h4
           className={cn(
             "font-calistoga text-elite-black font-bold line-clamp-2 mb-2",
-            adaptiveTitleSize
+            adaptiveTitleSize,
           )}
           title={displayName}
         >
@@ -223,18 +221,22 @@ export default function DealCard({
                 "text-elite-burgundy",
                 savingsPercent >= 20
                   ? "text-xl sm:text-2xl"
-                  : adaptivePriceSize
+                  : adaptivePriceSize,
               )}
             >
-              {dealPrice.toFixed(0)} <span className="text-base sm:text-lg">EGP</span>
+              {dealPrice.toFixed(0)}{" "}
+              <span className="text-base sm:text-lg">EGP</span>
             </p>
 
             {/* Savings Badge (Only for deals < 20% - subtle) */}
-            {savings > 0 && savingsPercent > 0 && savingsPercent < 20 && dealActive && (
-              <span className="inline-flex items-center bg-elite-cream/80 text-elite-burgundy px-2 py-1 rounded-md text-xs font-cabin font-semibold border border-elite-burgundy/20">
-                Save {savingsPercent.toFixed(0)}%
-              </span>
-            )}
+            {savings > 0 &&
+              savingsPercent > 0 &&
+              savingsPercent < 20 &&
+              dealActive && (
+                <span className="inline-flex items-center bg-elite-cream/80 text-elite-burgundy px-2 py-1 rounded-md text-xs font-cabin font-semibold border border-elite-burgundy/20">
+                  Save {savingsPercent.toFixed(0)}%
+                </span>
+              )}
           </div>
 
           {/* Deal Status Message */}
@@ -259,7 +261,7 @@ export default function DealCard({
                 animDuration,
                 addToOrderState.added
                   ? "bg-elite-burgundy/80 text-elite-cream"
-                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 hover:shadow-lg hover:shadow-elite-burgundy/30 hover:scale-[1.02]"
+                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 hover:shadow-lg hover:shadow-elite-burgundy/30 hover:scale-[1.02]",
               )}
               aria-live="polite"
             >
@@ -272,7 +274,10 @@ export default function DealCard({
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+                  <Plus
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                    strokeWidth={2.5}
+                  />
                   <span>Add</span>
                 </>
               )}
@@ -285,4 +290,3 @@ export default function DealCard({
 
   return <CardContent />;
 }
-

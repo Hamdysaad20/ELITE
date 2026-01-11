@@ -39,19 +39,22 @@ export default function EmptyState({
     "no-results": {
       icon: Search,
       defaultTitle: "No Results Found",
-      defaultDescription: "Try adjusting your search or filters to find what you're looking for.",
+      defaultDescription:
+        "Try adjusting your search or filters to find what you're looking for.",
       iconColor: "text-elite-burgundy/40",
     },
     "coming-soon": {
       icon: Clock,
       defaultTitle: "Coming Soon",
-      defaultDescription: "We're working on bringing you something special. Stay tuned!",
+      defaultDescription:
+        "We're working on bringing you something special. Stay tuned!",
       iconColor: "text-amber-500/60",
     },
     "no-products": {
       icon: Coffee,
       defaultTitle: "No Products Yet",
-      defaultDescription: "Products are being synced from our catalog. Please check back in a moment.",
+      defaultDescription:
+        "Products are being synced from our catalog. Please check back in a moment.",
       iconColor: "text-elite-burgundy/40",
     },
   };
@@ -63,12 +66,22 @@ export default function EmptyState({
   const finalDescription = description || config.defaultDescription;
 
   return (
-    <div className={cn("flex flex-col items-center justify-center py-20 sm:py-24 px-4 sm:px-6", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-20 sm:py-24 px-4 sm:px-6",
+        className,
+      )}
+    >
       <div className="max-w-xl text-center">
         {/* Icon */}
         <div className="mb-8 relative">
           <div className="absolute inset-0 bg-elite-cream rounded-full blur-3xl opacity-60"></div>
-          <Icon className={cn("w-24 h-24 sm:w-28 sm:h-28 mx-auto relative", config.iconColor)} />
+          <Icon
+            className={cn(
+              "w-24 h-24 sm:w-28 sm:h-28 mx-auto relative",
+              config.iconColor,
+            )}
+          />
         </div>
 
         {/* Title */}
@@ -84,7 +97,7 @@ export default function EmptyState({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {/* Primary Action */}
-          {(actionLabel && (actionHref || onAction)) && (
+          {actionLabel && (actionHref || onAction) && (
             <>
               {actionHref ? (
                 <Link
@@ -107,25 +120,26 @@ export default function EmptyState({
           )}
 
           {/* Secondary Action */}
-          {(secondaryActionLabel && (secondaryActionHref || onSecondaryAction)) && (
-            <>
-              {secondaryActionHref ? (
-                <Link
-                  href={secondaryActionHref}
-                  className="inline-flex items-center justify-center gap-2 bg-elite-cream text-elite-burgundy border-2 border-elite-burgundy px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-burgundy hover:text-elite-cream hover:scale-105 transition-all duration-300"
-                >
-                  {secondaryActionLabel}
-                </Link>
-              ) : (
-                <button
-                  onClick={onSecondaryAction}
-                  className="inline-flex items-center justify-center gap-2 bg-elite-cream text-elite-burgundy border-2 border-elite-burgundy px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-burgundy hover:text-elite-cream hover:scale-105 transition-all duration-300"
-                >
-                  {secondaryActionLabel}
-                </button>
-              )}
-            </>
-          )}
+          {secondaryActionLabel &&
+            (secondaryActionHref || onSecondaryAction) && (
+              <>
+                {secondaryActionHref ? (
+                  <Link
+                    href={secondaryActionHref}
+                    className="inline-flex items-center justify-center gap-2 bg-elite-cream text-elite-burgundy border-2 border-elite-burgundy px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-burgundy hover:text-elite-cream hover:scale-105 transition-all duration-300"
+                  >
+                    {secondaryActionLabel}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={onSecondaryAction}
+                    className="inline-flex items-center justify-center gap-2 bg-elite-cream text-elite-burgundy border-2 border-elite-burgundy px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-burgundy hover:text-elite-cream hover:scale-105 transition-all duration-300"
+                  >
+                    {secondaryActionLabel}
+                  </button>
+                )}
+              </>
+            )}
         </div>
       </div>
     </div>

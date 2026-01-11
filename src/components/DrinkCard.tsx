@@ -106,7 +106,7 @@ export default function DrinkCard({
     const slug = slugify(extractBaseName(name));
     // Default to v1-1 (Main Shot)
     const localImage = `/products/${slug}/v1-1.png`;
-    // Prepend to list so it is tried first. 
+    // Prepend to list so it is tried first.
     // ImageWithFallback will skip it if it 404s (doesn't exist) thanks to our update.
     displayImages = [localImage, ...validImages];
   }
@@ -114,48 +114,62 @@ export default function DrinkCard({
   // Determine display price: use deal price if active, otherwise original or regular price
   const displayPrice = dealInfo?.dealActive
     ? dealInfo.dealPrice
-    : (typeof price === "number" ? price : null);
+    : typeof price === "number"
+      ? price
+      : null;
 
   const originalPrice = dealInfo?.originalPrice || displayPrice;
-  const isAvailable = available !== false && (dealInfo?.dealActive !== false);
+  const isAvailable = available !== false && dealInfo?.dealActive !== false;
 
-  const handleAddToOrder = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToOrder = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    const productId = menuItemId || id;
-    if (!productId) {
-      console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
-      return;
-    }
+      const productId = menuItemId || id;
+      if (!productId) {
+        console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
+        return;
+      }
 
-    if (onQuickAdd) {
-      onQuickAdd();
-      return;
-    }
-    setAddToOrderState({ adding: true, added: false });
-    try {
-      // Add to local cart
-      addItem({
-        productId,
-        name: displayName,
-        basePrice: displayPrice || 0,
-        quantity: 1,
-        attributes: {},
-        totalPrice: displayPrice || 0,
-        image: displayImages[0],
-      });
+      if (onQuickAdd) {
+        onQuickAdd();
+        return;
+      }
+      setAddToOrderState({ adding: true, added: false });
+      try {
+        // Add to local cart
+        addItem({
+          productId,
+          name: displayName,
+          basePrice: displayPrice || 0,
+          quantity: 1,
+          attributes: {},
+          totalPrice: displayPrice || 0,
+          image: displayImages[0],
+        });
 
-      setAddToOrderState({ adding: false, added: true });
-      setTimeout(
-        () => setAddToOrderState({ adding: false, added: false }),
-        2000,
-      );
-    } catch (err) {
-      console.error("Failed to add to cart:", err);
-      setAddToOrderState({ adding: false, added: false });
-    }
-  }, [menuItemId, id, name, onQuickAdd, addItem, displayName, displayPrice, displayImages]);
+        setAddToOrderState({ adding: false, added: true });
+        setTimeout(
+          () => setAddToOrderState({ adding: false, added: false }),
+          2000,
+        );
+      } catch (err) {
+        console.error("Failed to add to cart:", err);
+        setAddToOrderState({ adding: false, added: false });
+      }
+    },
+    [
+      menuItemId,
+      id,
+      name,
+      onQuickAdd,
+      addItem,
+      displayName,
+      displayPrice,
+      displayImages,
+    ],
+  );
 
   // Adaptive animation classes
   const animDuration = prefersReducedMotion ? "duration-100" : "duration-300";
@@ -198,11 +212,11 @@ export default function DrinkCard({
         // Active/press effect
         "active:scale-[0.98]",
         !isAvailable && "opacity-60",
-        className
+        className,
       )}
       style={{
-        transitionProperty: 'opacity, transform, box-shadow, border-color',
-        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        transitionProperty: "opacity, transform, box-shadow, border-color",
+        transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {/* Image Container */}
@@ -211,7 +225,7 @@ export default function DrinkCard({
           className={cn(
             "relative bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 rounded-xl sm:rounded-2xl overflow-hidden",
             "group-hover:shadow-inner",
-            sizes.image
+            sizes.image,
           )}
         >
           {/* Image with enhanced hover effect */}
@@ -222,7 +236,7 @@ export default function DrinkCard({
               className={cn(
                 "w-full h-full object-cover transition-all",
                 animDuration,
-                "group-hover:scale-110"
+                "group-hover:scale-110",
               )}
               fill={true}
               objectFit="cover"
@@ -268,7 +282,7 @@ export default function DrinkCard({
         <h4
           className={cn(
             "font-calistoga text-elite-black font-bold line-clamp-2 mb-0.5 sm:mb-1",
-            adaptiveTitleSize
+            adaptiveTitleSize,
           )}
           title={displayName}
         >
@@ -283,35 +297,41 @@ export default function DrinkCard({
               <div className="space-y-2">
                 {/* Original Price (strikethrough, grayed out) - More subtle */}
                 {/* Show original price if it's different from deal price (even if savings is 0 due to rounding) */}
-                {dealInfo.originalPrice !== dealInfo.dealPrice && dealInfo.originalPrice > 0 && (
-                  <p className="text-xs sm:text-sm font-cabin text-elite-black/35 line-through decoration-elite-black/30">
-                    {dealInfo.originalPrice.toFixed(0)} EGP
-                  </p>
-                )}
+                {dealInfo.originalPrice !== dealInfo.dealPrice &&
+                  dealInfo.originalPrice > 0 && (
+                    <p className="text-xs sm:text-sm font-cabin text-elite-black/35 line-through decoration-elite-black/30">
+                      {dealInfo.originalPrice.toFixed(0)} EGP
+                    </p>
+                  )}
 
                 {/* Deal Price (bigger, more attractive with gradient effect) */}
                 <div className="flex items-baseline gap-2.5 flex-wrap">
                   <div className="relative">
                     {/* Subtle text shadow for depth */}
-                    <p className={cn(
-                      "font-calistoga font-bold leading-tight",
-                      "bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent",
-                      "drop-shadow-sm",
-                      dealInfo.savingsPercent >= 20
-                        ? "text-2xl sm:text-3xl" // Bigger for big deals
-                        : adaptivePriceSize
-                    )}>
-                      {dealInfo.dealPrice.toFixed(0)} <span className="text-lg sm:text-xl">EGP</span>
+                    <p
+                      className={cn(
+                        "font-calistoga font-bold leading-tight",
+                        "bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent",
+                        "drop-shadow-sm",
+                        dealInfo.savingsPercent >= 20
+                          ? "text-2xl sm:text-3xl" // Bigger for big deals
+                          : adaptivePriceSize,
+                      )}
+                    >
+                      {dealInfo.dealPrice.toFixed(0)}{" "}
+                      <span className="text-lg sm:text-xl">EGP</span>
                     </p>
                   </div>
 
                   {/* Enhanced Savings Pill (only for deals < 20% - big deals have FOMO badge on image) */}
                   {/* Show savings pill if there's any savings and it's less than 20% (big deals show FOMO badge) */}
-                  {dealInfo.savings > 0 && dealInfo.savingsPercent > 0 && dealInfo.savingsPercent < 20 && (
-                    <span className="inline-flex items-center bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 px-3 py-1.5 rounded-full text-xs font-cabin font-bold shadow-sm border border-emerald-200/50">
-                      Save {dealInfo.savingsPercent.toFixed(0)}%
-                    </span>
-                  )}
+                  {dealInfo.savings > 0 &&
+                    dealInfo.savingsPercent > 0 &&
+                    dealInfo.savingsPercent < 20 && (
+                      <span className="inline-flex items-center bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 px-3 py-1.5 rounded-full text-xs font-cabin font-bold shadow-sm border border-emerald-200/50">
+                        Save {dealInfo.savingsPercent.toFixed(0)}%
+                      </span>
+                    )}
                 </div>
 
                 {/* Deal Status Message */}
@@ -324,10 +344,12 @@ export default function DrinkCard({
               </div>
             ) : (
               // Regular page: Simple price display
-              <p className={cn(
-                "font-cabin text-elite-burgundy font-bold",
-                adaptivePriceSize
-              )}>
+              <p
+                className={cn(
+                  "font-cabin text-elite-burgundy font-bold",
+                  adaptivePriceSize,
+                )}
+              >
                 EGP {displayPrice.toFixed(0)}
               </p>
             )}
@@ -347,7 +369,7 @@ export default function DrinkCard({
                 animDuration,
                 addToOrderState.added
                   ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
-                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
+                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
               )}
               aria-live="polite"
             >
@@ -360,7 +382,10 @@ export default function DrinkCard({
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+                  <Plus
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                    strokeWidth={2.5}
+                  />
                   <span>Add</span>
                 </>
               )}

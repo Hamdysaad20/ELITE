@@ -8,22 +8,26 @@ function getClient(): RedisClientType {
   if (!url) {
     throw new Error("REDIS_URL is not set");
   }
-  client = createClient({ 
+  client = createClient({
     url,
     socket: {
       connectTimeout: 5000, // 5 seconds timeout
       reconnectStrategy: (retries) => {
         if (retries > 3) {
-          console.error('Redis max retries reached');
-          return new Error('Redis connection failed');
+          console.error("Redis max retries reached");
+          return new Error("Redis connection failed");
         }
         return Math.min(retries * 100, 3000);
-      }
-    }
+      },
+    },
   });
   client.on("error", (err) => {
     // Only log Redis errors once, not repeatedly
-    if (err.code === "ECONNRESET" || err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT") {
+    if (
+      err.code === "ECONNRESET" ||
+      err.code === "ECONNREFUSED" ||
+      err.code === "ETIMEDOUT"
+    ) {
       // Silently handle connection issues in development
       if (process.env.NODE_ENV === "development") {
         // Don't spam console
@@ -40,8 +44,8 @@ function getClient(): RedisClientType {
 async function ensureConnected(): Promise<RedisClientType> {
   const c = getClient();
   if (!c.isOpen) {
-    const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Redis connection timeout")), 5000),
     );
     await Promise.race([c.connect(), timeout]);
   }
@@ -55,8 +59,11 @@ export async function redisGet<T>(key: string): Promise<T | null> {
     return val ? (JSON.parse(val) as T) : null;
   } catch (err) {
     // Log but don't throw - allow graceful degradation
-    if (process.env.NODE_ENV === 'production') {
-      console.error(`[REDIS] Get failed for key ${key}:`, err instanceof Error ? err.message : String(err));
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        `[REDIS] Get failed for key ${key}:`,
+        err instanceof Error ? err.message : String(err),
+      );
     }
     return null; // Return null on error (cache miss behavior)
   }
@@ -92,7 +99,10 @@ export async function redisDecr(key: string): Promise<number> {
   return await c.decr(key);
 }
 
-export async function redisExpire(key: string, seconds: number): Promise<boolean> {
+export async function redisExpire(
+  key: string,
+  seconds: number,
+): Promise<boolean> {
   const c = await ensureConnected();
   return await c.expire(key, seconds);
 }
@@ -127,4 +137,3 @@ export async function redisQuit(): Promise<void> {
     await client.quit();
   }
 }
-

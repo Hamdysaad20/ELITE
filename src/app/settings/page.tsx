@@ -2,7 +2,17 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Bell, Globe, Trash2, ChevronRight, MapPin as MapPinIcon, CreditCard, Camera } from "lucide-react";
+import {
+  User,
+  Mail,
+  Bell,
+  Globe,
+  Trash2,
+  ChevronRight,
+  MapPin as MapPinIcon,
+  CreditCard,
+  Camera,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import MobileHeader from "@/components/MobileHeader";
@@ -19,7 +29,7 @@ export default function SettingsPage() {
   const [newName, setNewName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-  
+
   // Notification preferences - load from localStorage on mount
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [orderUpdates, setOrderUpdates] = useState(true);
@@ -29,10 +39,11 @@ export default function SettingsPage() {
   // Load preferences from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedEmailNotifications = localStorage.getItem("emailNotifications");
+      const savedEmailNotifications =
+        localStorage.getItem("emailNotifications");
       const savedOrderUpdates = localStorage.getItem("orderUpdates");
       const savedPromotions = localStorage.getItem("promotions");
-      
+
       if (savedEmailNotifications !== null) {
         setEmailNotifications(savedEmailNotifications === "true");
       }
@@ -91,9 +102,12 @@ export default function SettingsPage() {
     }
   };
 
-  const handleToggleNotification = async (type: "email" | "order" | "promo", value: boolean) => {
+  const handleToggleNotification = async (
+    type: "email" | "order" | "promo",
+    value: boolean,
+  ) => {
     setSavingNotifications(true);
-    
+
     try {
       // Update local state immediately for better UX
       if (type === "email") {
@@ -139,7 +153,6 @@ export default function SettingsPage() {
         // API endpoint might not exist yet, that's okay - localStorage is the fallback
         console.log("Preferences API not available, using localStorage only");
       }
-      
     } catch (error) {
       console.error("Error updating notifications:", error);
     } finally {
@@ -150,16 +163,16 @@ export default function SettingsPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block">
-      </div>
+      <div className="hidden md:block"></div>
       <MobileHeader title="Settings" showBack={true} />
-      
+
       <main className="min-h-screen bg-elite-cream pb-20 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-12">
-          
           {/* Account Settings */}
           <div className="mb-6">
-            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Account Information</h2>
+            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">
+              Account Information
+            </h2>
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
               {/* Profile Picture */}
               <div className="p-6 border-b border-elite-burgundy/10">
@@ -181,20 +194,28 @@ export default function SettingsPage() {
                     <button
                       onClick={() => setShowAvatarUpload(true)}
                       className="absolute -bottom-1 -right-1 w-11 h-11 rounded-full bg-elite-burgundy text-elite-cream flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                      aria-label={session.user?.image ? "Change profile photo" : "Upload profile photo"}
+                      aria-label={
+                        session.user?.image
+                          ? "Change profile photo"
+                          : "Upload profile photo"
+                      }
                     >
                       <Camera className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex-1">
-                    <p className="font-cabin text-sm text-elite-black/60 mb-1">Profile Picture</p>
+                    <p className="font-cabin text-sm text-elite-black/60 mb-1">
+                      Profile Picture
+                    </p>
                     <button
                       onClick={() => setShowAvatarUpload(true)}
                       className="font-cabin text-sm font-semibold text-elite-burgundy hover:underline"
                     >
                       {session.user?.image ? "Change Photo" : "Upload Photo"}
                     </button>
-                    <p className="font-cabin text-xs text-elite-black/40 mt-1">JPG, PNG or WebP • Max 5MB</p>
+                    <p className="font-cabin text-xs text-elite-black/40 mt-1">
+                      JPG, PNG or WebP • Max 5MB
+                    </p>
                   </div>
                 </div>
               </div>
@@ -207,7 +228,9 @@ export default function SettingsPage() {
                     <User className="w-6 h-6 text-elite-burgundy" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-cabin text-sm text-elite-black/60 mb-2">Display Name</p>
+                    <p className="font-cabin text-sm text-elite-black/60 mb-2">
+                      Display Name
+                    </p>
                     {editingName ? (
                       <div className="space-y-3">
                         <input
@@ -240,7 +263,9 @@ export default function SettingsPage() {
                     ) : (
                       <div className="flex items-center justify-between">
                         <p className="font-cabin font-semibold text-elite-black text-lg">
-                          {session.user?.name || session.user?.email?.split('@')[0] || "User"}
+                          {session.user?.name ||
+                            session.user?.email?.split("@")[0] ||
+                            "User"}
                         </p>
                         <button
                           onClick={() => setEditingName(true)}
@@ -261,11 +286,15 @@ export default function SettingsPage() {
                     <Mail className="w-6 h-6 text-elite-burgundy" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-cabin text-sm text-elite-black/60 mb-1">Email Address</p>
+                    <p className="font-cabin text-sm text-elite-black/60 mb-1">
+                      Email Address
+                    </p>
                     <p className="font-cabin font-semibold text-elite-black text-lg truncate">
                       {session.user?.email}
                     </p>
-                    <p className="font-cabin text-xs text-elite-black/40 mt-1">Used for sign-in and notifications</p>
+                    <p className="font-cabin text-xs text-elite-black/40 mt-1">
+                      Used for sign-in and notifications
+                    </p>
                   </div>
                 </div>
               </div>
@@ -278,14 +307,18 @@ export default function SettingsPage() {
                     className="flex items-center gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-all border border-elite-burgundy/10"
                   >
                     <MapPinIcon className="w-5 h-5 text-elite-burgundy" />
-                    <span className="font-cabin font-semibold text-sm text-elite-black">Addresses</span>
+                    <span className="font-cabin font-semibold text-sm text-elite-black">
+                      Addresses
+                    </span>
                   </button>
                   <button
                     onClick={() => router.push("/profile?tab=orders")}
                     className="flex items-center gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-all border border-elite-burgundy/10"
                   >
                     <CreditCard className="w-5 h-5 text-elite-burgundy" />
-                    <span className="font-cabin font-semibold text-sm text-elite-black">Orders</span>
+                    <span className="font-cabin font-semibold text-sm text-elite-black">
+                      Orders
+                    </span>
                   </button>
                 </div>
               </div>
@@ -294,9 +327,10 @@ export default function SettingsPage() {
 
           {/* Notifications */}
           <div className="mb-6">
-            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Notifications</h2>
+            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">
+              Notifications
+            </h2>
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-              
               {/* Email Notifications Master Toggle */}
               <div className="p-6 border-b border-elite-burgundy/10 bg-elite-cream/20">
                 <div className="flex items-center gap-4">
@@ -304,14 +338,22 @@ export default function SettingsPage() {
                     <Bell className="w-6 h-6 text-elite-burgundy" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-cabin font-bold text-elite-black text-lg">Email Notifications</p>
-                    <p className="font-cabin text-sm text-elite-black/60">Master control for all email updates</p>
+                    <p className="font-cabin font-bold text-elite-black text-lg">
+                      Email Notifications
+                    </p>
+                    <p className="font-cabin text-sm text-elite-black/60">
+                      Master control for all email updates
+                    </p>
                   </div>
                   <button
-                    onClick={() => handleToggleNotification("email", !emailNotifications)}
+                    onClick={() =>
+                      handleToggleNotification("email", !emailNotifications)
+                    }
                     disabled={savingNotifications}
                     className={`relative w-16 h-9 rounded-full transition-all duration-200 ${
-                      emailNotifications ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30" : "bg-elite-black/20"
+                      emailNotifications
+                        ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30"
+                        : "bg-elite-black/20"
                     } ${savingNotifications ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:shadow-lg"}`}
                   >
                     <div
@@ -324,49 +366,71 @@ export default function SettingsPage() {
               </div>
 
               {/* Order Updates */}
-              <div className={`p-6 border-b border-elite-burgundy/10 transition-opacity duration-200 ${
-                !emailNotifications ? "opacity-60" : "opacity-100"
-              }`}>
+              <div
+                className={`p-6 border-b border-elite-burgundy/10 transition-opacity duration-200 ${
+                  !emailNotifications ? "opacity-60" : "opacity-100"
+                }`}
+              >
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <p className={`font-cabin font-semibold text-lg transition-colors ${
-                          !emailNotifications ? "text-elite-black/40" : "text-elite-black"
-                        }`}>Order Updates</p>
+                        <p
+                          className={`font-cabin font-semibold text-lg transition-colors ${
+                            !emailNotifications
+                              ? "text-elite-black/40"
+                              : "text-elite-black"
+                          }`}
+                        >
+                          Order Updates
+                        </p>
                         {!emailNotifications && (
                           <span className="inline-flex items-center px-2 py-0.5 bg-elite-black/5 rounded-full">
-                            <span className="font-cabin text-xs text-elite-black/40">Disabled</span>
+                            <span className="font-cabin text-xs text-elite-black/40">
+                              Disabled
+                            </span>
                           </span>
                         )}
                       </div>
                       <button
-                        onClick={() => handleToggleNotification("order", !orderUpdates)}
+                        onClick={() =>
+                          handleToggleNotification("order", !orderUpdates)
+                        }
                         disabled={!emailNotifications || savingNotifications}
                         className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
-                          orderUpdates && emailNotifications ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30" : "bg-elite-black/20"
+                          orderUpdates && emailNotifications
+                            ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30"
+                            : "bg-elite-black/20"
                         } ${
-                          !emailNotifications || savingNotifications 
-                            ? "opacity-40 cursor-not-allowed" 
+                          !emailNotifications || savingNotifications
+                            ? "opacity-40 cursor-not-allowed"
                             : "cursor-pointer hover:shadow-lg"
                         }`}
                       >
                         <div
                           className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                            orderUpdates && emailNotifications ? "translate-x-7" : "translate-x-1"
+                            orderUpdates && emailNotifications
+                              ? "translate-x-7"
+                              : "translate-x-1"
                           }`}
                         />
                       </button>
                     </div>
-                    <p className={`font-cabin text-sm mb-2 transition-colors ${
-                      !emailNotifications ? "text-elite-black/40" : "text-elite-black/60"
-                    }`}>
+                    <p
+                      className={`font-cabin text-sm mb-2 transition-colors ${
+                        !emailNotifications
+                          ? "text-elite-black/40"
+                          : "text-elite-black/60"
+                      }`}
+                    >
                       Receive updates about your order status and delivery
                     </p>
                     {orderUpdates && emailNotifications && (
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="font-cabin text-xs font-semibold text-green-700">Active</span>
+                        <span className="font-cabin text-xs font-semibold text-green-700">
+                          Active
+                        </span>
                       </div>
                     )}
                   </div>
@@ -374,49 +438,71 @@ export default function SettingsPage() {
               </div>
 
               {/* Promotions & Offers */}
-              <div className={`p-6 transition-opacity duration-200 ${
-                !emailNotifications ? "opacity-60" : "opacity-100"
-              }`}>
+              <div
+                className={`p-6 transition-opacity duration-200 ${
+                  !emailNotifications ? "opacity-60" : "opacity-100"
+                }`}
+              >
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <p className={`font-cabin font-semibold text-lg transition-colors ${
-                          !emailNotifications ? "text-elite-black/40" : "text-elite-black"
-                        }`}>Promotions & Offers</p>
+                        <p
+                          className={`font-cabin font-semibold text-lg transition-colors ${
+                            !emailNotifications
+                              ? "text-elite-black/40"
+                              : "text-elite-black"
+                          }`}
+                        >
+                          Promotions & Offers
+                        </p>
                         {!emailNotifications && (
                           <span className="inline-flex items-center px-2 py-0.5 bg-elite-black/5 rounded-full">
-                            <span className="font-cabin text-xs text-elite-black/40">Disabled</span>
+                            <span className="font-cabin text-xs text-elite-black/40">
+                              Disabled
+                            </span>
                           </span>
                         )}
                       </div>
                       <button
-                        onClick={() => handleToggleNotification("promo", !promotions)}
+                        onClick={() =>
+                          handleToggleNotification("promo", !promotions)
+                        }
                         disabled={!emailNotifications || savingNotifications}
                         className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
-                          promotions && emailNotifications ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30" : "bg-elite-black/20"
+                          promotions && emailNotifications
+                            ? "bg-elite-burgundy shadow-md shadow-elite-burgundy/30"
+                            : "bg-elite-black/20"
                         } ${
-                          !emailNotifications || savingNotifications 
-                            ? "opacity-40 cursor-not-allowed" 
+                          !emailNotifications || savingNotifications
+                            ? "opacity-40 cursor-not-allowed"
                             : "cursor-pointer hover:shadow-lg"
                         }`}
                       >
                         <div
                           className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                            promotions && emailNotifications ? "translate-x-7" : "translate-x-1"
+                            promotions && emailNotifications
+                              ? "translate-x-7"
+                              : "translate-x-1"
                           }`}
                         />
                       </button>
                     </div>
-                    <p className={`font-cabin text-sm mb-2 transition-colors ${
-                      !emailNotifications ? "text-elite-black/40" : "text-elite-black/60"
-                    }`}>
+                    <p
+                      className={`font-cabin text-sm mb-2 transition-colors ${
+                        !emailNotifications
+                          ? "text-elite-black/40"
+                          : "text-elite-black/60"
+                      }`}
+                    >
                       Get special deals, discounts, and new menu announcements
                     </p>
                     {promotions && emailNotifications && (
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="font-cabin text-xs font-semibold text-green-700">Subscribed</span>
+                        <span className="font-cabin text-xs font-semibold text-green-700">
+                          Subscribed
+                        </span>
                       </div>
                     )}
                   </div>
@@ -427,9 +513,10 @@ export default function SettingsPage() {
 
           {/* Preferences */}
           <div className="mb-6">
-            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Preferences</h2>
+            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">
+              Preferences
+            </h2>
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-              
               {/* Language */}
               <div className="p-6">
                 <div className="flex items-center gap-4">
@@ -437,30 +524,39 @@ export default function SettingsPage() {
                     <Globe className="w-6 h-6 text-elite-burgundy" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-cabin font-semibold text-elite-black text-lg">Language</p>
-                    <p className="font-cabin text-sm text-elite-black/60">English (US)</p>
+                    <p className="font-cabin font-semibold text-elite-black text-lg">
+                      Language
+                    </p>
+                    <p className="font-cabin text-sm text-elite-black/60">
+                      English (US)
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-  {/* Avatar Upload Modal */}
-      {showAvatarUpload && (
-        <AvatarUpload
-          onClose={() => setShowAvatarUpload(false)}
-          currentImage={session.user?.image}
-        />
-      )}
-    
+          {/* Avatar Upload Modal */}
+          {showAvatarUpload && (
+            <AvatarUpload
+              onClose={() => setShowAvatarUpload(false)}
+              currentImage={session.user?.image}
+            />
+          )}
+
           {/* Privacy & Security */}
           <div className="mb-6">
-            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">Privacy & Security</h2>
+            <h2 className="font-calistoga text-2xl text-elite-black mb-4 px-1">
+              Privacy & Security
+            </h2>
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 overflow-hidden">
-              
               {/* Delete Account */}
               <button
                 onClick={() => {
-                  if (confirm("⚠️ Are you sure you want to delete your account?\n\nThis will permanently remove:\n• Your profile and order history\n• Saved addresses\n• All preferences\n\nThis action cannot be undone.")) {
+                  if (
+                    confirm(
+                      "⚠️ Are you sure you want to delete your account?\n\nThis will permanently remove:\n• Your profile and order history\n• Saved addresses\n• All preferences\n\nThis action cannot be undone.",
+                    )
+                  ) {
                     router.push("/auth/delete-account");
                   }
                 }}
@@ -471,8 +567,12 @@ export default function SettingsPage() {
                     <Trash2 className="w-6 h-6 text-red-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-cabin font-semibold text-red-600 text-lg">Delete Account</p>
-                    <p className="font-cabin text-sm text-red-600/70">Permanently remove your account and data</p>
+                    <p className="font-cabin font-semibold text-red-600 text-lg">
+                      Delete Account
+                    </p>
+                    <p className="font-cabin text-sm text-red-600/70">
+                      Permanently remove your account and data
+                    </p>
                   </div>
                   <ChevronRight className="w-5 h-5 text-red-600/30" />
                 </div>
@@ -482,12 +582,15 @@ export default function SettingsPage() {
 
           {/* App Info */}
           <div className="text-center py-8">
-            <p className="font-cabin text-sm text-elite-black/40">ELITE Coffee App</p>
-            <p className="font-cabin text-xs text-elite-black/30 mt-1">Version 1.0.0 • © 2025 ELITE Coffee</p>
+            <p className="font-cabin text-sm text-elite-black/40">
+              ELITE Coffee App
+            </p>
+            <p className="font-cabin text-xs text-elite-black/30 mt-1">
+              Version 1.0.0 • © 2025 ELITE Coffee
+            </p>
           </div>
         </div>
       </main>
-
     </>
   );
 }

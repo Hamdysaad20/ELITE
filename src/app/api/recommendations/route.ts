@@ -57,10 +57,10 @@ export async function POST(request: NextRequest) {
     const favAlt = alternatives.find((a) => topFavIds.includes(a.item.id));
     if (favAlt && baseTop && favAlt.score >= baseTop.score - 1) {
       top = favAlt;
-      alternatives = [baseTop, ...alternatives.filter((a) => a !== favAlt)].slice(
-        0,
-        3,
-      );
+      alternatives = [
+        baseTop,
+        ...alternatives.filter((a) => a !== favAlt),
+      ].slice(0, 3);
     }
 
     if (!top) {

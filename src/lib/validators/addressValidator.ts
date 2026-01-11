@@ -2,7 +2,10 @@
  * Frontend address validation utilities
  * Uses the same validation schema as backend for consistency
  */
-import { addressSchema, ADDRESS_VALIDATION } from "@/server/validators/addressSchemas";
+import {
+  addressSchema,
+  ADDRESS_VALIDATION,
+} from "@/server/validators/addressSchemas";
 import type { Address } from "@/types";
 
 export type ValidationError = {
@@ -68,7 +71,7 @@ export function validateAddress(data: Partial<Address>): {
  */
 export function validateAddressField(
   field: string,
-  value: string | null | undefined
+  value: string | null | undefined,
 ): { isValid: boolean; message?: string } {
   const fieldMap: Record<string, keyof typeof ADDRESS_VALIDATION> = {
     street: "STREET_MAX_LENGTH",
@@ -125,7 +128,8 @@ export function validateAddressField(
         if (!ADDRESS_VALIDATION.PHONE_REGEX.test(phoneWithoutSpaces)) {
           return {
             isValid: false,
-            message: "Please enter a valid phone number (e.g., +20 123 456 7890)",
+            message:
+              "Please enter a valid phone number (e.g., +20 123 456 7890)",
           };
         }
       }
@@ -142,14 +146,18 @@ export function validateAddressField(
         if (!ADDRESS_VALIDATION.ZIP_REGEX.test(valueStr)) {
           return {
             isValid: false,
-            message: "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
+            message:
+              "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
           };
         }
       }
       return { isValid: true };
 
     case "apartment":
-      if (valueStr && valueStr.length > ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH) {
+      if (
+        valueStr &&
+        valueStr.length > ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH
+      ) {
         return {
           isValid: false,
           message: `Apartment must be less than ${ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH} characters`,
@@ -184,4 +192,3 @@ export function validateAddressField(
  * Export validation constants for use in components
  */
 export { ADDRESS_VALIDATION };
-

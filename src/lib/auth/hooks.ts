@@ -6,14 +6,14 @@ import { useCallback, useEffect } from "react";
 
 /**
  * Hook to get current user session
- * 
+ *
  * @example
  * ```tsx
  * const { user, isAuthenticated, isLoading } = useAuth();
- * 
+ *
  * if (isLoading) return <Spinner />;
  * if (!isAuthenticated) return <SignInPrompt />;
- * 
+ *
  * return <div>Welcome, {user.name}!</div>;
  * ```
  */
@@ -39,11 +39,11 @@ export function useAuth() {
 
 /**
  * Hook for authentication actions
- * 
+ *
  * @example
  * ```tsx
  * const { login, logout, isLoading } = useAuthActions();
- * 
+ *
  * const handleLogin = async () => {
  *   await login({ email: "user@example.com" });
  * };
@@ -69,12 +69,9 @@ export function useAuthActions() {
     [],
   );
 
-  const logout = useCallback(
-    async (callbackUrl = "/") => {
-      await signOut({ callbackUrl });
-    },
-    [],
-  );
+  const logout = useCallback(async (callbackUrl = "/") => {
+    await signOut({ callbackUrl });
+  }, []);
 
   const requireAuth = useCallback(() => {
     if (status === "unauthenticated") {
@@ -96,14 +93,14 @@ export function useAuthActions() {
 /**
  * Hook to require authentication
  * Redirects to sign-in if not authenticated
- * 
+ *
  * @example
  * ```tsx
  * function ProtectedPage() {
  *   const { user, isLoading } = useRequireAuth();
- * 
+ *
  *   if (isLoading) return <Spinner />;
- * 
+ *
  *   return <div>Protected content for {user.name}</div>;
  * }
  * ```
@@ -128,14 +125,14 @@ export function useRequireAuth() {
 
 /**
  * Hook to check if user has specific role
- * 
+ *
  * @example
  * ```tsx
  * const { hasRole, isLoading } = useRole();
- * 
+ *
  * if (isLoading) return <Spinner />;
  * if (!hasRole("admin")) return <AccessDenied />;
- * 
+ *
  * return <AdminPanel />;
  * ```
  */
@@ -159,4 +156,3 @@ export function useRole() {
     isLoading,
   };
 }
-

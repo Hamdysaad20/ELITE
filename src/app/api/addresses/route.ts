@@ -9,11 +9,11 @@ import { createAddressSchema } from "@/server/validators/addressSchemas";
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -34,9 +34,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch addresses",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch addresses",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -45,11 +46,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
           error: "Validation failed",
           errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -89,8 +90,9 @@ export async function POST(req: NextRequest) {
     // Check for duplicate address (case-insensitive comparison)
     const normalizedStreet = (street as string).trim().toLowerCase();
     const normalizedCity = (city as string).trim().toLowerCase();
-    const normalizedApartment = (apartment as string | null | undefined)?.trim().toLowerCase() || "";
-    
+    const normalizedApartment =
+      (apartment as string | null | undefined)?.trim().toLowerCase() || "";
+
     // Get all user addresses and check for duplicates
     const userAddresses = await prisma.address.findMany({
       where: { userId: session.user.id },
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
       const addrStreet = (addr.street || "").trim().toLowerCase();
       const addrCity = (addr.city || "").trim().toLowerCase();
       const addrApartment = (addr.apartment || "").trim().toLowerCase();
-      
+
       return (
         addrStreet === normalizedStreet &&
         addrCity === normalizedCity &&
@@ -110,8 +112,11 @@ export async function POST(req: NextRequest) {
 
     if (isDuplicate) {
       return NextResponse.json(
-        { success: false, error: "This address already exists in your address book" },
-        { status: 400 }
+        {
+          success: false,
+          error: "This address already exists in your address book",
+        },
+        { status: 400 },
       );
     }
 
@@ -149,10 +154,11 @@ export async function POST(req: NextRequest) {
       const odooClient = createOdooClient();
       if (odooClient && session.user.email) {
         await odooClient.findOrCreatePartner({
-          name: session.user.name || session.user.email.split('@')[0] || 'Guest',
+          name:
+            session.user.name || session.user.email.split("@")[0] || "Guest",
           email: session.user.email,
           phone: address.phone || undefined,
-          street: `${address.street}${address.apartment ? ', ' + address.apartment : ''}`,
+          street: `${address.street}${address.apartment ? ", " + address.apartment : ""}`,
           city: address.city,
           zip: address.zipCode || undefined,
         });
@@ -172,9 +178,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to create address",
+        error:
+          error instanceof Error ? error.message : "Failed to create address",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

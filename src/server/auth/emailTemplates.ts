@@ -324,4 +324,3 @@ export function generateVerificationSubject(brandName?: string): string {
   const brand = brandName || "Elite Coffee Shop";
   return `Verify your ${brand} account`;
 }
-

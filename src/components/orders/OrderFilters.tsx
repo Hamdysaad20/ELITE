@@ -1,22 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Filter, X, Calendar, DollarSign, Package, ArrowUpDown } from "lucide-react";
+import {
+  Filter,
+  X,
+  Calendar,
+  DollarSign,
+  Package,
+  ArrowUpDown,
+} from "lucide-react";
 
 export interface OrderFilters {
   status: string[];
   dateRange: {
     start: Date | null;
     end: Date | null;
-    preset: 'today' | 'week' | 'month' | 'year' | 'all' | 'custom';
+    preset: "today" | "week" | "month" | "year" | "all" | "custom";
   };
-  orderType: 'delivery' | 'pickup' | 'all';
+  orderType: "delivery" | "pickup" | "all";
   priceRange: {
     min: number;
     max: number;
   };
-  sortBy: 'date' | 'price' | 'savings' | 'points';
-  sortOrder: 'asc' | 'desc';
+  sortBy: "date" | "price" | "savings" | "points";
+  sortOrder: "asc" | "desc";
 }
 
 interface OrderFiltersProps {
@@ -26,38 +33,46 @@ interface OrderFiltersProps {
 }
 
 const statusOptions = [
-  { value: 'PENDING', label: 'Pending', color: 'elite-burgundy' },
-  { value: 'CONFIRMED', label: 'Confirmed', color: 'elite-burgundy' },
-  { value: 'PREPARING', label: 'Preparing', color: 'elite-burgundy' },
-  { value: 'READY', label: 'Ready', color: 'elite-burgundy' },
-  { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', color: 'elite-burgundy' },
-  { value: 'DELIVERED', label: 'Delivered', color: 'elite-burgundy' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'elite-black' },
+  { value: "PENDING", label: "Pending", color: "elite-burgundy" },
+  { value: "CONFIRMED", label: "Confirmed", color: "elite-burgundy" },
+  { value: "PREPARING", label: "Preparing", color: "elite-burgundy" },
+  { value: "READY", label: "Ready", color: "elite-burgundy" },
+  {
+    value: "OUT_FOR_DELIVERY",
+    label: "Out for Delivery",
+    color: "elite-burgundy",
+  },
+  { value: "DELIVERED", label: "Delivered", color: "elite-burgundy" },
+  { value: "CANCELLED", label: "Cancelled", color: "elite-black" },
 ];
 
 const datePresets = [
-  { value: 'today', label: 'Today' },
-  { value: 'week', label: 'This Week' },
-  { value: 'month', label: 'This Month' },
-  { value: 'year', label: 'This Year' },
-  { value: 'all', label: 'All Time' },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "year", label: "This Year" },
+  { value: "all", label: "All Time" },
 ];
 
 const sortOptions = [
-  { value: 'date', label: 'Date' },
-  { value: 'price', label: 'Price' },
-  { value: 'savings', label: 'Savings' },
-  { value: 'points', label: 'Points' },
+  { value: "date", label: "Date" },
+  { value: "price", label: "Price" },
+  { value: "savings", label: "Savings" },
+  { value: "points", label: "Points" },
 ];
 
-export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFiltersProps) {
+export function OrderFilters({
+  filters,
+  onFilterChange,
+  orderCount,
+}: OrderFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleStatusToggle = (status: string) => {
     const newStatus = filters.status.includes(status)
-      ? filters.status.filter(s => s !== status)
+      ? filters.status.filter((s) => s !== status)
       : [...filters.status, status];
-    
+
     onFilterChange({ ...filters, status: newStatus });
   };
 
@@ -67,19 +82,19 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
     let end: Date | null = now;
 
     switch (preset) {
-      case 'today':
+      case "today":
         start = new Date(now.setHours(0, 0, 0, 0));
         break;
-      case 'week':
+      case "week":
         start = new Date(now.setDate(now.getDate() - 7));
         break;
-      case 'month':
+      case "month":
         start = new Date(now.setMonth(now.getMonth() - 1));
         break;
-      case 'year':
+      case "year":
         start = new Date(now.setFullYear(now.getFullYear() - 1));
         break;
-      case 'all':
+      case "all":
         start = null;
         end = null;
         break;
@@ -87,7 +102,7 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
 
     onFilterChange({
       ...filters,
-      dateRange: { ...filters.dateRange, preset, start, end }
+      dateRange: { ...filters.dateRange, preset, start, end },
     });
   };
 
@@ -102,25 +117,25 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
   const toggleSortOrder = () => {
     onFilterChange({
       ...filters,
-      sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc'
+      sortOrder: filters.sortOrder === "asc" ? "desc" : "asc",
     });
   };
 
   const clearFilters = () => {
     onFilterChange({
       status: [],
-      dateRange: { start: null, end: null, preset: 'all' },
-      orderType: 'all',
+      dateRange: { start: null, end: null, preset: "all" },
+      orderType: "all",
       priceRange: { min: 0, max: 10000 },
-      sortBy: 'date',
-      sortOrder: 'desc'
+      sortBy: "date",
+      sortOrder: "desc",
     });
   };
 
-  const activeFiltersCount = 
+  const activeFiltersCount =
     filters.status.length +
-    (filters.dateRange.preset !== 'all' ? 1 : 0) +
-    (filters.orderType !== 'all' ? 1 : 0);
+    (filters.dateRange.preset !== "all" ? 1 : 0) +
+    (filters.orderType !== "all" ? 1 : 0);
 
   if (!isOpen) {
     return (
@@ -130,7 +145,9 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
           className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all touch-manipulation active:scale-95"
         >
           <Filter className="w-4 h-4 text-elite-burgundy" />
-          <span className="font-cabin font-semibold text-elite-black">Filters</span>
+          <span className="font-cabin font-semibold text-elite-black">
+            Filters
+          </span>
           {activeFiltersCount > 0 && (
             <span className="bg-elite-burgundy text-elite-cream text-xs font-cabin font-bold px-2 py-0.5 rounded-full">
               {activeFiltersCount}
@@ -177,8 +194,8 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
               onClick={() => handleStatusToggle(option.value)}
               className={`px-3 py-1.5 rounded-xl text-sm font-cabin font-semibold transition-all touch-manipulation active:scale-95 ${
                 filters.status.includes(option.value)
-                  ? 'bg-elite-burgundy text-elite-cream'
-                  : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy/10'
+                  ? "bg-elite-burgundy text-elite-cream"
+                  : "bg-elite-cream text-elite-black hover:bg-elite-burgundy/10"
               }`}
             >
               {option.label}
@@ -197,11 +214,15 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
           {datePresets.map((preset) => (
             <button
               key={preset.value}
-              onClick={() => handleDatePreset(preset.value as typeof filters.dateRange.preset)}
+              onClick={() =>
+                handleDatePreset(
+                  preset.value as typeof filters.dateRange.preset,
+                )
+              }
               className={`px-3 py-1.5 rounded-xl text-sm font-cabin font-semibold transition-all touch-manipulation active:scale-95 ${
                 filters.dateRange.preset === preset.value
-                  ? 'bg-elite-burgundy text-elite-cream'
-                  : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy/10'
+                  ? "bg-elite-burgundy text-elite-cream"
+                  : "bg-elite-cream text-elite-black hover:bg-elite-burgundy/10"
               }`}
             >
               {preset.label}
@@ -217,14 +238,16 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
           Order Type
         </label>
         <div className="flex gap-2">
-          {['all', 'delivery', 'pickup'].map((type) => (
+          {["all", "delivery", "pickup"].map((type) => (
             <button
               key={type}
-              onClick={() => handleOrderTypeChange(type as typeof filters.orderType)}
+              onClick={() =>
+                handleOrderTypeChange(type as typeof filters.orderType)
+              }
               className={`flex-1 px-3 py-2 rounded-xl text-sm font-cabin font-semibold capitalize transition-all touch-manipulation active:scale-95 ${
                 filters.orderType === type
-                  ? 'bg-elite-burgundy text-elite-cream'
-                  : 'bg-elite-cream text-elite-black hover:bg-elite-burgundy/10'
+                  ? "bg-elite-burgundy text-elite-cream"
+                  : "bg-elite-cream text-elite-black hover:bg-elite-burgundy/10"
               }`}
             >
               {type}
@@ -242,7 +265,9 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
         <div className="flex gap-2">
           <select
             value={filters.sortBy}
-            onChange={(e) => handleSortChange(e.target.value as typeof filters.sortBy)}
+            onChange={(e) =>
+              handleSortChange(e.target.value as typeof filters.sortBy)
+            }
             className="flex-1 px-3 py-2 rounded-xl bg-elite-cream text-elite-black font-cabin font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-elite-burgundy"
           >
             {sortOptions.map((option) => (
@@ -255,7 +280,7 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
             onClick={toggleSortOrder}
             className="px-4 py-2 rounded-xl bg-elite-cream text-elite-black font-cabin font-semibold text-sm hover:bg-elite-burgundy/10 transition-colors touch-manipulation active:scale-95"
           >
-            {filters.sortOrder === 'asc' ? '↑' : '↓'}
+            {filters.sortOrder === "asc" ? "↑" : "↓"}
           </button>
         </div>
       </div>
@@ -263,7 +288,9 @@ export function OrderFilters({ filters, onFilterChange, orderCount }: OrderFilte
       {/* Results Count */}
       <div className="pt-4 border-t border-elite-burgundy/10">
         <p className="text-sm font-cabin text-elite-black/60 text-center">
-          Showing <span className="font-bold text-elite-burgundy">{orderCount}</span> order{orderCount !== 1 ? 's' : ''}
+          Showing{" "}
+          <span className="font-bold text-elite-burgundy">{orderCount}</span>{" "}
+          order{orderCount !== 1 ? "s" : ""}
         </p>
       </div>
     </div>

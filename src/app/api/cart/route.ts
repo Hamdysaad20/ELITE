@@ -80,7 +80,10 @@ async function findMenuItem(menuItemId: string) {
  * Validate that the calculated price matches the cached product price
  * This prevents price manipulation attacks
  */
-function validatePrice(menuItem: { _cachedPrice?: number }, calculatedBasePrice: number): void {
+function validatePrice(
+  menuItem: { _cachedPrice?: number },
+  calculatedBasePrice: number,
+): void {
   if (menuItem._cachedPrice !== undefined) {
     // If we have a cached price, validate against it
     if (Math.abs(calculatedBasePrice - menuItem._cachedPrice) > 0.01) {
@@ -144,26 +147,30 @@ export async function POST(request: NextRequest) {
 
     // Calculate price with validation
     let price = menuItem.price;
-    
+
     // Validate base price against cache (prevents price manipulation)
     validatePrice(menuItem, price);
 
     // Size/flavor/toppings adjustments only apply if present in menu data fallback
     if (size && menuItem.sizes?.length) {
-      const sizeOption = menuItem.sizes.find((s: { name: string; priceModifier: number }) => s.name === size);
+      const sizeOption = menuItem.sizes.find(
+        (s: { name: string; priceModifier: number }) => s.name === size,
+      );
       if (sizeOption) price += sizeOption.priceModifier;
     }
 
     if (flavor && menuItem.flavors?.length) {
-      const flavorOption = menuItem.flavors.find((f: { name: string; price: number }) => f.name === flavor);
+      const flavorOption = menuItem.flavors.find(
+        (f: { name: string; price: number }) => f.name === flavor,
+      );
       if (flavorOption) price += flavorOption.price;
     }
 
     if (toppings && menuItem.toppings?.length) {
       for (const toppingName of toppings) {
-        const topping = (menuItem.toppings as Array<{ name: string; price: number }>).find(
-          (t) => t.name === toppingName,
-        );
+        const topping = (
+          menuItem.toppings as Array<{ name: string; price: number }>
+        ).find((t) => t.name === toppingName);
         if (topping) price += topping.price;
       }
     }

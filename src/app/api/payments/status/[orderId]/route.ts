@@ -17,7 +17,7 @@ import { trackApiPerformance } from "@/server/utils/analytics";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ orderId: string }> }
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
   const startTime = Date.now();
   try {
@@ -27,7 +27,7 @@ export async function GET(
     if (!isPaymobConfigured()) {
       return jsonResponse(
         errorResponse("Payment service is temporarily unavailable."),
-        503
+        503,
       );
     }
 
@@ -38,11 +38,14 @@ export async function GET(
     }
 
     // Rate limiting
-    const rateLimitResult = await checkPaymentRateLimit(authUser.id, "PAYMENT_STATUS");
+    const rateLimitResult = await checkPaymentRateLimit(
+      authUser.id,
+      "PAYMENT_STATUS",
+    );
     if (!rateLimitResult.allowed) {
       return jsonResponse(
         errorResponse("Too many requests. Please wait a moment."),
-        429
+        429,
       );
     }
 
@@ -58,7 +61,10 @@ export async function GET(
     }
 
     if (order.userId !== authUser.id) {
-      return jsonResponse(errorResponse("This order does not belong to you."), 403);
+      return jsonResponse(
+        errorResponse("This order does not belong to you."),
+        403,
+      );
     }
 
     // Get payment status
@@ -66,14 +72,14 @@ export async function GET(
     if (!paymentService) {
       return jsonResponse(
         errorResponse("Payment service is temporarily unavailable."),
-        503
+        503,
       );
     }
 
     const status = await withTimeout(
       paymentService.getPaymentStatus(orderId),
       REQUEST_TIMEOUTS.PAYMENT_STATUS,
-      "Status check took too long. Please try again."
+      "Status check took too long. Please try again.",
     );
 
     // Track API performance
@@ -84,10 +90,11 @@ export async function GET(
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
     await trackApiPerformance("/api/payments/status", duration, 500);
-    
+
     console.error("[Payment Status] Error:", error);
-    const message = (error as { message?: string })?.message || "Could not check payment status. Please try again.";
+    const message =
+      (error as { message?: string })?.message ||
+      "Could not check payment status. Please try again.";
     return jsonResponse(errorResponse(message), 500);
   }
 }
-

@@ -1,11 +1,15 @@
 /**
  * Achievement Service
- * 
+ *
  * Handles achievement progress tracking and completion
  */
 
 import { prisma } from "@/server/db/client";
-import { isValidUserId, isValidAchievementCode, isValidIncrement } from "./validation";
+import {
+  isValidUserId,
+  isValidAchievementCode,
+  isValidIncrement,
+} from "./validation";
 
 export interface AchievementProgress {
   achievementId: string;
@@ -20,12 +24,14 @@ export interface AchievementProgress {
  */
 export async function getUserAchievement(
   userId: string,
-  achievementCode: string
+  achievementCode: string,
 ): Promise<AchievementProgress | null> {
   try {
     const achievement = await prisma.achievement.findUnique({
       where: { code: achievementCode },
-      include: { rewards: { where: { isActive: true }, orderBy: { priority: "asc" } } },
+      include: {
+        rewards: { where: { isActive: true }, orderBy: { priority: "asc" } },
+      },
     });
 
     if (!achievement || !achievement.isActive) {
@@ -68,7 +74,7 @@ export async function getUserAchievement(
 
 /**
  * Update achievement progress
- * 
+ *
  * @param userId User ID
  * @param achievementCode Achievement code
  * @param increment Progress increment (default: 1)
@@ -77,7 +83,7 @@ export async function getUserAchievement(
 export async function updateAchievementProgress(
   userId: string,
   achievementCode: string,
-  increment: number = 1
+  increment: number = 1,
 ): Promise<{ progress: AchievementProgress | null; completed: boolean }> {
   try {
     // Input validation
@@ -97,7 +103,9 @@ export async function updateAchievementProgress(
     }
     const achievement = await prisma.achievement.findUnique({
       where: { code: achievementCode },
-      include: { rewards: { where: { isActive: true }, orderBy: { priority: "asc" } } },
+      include: {
+        rewards: { where: { isActive: true }, orderBy: { priority: "asc" } },
+      },
     });
 
     if (!achievement || !achievement.isActive) {
@@ -155,7 +163,10 @@ export async function updateAchievementProgress(
     }
 
     // Update progress (cap at target to prevent overflow)
-    const newProgress = Math.min(userAchievement.progress + increment, userAchievement.target);
+    const newProgress = Math.min(
+      userAchievement.progress + increment,
+      userAchievement.target,
+    );
     const isCompleted = newProgress >= userAchievement.target;
 
     const updated = await prisma.userAchievement.update({
@@ -178,7 +189,10 @@ export async function updateAchievementProgress(
       completed: isCompleted && !userAchievement.isCompleted,
     };
   } catch (error) {
-    console.error(`Error updating achievement progress ${achievementCode}:`, error);
+    console.error(
+      `Error updating achievement progress ${achievementCode}:`,
+      error,
+    );
     return { progress: null, completed: false };
   }
 }
@@ -193,54 +207,55 @@ export async function getUserAchievements(userId: string) {
       include: {
         achievement: {
           include: {
-            rewards: { where: { isActive: true }, orderBy: { priority: "asc" } },
+            rewards: {
+              where: { isActive: true },
+              orderBy: { priority: "asc" },
+            },
           },
         },
       },
-      orderBy: [
-        { isCompleted: "desc" },
-        { updatedAt: "desc" },
-      ],
+      orderBy: [{ isCompleted: "desc" }, { updatedAt: "desc" }],
     });
 
-    return userAchievements.map((ua: {
-      id: string;
-      achievement: {
-        code: string;
-        name: string;
-        description: string;
-        category: string;
-        icon: string | null;
-        tier: string;
-        rewards: Array<{
-          id: string;
-          rewardType: string;
-          rewardValue: unknown;
-          rewardName: string;
-          priority: number;
-        }>;
-      };
-      progress: number;
-      target: number;
-      isCompleted: boolean;
-      completedAt: Date | null;
-    }) => ({
-      id: ua.id,
-      code: ua.achievement.code,
-      name: ua.achievement.name,
-      description: ua.achievement.description,
-      category: ua.achievement.category,
-      icon: ua.achievement.icon,
-      tier: ua.achievement.tier,
-      progress: ua.progress,
-      target: ua.target,
-      isCompleted: ua.isCompleted,
-      completedAt: ua.completedAt,
-      rewards: ua.achievement.rewards,
-    }));
+    return userAchievements.map(
+      (ua: {
+        id: string;
+        achievement: {
+          code: string;
+          name: string;
+          description: string;
+          category: string;
+          icon: string | null;
+          tier: string;
+          rewards: Array<{
+            id: string;
+            rewardType: string;
+            rewardValue: unknown;
+            rewardName: string;
+            priority: number;
+          }>;
+        };
+        progress: number;
+        target: number;
+        isCompleted: boolean;
+        completedAt: Date | null;
+      }) => ({
+        id: ua.id,
+        code: ua.achievement.code,
+        name: ua.achievement.name,
+        description: ua.achievement.description,
+        category: ua.achievement.category,
+        icon: ua.achievement.icon,
+        tier: ua.achievement.tier,
+        progress: ua.progress,
+        target: ua.target,
+        isCompleted: ua.isCompleted,
+        completedAt: ua.completedAt,
+        rewards: ua.achievement.rewards,
+      }),
+    );
   } catch (error) {
     console.error(`Error getting user achievements:`, error);
     return [];
   }
 }
-

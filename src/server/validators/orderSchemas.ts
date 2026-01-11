@@ -8,11 +8,15 @@ const cartItemSchema = z.object({
   name: z.string(),
   basePrice: z.number(),
   quantity: z.number().int().positive(),
-  attributes: z.record(z.array(z.object({
-    valueId: z.number(),
-    valueName: z.string(),
-    priceExtra: z.number(),
-  }))),
+  attributes: z.record(
+    z.array(
+      z.object({
+        valueId: z.number(),
+        valueName: z.string(),
+        priceExtra: z.number(),
+      }),
+    ),
+  ),
   totalPrice: z.number(),
   image: z.string().optional(),
 });

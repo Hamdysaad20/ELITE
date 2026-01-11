@@ -1,6 +1,6 @@
 /**
  * Discount validation utilities
- * 
+ *
  * Rules:
  * 1. No deal can exceed 40% discount
  * 2. Discounts above 30% are only allowed for "large items"
@@ -25,30 +25,30 @@ export function isLargeItem(product: ProductInfo): boolean {
   if (product.price >= 100) {
     return true;
   }
-  
+
   // Check if product has a "Large" size option
   if (product.sizes && product.sizes.length > 0) {
-    const hasLargeSize = product.sizes.some(
-      (size) => size.name.toLowerCase().includes("large")
+    const hasLargeSize = product.sizes.some((size) =>
+      size.name.toLowerCase().includes("large"),
     );
     if (hasLargeSize) {
       return true;
     }
   }
-  
+
   return false;
 }
 
 /**
  * Validate discount percentage according to business rules
- * 
+ *
  * @param discountPercent - The discount percentage to validate
  * @param product - Product information
  * @returns Object with isValid flag and error message if invalid
  */
 export function validateDiscount(
   discountPercent: number,
-  product: ProductInfo
+  product: ProductInfo,
 ): { isValid: boolean; error?: string } {
   // Rule 1: No discount can exceed 40%
   if (discountPercent > 40) {
@@ -57,7 +57,7 @@ export function validateDiscount(
       error: `Discount cannot exceed 40%. Requested: ${discountPercent}%`,
     };
   }
-  
+
   // Rule 2: Discounts above 30% are only for large items
   if (discountPercent > 30) {
     if (!isLargeItem(product)) {
@@ -67,29 +67,28 @@ export function validateDiscount(
       };
     }
   }
-  
+
   return { isValid: true };
 }
 
 /**
  * Clamp discount to valid range based on product
- * 
+ *
  * @param discountPercent - The discount percentage to clamp
  * @param product - Product information
  * @returns Clamped discount percentage
  */
 export function clampDiscount(
   discountPercent: number,
-  product: ProductInfo
+  product: ProductInfo,
 ): number {
   // First, ensure it doesn't exceed 40%
   let clamped = Math.min(discountPercent, 40);
-  
+
   // If discount > 30% and product is not large, clamp to 30%
   if (clamped > 30 && !isLargeItem(product)) {
     clamped = 30;
   }
-  
+
   return Math.max(0, Math.min(40, clamped));
 }
-

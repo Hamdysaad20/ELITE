@@ -14,11 +14,15 @@ export async function GET(_req: NextRequest) {
       redisGet<string>("sync:last_update"),
       getCircuitStatus(),
     ]);
-    
+
     let queueCounts: Record<string, number> | null = null;
     if (odooQueue) {
       const counts = await odooQueue.getJobCounts("wait", "active", "failed");
-      queueCounts = { waiting: counts.wait ?? 0, active: counts.active ?? 0, failed: counts.failed ?? 0 };
+      queueCounts = {
+        waiting: counts.wait ?? 0,
+        active: counts.active ?? 0,
+        failed: counts.failed ?? 0,
+      };
     }
 
     return jsonResponse(
@@ -29,13 +33,15 @@ export async function GET(_req: NextRequest) {
           state: circuitStatus.state,
           failures: circuitStatus.failures,
           successes: circuitStatus.successes,
-          openedAt: circuitStatus.openedAt ? new Date(circuitStatus.openedAt).toISOString() : null,
+          openedAt: circuitStatus.openedAt
+            ? new Date(circuitStatus.openedAt).toISOString()
+            : null,
         },
       }),
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to fetch sync status";
+    const msg =
+      err instanceof Error ? err.message : "Failed to fetch sync status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

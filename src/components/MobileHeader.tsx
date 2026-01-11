@@ -32,7 +32,8 @@ export default function MobileHeader({
     // Detect reduced motion preference
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(motionQuery.matches);
-    const motionHandler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    const motionHandler = (e: MediaQueryListEvent) =>
+      setPrefersReducedMotion(e.matches);
     motionQuery.addEventListener("change", motionHandler);
 
     const handleScroll = () => {
@@ -64,7 +65,7 @@ export default function MobileHeader({
         "px-3 pt-2 pb-1.5",
         "transition-all",
         animDuration,
-        className
+        className,
       )}
     >
       <div
@@ -73,7 +74,7 @@ export default function MobileHeader({
           animDuration,
           transparent && !isScrolled
             ? "bg-elite-cream/85 backdrop-blur-xl border border-elite-burgundy/15 shadow-sm shadow-elite-burgundy/5"
-            : "bg-elite-cream/95 backdrop-blur-xl border border-elite-burgundy/20 shadow-md shadow-elite-burgundy/10"
+            : "bg-elite-cream/95 backdrop-blur-xl border border-elite-burgundy/20 shadow-md shadow-elite-burgundy/10",
         )}
       >
         {/* Left Side - Back Button - Properly positioned with consistent spacing */}
@@ -86,13 +87,13 @@ export default function MobileHeader({
                 "bg-elite-burgundy/8 active:bg-elite-burgundy/20",
                 "active:scale-95 touch-manipulation",
                 "transition-all",
-                animDuration
+                animDuration,
               )}
               aria-label="Go back"
             >
-              <ArrowLeft 
-                className="w-[18px] h-[18px] text-elite-burgundy" 
-                strokeWidth={2.5} 
+              <ArrowLeft
+                className="w-[18px] h-[18px] text-elite-burgundy"
+                strokeWidth={2.5}
               />
             </button>
           )}
@@ -106,7 +107,7 @@ export default function MobileHeader({
                 "font-calistoga text-[15px] truncate transition-opacity",
                 animDuration,
                 "text-elite-burgundy",
-                transparent && !isScrolled ? "opacity-85" : "opacity-100"
+                transparent && !isScrolled ? "opacity-85" : "opacity-100",
               )}
             >
               {title}
@@ -124,13 +125,13 @@ export default function MobileHeader({
                 "bg-elite-burgundy/8 active:bg-elite-burgundy/20",
                 "active:scale-95 touch-manipulation",
                 "transition-all",
-                animDuration
+                animDuration,
               )}
               aria-label="Open menu"
             >
-              <Menu 
-                className="w-[18px] h-[18px] text-elite-burgundy" 
-                strokeWidth={2.5} 
+              <Menu
+                className="w-[18px] h-[18px] text-elite-burgundy"
+                strokeWidth={2.5}
               />
             </button>
           ) : null}

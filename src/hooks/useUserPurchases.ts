@@ -29,7 +29,7 @@ export function useUserPurchases(): UseUserPurchasesReturn {
   useEffect(() => {
     const fetchPurchases = async () => {
       if (status === "loading") return;
-      
+
       if (!session?.user) {
         setPurchases([]);
         setLoading(false);

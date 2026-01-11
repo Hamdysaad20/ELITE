@@ -4,7 +4,10 @@ import {
   successResponse,
   errorResponse,
 } from "@/server/utils/apiHelpers";
-import { resetCircuitBreaker, getCircuitStatus } from "@/server/utils/circuitBreaker";
+import {
+  resetCircuitBreaker,
+  getCircuitStatus,
+} from "@/server/utils/circuitBreaker";
 
 // GET /api/sync/circuit-breaker - Get circuit breaker status
 export async function GET(_req: NextRequest) {
@@ -15,11 +18,16 @@ export async function GET(_req: NextRequest) {
         state: status.state,
         failures: status.failures,
         successes: status.successes,
-        openedAt: status.openedAt ? new Date(status.openedAt).toISOString() : null,
+        openedAt: status.openedAt
+          ? new Date(status.openedAt).toISOString()
+          : null,
       }),
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to get circuit breaker status";
+    const msg =
+      err instanceof Error
+        ? err.message
+        : "Failed to get circuit breaker status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }
@@ -31,16 +39,16 @@ export async function POST(request: NextRequest) {
       return jsonResponse(errorResponse("Forbidden"), 403);
     }
 
-    console.log('[ADMIN] Circuit breaker reset requested');
+    console.log("[ADMIN] Circuit breaker reset requested");
     await resetCircuitBreaker();
-    
+
     return jsonResponse(
       successResponse(null, "Circuit breaker reset to CLOSED state"),
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to reset circuit breaker";
+    const msg =
+      err instanceof Error ? err.message : "Failed to reset circuit breaker";
     console.error("circuit-breaker reset error", err);
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

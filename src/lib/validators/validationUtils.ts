@@ -9,16 +9,16 @@ import { ADDRESS_VALIDATION } from "@/server/validators/addressSchemas";
  */
 export function sanitizeInput(value: string): string {
   if (!value) return "";
-  
+
   // Remove leading/trailing whitespace
   let sanitized = value.trim();
-  
+
   // Normalize multiple spaces to single space
   sanitized = sanitized.replace(/\s+/g, " ");
-  
+
   // Remove null bytes and control characters (except newlines and tabs)
   sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, "");
-  
+
   return sanitized;
 }
 
@@ -63,7 +63,10 @@ export function isValidInternationalPhone(phone: string): boolean {
 /**
  * Validate phone number based on country
  */
-export function validatePhoneByCountry(phone: string, country: string = "Egypt"): {
+export function validatePhoneByCountry(
+  phone: string,
+  country: string = "Egypt",
+): {
   isValid: boolean;
   message?: string;
 } {
@@ -79,7 +82,8 @@ export function validatePhoneByCountry(phone: string, country: string = "Egypt")
     }
     return {
       isValid: false,
-      message: "Please enter a valid Egyptian phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)",
+      message:
+        "Please enter a valid Egyptian phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)",
     };
   }
 
@@ -96,7 +100,10 @@ export function validatePhoneByCountry(phone: string, country: string = "Egypt")
 /**
  * Validate postal code based on country
  */
-export function validateZipByCountry(zip: string, country: string = "Egypt"): {
+export function validateZipByCountry(
+  zip: string,
+  country: string = "Egypt",
+): {
   isValid: boolean;
   message?: string;
 } {
@@ -120,7 +127,8 @@ export function validateZipByCountry(zip: string, country: string = "Egypt"): {
 
   return {
     isValid: false,
-    message: "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
+    message:
+      "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
   };
 }
 
@@ -141,7 +149,11 @@ export function isValidStreetAddress(street: string): boolean {
 /**
  * Validate minimum length
  */
-export function validateMinLength(value: string, minLength: number, fieldName: string): {
+export function validateMinLength(
+  value: string,
+  minLength: number,
+  fieldName: string,
+): {
   isValid: boolean;
   message?: string;
 } {
@@ -157,7 +169,11 @@ export function validateMinLength(value: string, minLength: number, fieldName: s
 /**
  * Validate maximum length
  */
-export function validateMaxLength(value: string, maxLength: number, fieldName: string): {
+export function validateMaxLength(
+  value: string,
+  maxLength: number,
+  fieldName: string,
+): {
   isValid: boolean;
   message?: string;
 } {
@@ -173,7 +189,10 @@ export function validateMaxLength(value: string, maxLength: number, fieldName: s
 /**
  * Comprehensive input validation with security checks
  */
-export function validateInputSecurity(value: string, fieldName: string): {
+export function validateInputSecurity(
+  value: string,
+  fieldName: string,
+): {
   isValid: boolean;
   errors: string[];
 } {
@@ -225,10 +244,11 @@ export function calculateAddressCompleteness(address: {
 /**
  * Get address completeness level
  */
-export function getAddressCompletenessLevel(score: number): "complete" | "good" | "fair" | "poor" {
+export function getAddressCompletenessLevel(
+  score: number,
+): "complete" | "good" | "fair" | "poor" {
   if (score >= 90) return "complete";
   if (score >= 70) return "good";
   if (score >= 50) return "fair";
   return "poor";
 }
-

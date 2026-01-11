@@ -1,6 +1,6 @@
 /**
  * Streak Service
- * 
+ *
  * Handles streak tracking with grace periods
  */
 
@@ -19,7 +19,7 @@ export interface StreakData {
  */
 export async function getUserStreak(
   userId: string,
-  streakType: string
+  streakType: string,
 ): Promise<StreakData | null> {
   try {
     let streak = await prisma.userStreak.findUnique({
@@ -58,15 +58,19 @@ export async function getUserStreak(
 
 /**
  * Increment or reset streak based on grace period
- * 
+ *
  * @param userId User ID
  * @param streakType Type of streak (e.g., "deal_purchase", "daily_checkin")
  * @returns Updated streak data and whether streak was incremented or reset
  */
 export async function updateStreak(
   userId: string,
-  streakType: string
-): Promise<{ streak: StreakData | null; incremented: boolean; reset: boolean }> {
+  streakType: string,
+): Promise<{
+  streak: StreakData | null;
+  incremented: boolean;
+  reset: boolean;
+}> {
   try {
     let streak = await prisma.userStreak.findUnique({
       where: {
@@ -135,15 +139,16 @@ export async function updateStreak(
     // For daily streaks, use calendar date comparison instead of hours
     // This ensures a purchase at 10 PM and 8 AM next day correctly increments the streak
     // Use specific streak types to avoid false positives (e.g., "weekly_daily_checkin")
-    const isDailyStreak = streakType === "deal_purchase" || 
-                          streakType === "daily_checkin" ||
-                          streakType.startsWith("daily_");
-    
+    const isDailyStreak =
+      streakType === "deal_purchase" ||
+      streakType === "daily_checkin" ||
+      streakType.startsWith("daily_");
+
     if (isDailyStreak) {
       // Validate timestamps (handle clock skew - future timestamps)
       if (now.getTime() < lastActivity.getTime()) {
         console.warn(
-          `⚠️ Clock skew detected for streak ${streakType}: now (${now.toISOString()}) < lastActivity (${lastActivity.toISOString()})`
+          `⚠️ Clock skew detected for streak ${streakType}: now (${now.toISOString()}) < lastActivity (${lastActivity.toISOString()})`,
         );
         // Use lastActivity as "now" to prevent incorrect behavior
         const adjustedNow = new Date(lastActivity);
@@ -166,15 +171,15 @@ export async function updateStreak(
       lastDate.setHours(0, 0, 0, 0);
       const currentDate = new Date(now);
       currentDate.setHours(0, 0, 0, 0);
-      
+
       const daysDifference = Math.floor(
-        (currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+        (currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24),
       );
-      
+
       // Validate daysDifference (should be >= 0 after clock skew check)
       if (daysDifference < 0) {
         console.warn(
-          `⚠️ Negative days difference for streak ${streakType}: ${daysDifference}. This should not happen after clock skew check.`
+          `⚠️ Negative days difference for streak ${streakType}: ${daysDifference}. This should not happen after clock skew check.`,
         );
         // Treat as same day to be safe
         const updated = await prisma.userStreak.update({
@@ -196,7 +201,7 @@ export async function updateStreak(
           reset: false,
         };
       }
-      
+
       if (daysDifference === 0) {
         // Same day - don't increment, just update timestamp
         const updated = await prisma.userStreak.update({
@@ -333,22 +338,23 @@ export async function getUserStreaks(userId: string): Promise<StreakData[]> {
       orderBy: { currentStreak: "desc" },
     });
 
-    return streaks.map((s: {
-      streakType: string;
-      currentStreak: number;
-      longestStreak: number;
-      lastActivityAt: Date | null;
-      gracePeriodHours: number;
-    }) => ({
-      streakType: s.streakType,
-      currentStreak: s.currentStreak,
-      longestStreak: s.longestStreak,
-      lastActivityAt: s.lastActivityAt || undefined,
-      gracePeriodHours: s.gracePeriodHours,
-    }));
+    return streaks.map(
+      (s: {
+        streakType: string;
+        currentStreak: number;
+        longestStreak: number;
+        lastActivityAt: Date | null;
+        gracePeriodHours: number;
+      }) => ({
+        streakType: s.streakType,
+        currentStreak: s.currentStreak,
+        longestStreak: s.longestStreak,
+        lastActivityAt: s.lastActivityAt || undefined,
+        gracePeriodHours: s.gracePeriodHours,
+      }),
+    );
   } catch (error) {
     console.error(`Error getting user streaks:`, error);
     return [];
   }
 }
-

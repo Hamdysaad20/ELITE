@@ -16,10 +16,10 @@ export default function MenuPageSkeleton() {
             <Skeleton className="h-10 w-16 flex-shrink-0" rounded="full" />
             {/* Category pills */}
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton 
-                key={i} 
-                className="h-10 flex-shrink-0 w-24" 
-                rounded="full" 
+              <Skeleton
+                key={i}
+                className="h-10 flex-shrink-0 w-24"
+                rounded="full"
               />
             ))}
           </div>
@@ -43,10 +43,7 @@ export default function MenuPageSkeleton() {
                   <div className="flex items-center justify-between p-4 rounded-xl">
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-2 h-2" rounded="full" />
-                      <Skeleton 
-                        className="h-5 w-32" 
-                        rounded="lg" 
-                      />
+                      <Skeleton className="h-5 w-32" rounded="lg" />
                     </div>
                   </div>
                   {i < 5 && <div className="h-px bg-elite-burgundy/10 my-3" />}
@@ -82,8 +79,8 @@ export default function MenuPageSkeleton() {
                 <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 pb-2">
                   <div className="flex gap-3 snap-x snap-mandatory">
                     {Array.from({ length: 4 }).map((_, j) => (
-                      <div 
-                        key={j} 
+                      <div
+                        key={j}
                         className="w-[160px] flex-shrink-0 snap-start"
                       >
                         <ProductCardSkeleton size="small" />
@@ -122,9 +119,7 @@ export default function MenuPageSkeleton() {
                     </div>
                   </div>
                 </div>
-                {i < 2 && (
-                  <div className="h-px bg-elite-burgundy/10 mt-8" />
-                )}
+                {i < 2 && <div className="h-px bg-elite-burgundy/10 mt-8" />}
               </div>
             ))}
           </div>

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching user points:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

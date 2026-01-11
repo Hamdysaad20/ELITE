@@ -9,10 +9,16 @@ import { parseRequestBody } from "@/server/utils/apiHelpers";
 import { createPaymentIntentSchema } from "@/server/validators/paymentSchemas";
 import { getPaymentService } from "@/server/services/paymob/paymentService";
 import { isPaymobConfigured } from "@/server/services/paymob/paymobClient";
-import { BadRequestError, ServiceUnavailableError } from "@/server/utils/errors";
+import {
+  BadRequestError,
+  ServiceUnavailableError,
+} from "@/server/utils/errors";
 import { checkPaymentRateLimit } from "@/server/utils/rateLimit";
 import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
-import { trackPaymentEvent, trackApiPerformance } from "@/server/utils/analytics";
+import {
+  trackPaymentEvent,
+  trackApiPerformance,
+} from "@/server/utils/analytics";
 
 /**
  * POST /api/payments/create
@@ -24,8 +30,10 @@ export async function POST(request: NextRequest) {
     // Check if Paymob is configured
     if (!isPaymobConfigured()) {
       return jsonResponse(
-        errorResponse("Payment service is temporarily unavailable. Please try again later."),
-        503
+        errorResponse(
+          "Payment service is temporarily unavailable. Please try again later.",
+        ),
+        503,
       );
     }
 
@@ -36,11 +44,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limiting
-    const rateLimitResult = await checkPaymentRateLimit(authUser.id, "PAYMENT_CREATE");
+    const rateLimitResult = await checkPaymentRateLimit(
+      authUser.id,
+      "PAYMENT_CREATE",
+    );
     if (!rateLimitResult.allowed) {
       return jsonResponse(
-        errorResponse("Too many payment attempts. Please wait a moment and try again."),
-        429
+        errorResponse(
+          "Too many payment attempts. Please wait a moment and try again.",
+        ),
+        429,
       );
     }
 
@@ -53,7 +66,7 @@ export async function POST(request: NextRequest) {
     if (!paymentService) {
       return jsonResponse(
         errorResponse("Payment service is not available"),
-        503
+        503,
       );
     }
 
@@ -61,7 +74,12 @@ export async function POST(request: NextRequest) {
     const { prisma } = await import("@/server/db/client");
     const order = await prisma.order.findUnique({
       where: { id: body.orderId },
-      select: { userId: true, paymentStatus: true, paymentMethod: true, total: true },
+      select: {
+        userId: true,
+        paymentStatus: true,
+        paymentMethod: true,
+        total: true,
+      },
     });
 
     if (!order) {
@@ -69,7 +87,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (order.userId !== authUser.id) {
-      return jsonResponse(errorResponse("This order does not belong to you."), 403);
+      return jsonResponse(
+        errorResponse("This order does not belong to you."),
+        403,
+      );
     }
 
     // Create payment intent with timeout
@@ -80,7 +101,7 @@ export async function POST(request: NextRequest) {
         integrationId: body.integrationId,
       }),
       REQUEST_TIMEOUTS.PAYMENT_CREATE,
-      "Payment setup took too long. Please try again."
+      "Payment setup took too long. Please try again.",
     );
 
     // Track payment initiation
@@ -98,10 +119,14 @@ export async function POST(request: NextRequest) {
     return jsonResponse(successResponse(paymentIntent));
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
-    await trackApiPerformance("/api/payments/create", duration, error instanceof BadRequestError ? 400 : 500);
-    
+    await trackApiPerformance(
+      "/api/payments/create",
+      duration,
+      error instanceof BadRequestError ? 400 : 500,
+    );
+
     console.error("[Payment Create] Error:", error);
-    
+
     if (error instanceof BadRequestError) {
       await trackPaymentEvent("payment_failed", {
         orderId: undefined,
@@ -116,10 +141,15 @@ export async function POST(request: NextRequest) {
         userId: (await getAuthUser(request))?.id,
         error: "Timeout",
       });
-      return jsonResponse(errorResponse("Payment setup took too long. Please try again."), 503);
+      return jsonResponse(
+        errorResponse("Payment setup took too long. Please try again."),
+        503,
+      );
     }
 
-    const message = (error as { message?: string })?.message || "Payment could not be processed. Please try again.";
+    const message =
+      (error as { message?: string })?.message ||
+      "Payment could not be processed. Please try again.";
     await trackPaymentEvent("payment_failed", {
       userId: (await getAuthUser(request))?.id,
       error: message,
@@ -127,4 +157,3 @@ export async function POST(request: NextRequest) {
     return jsonResponse(errorResponse(message), 500);
   }
 }
-

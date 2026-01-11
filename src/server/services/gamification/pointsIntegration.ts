@@ -1,6 +1,6 @@
 /**
  * Points Integration Service
- * 
+ *
  * Integrates gamification rewards with existing points systems:
  * - LoyaltyAccount / LoyaltyLedger (1 point per 10 EGP)
  * - UserPoints / PointsTransaction (1 EGP = 100 points)
@@ -49,7 +49,7 @@ interface PointsLogContext {
  */
 function logPointsOperation(
   context: PointsLogContext,
-  severity: "info" | "warn" | "error" = "info"
+  severity: "info" | "warn" | "error" = "info",
 ): void {
   const log = {
     timestamp: new Date().toISOString(),
@@ -81,7 +81,7 @@ function logPointsOperation(
 
   // Structured logging for monitoring
   const logMessage = JSON.stringify(log);
-  
+
   switch (severity) {
     case "error":
       console.error(`[GAMIFICATION] ${logMessage}`);
@@ -102,7 +102,7 @@ function logPointsOperation(
 
 /**
  * Award points across one or both points systems
- * 
+ *
  * @param userId User ID
  * @param points Points to award
  * @param reason Reason for awarding points
@@ -113,21 +113,29 @@ export async function awardPointsReward(
   userId: string,
   points: number, // Assuming these are loyalty points
   reason: string,
-  system: PointsSystem = "both"
+  system: PointsSystem = "both",
 ): Promise<PointsAwardResult> {
   const startTime = Date.now();
-  
+
   try {
     // Validate input
     if (!Number.isFinite(points) || points < 0) {
       const result: PointsAwardResult = {
         success: false,
         partialSuccess: false,
-        loyalty: { attempted: false, succeeded: false, error: "Invalid points value" },
-        analytics: { attempted: false, succeeded: false, error: "Invalid points value" },
+        loyalty: {
+          attempted: false,
+          succeeded: false,
+          error: "Invalid points value",
+        },
+        analytics: {
+          attempted: false,
+          succeeded: false,
+          error: "Invalid points value",
+        },
         timestamp: new Date().toISOString(),
       };
-      
+
       logPointsOperation(
         {
           userId,
@@ -137,15 +145,15 @@ export async function awardPointsReward(
           result,
           duration: Date.now() - startTime,
         },
-        "error"
+        "error",
       );
-      
+
       return result;
     }
 
     // Only convert if analytics system will be used
     const needsAnalytics = system === "analytics" || system === "both";
-    const analyticsPoints = needsAnalytics 
+    const analyticsPoints = needsAnalytics
       ? convertPoints(points, "loyalty", "analytics")
       : 0;
 
@@ -164,29 +172,35 @@ export async function awardPointsReward(
     const loyaltyResult = results[0];
     const analyticsResult = results[1];
 
-    const loyaltySucceeded = loyaltyResult.status === "fulfilled" && loyaltyResult.value === true;
-    const analyticsSucceeded = analyticsResult.status === "fulfilled" && analyticsResult.value === true;
+    const loyaltySucceeded =
+      loyaltyResult.status === "fulfilled" && loyaltyResult.value === true;
+    const analyticsSucceeded =
+      analyticsResult.status === "fulfilled" && analyticsResult.value === true;
 
-    const loyaltyError = loyaltyResult.status === "rejected" 
-      ? loyaltyResult.reason instanceof Error 
-        ? loyaltyResult.reason.message 
-        : String(loyaltyResult.reason)
-      : !loyaltySucceeded && loyaltyAttempted
-      ? "Unknown error"
-      : undefined;
+    const loyaltyError =
+      loyaltyResult.status === "rejected"
+        ? loyaltyResult.reason instanceof Error
+          ? loyaltyResult.reason.message
+          : String(loyaltyResult.reason)
+        : !loyaltySucceeded && loyaltyAttempted
+          ? "Unknown error"
+          : undefined;
 
-    const analyticsError = analyticsResult.status === "rejected"
-      ? analyticsResult.reason instanceof Error
-        ? analyticsResult.reason.message
-        : String(analyticsResult.reason)
-      : !analyticsSucceeded && analyticsAttempted
-      ? "Unknown error"
-      : undefined;
+    const analyticsError =
+      analyticsResult.status === "rejected"
+        ? analyticsResult.reason instanceof Error
+          ? analyticsResult.reason.message
+          : String(analyticsResult.reason)
+        : !analyticsSucceeded && analyticsAttempted
+          ? "Unknown error"
+          : undefined;
 
-    const allSucceeded = (!loyaltyAttempted || loyaltySucceeded) && 
-                         (!analyticsAttempted || analyticsSucceeded);
-    const partialSuccess = (loyaltyAttempted && loyaltySucceeded) || 
-                          (analyticsAttempted && analyticsSucceeded);
+    const allSucceeded =
+      (!loyaltyAttempted || loyaltySucceeded) &&
+      (!analyticsAttempted || analyticsSucceeded);
+    const partialSuccess =
+      (loyaltyAttempted && loyaltySucceeded) ||
+      (analyticsAttempted && analyticsSucceeded);
 
     const result: PointsAwardResult = {
       success: allSucceeded,
@@ -199,7 +213,8 @@ export async function awardPointsReward(
       analytics: {
         attempted: analyticsAttempted,
         succeeded: analyticsSucceeded,
-        ...(analyticsSucceeded && analyticsAttempted && { pointsAwarded: analyticsPoints }),
+        ...(analyticsSucceeded &&
+          analyticsAttempted && { pointsAwarded: analyticsPoints }),
         ...(analyticsError && { error: analyticsError }),
       },
       timestamp: new Date().toISOString(),
@@ -216,7 +231,7 @@ export async function awardPointsReward(
         result,
         duration: Date.now() - startTime,
       },
-      severity
+      severity,
     );
 
     // Queue failed operations for retry (only on partial success)
@@ -260,8 +275,16 @@ export async function awardPointsReward(
     const result: PointsAwardResult = {
       success: false,
       partialSuccess: false,
-      loyalty: { attempted: system === "loyalty" || system === "both", succeeded: false, error: errorMessage },
-      analytics: { attempted: system === "analytics" || system === "both", succeeded: false, error: errorMessage },
+      loyalty: {
+        attempted: system === "loyalty" || system === "both",
+        succeeded: false,
+        error: errorMessage,
+      },
+      analytics: {
+        attempted: system === "analytics" || system === "both",
+        succeeded: false,
+        error: errorMessage,
+      },
       timestamp: new Date().toISOString(),
     };
 
@@ -274,7 +297,7 @@ export async function awardPointsReward(
         result,
         duration: Date.now() - startTime,
       },
-      "error"
+      "error",
     );
 
     return result;
@@ -283,10 +306,10 @@ export async function awardPointsReward(
 
 /**
  * Convert points between systems
- * 
+ *
  * Loyalty: 1 point per 10 EGP
  * Analytics: 100 points per 1 EGP
- * 
+ *
  * @param points Points in source system
  * @param from Source system
  * @param to Target system
@@ -295,7 +318,7 @@ export async function awardPointsReward(
 export function convertPoints(
   points: number,
   from: "loyalty" | "analytics",
-  to: "loyalty" | "analytics"
+  to: "loyalty" | "analytics",
 ): number {
   // Validate input
   if (!Number.isFinite(points)) {
@@ -312,7 +335,9 @@ export function convertPoints(
     const result = points * 1000;
     // Check for overflow (JavaScript safe integer limit)
     if (!Number.isSafeInteger(result)) {
-      console.warn(`⚠️ Points conversion overflow: ${points} * 1000 = ${result}`);
+      console.warn(
+        `⚠️ Points conversion overflow: ${points} * 1000 = ${result}`,
+      );
       return Number.MAX_SAFE_INTEGER;
     }
     return result;
@@ -327,4 +352,3 @@ export function convertPoints(
 
   return points;
 }
-

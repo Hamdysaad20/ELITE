@@ -3,12 +3,7 @@
 import { useState, useMemo } from "react";
 import { useDeals, DealProduct, Deal } from "@/hooks/useDeals";
 import { sanitizeImages } from "@/lib/imageUtils";
-import {
-  Tag,
-  Sparkles,
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
+import { Tag, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
@@ -24,7 +19,9 @@ import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
 import { cn } from "@/lib/utils";
 import UserActivationCTA from "@/components/deals/UserActivationCTA";
-import DealSortFilter, { type DealSortOption } from "@/components/deals/DealSortFilter";
+import DealSortFilter, {
+  type DealSortOption,
+} from "@/components/deals/DealSortFilter";
 
 export default function DealsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -35,14 +32,8 @@ export default function DealsPage() {
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   // Fetch all deals from API
-  const {
-    deals,
-    loading,
-    error,
-    refetch,
-    isEmpty,
-    totalProducts,
-  } = useDeals(true);
+  const { deals, loading, error, refetch, isEmpty, totalProducts } =
+    useDeals(true);
 
   const handleRetry = () => {
     refetch();
@@ -54,7 +45,9 @@ export default function DealsPage() {
       id: dealProduct.id,
       name: dealProduct.name,
       description: dealProduct.description,
-      price: dealProduct.dealActive ? dealProduct.dealPrice : dealProduct.originalPrice,
+      price: dealProduct.dealActive
+        ? dealProduct.dealPrice
+        : dealProduct.originalPrice,
       categoryId: dealProduct.categoryId,
       images: dealProduct.images,
       available: dealProduct.available !== false && dealProduct.dealActive,
@@ -65,16 +58,18 @@ export default function DealsPage() {
   };
 
   // Filter to only show active deals
-  const activeDeals = (deals || []).filter(deal => deal.active && (
-    deal.products.length > 0 || (deal.combos && deal.combos.length > 0)
-  ));
+  const activeDeals = (deals || []).filter(
+    (deal) =>
+      deal.active &&
+      (deal.products.length > 0 || (deal.combos && deal.combos.length > 0)),
+  );
 
   // Check if any deal is active
   const hasActiveDeals = activeDeals.length > 0;
 
   // Sort products within each deal by discount (biggest first by default)
   const sortedDeals = useMemo(() => {
-    return activeDeals.map(deal => {
+    return activeDeals.map((deal) => {
       const sortedProducts = [...deal.products].sort((a, b) => {
         switch (sortBy) {
           case "discount-desc":
@@ -144,13 +139,13 @@ export default function DealsPage() {
                     "mb-8 rounded-3xl p-5 md:p-7 border-2",
                     "bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50",
                     "border-emerald-300/50 shadow-lg shadow-emerald-200/20",
-                    "relative overflow-hidden"
+                    "relative overflow-hidden",
                   )}
                 >
                   {/* Decorative background elements */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/20 rounded-full blur-2xl -mr-16 -mt-16" />
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-teal-200/20 rounded-full blur-xl -ml-12 -mb-12" />
-                  
+
                   <div className="flex items-start gap-4 relative z-10">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
                       <Sparkles className="w-6 h-6 text-white animate-pulse" />
@@ -192,15 +187,17 @@ export default function DealsPage() {
               )}
 
               {/* Empty State */}
-              {!loading && !error && (!activeDeals || activeDeals.length === 0) && (
-                <EmptyState
-                  variant="no-products"
-                  title="No Active Deals"
-                  description="There are no active deals at the moment. Check back soon for new offers!"
-                  actionLabel="Refresh"
-                  onAction={handleRetry}
-                />
-              )}
+              {!loading &&
+                !error &&
+                (!activeDeals || activeDeals.length === 0) && (
+                  <EmptyState
+                    variant="no-products"
+                    title="No Active Deals"
+                    description="There are no active deals at the moment. Check back soon for new offers!"
+                    actionLabel="Refresh"
+                    onAction={handleRetry}
+                  />
+                )}
 
               {/* Enhanced Deals Content */}
               {!loading && !error && sortedDeals && sortedDeals.length > 0 && (
@@ -219,7 +216,13 @@ export default function DealsPage() {
                                   {deal.name}
                                 </h2>
                                 <p className="font-cabin text-elite-black/50 text-xs mt-0.5">
-                                  {deal.products.length + (deal.combos?.length || 0)} {deal.products.length + (deal.combos?.length || 0) === 1 ? 'item' : 'items'}
+                                  {deal.products.length +
+                                    (deal.combos?.length || 0)}{" "}
+                                  {deal.products.length +
+                                    (deal.combos?.length || 0) ===
+                                  1
+                                    ? "item"
+                                    : "items"}
                                 </p>
                               </div>
                             </div>
@@ -252,7 +255,9 @@ export default function DealsPage() {
                                 <ComboDealCard
                                   key={combo.id}
                                   combo={combo}
-                                  animationDelay={dealIndex * 100 + comboIdx * 50}
+                                  animationDelay={
+                                    dealIndex * 100 + comboIdx * 50
+                                  }
                                 />
                               ))}
                             </div>
@@ -274,13 +279,17 @@ export default function DealsPage() {
                                   dealActive={dealProduct.dealActive}
                                   savings={dealProduct.savings}
                                   savingsPercent={dealProduct.savingsPercent}
-                                  description={dealProduct.description ?? undefined}
+                                  description={
+                                    dealProduct.description ?? undefined
+                                  }
                                   available={
-                                    dealProduct.available !== false && dealProduct.dealActive
+                                    dealProduct.available !== false &&
+                                    dealProduct.dealActive
                                   }
                                   categoryId={dealProduct.categoryId}
                                   onQuickAdd={() => {
-                                    const product = convertToProduct(dealProduct);
+                                    const product =
+                                      convertToProduct(dealProduct);
                                     setSelectedProduct(product);
                                     setIsModalOpen(true);
                                   }}
@@ -308,7 +317,7 @@ export default function DealsPage() {
                 <div className="mt-16 md:mt-20 bg-gradient-to-br from-white to-elite-cream/20 rounded-3xl p-6 md:p-8 border-2 border-elite-burgundy/15 shadow-lg relative overflow-hidden">
                   {/* Decorative background */}
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-elite-burgundy/5 rounded-full blur-2xl -ml-16 -mb-16" />
-                  
+
                   <div className="flex items-start gap-4 relative z-10">
                     <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy rounded-xl flex items-center justify-center shadow-md">
                       <AlertCircle className="w-5 h-5 text-elite-cream" />
@@ -319,20 +328,35 @@ export default function DealsPage() {
                       </h3>
                       <ul className="font-cabin text-elite-black/75 text-sm md:text-base space-y-2.5">
                         <li className="flex items-start gap-2">
-                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
+                          <span className="text-elite-burgundy font-bold mt-0.5">
+                            •
+                          </span>
                           <span>Deals are managed through Odoo pricelists</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
-                          <span>Prices shown are final prices from Odoo (our inventory system)</span>
+                          <span className="text-elite-burgundy font-bold mt-0.5">
+                            •
+                          </span>
+                          <span>
+                            Prices shown are final prices from Odoo (our
+                            inventory system)
+                          </span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
-                          <span>All prices are validated by Odoo at checkout</span>
+                          <span className="text-elite-burgundy font-bold mt-0.5">
+                            •
+                          </span>
+                          <span>
+                            All prices are validated by Odoo at checkout
+                          </span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-elite-burgundy font-bold mt-0.5">•</span>
-                          <span>Deals may have time restrictions or other conditions</span>
+                          <span className="text-elite-burgundy font-bold mt-0.5">
+                            •
+                          </span>
+                          <span>
+                            Deals may have time restrictions or other conditions
+                          </span>
                         </li>
                       </ul>
                     </div>

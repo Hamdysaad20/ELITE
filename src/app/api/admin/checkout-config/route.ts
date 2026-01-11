@@ -2,7 +2,11 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/db/client";
 import { requireRole } from "@/server/auth/session";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 import { PaymentMethod } from "@/types";
 
 const updateSchema = z.object({
@@ -19,7 +23,9 @@ export async function GET(request: NextRequest) {
   try {
     await requireRole(request, ["admin"]);
 
-    const row = await prisma.checkoutConfig.findUnique({ where: { id: "checkout" } });
+    const row = await prisma.checkoutConfig.findUnique({
+      where: { id: "checkout" },
+    });
     if (!row) {
       return jsonResponse(
         successResponse({
@@ -38,8 +44,12 @@ export async function GET(request: NextRequest) {
       }),
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch checkout config";
-    const isAuthError = error instanceof Error && error.message.includes("Required role");
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch checkout config";
+    const isAuthError =
+      error instanceof Error && error.message.includes("Required role");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
@@ -70,7 +80,9 @@ export async function PATCH(request: NextRequest) {
       where: { id: "checkout" },
       create: {
         id: "checkout",
-        enabledPaymentMethods: data.enabledPaymentMethods ?? [PaymentMethod.CASH],
+        enabledPaymentMethods: data.enabledPaymentMethods ?? [
+          PaymentMethod.CASH,
+        ],
         deliveryFee: data.deliveryFee ?? 15,
         codFee: data.codFee ?? 0,
       },
@@ -78,7 +90,9 @@ export async function PATCH(request: NextRequest) {
         ...(data.enabledPaymentMethods
           ? { enabledPaymentMethods: data.enabledPaymentMethods }
           : {}),
-        ...(data.deliveryFee !== undefined ? { deliveryFee: data.deliveryFee } : {}),
+        ...(data.deliveryFee !== undefined
+          ? { deliveryFee: data.deliveryFee }
+          : {}),
         ...(data.codFee !== undefined ? { codFee: data.codFee } : {}),
       },
       select: {
@@ -96,8 +110,12 @@ export async function PATCH(request: NextRequest) {
       }),
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to update checkout config";
-    const isAuthError = error instanceof Error && error.message.includes("Required role");
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to update checkout config";
+    const isAuthError =
+      error instanceof Error && error.message.includes("Required role");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }

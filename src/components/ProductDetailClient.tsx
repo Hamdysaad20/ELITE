@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, Package, TrendingUp, ShoppingCart, Check } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  Package,
+  TrendingUp,
+  ShoppingCart,
+  Check,
+} from "lucide-react";
 import Image from "next/image";
 import AttributeSelector from "./AttributeSelector";
 import QuantitySelector from "./QuantitySelector";
@@ -45,16 +53,18 @@ export default function ProductDetailClient({
   relatedProducts,
 }: ProductDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, number | number[]>>({});
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, number | number[]>
+  >({});
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
-  
+
   // Fetch reviews for this product
-  const { 
-    reviews, 
-    stats, 
+  const {
+    reviews,
+    stats,
     loading: reviewsLoading,
   } = useReviews({
     productId: product.id,
@@ -63,103 +73,115 @@ export default function ProductDetailClient({
   // Detect multi-select attributes
   const isMultiSelect = (attributeName: string): boolean => {
     const multiSelectKeywords = [
-      'topping', 'toppings',
-      'extra', 'extras',
-      'sauce', 'sauces',
-      'vegetable', 'vegetables',
-      'ingredient', 'ingredients',
-      'addition', 'additions',
-      'protein', 'cheese', 'bread'
+      "topping",
+      "toppings",
+      "extra",
+      "extras",
+      "sauce",
+      "sauces",
+      "vegetable",
+      "vegetables",
+      "ingredient",
+      "ingredients",
+      "addition",
+      "additions",
+      "protein",
+      "cheese",
+      "bread",
     ];
     const lower = attributeName.toLowerCase();
-    return multiSelectKeywords.some(keyword => lower.includes(keyword));
+    return multiSelectKeywords.some((keyword) => lower.includes(keyword));
   };
 
   // Calculate total price
   const calculateTotalPrice = (): number => {
     let total = product.price;
-    
+
     if (product.attributes) {
       Object.entries(selectedAttributes).forEach(([attrName, selected]) => {
         const attribute = product.attributes?.[attrName];
         if (!attribute) return;
-        
+
         if (Array.isArray(selected)) {
           // Multi-select: sum all selected
-          selected.forEach(valueId => {
-            const value = attribute.find(v => v.id === valueId);
+          selected.forEach((valueId) => {
+            const value = attribute.find((v) => v.id === valueId);
             if (value) total += value.priceExtra;
           });
         } else {
           // Single-select: add priceExtra
-          const value = attribute.find(v => v.id === selected);
+          const value = attribute.find((v) => v.id === selected);
           if (value) total += value.priceExtra;
         }
       });
     }
-    
+
     return total * quantity;
   };
 
   // Validate selections (check required attributes)
   const validateSelections = (): { valid: boolean; message?: string } => {
     if (!product.attributes) return { valid: true };
-    
+
     // Size is typically required if present
-    const hasSize = product.attributes['Size'];
-    if (hasSize && !selectedAttributes['Size']) {
-      return { valid: false, message: 'Please select a size' };
+    const hasSize = product.attributes["Size"];
+    if (hasSize && !selectedAttributes["Size"]) {
+      return { valid: false, message: "Please select a size" };
     }
-    
+
     return { valid: true };
   };
 
   // Handle add to cart
   const handleAddToCart = () => {
     const validation = validateSelections();
-    
+
     if (!validation.valid) {
-      toastError(validation.message || 'Please select all required options');
+      toastError(validation.message || "Please select all required options");
       return;
     }
-    
+
     // Transform selected attributes to cart format
-    const cartAttributes: LocalCartItem['attributes'] = {};
-    
+    const cartAttributes: LocalCartItem["attributes"] = {};
+
     if (product.attributes) {
       Object.entries(selectedAttributes).forEach(([attrName, selected]) => {
         const attribute = product.attributes?.[attrName];
         if (!attribute) return;
-        
+
         if (Array.isArray(selected)) {
           // Multi-select
-          cartAttributes[attrName] = selected.map(valueId => {
-            const value = attribute.find(v => v.id === valueId);
-            return {
-              valueId,
-              valueName: value?.name || '',
-              priceExtra: value?.priceExtra || 0,
-            };
-          }).filter(v => v.valueName);
+          cartAttributes[attrName] = selected
+            .map((valueId) => {
+              const value = attribute.find((v) => v.id === valueId);
+              return {
+                valueId,
+                valueName: value?.name || "",
+                priceExtra: value?.priceExtra || 0,
+              };
+            })
+            .filter((v) => v.valueName);
         } else {
           // Single-select
-          const value = attribute.find(v => v.id === selected);
+          const value = attribute.find((v) => v.id === selected);
           if (value) {
-            cartAttributes[attrName] = [{
-              valueId: value.id,
-              valueName: value.name,
-              priceExtra: value.priceExtra,
-            }];
+            cartAttributes[attrName] = [
+              {
+                valueId: value.id,
+                valueName: value.name,
+                priceExtra: value.priceExtra,
+              },
+            ];
           }
         }
       });
     }
-    
+
     // Calculate unit price (price for 1 item with selected attributes)
     const unitPrice = Object.values(cartAttributes).reduce((sum, values) => {
       return sum + values.reduce((s, v) => s + v.priceExtra, 0);
     }, product.price);
-    
+
     // Add to cart
     addItem({
       productId: product.id,
@@ -170,7 +192,7 @@ export default function ProductDetailClient({
       totalPrice: unitPrice * quantity,
       image: product.images?.[0],
     });
-    
+
     // Show success feedback
     setAddedToCart(true);
     toastSuccess(`${product.name} added to cart!`);
@@ -180,7 +202,7 @@ export default function ProductDetailClient({
   const nextImage = () => {
     if (product.images.length > 0) {
       setCurrentImageIndex((prev) =>
-        prev === product.images.length - 1 ? 0 : prev + 1
+        prev === product.images.length - 1 ? 0 : prev + 1,
       );
     }
   };
@@ -188,15 +210,16 @@ export default function ProductDetailClient({
   const prevImage = () => {
     if (product.images.length > 0) {
       setCurrentImageIndex((prev) =>
-        prev === 0 ? product.images.length - 1 : prev - 1
+        prev === 0 ? product.images.length - 1 : prev - 1,
       );
     }
   };
 
   // Fallback image if no images available
-  const displayImages = product.images.length > 0 
-    ? product.images 
-    : ["/images/placeholder-product.jpg"];
+  const displayImages =
+    product.images.length > 0
+      ? product.images
+      : ["/images/placeholder-product.jpg"];
 
   const hasImages = product.images.length > 0;
   const hasMultipleImages = product.images.length > 1;
@@ -221,336 +244,353 @@ export default function ProductDetailClient({
       <div className="flex-1 bg-elite-cream md:rounded-t-[2.5rem] md:-mt-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 md:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
-          {/* Image Section - Compact on mobile */}
-          <div className="relative lg:sticky lg:top-32 h-fit">
-            <div className="aspect-square bg-gradient-to-b from-elite-cream to-elite-burgundy/5 relative rounded-3xl overflow-hidden">
-              {/* Main Image Container */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                {hasImages ? (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={displayImages[currentImageIndex]}
-                      alt={product.name}
-                      fill
-                      className="object-contain p-4 md:p-8"
-                      priority
-                    />
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-elite-burgundy/40">
-                    <Package className="w-16 h-16 md:w-24 md:h-24 mb-3" />
-                    <p className="font-cabin text-xs md:text-sm">No image available</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Stock Badge - Compact on mobile */}
-              <div className="absolute top-3 right-3 md:top-6 md:right-6 z-10">
-                {product.available ? (
-                  <div className="bg-elite-burgundy text-elite-cream px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-elite-cream rounded-full animate-pulse" />
-                    In Stock
-                  </div>
-                ) : (
-                  <div className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md">
-                    Sold Out
-                  </div>
-                )}
-              </div>
-
-              {/* Image Navigation - Touch friendly */}
-              {hasMultipleImages && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-                  </button>
-                </>
-              )}
-
-              {/* Image Indicators - Smaller on mobile */}
-              {hasMultipleImages && (
-                <div className="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-20">
-                  {product.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${
-                        index === currentImageIndex
-                          ? "bg-elite-burgundy scale-125"
-                          : "bg-elite-burgundy/40"
-                      }`}
-                      aria-label={`View image ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnail Gallery - Hidden on mobile for cleaner UX */}
-            {hasMultipleImages && (
-              <div className="hidden md:grid mt-4 grid-cols-4 gap-3">
-                {product.images.slice(0, 4).map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                      index === currentImageIndex
-                        ? "border-elite-burgundy shadow-lg"
-                        : "border-elite-burgundy/20 hover:border-elite-burgundy/50"
-                    }`}
-                  >
-                    <Image
-                      src={image}
-                      alt={`${product.name} thumbnail ${index + 1}`}
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Product Information - Compact mobile layout */}
-          <div className="space-y-5 md:space-y-8">
-            {/* Header Section */}
-            <div className="space-y-2 md:space-y-4">
-              {product.category && (
-                <Link
-                  href={`/menu?category=${product.category.id}`}
-                  className="inline-flex items-center gap-1 text-elite-burgundy/60 active:text-elite-burgundy font-cabin text-xs md:text-sm font-semibold uppercase tracking-wider transition-colors touch-manipulation"
-                >
-                  {product.category.name}
-                </Link>
-              )}
-              
-              <h1 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-                {product.name}
-              </h1>
-
-              {/* Description */}
-              {product.description && (
-                <p className="font-cabin text-elite-black/60 text-sm md:text-base leading-relaxed">
-                  {product.description}
-                </p>
-              )}
-
-              {/* Base Price */}
-              <div className="flex items-baseline gap-2 pt-1">
-                <span className="font-calistoga text-elite-burgundy text-2xl md:text-3xl">
-                  EGP {product.price}
-                </span>
-                {product.attributes && Object.keys(product.attributes).length > 0 && (
-                  <span className="font-cabin text-elite-black/40 text-xs md:text-sm">
-                    starting price
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="h-px bg-elite-burgundy/10 w-full" />
-
-            {/* Configuration Section */}
-            <div className="space-y-5 md:space-y-8">
-              {/* Attributes */}
-              {product.attributes && Object.keys(product.attributes).length > 0 && (
-                <div className="space-y-4 md:space-y-6">
-                  {Object.entries(product.attributes).map(([attributeName, values]) => (
-                    <AttributeSelector
-                      key={attributeName}
-                      label={attributeName}
-                      values={values}
-                      selected={selectedAttributes[attributeName]}
-                      multiSelect={isMultiSelect(attributeName)}
-                      onChange={(selected) => setSelectedAttributes(prev => ({
-                        ...prev,
-                        [attributeName]: selected
-                      }))}
-                      required={attributeName === 'Size'}
-                    />
-                  ))}
-                  <div className="h-px bg-elite-black/5 w-full" />
-                </div>
-              )}
-
-              {/* Quantity & Total - Compact row on mobile */}
-              <div className="space-y-4 md:space-y-6">
-                <div className="flex items-center justify-between gap-4">
-                  <QuantitySelector
-                    value={quantity}
-                    onChange={setQuantity}
-                    min={1}
-                    max={50}
-                    disabled={!product.available}
-                  />
-                  
-                  <div className="text-right">
-                    <p className="font-cabin text-xs md:text-sm text-elite-black/50">Total</p>
-                    <p className="font-calistoga text-xl md:text-3xl text-elite-burgundy">
-                      EGP {calculateTotalPrice()}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!product.available || addedToCart}
-                  className={cn(
-                    "w-full py-4 md:py-5 rounded-2xl md:rounded-3xl font-cabin font-bold text-base md:text-lg transition-all duration-300 flex items-center justify-center gap-2.5 shadow-xl active:scale-[0.97] touch-manipulation",
-                    !product.available
-                      ? 'bg-elite-black/10 text-elite-black/40 cursor-not-allowed'
-                      : addedToCart
-                        ? 'bg-emerald-500 text-white shadow-emerald-500/30'
-                        : 'bg-elite-burgundy text-elite-cream shadow-elite-burgundy/30 hover:shadow-2xl'
-                  )}
-                >
-                  {!product.available ? (
-                    'Sold Out'
-                  ) : addedToCart ? (
-                    <>
-                      <Check className="w-5 h-5 animate-bounce" />
-                      Added to Cart!
-                    </>
+            {/* Image Section - Compact on mobile */}
+            <div className="relative lg:sticky lg:top-32 h-fit">
+              <div className="aspect-square bg-gradient-to-b from-elite-cream to-elite-burgundy/5 relative rounded-3xl overflow-hidden">
+                {/* Main Image Container */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {hasImages ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={displayImages[currentImageIndex]}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-4 md:p-8"
+                        priority
+                      />
+                    </div>
                   ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Add to Cart
-                    </>
+                    <div className="flex flex-col items-center justify-center text-elite-burgundy/40">
+                      <Package className="w-16 h-16 md:w-24 md:h-24 mb-3" />
+                      <p className="font-cabin text-xs md:text-sm">
+                        No image available
+                      </p>
+                    </div>
                   )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                </div>
 
-        {/* Reviews Section */}
-        <div className="mt-8 sm:mt-12 lg:mt-16 bg-elite-cream rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-4 sm:p-6 lg:p-8 xl:p-10 w-full">
-          <div className="mb-6 sm:mb-8">
-            <div className="flex items-start sm:items-center justify-between mb-6 sm:mb-8 flex-col sm:flex-row gap-4">
-              <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold">
-                Customer Reviews
-              </h2>
-              {stats && stats.total > 0 && (
-                <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
-                  <div className="flex items-center gap-0.5 sm:gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
-                          star <= Math.round(stats.averageRating)
-                            ? "fill-elite-burgundy text-elite-burgundy"
-                            : "text-elite-burgundy/20"
+                {/* Stock Badge - Compact on mobile */}
+                <div className="absolute top-3 right-3 md:top-6 md:right-6 z-10">
+                  {product.available ? (
+                    <div className="bg-elite-burgundy text-elite-cream px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-elite-cream rounded-full animate-pulse" />
+                      In Stock
+                    </div>
+                  ) : (
+                    <div className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md">
+                      Sold Out
+                    </div>
+                  )}
+                </div>
+
+                {/* Image Navigation - Touch friendly */}
+                {hasMultipleImages && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image Indicators - Smaller on mobile */}
+                {hasMultipleImages && (
+                  <div className="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-20">
+                    {product.images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${
+                          index === currentImageIndex
+                            ? "bg-elite-burgundy scale-125"
+                            : "bg-elite-burgundy/40"
                         }`}
+                        aria-label={`View image ${index + 1}`}
                       />
                     ))}
                   </div>
-                  <span className="font-cabin text-elite-burgundy font-bold text-base sm:text-lg lg:text-xl">
-                    {stats.averageRating.toFixed(1)}
-                  </span>
-                  <span className="font-cabin text-elite-black/60 text-xs sm:text-sm font-medium">
-                    ({stats.total} {stats.total === 1 ? 'review' : 'reviews'})
-                  </span>
+                )}
+              </div>
+
+              {/* Thumbnail Gallery - Hidden on mobile for cleaner UX */}
+              {hasMultipleImages && (
+                <div className="hidden md:grid mt-4 grid-cols-4 gap-3">
+                  {product.images.slice(0, 4).map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                        index === currentImageIndex
+                          ? "border-elite-burgundy shadow-lg"
+                          : "border-elite-burgundy/20 hover:border-elite-burgundy/50"
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Reviews List */}
-            <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-              <h3 className="font-calistoga text-elite-black text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
-                {reviews.length > 0 ? `All Reviews (${reviews.length})` : 'Reviews'}
-              </h3>
-              {reviewsLoading ? (
-                <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10">
-                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-elite-burgundy border-t-transparent mx-auto"></div>
-                  <p className="mt-6 font-cabin text-elite-burgundy font-semibold text-lg">Loading reviews...</p>
-                </div>
-              ) : reviews.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10 shadow-md">
-                  <div className="w-20 h-20 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
-                    <Star className="w-10 h-10 text-elite-burgundy" />
-                  </div>
-                  <h4 className="font-calistoga text-elite-black text-2xl mb-3">
-                    No Reviews Yet
-                  </h4>
-                  <p className="font-cabin text-elite-black/60 text-base">
-                    Be the first to share your experience with this product!
+            {/* Product Information - Compact mobile layout */}
+            <div className="space-y-5 md:space-y-8">
+              {/* Header Section */}
+              <div className="space-y-2 md:space-y-4">
+                {product.category && (
+                  <Link
+                    href={`/menu?category=${product.category.id}`}
+                    className="inline-flex items-center gap-1 text-elite-burgundy/60 active:text-elite-burgundy font-cabin text-xs md:text-sm font-semibold uppercase tracking-wider transition-colors touch-manipulation"
+                  >
+                    {product.category.name}
+                  </Link>
+                )}
+
+                <h1 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+                  {product.name}
+                </h1>
+
+                {/* Description */}
+                {product.description && (
+                  <p className="font-cabin text-elite-black/60 text-sm md:text-base leading-relaxed">
+                    {product.description}
                   </p>
+                )}
+
+                {/* Base Price */}
+                <div className="flex items-baseline gap-2 pt-1">
+                  <span className="font-calistoga text-elite-burgundy text-2xl md:text-3xl">
+                    EGP {product.price}
+                  </span>
+                  {product.attributes &&
+                    Object.keys(product.attributes).length > 0 && (
+                      <span className="font-cabin text-elite-black/40 text-xs md:text-sm">
+                        starting price
+                      </span>
+                    )}
                 </div>
-              ) : (
-                reviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
-                ))
-              )}
+              </div>
+
+              <div className="h-px bg-elite-burgundy/10 w-full" />
+
+              {/* Configuration Section */}
+              <div className="space-y-5 md:space-y-8">
+                {/* Attributes */}
+                {product.attributes &&
+                  Object.keys(product.attributes).length > 0 && (
+                    <div className="space-y-4 md:space-y-6">
+                      {Object.entries(product.attributes).map(
+                        ([attributeName, values]) => (
+                          <AttributeSelector
+                            key={attributeName}
+                            label={attributeName}
+                            values={values}
+                            selected={selectedAttributes[attributeName]}
+                            multiSelect={isMultiSelect(attributeName)}
+                            onChange={(selected) =>
+                              setSelectedAttributes((prev) => ({
+                                ...prev,
+                                [attributeName]: selected,
+                              }))
+                            }
+                            required={attributeName === "Size"}
+                          />
+                        ),
+                      )}
+                      <div className="h-px bg-elite-black/5 w-full" />
+                    </div>
+                  )}
+
+                {/* Quantity & Total - Compact row on mobile */}
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <QuantitySelector
+                      value={quantity}
+                      onChange={setQuantity}
+                      min={1}
+                      max={50}
+                      disabled={!product.available}
+                    />
+
+                    <div className="text-right">
+                      <p className="font-cabin text-xs md:text-sm text-elite-black/50">
+                        Total
+                      </p>
+                      <p className="font-calistoga text-xl md:text-3xl text-elite-burgundy">
+                        EGP {calculateTotalPrice()}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!product.available || addedToCart}
+                    className={cn(
+                      "w-full py-4 md:py-5 rounded-2xl md:rounded-3xl font-cabin font-bold text-base md:text-lg transition-all duration-300 flex items-center justify-center gap-2.5 shadow-xl active:scale-[0.97] touch-manipulation",
+                      !product.available
+                        ? "bg-elite-black/10 text-elite-black/40 cursor-not-allowed"
+                        : addedToCart
+                          ? "bg-emerald-500 text-white shadow-emerald-500/30"
+                          : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/30 hover:shadow-2xl",
+                    )}
+                  >
+                    {!product.available ? (
+                      "Sold Out"
+                    ) : addedToCart ? (
+                      <>
+                        <Check className="w-5 h-5 animate-bounce" />
+                        Added to Cart!
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5" />
+                        Add to Cart
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-8 sm:mt-12 lg:mt-16">
-            <div className="text-center mb-6 sm:mb-8">
-              <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold mb-2">
-                You Might Also Like
-              </h2>
-              <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
-                More products from {product.category?.name || "this category"}
-              </p>
-            </div>
-
-            {/* Mobile: Horizontal Scroll */}
-            <div className="md:hidden">
-              <div className="flex gap-4 overflow-x-auto pb-4 px-1 -mx-4 snap-x snap-mandatory scrollbar-hide">
-                {relatedProducts.map((relatedProduct) => (
-                  <div key={relatedProduct.id} className="flex-shrink-0 w-[280px] snap-start">
-                    <DrinkCard
-                      id={relatedProduct.id}
-                      name={relatedProduct.name}
-                      price={relatedProduct.price}
-                      images={relatedProduct.images}
-                      available={relatedProduct.available}
-                      href={`/products/${relatedProduct.id}`}
-                      menuItemId={relatedProduct.id}
-                      showAddToOrder={true}
-                      className="h-full"
-                    />
+          {/* Reviews Section */}
+          <div className="mt-8 sm:mt-12 lg:mt-16 bg-elite-cream rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-4 sm:p-6 lg:p-8 xl:p-10 w-full">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-start sm:items-center justify-between mb-6 sm:mb-8 flex-col sm:flex-row gap-4">
+                <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold">
+                  Customer Reviews
+                </h2>
+                {stats && stats.total > 0 && (
+                  <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
+                    <div className="flex items-center gap-0.5 sm:gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
+                            star <= Math.round(stats.averageRating)
+                              ? "fill-elite-burgundy text-elite-burgundy"
+                              : "text-elite-burgundy/20"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-cabin text-elite-burgundy font-bold text-base sm:text-lg lg:text-xl">
+                      {stats.averageRating.toFixed(1)}
+                    </span>
+                    <span className="font-cabin text-elite-black/60 text-xs sm:text-sm font-medium">
+                      ({stats.total} {stats.total === 1 ? "review" : "reviews"})
+                    </span>
                   </div>
+                )}
+              </div>
+
+              {/* Reviews List */}
+              <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                <h3 className="font-calistoga text-elite-black text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
+                  {reviews.length > 0
+                    ? `All Reviews (${reviews.length})`
+                    : "Reviews"}
+                </h3>
+                {reviewsLoading ? (
+                  <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10">
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-elite-burgundy border-t-transparent mx-auto"></div>
+                    <p className="mt-6 font-cabin text-elite-burgundy font-semibold text-lg">
+                      Loading reviews...
+                    </p>
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10 shadow-md">
+                    <div className="w-20 h-20 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
+                      <Star className="w-10 h-10 text-elite-burgundy" />
+                    </div>
+                    <h4 className="font-calistoga text-elite-black text-2xl mb-3">
+                      No Reviews Yet
+                    </h4>
+                    <p className="font-cabin text-elite-black/60 text-base">
+                      Be the first to share your experience with this product!
+                    </p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <ReviewCard key={review.id} review={review} />
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Related Products */}
+          {relatedProducts.length > 0 && (
+            <div className="mt-8 sm:mt-12 lg:mt-16">
+              <div className="text-center mb-6 sm:mb-8">
+                <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold mb-2">
+                  You Might Also Like
+                </h2>
+                <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
+                  More products from {product.category?.name || "this category"}
+                </p>
+              </div>
+
+              {/* Mobile: Horizontal Scroll */}
+              <div className="md:hidden">
+                <div className="flex gap-4 overflow-x-auto pb-4 px-1 -mx-4 snap-x snap-mandatory scrollbar-hide">
+                  {relatedProducts.map((relatedProduct) => (
+                    <div
+                      key={relatedProduct.id}
+                      className="flex-shrink-0 w-[280px] snap-start"
+                    >
+                      <DrinkCard
+                        id={relatedProduct.id}
+                        name={relatedProduct.name}
+                        price={relatedProduct.price}
+                        images={relatedProduct.images}
+                        available={relatedProduct.available}
+                        href={`/products/${relatedProduct.id}`}
+                        menuItemId={relatedProduct.id}
+                        showAddToOrder={true}
+                        className="h-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop: Grid */}
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                {relatedProducts.map((relatedProduct) => (
+                  <DrinkCard
+                    key={relatedProduct.id}
+                    id={relatedProduct.id}
+                    name={relatedProduct.name}
+                    price={relatedProduct.price}
+                    images={relatedProduct.images}
+                    available={relatedProduct.available}
+                    href={`/products/${relatedProduct.id}`}
+                    menuItemId={relatedProduct.id}
+                    showAddToOrder={true}
+                    className="h-full"
+                  />
                 ))}
               </div>
             </div>
-
-            {/* Desktop: Grid */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {relatedProducts.map((relatedProduct) => (
-                <DrinkCard
-                  key={relatedProduct.id}
-                  id={relatedProduct.id}
-                  name={relatedProduct.name}
-                  price={relatedProduct.price}
-                  images={relatedProduct.images}
-                  available={relatedProduct.available}
-                  href={`/products/${relatedProduct.id}`}
-                  menuItemId={relatedProduct.id}
-                  showAddToOrder={true}
-                  className="h-full"
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </div>
     </div>
   );

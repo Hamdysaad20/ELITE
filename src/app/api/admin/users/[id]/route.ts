@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
 import { z } from "zod";
 
@@ -17,10 +21,7 @@ interface RouteParams {
 /**
  * GET /api/admin/users/:id - Get user details (admin only)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams,
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     await requireRole(request, ["admin"]);
 
@@ -58,8 +59,10 @@ export async function GET(
     return jsonResponse(successResponse(user));
   } catch (error) {
     console.error("Admin user fetch error:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch user";
-    const isAuthError = error instanceof Error && error.message.includes("required");
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch user";
+    const isAuthError =
+      error instanceof Error && error.message.includes("required");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
@@ -67,10 +70,7 @@ export async function GET(
 /**
  * PATCH /api/admin/users/:id - Update user (admin only)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams,
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const admin = await requireRole(request, ["admin"]);
     const body = await request.json();
@@ -141,8 +141,10 @@ export async function PATCH(
     );
   } catch (error) {
     console.error("Admin user update error:", error);
-    const message = error instanceof Error ? error.message : "Failed to update user";
-    const isAuthError = error instanceof Error && error.message.includes("required");
+    const message =
+      error instanceof Error ? error.message : "Failed to update user";
+    const isAuthError =
+      error instanceof Error && error.message.includes("required");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
@@ -150,10 +152,7 @@ export async function PATCH(
 /**
  * DELETE /api/admin/users/:id - Delete user (admin only)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams,
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const admin = await requireRole(request, ["admin"]);
     const { id } = await params;
@@ -196,14 +195,13 @@ export async function DELETE(
       "warning",
     );
 
-    return jsonResponse(
-      successResponse(null, "User deleted successfully"),
-    );
+    return jsonResponse(successResponse(null, "User deleted successfully"));
   } catch (error) {
     console.error("Admin user deletion error:", error);
-    const message = error instanceof Error ? error.message : "Failed to delete user";
-    const isAuthError = error instanceof Error && error.message.includes("required");
+    const message =
+      error instanceof Error ? error.message : "Failed to delete user";
+    const isAuthError =
+      error instanceof Error && error.message.includes("required");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
-

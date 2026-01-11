@@ -1,6 +1,13 @@
 "use client";
 
-import { TrendingUp, Package, Clock, CheckCircle2, Sparkles, Star } from "lucide-react";
+import {
+  TrendingUp,
+  Package,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { OrderStatus, Order } from "@/types";
 import { useUserSavings, useUserPoints } from "@/hooks/useAnalytics";
 
@@ -18,12 +25,13 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
 
   const totalOrders = orders.length;
   const totalSpent = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-  const activeOrders = orders.filter(order => 
-    order.status !== OrderStatus.DELIVERED && 
-    order.status !== OrderStatus.CANCELLED
+  const activeOrders = orders.filter(
+    (order) =>
+      order.status !== OrderStatus.DELIVERED &&
+      order.status !== OrderStatus.CANCELLED,
   ).length;
-  const completedOrders = orders.filter(order => 
-    order.status === OrderStatus.DELIVERED
+  const completedOrders = orders.filter(
+    (order) => order.status === OrderStatus.DELIVERED,
   ).length;
 
   return (
@@ -32,7 +40,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
         <TrendingUp className="w-6 h-6 text-elite-burgundy" />
         Order Overview
       </h2>
-      
+
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Total Orders */}
         <div className="bg-elite-cream/50 rounded-2xl p-4">

@@ -52,18 +52,24 @@ export async function GET(request: NextRequest) {
     });
 
     // Group by month for charts
-    const monthlyData: { [key: string]: { spending: number; savings: number; points: number } } = {};
-    const categoryData: { [key: string]: { spending: number; savings: number } } = {};
+    const monthlyData: {
+      [key: string]: { spending: number; savings: number; points: number };
+    } = {};
+    const categoryData: {
+      [key: string]: { spending: number; savings: number };
+    } = {};
 
     orders.forEach((order) => {
       const month = order.createdAt.toISOString().slice(0, 7); // "YYYY-MM"
-      
+
       if (!monthlyData[month]) {
         monthlyData[month] = { spending: 0, savings: 0, points: 0 };
       }
 
       monthlyData[month].spending += Number(order.total);
-      monthlyData[month].savings += order.savings ? Number(order.savings.totalSavings) : 0;
+      monthlyData[month].savings += order.savings
+        ? Number(order.savings.totalSavings)
+        : 0;
       monthlyData[month].points += order.points ? order.points.totalPoints : 0;
 
       // Group by category
@@ -109,9 +115,11 @@ export async function GET(request: NextRequest) {
         category,
         amount: data.spending,
       })),
-      averageOrderValue: orders.length > 0 
-        ? orders.reduce((sum, order) => sum + Number(order.total), 0) / orders.length 
-        : 0,
+      averageOrderValue:
+        orders.length > 0
+          ? orders.reduce((sum, order) => sum + Number(order.total), 0) /
+            orders.length
+          : 0,
     };
 
     return NextResponse.json({
@@ -129,13 +137,15 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching user analytics:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // Helper functions
-function calculateTrend(savingsByMonth: Array<{ month: string; amount: number }>): "up" | "down" | "stable" {
+function calculateTrend(
+  savingsByMonth: Array<{ month: string; amount: number }>,
+): "up" | "down" | "stable" {
   if (!savingsByMonth || savingsByMonth.length < 2) return "stable";
 
   const recent = savingsByMonth.slice(-2);
@@ -144,7 +154,9 @@ function calculateTrend(savingsByMonth: Array<{ month: string; amount: number }>
   return "stable";
 }
 
-function calculatePercentageChange(savingsByMonth: Array<{ month: string; amount: number }>): number {
+function calculatePercentageChange(
+  savingsByMonth: Array<{ month: string; amount: number }>,
+): number {
   if (!savingsByMonth || savingsByMonth.length < 2) return 0;
 
   const recent = savingsByMonth.slice(-2);
@@ -154,10 +166,16 @@ function calculatePercentageChange(savingsByMonth: Array<{ month: string; amount
   return Math.round(((current - previous) / previous) * 100);
 }
 
-function calculateProjectedEarnings(monthlyData: Record<string, { points: number; savings: number; spending: number }>): number {
+function calculateProjectedEarnings(
+  monthlyData: Record<
+    string,
+    { points: number; savings: number; spending: number }
+  >,
+): number {
   const months = Object.values(monthlyData);
   if (months.length === 0) return 0;
 
-  const avgPoints = months.reduce((sum: number, m) => sum + m.points, 0) / months.length;
+  const avgPoints =
+    months.reduce((sum: number, m) => sum + m.points, 0) / months.length;
   return Math.round(avgPoints);
 }

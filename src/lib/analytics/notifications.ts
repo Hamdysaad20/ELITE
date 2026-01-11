@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -12,68 +12,71 @@ interface TierBenefits {
 
 export const TIER_CONFIG: Record<string, TierBenefits> = {
   bronze: {
-    name: 'Bronze',
-    emoji: '🥉',
-    color: 'from-orange-600 to-orange-800',
-    benefits: ['Earn points on every order', 'Birthday month 2x points'],
+    name: "Bronze",
+    emoji: "🥉",
+    color: "from-orange-600 to-orange-800",
+    benefits: ["Earn points on every order", "Birthday month 2x points"],
     pointsRequired: 0,
   },
   silver: {
-    name: 'Silver',
-    emoji: '🥈',
-    color: 'from-gray-400 to-gray-600',
+    name: "Silver",
+    emoji: "🥈",
+    color: "from-gray-400 to-gray-600",
     benefits: [
-      'All Bronze benefits',
-      '5% bonus points on orders',
-      'Early access to new products',
-      'Priority customer support',
+      "All Bronze benefits",
+      "5% bonus points on orders",
+      "Early access to new products",
+      "Priority customer support",
     ],
     pointsRequired: 100000, // 1,000 EGP
   },
   gold: {
-    name: 'Gold',
-    emoji: '🥇',
-    color: 'from-yellow-400 to-yellow-600',
+    name: "Gold",
+    emoji: "🥇",
+    color: "from-yellow-400 to-yellow-600",
     benefits: [
-      'All Silver benefits',
-      '10% bonus points on orders',
-      'Free delivery on all orders',
-      'Exclusive gold member events',
-      'Birthday gift',
+      "All Silver benefits",
+      "10% bonus points on orders",
+      "Free delivery on all orders",
+      "Exclusive gold member events",
+      "Birthday gift",
     ],
     pointsRequired: 500000, // 5,000 EGP
   },
   platinum: {
-    name: 'Platinum',
-    emoji: '💎',
-    color: 'from-purple-400 to-purple-600',
+    name: "Platinum",
+    emoji: "💎",
+    color: "from-purple-400 to-purple-600",
     benefits: [
-      'All Gold benefits',
-      '15% bonus points on orders',
-      'Personal account manager',
-      'VIP lounge access',
-      'Exclusive platinum rewards',
-      'Partner discounts',
+      "All Gold benefits",
+      "15% bonus points on orders",
+      "Personal account manager",
+      "VIP lounge access",
+      "Exclusive platinum rewards",
+      "Partner discounts",
     ],
     pointsRequired: 1000000, // 10,000 EGP
   },
 };
 
 export function getTierByPoints(totalEarned: number): string {
-  if (totalEarned >= 1000000) return 'platinum';
-  if (totalEarned >= 500000) return 'gold';
-  if (totalEarned >= 100000) return 'silver';
-  return 'bronze';
+  if (totalEarned >= 1000000) return "platinum";
+  if (totalEarned >= 500000) return "gold";
+  if (totalEarned >= 100000) return "silver";
+  return "bronze";
 }
 
 export function getNextTier(currentTier: string): string | null {
-  const tiers = ['bronze', 'silver', 'gold', 'platinum'];
+  const tiers = ["bronze", "silver", "gold", "platinum"];
   const currentIndex = tiers.indexOf(currentTier);
   if (currentIndex === -1 || currentIndex === tiers.length - 1) return null;
   return tiers[currentIndex + 1];
 }
 
-export function getPointsToNextTier(currentTier: string, totalEarned: number): number {
+export function getPointsToNextTier(
+  currentTier: string,
+  totalEarned: number,
+): number {
   const nextTier = getNextTier(currentTier);
   if (!nextTier) return 0;
   return TIER_CONFIG[nextTier].pointsRequired - totalEarned;
@@ -82,14 +85,19 @@ export function getPointsToNextTier(currentTier: string, totalEarned: number): n
 export async function checkAndNotifyTierUpgrade(
   userId: string,
   previousPoints: number,
-  newPoints: number
+  newPoints: number,
 ): Promise<boolean> {
   const previousTier = getTierByPoints(previousPoints);
   const newTier = getTierByPoints(newPoints);
 
   if (previousTier !== newTier) {
     // Create tier upgrade notification
-    await createTierUpgradeNotification(userId, previousTier, newTier, newPoints);
+    await createTierUpgradeNotification(
+      userId,
+      previousTier,
+      newTier,
+      newPoints,
+    );
     return true;
   }
 
@@ -100,13 +108,15 @@ async function createTierUpgradeNotification(
   userId: string,
   previousTier: string,
   newTier: string,
-  totalPoints: number
+  totalPoints: number,
 ): Promise<void> {
   const tierInfo = TIER_CONFIG[newTier];
 
   // In a real app, you'd save this to a Notifications table
   // For now, we'll log it and could send via email/push
-  console.log(`🎉 TIER UPGRADE: User ${userId} upgraded from ${previousTier} to ${newTier}`);
+  console.log(
+    `🎉 TIER UPGRADE: User ${userId} upgraded from ${previousTier} to ${newTier}`,
+  );
 
   // You could integrate with services like:
   // - SendGrid for email notifications
@@ -115,7 +125,7 @@ async function createTierUpgradeNotification(
 
   const notification = {
     userId,
-    type: 'tier_upgrade',
+    type: "tier_upgrade",
     title: `Congratulations! You're now ${tierInfo.name} ${tierInfo.emoji}`,
     message: `You've been upgraded to ${tierInfo.name} tier with ${totalPoints.toLocaleString()} points! Enjoy your new benefits.`,
     data: {
@@ -140,11 +150,11 @@ export async function createPointsEarnedNotification(
   userId: string,
   points: number,
   orderId: string,
-  reason: string
+  reason: string,
 ): Promise<void> {
   const notification = {
     userId,
-    type: 'points_earned',
+    type: "points_earned",
     title: `+${points.toLocaleString()} Points Earned! ⭐`,
     message: `You earned ${points.toLocaleString()} points (worth EGP ${(points / 100).toFixed(2)}) ${reason}`,
     data: {
@@ -164,11 +174,11 @@ export async function createPointsEarnedNotification(
 export async function createSavingsMilestoneNotification(
   userId: string,
   totalSaved: number,
-  milestone: number
+  milestone: number,
 ): Promise<void> {
   const notification = {
     userId,
-    type: 'savings_milestone',
+    type: "savings_milestone",
     title: `💰 Savings Milestone Reached!`,
     message: `Congratulations! You've saved EGP ${totalSaved.toFixed(2)} total. You've reached the EGP ${milestone} savings milestone!`,
     data: {
@@ -185,7 +195,7 @@ export async function createSavingsMilestoneNotification(
 
 export async function checkSavingsMilestone(
   userId: string,
-  totalSaved: number
+  totalSaved: number,
 ): Promise<void> {
   const milestones = [100, 250, 500, 1000, 2500, 5000, 10000];
 

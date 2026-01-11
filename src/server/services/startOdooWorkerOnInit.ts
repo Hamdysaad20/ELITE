@@ -1,13 +1,13 @@
 /**
  * Auto-start Odoo worker when the application initializes
- * 
+ *
  * IMPORTANT: This implementation handles:
  * - Serverless environments (Vercel, Netlify, AWS Lambda)
  * - Multiple instances (horizontal scaling)
  * - Edge runtime compatibility
  * - Graceful degradation
  * - Resource cleanup
- * 
+ *
  * Strategy:
  * - Serverless: Use Redis-based distributed locking to ensure only ONE worker across all instances
  * - Traditional hosting: Start worker locally with proper lifecycle management
@@ -43,7 +43,9 @@ function isBuildTime(): boolean {
   return (
     process.env.NEXT_PHASE === "phase-production-build" ||
     process.env.NEXT_PHASE === "phase-development-build" ||
-    process.env.VERCEL_ENV === undefined && process.env.NODE_ENV === "production" && !process.env.VERCEL
+    (process.env.VERCEL_ENV === undefined &&
+      process.env.NODE_ENV === "production" &&
+      !process.env.VERCEL)
   );
 }
 
@@ -52,10 +54,12 @@ function isBuildTime(): boolean {
  */
 function isEdgeRuntime(): boolean {
   // Edge runtime doesn't have process.env or Node.js APIs
-  return typeof process === "undefined" || 
-         typeof process.env === "undefined" ||
-         // Check for Edge runtime specific globals (if available)
-         (typeof globalThis !== "undefined" && "EdgeRuntime" in globalThis);
+  return (
+    typeof process === "undefined" ||
+    typeof process.env === "undefined" ||
+    // Check for Edge runtime specific globals (if available)
+    (typeof globalThis !== "undefined" && "EdgeRuntime" in globalThis)
+  );
 }
 
 /**
@@ -75,17 +79,17 @@ async function acquireDistributedLock(): Promise<boolean> {
 
   try {
     const redis = await import("redis");
-    const client = redis.createClient({ 
+    const client = redis.createClient({
       url: process.env.REDIS_URL,
       socket: {
         reconnectStrategy: false, // Don't reconnect in serverless
       },
     });
-    
+
     await client.connect();
 
     const lockKey = "odoo:worker:lock";
-    const instanceId = process.env.VERCEL_REGION 
+    const instanceId = process.env.VERCEL_REGION
       ? `${process.env.VERCEL_REGION}-${process.env.VERCEL_INSTANCE_ID || Date.now()}`
       : `instance-${Date.now()}`;
     const lockValue = instanceId;
@@ -96,25 +100,27 @@ async function acquireDistributedLock(): Promise<boolean> {
     if (acquired) {
       await client.expire(lockKey, lockTTL);
       lockAcquired = true;
-      
+
       // Set up lock renewal interval
       lockCheckInterval = setInterval(async () => {
         try {
           const redis = await import("redis");
-          const renewalClient = redis.createClient({ 
+          const renewalClient = redis.createClient({
             url: process.env.REDIS_URL,
             socket: {
               reconnectStrategy: false,
             },
           });
           await renewalClient.connect();
-          
+
           const currentValue = await renewalClient.get(lockKey);
           if (currentValue === lockValue) {
             await renewalClient.expire(lockKey, lockTTL);
           } else {
             // Lock was lost, shutdown worker
-            console.warn("[odoo-worker] Lost distributed lock, shutting down worker");
+            console.warn(
+              "[odoo-worker] Lost distributed lock, shutting down worker",
+            );
             await shutdownWorker();
           }
           await renewalClient.quit();
@@ -128,7 +134,9 @@ async function acquireDistributedLock(): Promise<boolean> {
     }
 
     await client.quit();
-    console.log("[odoo-worker] Another instance is running the worker (distributed lock held)");
+    console.log(
+      "[odoo-worker] Another instance is running the worker (distributed lock held)",
+    );
     return false;
   } catch (error) {
     console.error("[odoo-worker] Failed to acquire distributed lock:", error);
@@ -157,14 +165,14 @@ async function releaseDistributedLock(): Promise<void> {
     }
 
     const redis = await import("redis");
-    const client = redis.createClient({ 
+    const client = redis.createClient({
       url: process.env.REDIS_URL,
       socket: {
         reconnectStrategy: false,
       },
     });
     await client.connect();
-    
+
     await client.del("odoo:worker:lock");
     await client.quit();
     lockAcquired = false;
@@ -213,7 +221,7 @@ function attachShutdownHandlers(): void {
 
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
-  
+
   // Handle uncaught errors
   process.on("uncaughtException", async (error) => {
     console.error("[odoo-worker] Uncaught exception:", error);
@@ -232,7 +240,9 @@ function attachShutdownHandlers(): void {
 /**
  * Start the Odoo worker if conditions are met
  */
-export async function initializeOdooWorker(): Promise<ReturnType<typeof startOdooWorker> | null> {
+export async function initializeOdooWorker(): Promise<ReturnType<
+  typeof startOdooWorker
+> | null> {
   // Only start once per instance
   if (workerStarted) {
     return worker;
@@ -252,7 +262,9 @@ export async function initializeOdooWorker(): Promise<ReturnType<typeof startOdo
 
   // Don't start if Redis is not configured (fallback sync will handle it)
   if (!process.env.REDIS_URL) {
-    console.log("[odoo-worker] Skipping worker start (REDIS_URL not configured, using fallback sync)");
+    console.log(
+      "[odoo-worker] Skipping worker start (REDIS_URL not configured, using fallback sync)",
+    );
     return null;
   }
 
@@ -271,7 +283,7 @@ export async function initializeOdooWorker(): Promise<ReturnType<typeof startOdo
     if (worker) {
       workerStarted = true;
       attachShutdownHandlers();
-      
+
       // Set up worker event listeners for better observability
       worker.on("completed", (job) => {
         console.log(`[odoo-worker] Job ${job.id} completed`);
@@ -285,7 +297,10 @@ export async function initializeOdooWorker(): Promise<ReturnType<typeof startOdo
         console.error("[odoo-worker] Worker error:", err);
       });
 
-      console.log("[odoo-worker] Auto-started successfully" + (isServerless() ? " (with distributed lock)" : ""));
+      console.log(
+        "[odoo-worker] Auto-started successfully" +
+          (isServerless() ? " (with distributed lock)" : ""),
+      );
     } else {
       console.log("[odoo-worker] Worker not started (Redis not configured)");
       await releaseDistributedLock();
@@ -301,7 +316,12 @@ export async function initializeOdooWorker(): Promise<ReturnType<typeof startOdo
 
 // Auto-initialize when module is loaded (only in Node.js environment)
 // Skip during build time to avoid starting worker during Next.js build
-if (!isBuildTime() && !isEdgeRuntime() && typeof process !== "undefined" && process.env) {
+if (
+  !isBuildTime() &&
+  !isEdgeRuntime() &&
+  typeof process !== "undefined" &&
+  process.env
+) {
   // Use setImmediate to avoid blocking module loading
   // In serverless, this will run on first API call
   setImmediate(async () => {
@@ -310,11 +330,13 @@ if (!isBuildTime() && !isEdgeRuntime() && typeof process !== "undefined" && proc
     // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
     // - Can be disabled by setting ENABLE_ODOO_WORKER=false
     const shouldStart = process.env.ENABLE_ODOO_WORKER !== "false";
-    
+
     if (shouldStart) {
       await initializeOdooWorker();
     } else {
-      console.log("[odoo-worker] Auto-start disabled (ENABLE_ODOO_WORKER=false)");
+      console.log(
+        "[odoo-worker] Auto-start disabled (ENABLE_ODOO_WORKER=false)",
+      );
     }
   });
 }

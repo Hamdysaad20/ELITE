@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 
 export interface LocalCartItem {
-  id: string;           // Unique cart item ID
-  productId: string;    // Odoo product ID
-  name: string;         // Product name
-  basePrice: number;    // Base product price
+  id: string; // Unique cart item ID
+  productId: string; // Odoo product ID
+  name: string; // Product name
+  basePrice: number; // Base product price
   quantity: number;
   attributes: {
     [attributeName: string]: {
@@ -15,12 +15,12 @@ export interface LocalCartItem {
       priceExtra: number;
     }[];
   };
-  totalPrice: number;   // (basePrice + sum(priceExtra)) * quantity
-  image?: string;       // First product image
+  totalPrice: number; // (basePrice + sum(priceExtra)) * quantity
+  image?: string; // First product image
 }
 
-const STORAGE_KEY = 'elite_cart';
-const EVENT_KEY = 'elite_cart_updated';
+const STORAGE_KEY = "elite_cart";
+const EVENT_KEY = "elite_cart_updated";
 
 // Simple UUID generator
 function generateId(): string {
@@ -28,11 +28,14 @@ function generateId(): string {
 }
 
 // Generate unique key for cart item (product + attributes combination)
-const getItemKey = (productId: string, attributes: LocalCartItem['attributes']): string => {
+const getItemKey = (
+  productId: string,
+  attributes: LocalCartItem["attributes"],
+): string => {
   const sortedAttrs = JSON.stringify(
     Object.entries(attributes)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => [k, v.sort((a, b) => a.valueId - b.valueId)])
+      .map(([k, v]) => [k, v.sort((a, b) => a.valueId - b.valueId)]),
   );
   return `${productId}-${sortedAttrs}`;
 };
@@ -52,7 +55,7 @@ export function useLocalCart() {
         setItems([]);
       }
     } catch (error) {
-      console.error('Error loading cart from localStorage:', error);
+      console.error("Error loading cart from localStorage:", error);
     } finally {
       setIsLoading(false);
     }
@@ -63,13 +66,13 @@ export function useLocalCart() {
     loadCart();
 
     const handleStorageChange = () => loadCart();
-    
+
     window.addEventListener(EVENT_KEY, handleStorageChange);
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
       window.removeEventListener(EVENT_KEY, handleStorageChange);
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
@@ -80,12 +83,12 @@ export function useLocalCart() {
       window.dispatchEvent(new Event(EVENT_KEY));
       setItems(newItems);
     } catch (error) {
-      console.error('Error saving cart to localStorage:', error);
+      console.error("Error saving cart to localStorage:", error);
     }
   };
 
   // Add item to cart
-  const addItem = (newItem: Omit<LocalCartItem, 'id'>): void => {
+  const addItem = (newItem: Omit<LocalCartItem, "id">): void => {
     // Read latest state from localStorage to ensure we have the most up-to-date list
     let currentItems: LocalCartItem[] = [];
     try {
@@ -96,10 +99,10 @@ export function useLocalCart() {
     }
 
     const itemKey = getItemKey(newItem.productId, newItem.attributes);
-    
+
     // Check if identical item exists (same product + same attributes)
-    const existingIndex = currentItems.findIndex(item => 
-      getItemKey(item.productId, item.attributes) === itemKey
+    const existingIndex = currentItems.findIndex(
+      (item) => getItemKey(item.productId, item.attributes) === itemKey,
     );
 
     let updatedItems;
@@ -115,7 +118,7 @@ export function useLocalCart() {
       // Add new item
       updatedItems = [...currentItems, { ...newItem, id: generateId() }];
     }
-    
+
     saveCart(updatedItems);
   };
 
@@ -129,7 +132,7 @@ export function useLocalCart() {
       currentItems = items;
     }
 
-    const updatedItems = currentItems.filter(item => item.id !== itemId);
+    const updatedItems = currentItems.filter((item) => item.id !== itemId);
     saveCart(updatedItems);
   };
 
@@ -148,7 +151,7 @@ export function useLocalCart() {
       currentItems = items;
     }
 
-    const updatedItems = currentItems.map(item => {
+    const updatedItems = currentItems.map((item) => {
       if (item.id === itemId) {
         // Recalculate total price based on new quantity
         const pricePerUnit = item.totalPrice / item.quantity;

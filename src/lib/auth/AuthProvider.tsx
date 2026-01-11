@@ -20,4 +20,3 @@ export function AuthProvider({ children, session }: AuthProviderProps) {
     </SessionProvider>
   );
 }
-

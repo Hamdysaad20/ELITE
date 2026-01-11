@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 export async function GET() {
   // Check critical environment variables
   const checks = {
-    NEXTAUTH_SECRET: !!process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET !== "placeholder-for-build",
+    NEXTAUTH_SECRET:
+      !!process.env.NEXTAUTH_SECRET &&
+      process.env.NEXTAUTH_SECRET !== "placeholder-for-build",
     NEXTAUTH_URL: !!process.env.NEXTAUTH_URL,
     EMAIL_SERVER_HOST: !!process.env.EMAIL_SERVER_HOST,
     EMAIL_SERVER_USER: !!process.env.EMAIL_SERVER_USER,

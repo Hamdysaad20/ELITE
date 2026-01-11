@@ -243,4 +243,3 @@ export interface PaymentStatusResponse {
   paidAt: string | null;
   error: string | null;
 }
-

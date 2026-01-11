@@ -39,38 +39,38 @@ export default function QuantitySelector({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    
+
     // Allow empty string while typing
-    if (newValue === '') {
-      setInputValue('');
+    if (newValue === "") {
+      setInputValue("");
       return;
     }
-    
+
     // Only allow numbers
     if (!/^\d+$/.test(newValue)) {
       return;
     }
-    
+
     setInputValue(newValue);
   };
 
   const handleInputBlur = () => {
     let numValue = parseInt(inputValue, 10);
-    
+
     // Handle invalid or empty input
-    if (isNaN(numValue) || inputValue === '') {
+    if (isNaN(numValue) || inputValue === "") {
       numValue = min;
     }
-    
+
     // Clamp to min/max
     numValue = Math.max(min, Math.min(max, numValue));
-    
+
     setInputValue(numValue.toString());
     onChange(numValue);
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleInputBlur();
       e.currentTarget.blur();
     }
@@ -78,7 +78,9 @@ export default function QuantitySelector({
 
   return (
     <div className="flex items-center gap-3">
-      <span className="font-cabin text-elite-black/70 font-medium text-lg">Quantity:</span>
+      <span className="font-cabin text-elite-black/70 font-medium text-lg">
+        Quantity:
+      </span>
       <div className="flex items-center gap-2 bg-transparent rounded-xl border border-elite-burgundy/20 overflow-hidden">
         <button
           onClick={handleDecrement}
@@ -92,7 +94,7 @@ export default function QuantitySelector({
         >
           <Minus className="w-5 h-5" />
         </button>
-        
+
         <input
           type="text"
           value={inputValue}
@@ -103,7 +105,7 @@ export default function QuantitySelector({
           className="w-16 text-center font-cabin font-bold text-xl text-elite-burgundy bg-transparent focus:outline-none focus:bg-elite-cream/50 transition-colors disabled:text-elite-black/30"
           aria-label="Quantity"
         />
-        
+
         <button
           onClick={handleIncrement}
           disabled={disabled || value >= max}
@@ -117,7 +119,7 @@ export default function QuantitySelector({
           <Plus className="w-5 h-5" />
         </button>
       </div>
-      
+
       {max && (
         <span className="font-cabin text-elite-black/40 text-base">
           Max: {max}

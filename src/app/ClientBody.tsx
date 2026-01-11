@@ -22,23 +22,25 @@ export default function ClientBody({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  
+
   // Hide cart and mobile nav on auth pages and order page
-  const isAuthPage = pathname?.startsWith("/auth") || pathname?.includes("verify");
+  const isAuthPage =
+    pathname?.startsWith("/auth") || pathname?.includes("verify");
   const isOrderPage = pathname === "/order";
-  
+
   // Handle initialization after hydration is complete
   useEffect(() => {
     // Ensure we're in the browser
-    if (typeof window === "undefined" || typeof document === "undefined") return;
+    if (typeof window === "undefined" || typeof document === "undefined")
+      return;
 
     try {
       // Initialize navigation state
       createNavigationState();
-      
+
       // Prevent layout shifts
       preventLayoutShift();
-      
+
       // Setup offline request queue support
       setupOfflineSupport();
     } catch (error) {
@@ -57,7 +59,8 @@ export default function ClientBody({
 
   // Handle page visibility changes
   useEffect(() => {
-    if (typeof window === "undefined" || typeof document === "undefined") return;
+    if (typeof window === "undefined" || typeof document === "undefined")
+      return;
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -104,9 +107,7 @@ export default function ClientBody({
           {!isOrderPage && <CartButton />}
         </>
       )}
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <ToastProvider>{children}</ToastProvider>
       {!isAuthPage && <MobileNavigation />}
     </AuthProvider>
   );

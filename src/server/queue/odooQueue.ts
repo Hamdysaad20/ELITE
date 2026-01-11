@@ -29,7 +29,13 @@ export type OdooJobData = {
 
 export const odooQueue =
   process.env.REDIS_URL &&
-  new Queue<OdooJobData>("odoo-sync", { connection, defaultJobOptions: { attempts: 3, backoff: { type: "exponential", delay: 2000 } } });
+  new Queue<OdooJobData>("odoo-sync", {
+    connection,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: { type: "exponential", delay: 2000 },
+    },
+  });
 
 export function createOdooWorker(
   handler: (job: Job<OdooJobData>) => Promise<void>,
@@ -52,4 +58,3 @@ export function createOdooQueueEvents() {
   if (!process.env.REDIS_URL) return null;
   return new QueueEvents("odoo-sync", { connection });
 }
-

@@ -1,4 +1,9 @@
-import { redisIncr, redisGet, redisSet, redisExpire } from "@/server/cache/redis";
+import {
+  redisIncr,
+  redisGet,
+  redisSet,
+  redisExpire,
+} from "@/server/cache/redis";
 
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
@@ -113,7 +118,9 @@ export function getClientIp(request: Request): string {
 export async function enforceRateLimit(
   identifier: string,
   config: RateLimitConfig,
-): Promise<{ allowed: true } | { allowed: false; error: string; resetAt: Date }> {
+): Promise<
+  { allowed: true } | { allowed: false; error: string; resetAt: Date }
+> {
   const result = await checkRateLimit(identifier, config);
 
   if (!result.allowed) {
@@ -126,4 +133,3 @@ export async function enforceRateLimit(
 
   return { allowed: true };
 }
-

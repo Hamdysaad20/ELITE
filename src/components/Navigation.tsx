@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, User, Settings, ShoppingBag, MapPin, LogOut, ChevronDown } from "lucide-react";
+import {
+  X,
+  User,
+  Settings,
+  ShoppingBag,
+  MapPin,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -33,7 +41,10 @@ export default function Navigation() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setProfileDropdownOpen(false);
       }
     };
@@ -91,18 +102,14 @@ export default function Navigation() {
                 href="/menu"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span className="text-base uppercase">
-                  Menu
-                </span>
+                <span className="text-base uppercase">Menu</span>
               </Link>
               <a
                 href="#location"
                 onClick={handleLocationClick}
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span className="text-base uppercase">
-                  Location
-                </span>
+                <span className="text-base uppercase">Location</span>
               </a>
 
               {/* Center Logo */}
@@ -121,18 +128,14 @@ export default function Navigation() {
                 href="/deals"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20"
               >
-                <span className="text-base uppercase">
-                  Deals
-                </span>
+                <span className="text-base uppercase">Deals</span>
               </Link>
 
               <Link
                 href="/shop"
                 className="text-elite-black hover:bg-elite-burgundy hover:text-elite-white px-6 py-4 rounded-full transition-all duration-300 font-cabin font-bold tracking-wider hover:scale-110 transform hover:shadow-xl hover:shadow-elite-burgundy/30 border-2 border-transparent hover:border-elite-burgundy/20 relative"
               >
-                <span className="text-base uppercase">
-                  Shop
-                </span>
+                <span className="text-base uppercase">Shop</span>
                 <span className="absolute -top-2 -right-2 bg-elite-burgundy text-elite-cream text-xs px-2 py-1 rounded-full font-bold">
                   Soon
                 </span>
@@ -215,7 +218,9 @@ export default function Navigation() {
                         <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
                           <ShoppingBag className="w-5 h-5 text-elite-burgundy" />
                         </div>
-                        <span className="font-cabin font-semibold text-elite-black">My Orders</span>
+                        <span className="font-cabin font-semibold text-elite-black">
+                          My Orders
+                        </span>
                       </Link>
                       <Link
                         href="/profile"
@@ -225,7 +230,9 @@ export default function Navigation() {
                         <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
                           <MapPin className="w-5 h-5 text-elite-burgundy" />
                         </div>
-                        <span className="font-cabin font-semibold text-elite-black">Addresses</span>
+                        <span className="font-cabin font-semibold text-elite-black">
+                          Addresses
+                        </span>
                       </Link>
                       <Link
                         href="/settings"
@@ -235,7 +242,9 @@ export default function Navigation() {
                         <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors duration-300">
                           <Settings className="w-5 h-5 text-elite-burgundy" />
                         </div>
-                        <span className="font-cabin font-semibold text-elite-black">Settings</span>
+                        <span className="font-cabin font-semibold text-elite-black">
+                          Settings
+                        </span>
                       </Link>
                     </div>
 
@@ -251,7 +260,9 @@ export default function Navigation() {
                         <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors duration-300">
                           <LogOut className="w-5 h-5 text-red-600" />
                         </div>
-                        <span className="font-cabin font-semibold text-red-600">Sign Out</span>
+                        <span className="font-cabin font-semibold text-red-600">
+                          Sign Out
+                        </span>
                       </button>
                     </div>
                   </div>

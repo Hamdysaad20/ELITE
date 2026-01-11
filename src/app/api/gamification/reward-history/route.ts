@@ -6,7 +6,11 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,31 +26,34 @@ export async function GET(request: NextRequest) {
 
     return jsonResponse(
       successResponse({
-        events: rewardEvents.map((event: {
-          id: string;
-          triggerType: string;
-          triggerId: string | null;
-          rewards: unknown;
-          status: string;
-          createdAt: Date;
-          processedAt: Date | null;
-        }) => ({
-          id: event.id,
-          triggerType: event.triggerType,
-          triggerId: event.triggerId,
-          rewards: event.rewards,
-          status: event.status,
-          createdAt: event.createdAt,
-          processedAt: event.processedAt,
-        })),
+        events: rewardEvents.map(
+          (event: {
+            id: string;
+            triggerType: string;
+            triggerId: string | null;
+            rewards: unknown;
+            status: string;
+            createdAt: Date;
+            processedAt: Date | null;
+          }) => ({
+            id: event.id,
+            triggerType: event.triggerType,
+            triggerId: event.triggerId,
+            rewards: event.rewards,
+            status: event.status,
+            createdAt: event.createdAt,
+            processedAt: event.processedAt,
+          }),
+        ),
         total: rewardEvents.length,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error fetching reward history:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch reward history";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch reward history";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
-

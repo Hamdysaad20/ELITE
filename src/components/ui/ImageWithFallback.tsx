@@ -44,7 +44,7 @@ export default function ImageWithFallback({
   // Handle multiple images - create array
   const rawImages = Array.isArray(src) ? src : src ? [src] : [];
   // Filter out images that have failed to load
-  const images = rawImages.filter(img => !failedSrcs.has(img));
+  const images = rawImages.filter((img) => !failedSrcs.has(img));
 
   // Reset failure state if src prop changes entirely (optional, but good practice)
   const rawImagesKey = JSON.stringify(rawImages);
@@ -71,7 +71,7 @@ export default function ImageWithFallback({
   const handleError = () => {
     if (currentSrc) {
       console.warn(`Image load failed: ${currentSrc}`);
-      setFailedSrcs(prev => {
+      setFailedSrcs((prev) => {
         const next = new Set(prev);
         next.add(currentSrc);
         return next;
@@ -95,15 +95,15 @@ export default function ImageWithFallback({
       <div
         className={cn(
           "relative bg-elite-dark-cream flex items-center justify-center",
-          className
+          className,
         )}
         style={
           fill
             ? undefined
             : {
-              width: width || "100%",
-              height: height || "100%",
-            }
+                width: width || "100%",
+                height: height || "100%",
+              }
         }
       >
         {showErrorIcon ? (
@@ -136,7 +136,7 @@ export default function ImageWithFallback({
         <div
           className={cn(
             "absolute inset-0 bg-elite-dark-cream animate-pulse",
-            className
+            className,
           )}
         />
       )}
@@ -153,15 +153,15 @@ export default function ImageWithFallback({
           style={
             fill
               ? {
-                width: "100%",
-                height: "100%",
-                objectFit,
-              }
+                  width: "100%",
+                  height: "100%",
+                  objectFit,
+                }
               : {
-                width: width || "100%",
-                height: height || "100%",
-                objectFit,
-              }
+                  width: width || "100%",
+                  height: height || "100%",
+                  objectFit,
+                }
           }
         />
       ) : (
@@ -189,9 +189,9 @@ export default function ImageWithFallback({
               onClick={() => setCurrentImageIndex(index)}
               className={cn(
                 "w-1.5 h-1.5 rounded-full transition-all",
-                index === (currentImageIndex % images.length)
+                index === currentImageIndex % images.length
                   ? "bg-elite-cream w-4"
-                  : "bg-elite-cream/50 hover:bg-elite-cream/75"
+                  : "bg-elite-cream/50 hover:bg-elite-cream/75",
               )}
               aria-label={`View image ${index + 1}`}
             />

@@ -47,7 +47,7 @@ export const BONUS_REWARDS = {
  * Triggered when order status changes to DELIVERED
  */
 export async function calculateOrderPoints(
-  orderId: string
+  orderId: string,
 ): Promise<OrderPointsData | null> {
   try {
     const order = await prisma.order.findUnique({
@@ -136,7 +136,7 @@ export async function calculateOrderPoints(
       order.userId,
       totalPoints,
       orderId,
-      `from your order`
+      `from your order`,
     );
 
     return {
@@ -146,7 +146,8 @@ export async function calculateOrderPoints(
       bonusPoints: orderPoints.bonusPoints,
       multiplier: Number(orderPoints.multiplier),
       totalPoints: orderPoints.totalPoints,
-      pointsBreakdown: orderPoints.pointsBreakdown as unknown as PointsBreakdownItem[],
+      pointsBreakdown:
+        orderPoints.pointsBreakdown as unknown as PointsBreakdownItem[],
       expiresAt: orderPoints.expiresAt,
     };
   } catch (error) {
@@ -163,7 +164,7 @@ export async function updateUserPoints(
   points: number,
   type: "earn" | "redeem" | "expire" | "adjust",
   orderId?: string,
-  reason?: string
+  reason?: string,
 ): Promise<void> {
   try {
     const existing = await prisma.userPoints.findUnique({
@@ -175,9 +176,9 @@ export async function updateUserPoints(
     let newTotalRedeemed: number;
 
     if (existing) {
-      newBalance = existing.totalPoints + (type === "redeem" ? -points : points);
-      newTotalEarned =
-        existing.totalEarned + (type === "earn" ? points : 0);
+      newBalance =
+        existing.totalPoints + (type === "redeem" ? -points : points);
+      newTotalEarned = existing.totalEarned + (type === "earn" ? points : 0);
       newTotalRedeemed =
         existing.totalRedeemed + (type === "redeem" ? points : 0);
     } else {
@@ -194,7 +195,7 @@ export async function updateUserPoints(
       await checkAndNotifyTierUpgrade(
         userId,
         existing.totalEarned,
-        newTotalEarned
+        newTotalEarned,
       );
     }
 
@@ -224,8 +225,7 @@ export async function updateUserPoints(
       type,
       amount: type === "redeem" ? -points : points,
       balance: newBalance,
-      reason:
-        reason || (orderId ? `Order #${orderId}` : `${type} transaction`),
+      reason: reason || (orderId ? `Order #${orderId}` : `${type} transaction`),
       orderId,
     });
   } catch (error) {
@@ -244,7 +244,8 @@ export function calculateUserTier(totalEarned: number): {
     if (totalEarned >= threshold.min && totalEarned <= threshold.max) {
       return {
         tier: tierName,
-        nextTierAt: threshold.max === Infinity ? threshold.max : threshold.max + 1,
+        nextTierAt:
+          threshold.max === Infinity ? threshold.max : threshold.max + 1,
       };
     }
   }
@@ -300,7 +301,7 @@ async function isUserFirstOrder(userId: string): Promise<boolean> {
 function checkBirthdayMonth(createdAt: Date): boolean {
   const currentMonth = new Date().getMonth();
   const accountMonth = new Date(createdAt).getMonth();
-  
+
   // For demo: Give birthday bonus if account was created in current month
   return currentMonth === accountMonth;
 }
@@ -310,7 +311,7 @@ function checkBirthdayMonth(createdAt: Date): boolean {
  */
 export async function awardReferralPoints(
   referrerId: string,
-  referredUserId: string
+  referredUserId: string,
 ): Promise<void> {
   try {
     // Check if referred user completed their first order
@@ -351,11 +352,11 @@ export async function awardReferralPoints(
       BONUS_REWARDS.referral,
       "earn",
       undefined,
-      `Referral bonus for user ${referredUserId}`
+      `Referral bonus for user ${referredUserId}`,
     );
 
     console.log(
-      `Awarded ${BONUS_REWARDS.referral} referral points to ${referrerId}`
+      `Awarded ${BONUS_REWARDS.referral} referral points to ${referrerId}`,
     );
   } catch (error) {
     console.error("Error awarding referral points:", error);
@@ -367,7 +368,7 @@ export async function awardReferralPoints(
  */
 export async function awardReviewPoints(
   userId: string,
-  reviewId: string
+  reviewId: string,
 ): Promise<void> {
   try {
     await updateUserPoints(
@@ -375,7 +376,7 @@ export async function awardReviewPoints(
       BONUS_REWARDS.review,
       "earn",
       undefined,
-      `Review bonus for review ${reviewId}`
+      `Review bonus for review ${reviewId}`,
     );
 
     console.log(`Awarded ${BONUS_REWARDS.review} review points to ${userId}`);
@@ -432,7 +433,7 @@ export async function getUserPoints(userId: string) {
  */
 export async function getPointsTransactions(
   userId: string,
-  limit: number = 50
+  limit: number = 50,
 ) {
   try {
     const transactions = await prisma.pointsTransaction.findMany({

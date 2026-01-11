@@ -49,7 +49,7 @@ export function useSwipeBack({
           isSwipingBack.current = true;
           onSwipeStart?.();
         }
-        
+
         // Update swipe progress for visual feedback (0 to 1)
         const progress = Math.min(diffX / threshold, 1);
         setSwipeProgress(progress);
@@ -76,7 +76,9 @@ export function useSwipeBack({
     };
 
     // Add listeners to document for global swipe-back
-    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: true,
+    });
     document.addEventListener("touchmove", handleTouchMove, { passive: true });
     document.addEventListener("touchend", handleTouchEnd, { passive: true });
 

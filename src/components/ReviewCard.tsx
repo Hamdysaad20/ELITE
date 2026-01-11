@@ -20,7 +20,9 @@ export function ReviewCard({ review }: ReviewCardProps) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-semibold text-elite-black font-cabin text-sm sm:text-base truncate">{review.user.name}</p>
+              <p className="font-semibold text-elite-black font-cabin text-sm sm:text-base truncate">
+                {review.user.name}
+              </p>
               {review.verified && (
                 <span className="inline-flex items-center gap-1 bg-elite-burgundy/10 text-elite-burgundy text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-elite-burgundy/20 flex-shrink-0">
                   <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -65,7 +67,9 @@ export function ReviewCard({ review }: ReviewCardProps) {
       <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-elite-burgundy/10">
         <button className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-elite-burgundy/70 hover:text-elite-burgundy hover:bg-elite-burgundy/5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-all duration-200 active:scale-95 touch-manipulation">
           <ThumbsUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          <span className="font-cabin font-medium">Helpful ({review.helpful})</span>
+          <span className="font-cabin font-medium">
+            Helpful ({review.helpful})
+          </span>
         </button>
       </div>
     </div>
@@ -79,7 +83,12 @@ interface ReviewFormProps {
   submitting: boolean;
 }
 
-export function ReviewForm({ productId, productName, onSubmit, submitting }: ReviewFormProps) {
+export function ReviewForm({
+  productId,
+  productName,
+  onSubmit,
+  submitting,
+}: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -87,7 +96,7 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (rating === 0) {
       toastError("Please select a rating");
       return;
@@ -143,7 +152,10 @@ export function ReviewForm({ productId, productName, onSubmit, submitting }: Rev
 
       {/* Comment */}
       <div>
-        <label htmlFor="comment" className="block text-sm font-semibold text-elite-black mb-3 font-cabin">
+        <label
+          htmlFor="comment"
+          className="block text-sm font-semibold text-elite-black mb-3 font-cabin"
+        >
           Share your experience (Optional)
         </label>
         <textarea
@@ -191,7 +203,9 @@ export function ReviewStats({ stats }: ReviewStatsProps) {
     <div className="bg-gradient-to-br from-elite-cream to-elite-dark-cream rounded-3xl border-2 border-elite-burgundy/20 p-6 sm:p-8 shadow-lg">
       <div className="flex items-center justify-between flex-wrap gap-6">
         <div>
-          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">Average Rating</p>
+          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">
+            Average Rating
+          </p>
           <div className="flex items-baseline gap-3">
             <p className="text-5xl sm:text-6xl font-bold text-elite-burgundy font-calistoga">
               {stats.averageRating.toFixed(1)}
@@ -211,11 +225,14 @@ export function ReviewStats({ stats }: ReviewStatsProps) {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">Total Reviews</p>
-          <p className="text-4xl sm:text-5xl font-bold text-elite-burgundy font-calistoga">{stats.total}</p>
+          <p className="text-sm text-elite-black/70 font-cabin mb-2 font-semibold">
+            Total Reviews
+          </p>
+          <p className="text-4xl sm:text-5xl font-bold text-elite-burgundy font-calistoga">
+            {stats.total}
+          </p>
         </div>
       </div>
     </div>
   );
 }
-

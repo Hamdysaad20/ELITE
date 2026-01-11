@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/auth/apiClient";
 
 export interface Product {
   id: string;
-  name: string;              // Standardized to match Odoo and components
+  name: string; // Standardized to match Odoo and components
   description?: string | null;
   price: number;
   categoryId?: string;
@@ -13,9 +13,12 @@ export interface Product {
   images?: string[];
   available?: boolean;
   sku?: string;
-  stock?: number | null;     // Stock level
-  sequence?: number;         // Sort order
-  attributes?: Record<string, Array<{ id: number; name: string; priceExtra: number }>>;
+  stock?: number | null; // Stock level
+  sequence?: number; // Sort order
+  attributes?: Record<
+    string,
+    Array<{ id: number; name: string; priceExtra: number }>
+  >;
   uom?: { id: number; name: string };
   taxes?: number[];
 }
@@ -49,20 +52,22 @@ interface UseProductsReturn {
 
 /**
  * Hook to fetch products from the API (cache-backed)
- * 
+ *
  * @example
  * ```tsx
  * const { products, loading, error } = useProducts({ categoryId: "coffee" });
- * 
+ *
  * if (loading) return <Spinner />;
  * if (error) return <Error message={error} />;
- * 
+ *
  * return products.map(p => <ProductCard key={p.id} product={p} />);
  * ```
  */
-export function useProducts(options: UseProductsOptions = {}): UseProductsReturn {
+export function useProducts(
+  options: UseProductsOptions = {},
+): UseProductsReturn {
   const { categoryId, search, available, autoFetch = true } = options;
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(autoFetch);
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +83,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsReturn
       const params = new URLSearchParams();
       if (categoryId) params.append("categoryId", categoryId);
       if (search) params.append("search", search);
-      if (available !== undefined) params.append("available", String(available));
-      
+      if (available !== undefined)
+        params.append("available", String(available));
+
       // For menu page (no filters), fetch all products to ensure all categories have items
       // Default pageSize is 50, but we have ~200 products, so increase it
       if (!categoryId && !search && available === undefined) {
@@ -87,20 +93,29 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsReturn
       }
 
       const url = `/api/products${params.toString() ? `?${params.toString()}` : ""}`;
-      
+
       const response = await apiClient.get<ProductsResponse>(url);
-      
+
       setProducts(response.items || []);
       setLastUpdate(response.lastUpdate || null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load products";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load products";
       setError(errorMessage);
       console.error("Failed to fetch products:", err);
-      
+
       // Provide user-friendly error messages
-      if (errorMessage.includes("503") || errorMessage.includes("cache is empty")) {
-        setError("Product catalog is being synchronized. Please try again in a moment.");
-      } else if (errorMessage.includes("Network") || errorMessage.includes("Failed to fetch")) {
+      if (
+        errorMessage.includes("503") ||
+        errorMessage.includes("cache is empty")
+      ) {
+        setError(
+          "Product catalog is being synchronized. Please try again in a moment.",
+        );
+      } else if (
+        errorMessage.includes("Network") ||
+        errorMessage.includes("Failed to fetch")
+      ) {
         setError("Unable to connect. Please check your internet connection.");
       } else if (errorMessage.includes("timeout")) {
         setError("Request timed out. Please try again.");
@@ -156,13 +171,15 @@ export function useProduct(productId: string | null) {
         setLoading(true);
         setError(null);
 
-        const response = await apiClient.get<{ product: Product; lastUpdate?: string }>(
-          `/api/products/${productId}`,
-        );
+        const response = await apiClient.get<{
+          product: Product;
+          lastUpdate?: string;
+        }>(`/api/products/${productId}`);
 
         setProduct(response.product);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load product";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load product";
         setError(errorMessage);
         console.error("Failed to fetch product:", err);
       } finally {
@@ -175,5 +192,3 @@ export function useProduct(productId: string | null) {
 
   return { product, loading, error };
 }
-
-

@@ -71,7 +71,7 @@ export default function Modal({
             ref={overlayRef}
             className={cn(
               "absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200",
-              isClosing ? "opacity-0" : "opacity-100"
+              isClosing ? "opacity-0" : "opacity-100",
             )}
             onClick={handleClose}
             aria-hidden="true"
@@ -83,7 +83,7 @@ export default function Modal({
             className={cn(
               "relative w-full max-h-[92vh] transform overflow-hidden rounded-t-[28px] bg-white shadow-2xl transition-transform duration-300 ease-out",
               isClosing ? "translate-y-full" : "translate-y-0",
-              className
+              className,
             )}
             role="dialog"
             aria-modal="true"
@@ -121,7 +121,7 @@ export default function Modal({
         <div
           className={cn(
             "absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200",
-            isClosing ? "opacity-0" : "opacity-100"
+            isClosing ? "opacity-0" : "opacity-100",
           )}
           onClick={handleClose}
           aria-hidden="true"
@@ -132,16 +132,14 @@ export default function Modal({
           className={cn(
             "relative w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-200",
             isClosing ? "opacity-0 scale-95" : "opacity-100 scale-100",
-            className
+            className,
           )}
           role="dialog"
           aria-modal="true"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-elite-burgundy/10">
-            <h3 className="font-calistoga text-xl text-elite-black">
-              {title}
-            </h3>
+            <h3 className="font-calistoga text-xl text-elite-black">{title}</h3>
             <button
               onClick={handleClose}
               className="rounded-full w-10 h-10 flex items-center justify-center text-elite-black/50 hover:bg-elite-burgundy/5 hover:text-elite-burgundy transition-colors"
@@ -152,12 +150,10 @@ export default function Modal({
           </div>
 
           {/* Body */}
-          <div className="max-h-[80vh] overflow-y-auto">
-            {children}
-          </div>
+          <div className="max-h-[80vh] overflow-y-auto">{children}</div>
         </div>
       </div>
     </>,
-    document.body
+    document.body,
   );
 }

@@ -1,6 +1,6 @@
 /**
  * Badge Service
- * 
+ *
  * Handles badge unlocking and display
  */
 
@@ -23,7 +23,7 @@ export interface BadgeData {
  */
 export async function userHasBadge(
   userId: string,
-  badgeCode: string
+  badgeCode: string,
 ): Promise<boolean> {
   try {
     const badge = await prisma.badge.findUnique({
@@ -50,14 +50,14 @@ export async function userHasBadge(
 
 /**
  * Unlock badge for user
- * 
+ *
  * @param userId User ID
  * @param badgeCode Badge code
  * @returns Success status and badge data
  */
 export async function unlockBadge(
   userId: string,
-  badgeCode: string
+  badgeCode: string,
 ): Promise<{ success: boolean; badge: BadgeData | null }> {
   try {
     const badge = await prisma.badge.findUnique({
@@ -135,29 +135,31 @@ export async function getUserBadges(userId: string): Promise<BadgeData[]> {
       orderBy: { unlockedAt: "desc" },
     });
 
-    return userBadges.map((ub: {
-      badge: {
-        id: string;
-        code: string;
-        name: string;
-        description: string;
-        icon: string;
-        category: string;
-        rarity: string;
-      };
-      unlockedAt: Date;
-      isDisplayed: boolean;
-    }) => ({
-      id: ub.badge.id,
-      code: ub.badge.code,
-      name: ub.badge.name,
-      description: ub.badge.description,
-      icon: ub.badge.icon,
-      category: ub.badge.category,
-      rarity: ub.badge.rarity,
-      unlockedAt: ub.unlockedAt,
-      isDisplayed: ub.isDisplayed,
-    }));
+    return userBadges.map(
+      (ub: {
+        badge: {
+          id: string;
+          code: string;
+          name: string;
+          description: string;
+          icon: string;
+          category: string;
+          rarity: string;
+        };
+        unlockedAt: Date;
+        isDisplayed: boolean;
+      }) => ({
+        id: ub.badge.id,
+        code: ub.badge.code,
+        name: ub.badge.name,
+        description: ub.badge.description,
+        icon: ub.badge.icon,
+        category: ub.badge.category,
+        rarity: ub.badge.rarity,
+        unlockedAt: ub.unlockedAt,
+        isDisplayed: ub.isDisplayed,
+      }),
+    );
   } catch (error) {
     console.error(`Error getting user badges:`, error);
     return [];
@@ -169,7 +171,7 @@ export async function getUserBadges(userId: string): Promise<BadgeData[]> {
  */
 export async function checkBadgeUnlockFromAchievement(
   userId: string,
-  achievementCode: string
+  achievementCode: string,
 ): Promise<BadgeData[]> {
   try {
     // Find all badges that unlock from achievements
@@ -185,7 +187,9 @@ export async function checkBadgeUnlockFromAchievement(
 
     // Filter badges that match the achievement code
     for (const badge of badges) {
-      const unlockData = badge.unlockData as { achievementCode?: string } | null;
+      const unlockData = badge.unlockData as {
+        achievementCode?: string;
+      } | null;
       if (unlockData?.achievementCode === achievementCode) {
         const result = await unlockBadge(userId, badge.code);
         if (result.success && result.badge) {
@@ -200,4 +204,3 @@ export async function checkBadgeUnlockFromAchievement(
     return [];
   }
 }
-

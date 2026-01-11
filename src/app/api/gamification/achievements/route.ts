@@ -6,7 +6,11 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/server/auth/session";
 import { getUserAchievements } from "@/server/services/gamification/achievementService";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,14 +22,17 @@ export async function GET(request: NextRequest) {
       successResponse({
         achievements,
         total: achievements.length,
-        completed: achievements.filter((a: { isCompleted: boolean }) => a.isCompleted).length,
-      })
+        completed: achievements.filter(
+          (a: { isCompleted: boolean }) => a.isCompleted,
+        ).length,
+      }),
     );
   } catch (error) {
     console.error("Error fetching achievements:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch achievements";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch achievements";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
-

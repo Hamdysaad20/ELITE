@@ -1,13 +1,13 @@
 /**
  * Auto-start Points Retry worker when the application initializes
- * 
+ *
  * IMPORTANT: This implementation handles:
  * - Serverless environments (Vercel, Netlify, AWS Lambda)
  * - Multiple instances (horizontal scaling)
  * - Edge runtime compatibility
  * - Graceful degradation
  * - Resource cleanup
- * 
+ *
  * Strategy:
  * - Serverless: Use Redis-based distributed locking to ensure only ONE worker across all instances
  * - Traditional hosting: Start worker locally with proper lifecycle management
@@ -243,9 +243,9 @@ function attachShutdownHandlers(): void {
 /**
  * Start the Points Retry worker if conditions are met
  */
-export async function initializePointsRetryWorker(): Promise<
-  ReturnType<typeof startPointsRetryWorker> | null
-> {
+export async function initializePointsRetryWorker(): Promise<ReturnType<
+  typeof startPointsRetryWorker
+> | null> {
   // Only start once per instance
   if (workerStarted) {
     return worker;
@@ -354,4 +354,3 @@ if (
 
 // Export shutdown function for manual cleanup if needed
 export { shutdownWorker };
-

@@ -31,10 +31,10 @@ export default function AttributeSelector({
 
   const handleMultiSelect = (valueId: number) => {
     const currentSelected = Array.isArray(selected) ? selected : [];
-    
+
     if (currentSelected.includes(valueId)) {
       // Remove from selection
-      onChange(currentSelected.filter(id => id !== valueId));
+      onChange(currentSelected.filter((id) => id !== valueId));
     } else {
       // Add to selection
       onChange([...currentSelected, valueId]);
@@ -112,7 +112,8 @@ export default function AttributeSelector({
                 <div className="font-bold text-lg">{value.name}</div>
                 {value.priceExtra !== 0 && (
                   <div className="text-sm mt-1 opacity-90">
-                    {value.priceExtra > 0 ? '+' : ''}{value.priceExtra} EGP
+                    {value.priceExtra > 0 ? "+" : ""}
+                    {value.priceExtra} EGP
                   </div>
                 )}
               </button>

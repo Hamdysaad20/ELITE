@@ -12,7 +12,7 @@ export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params?.id as string;
   const { isLoading: authLoading } = useRequireAuth();
-  
+
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
@@ -42,5 +42,3 @@ export default function OrderDetailPage() {
     </>
   );
 }
-
-

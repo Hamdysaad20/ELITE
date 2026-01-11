@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse, parseRequestBody } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+  parseRequestBody,
+} from "@/server/utils/apiHelpers";
 import { z } from "zod";
 
 const CreateReviewSchema = z.object({
@@ -39,17 +44,15 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [
-        { helpful: "desc" },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ helpful: "desc" }, { createdAt: "desc" }],
       take: limit,
     });
 
     // Calculate average rating
-    const avgRating = reviews.length > 0
-      ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
-      : 0;
+    const avgRating =
+      reviews.length > 0
+        ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
+        : 0;
 
     return jsonResponse(
       successResponse({
@@ -73,7 +76,8 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("Reviews fetch error:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch reviews";
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch reviews";
     return jsonResponse(errorResponse(message), 500);
   }
 }
@@ -142,28 +146,37 @@ export async function POST(request: NextRequest) {
     });
 
     return jsonResponse(
-      successResponse({
-        id: review.id,
-        rating: review.rating,
-        comment: review.comment,
-        verified: review.verified,
-        createdAt: review.createdAt,
-        user: {
-          name: review.user.name || "Anonymous",
+      successResponse(
+        {
+          id: review.id,
+          rating: review.rating,
+          comment: review.comment,
+          verified: review.verified,
+          createdAt: review.createdAt,
+          user: {
+            name: review.user.name || "Anonymous",
+          },
         },
-      }, "Review submitted successfully"),
+        "Review submitted successfully",
+      ),
       201,
     );
   } catch (error) {
     console.error("Review creation error:", error);
-    
-    if (error && typeof error === "object" && "name" in error && error.name === "ZodError") {
+
+    if (
+      error &&
+      typeof error === "object" &&
+      "name" in error &&
+      error.name === "ZodError"
+    ) {
       return jsonResponse(errorResponse("Invalid review data"), 400);
     }
-    
-    const message = error instanceof Error ? error.message : "Failed to create review";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+
+    const message =
+      error instanceof Error ? error.message : "Failed to create review";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
-

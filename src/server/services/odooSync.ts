@@ -1,36 +1,45 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/server/db/client";
-import {
-  createOdooClient,
-  isOdooConfigured,
-} from "@/server/utils/odooClient";
+import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
 import { OrderStatus } from "@/types";
-import { odooQueue, type OdooJobData, createOdooWorker } from "@/server/queue/odooQueue";
+import {
+  odooQueue,
+  type OdooJobData,
+  createOdooWorker,
+} from "@/server/queue/odooQueue";
 
 export type OrderSyncPayload = OdooJobData;
 
 /**
  * Enqueue order sync to Odoo
- * 
+ *
  * Strategy:
  * 1. In serverless (Vercel/Netlify): Run inline sync directly (no queue worker available)
  * 2. In non-serverless with Redis: Queue the job for async processing with retries
  * 3. In non-serverless without Redis: Run inline sync as fallback
- * 
+ *
  * This ensures orders always sync, even in serverless where queue workers can't run.
  */
-export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void> {
-  const isServerlessEnv = process.env.VERCEL === "1" || process.env.NETLIFY === "true";
-  
+export async function enqueueOrderSync(
+  payload: OrderSyncPayload,
+): Promise<void> {
+  const isServerlessEnv =
+    process.env.VERCEL === "1" || process.env.NETLIFY === "true";
+
   // In serverless environments, skip the queue and run inline
   // Queue workers don't run in serverless, so jobs would never be processed
   if (isServerlessEnv) {
-    console.log(`[odooSync] Serverless detected, running inline sync for order ${payload.orderId}`);
+    console.log(
+      `[odooSync] Serverless detected, running inline sync for order ${payload.orderId}`,
+    );
     // Run synchronously (await) so sync completes before function terminates
     try {
       await processOrderSync(payload);
     } catch (err) {
-      console.error(`[odooSync] Order sync failed for ${payload.orderId}:`, err);
+      console.error(
+        `[odooSync] Order sync failed for ${payload.orderId}:`,
+        err,
+      );
       // Update order status on error with retry tracking
       const errorMessage = err instanceof Error ? err.message : String(err);
       try {
@@ -50,7 +59,7 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
     }
     return;
   }
-  
+
   // Non-serverless: Try to use queue if available
   if (odooQueue) {
     try {
@@ -71,20 +80,28 @@ export async function enqueueOrderSync(payload: OrderSyncPayload): Promise<void>
       console.log(`[odooSync] Order ${payload.orderId} queued for sync`);
       return;
     } catch (error) {
-      console.error(`[odooSync] Failed to queue order ${payload.orderId}, falling back to inline sync:`, error);
+      console.error(
+        `[odooSync] Failed to queue order ${payload.orderId}, falling back to inline sync:`,
+        error,
+      );
       // Fall through to inline sync
     }
   }
 
   // Fallback: Run sync inline (fire-and-forget for non-serverless)
-  console.warn(`[odooSync] Queue unavailable, running sync inline for order ${payload.orderId}`);
-  
+  console.warn(
+    `[odooSync] Queue unavailable, running sync inline for order ${payload.orderId}`,
+  );
+
   // Use setImmediate to avoid blocking the response in non-serverless
   setImmediate(async () => {
     try {
       await processOrderSync(payload);
     } catch (err) {
-      console.error(`[odooSync] Order sync failed for ${payload.orderId}:`, err);
+      console.error(
+        `[odooSync] Order sync failed for ${payload.orderId}:`,
+        err,
+      );
       const errorMessage = err instanceof Error ? err.message : String(err);
       try {
         await prisma.order.update({
@@ -112,9 +129,11 @@ export function startOdooWorker() {
 
 async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
   console.log(`[odooSync] Processing sync for order ${payload.orderId}`);
-  
+
   if (!isOdooConfigured()) {
-    console.warn(`[odooSync] Odoo not configured, skipping sync for order ${payload.orderId}`);
+    console.warn(
+      `[odooSync] Odoo not configured, skipping sync for order ${payload.orderId}`,
+    );
     await prisma.order.update({
       where: { id: payload.orderId },
       data: { odooStatusSale: "skipped", odooStatusPos: "skipped" },
@@ -134,15 +153,19 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
   // Cash payments (COD) can sync immediately
   const isCashPayment = order.paymentMethod === "CASH";
   const isPaid = order.paymentStatus === "PAID";
-  
+
   if (!isCashPayment && !isPaid) {
-    console.log(`[odooSync] Order ${payload.orderId} payment not confirmed (${order.paymentStatus}), skipping sync`);
+    console.log(
+      `[odooSync] Order ${payload.orderId} payment not confirmed (${order.paymentStatus}), skipping sync`,
+    );
     return;
   }
 
   const client = createOdooClient();
   if (!client) {
-    console.error(`[odooSync] Failed to create Odoo client for order ${payload.orderId}`);
+    console.error(
+      `[odooSync] Failed to create Odoo client for order ${payload.orderId}`,
+    );
     await prisma.order.update({
       where: { id: payload.orderId },
       data: {
@@ -207,7 +230,9 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
         orderForOdoo as any,
         payload.partner,
       );
-      console.log(`[odooSync] Sale order created: ${saleId} for order ${payload.orderId}`);
+      console.log(
+        `[odooSync] Sale order created: ${saleId} for order ${payload.orderId}`,
+      );
       if (payload.autoConfirm && saleId) {
         await client.confirmSaleOrder(saleId).catch(() => null);
         console.log(`[odooSync] Sale order ${saleId} confirmed`);
@@ -224,7 +249,9 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
           customerNotePerLine: payload.customerNotePerLine,
         },
       );
-      console.log(`[odooSync] POS order created: ${posOrderId} for order ${payload.orderId}`);
+      console.log(
+        `[odooSync] POS order created: ${posOrderId} for order ${payload.orderId}`,
+      );
     }
 
     const host = (process.env.ODOO_HOST || "").replace(/\/$/, "");
@@ -247,7 +274,9 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
         odooSyncLastAttemptAt: new Date(),
       },
     });
-    console.log(`[odooSync] Order ${payload.orderId} sync completed successfully`);
+    console.log(
+      `[odooSync] Order ${payload.orderId} sync completed successfully`,
+    );
   } catch (err) {
     console.error(`[odooSync] Order ${payload.orderId} sync failed:`, err);
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -264,4 +293,3 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
     throw err;
   }
 }
-

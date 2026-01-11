@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/server/db/client";
-import type { Order as PrismaOrder, OrderItem as PrismaOrderItem } from "@prisma/client";
+import type {
+  Order as PrismaOrder,
+  OrderItem as PrismaOrderItem,
+} from "@prisma/client";
 import {
   successResponse,
   jsonResponse,
@@ -17,7 +20,7 @@ async function serializeOrder(dbOrder: DbOrderWithItems) {
   const itemsWithImages = await Promise.all(
     (dbOrder.items || []).map(async (it) => {
       let images: string[] = [];
-      
+
       // Try to get product images from Redis cache
       try {
         const cachedProduct = await redisGet<{
@@ -28,7 +31,7 @@ async function serializeOrder(dbOrder: DbOrderWithItems) {
           image_1024?: string;
           image_1920?: string;
         }>(`products:${it.productId}`);
-        
+
         if (cachedProduct) {
           // Prefer image arrays, fallback to single image fields
           if (cachedProduct.images && Array.isArray(cachedProduct.images)) {
@@ -43,7 +46,10 @@ async function serializeOrder(dbOrder: DbOrderWithItems) {
         }
       } catch (err) {
         // Silently fail - images are optional
-        console.debug(`Failed to fetch images for product ${it.productId}:`, err);
+        console.debug(
+          `Failed to fetch images for product ${it.productId}:`,
+          err,
+        );
       }
 
       return {
@@ -71,7 +77,7 @@ async function serializeOrder(dbOrder: DbOrderWithItems) {
             }
           : undefined,
       };
-    })
+    }),
   );
 
   return {

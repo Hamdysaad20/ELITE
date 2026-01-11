@@ -18,7 +18,7 @@ export interface WebhookProcessingResult {
  * Process Paymob webhook
  */
 export async function processPaymobWebhook(
-  payload: unknown
+  payload: unknown,
 ): Promise<WebhookProcessingResult> {
   try {
     // Validate payload structure
@@ -62,7 +62,9 @@ export async function processPaymobWebhook(
       paymentStatus: order?.paymentStatus || "unknown",
     };
   } catch (error: unknown) {
-    const errorMessage = (error as { message?: string })?.message || "Unknown error processing webhook";
+    const errorMessage =
+      (error as { message?: string })?.message ||
+      "Unknown error processing webhook";
     console.error("[Paymob Webhook] Error:", errorMessage, error);
 
     return {
@@ -80,7 +82,7 @@ export async function processPaymobWebhook(
 export function verifyWebhookSignature(
   amountCents: number,
   created_at: string,
-  hmac: string
+  hmac: string,
 ): boolean {
   const paymentService = getPaymentService();
   if (!paymentService) {
@@ -91,4 +93,3 @@ export function verifyWebhookSignature(
   // For now, we'll verify in the payment service itself
   return true; // Verification happens in paymentService.processWebhook
 }
-

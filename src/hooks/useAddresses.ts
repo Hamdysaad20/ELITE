@@ -7,7 +7,10 @@ interface UseAddressesReturn {
   error: string | null;
   defaultAddress: Address | null;
   createAddress: (data: Partial<Address>) => Promise<Address | null>;
-  updateAddress: (id: string, data: Partial<Address>) => Promise<Address | null>;
+  updateAddress: (
+    id: string,
+    data: Partial<Address>,
+  ) => Promise<Address | null>;
   deleteAddress: (id: string) => Promise<boolean>;
   setDefaultAddress: (id: string) => Promise<boolean>;
   refetch: () => Promise<void>;
@@ -46,7 +49,9 @@ export function useAddresses(): UseAddressesReturn {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  const createAddress = async (data: Partial<Address>): Promise<Address | null> => {
+  const createAddress = async (
+    data: Partial<Address>,
+  ): Promise<Address | null> => {
     try {
       const res = await fetch("/api/addresses", {
         method: "POST",
@@ -73,7 +78,7 @@ export function useAddresses(): UseAddressesReturn {
 
   const updateAddress = async (
     id: string,
-    data: Partial<Address>
+    data: Partial<Address>,
   ): Promise<Address | null> => {
     try {
       const res = await fetch(`/api/addresses/${id}`, {

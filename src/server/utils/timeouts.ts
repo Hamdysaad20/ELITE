@@ -22,7 +22,7 @@ export const REQUEST_TIMEOUTS = {
 export async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
-  timeout: number = REQUEST_TIMEOUTS.API_DEFAULT
+  timeout: number = REQUEST_TIMEOUTS.API_DEFAULT,
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -49,13 +49,12 @@ export async function fetchWithTimeout(
 export async function withTimeout<T>(
   promise: Promise<T>,
   timeout: number = REQUEST_TIMEOUTS.API_DEFAULT,
-  errorMessage: string = "Operation timed out. Please try again."
+  errorMessage: string = "Operation timed out. Please try again.",
 ): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(errorMessage)), timeout)
+      setTimeout(() => reject(new Error(errorMessage)), timeout),
     ),
   ]);
 }
-

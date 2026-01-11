@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import { useAddresses } from "@/hooks/useAddresses";
 import type { Address } from "@/types";
-import { validateAddressField, validateAddress, ADDRESS_VALIDATION } from "@/lib/validators/addressValidator";
+import {
+  validateAddressField,
+  validateAddress,
+  ADDRESS_VALIDATION,
+} from "@/lib/validators/addressValidator";
 import {
   MapPin,
   Plus,
@@ -68,7 +72,7 @@ export default function AddressManager({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all fields using shared validator
     const validation = validateAddress(formData);
     if (!validation.isValid) {
@@ -80,7 +84,7 @@ export default function AddressManager({
       setErrors(errorMap);
       return;
     }
-    
+
     setSubmitting(true);
 
     try {
@@ -354,13 +358,13 @@ function AddressForm({
   const validateField = (name: string, value: string | null | undefined) => {
     const validation = validateAddressField(name, value);
     const newErrors = { ...errors };
-    
+
     if (!validation.isValid && validation.message) {
       newErrors[name] = validation.message;
     } else {
       delete newErrors[name];
     }
-    
+
     setErrors(newErrors);
   };
 
@@ -376,7 +380,7 @@ function AddressForm({
         return;
       }
     }
-    
+
     setFormData({ ...formData, [name]: value });
     validateField(name, value);
   };
@@ -430,14 +434,17 @@ function AddressForm({
           }`}
         />
         {errors.street && (
-          <p className="mt-1 text-sm text-red-600 font-cabin">{errors.street}</p>
+          <p className="mt-1 text-sm text-red-600 font-cabin">
+            {errors.street}
+          </p>
         )}
       </div>
 
       {/* Apartment/Unit */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Apartment, Suite, Unit <span className="text-elite-black/40">(Optional)</span>
+          Apartment, Suite, Unit{" "}
+          <span className="text-elite-black/40">(Optional)</span>
         </label>
         <input
           type="text"
@@ -453,7 +460,9 @@ function AddressForm({
           }`}
         />
         {errors.apartment && (
-          <p className="mt-1 text-sm text-red-600 font-cabin">{errors.apartment}</p>
+          <p className="mt-1 text-sm text-red-600 font-cabin">
+            {errors.apartment}
+          </p>
         )}
       </div>
 
@@ -478,7 +487,9 @@ function AddressForm({
             }`}
           />
           {errors.city && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.city}</p>
+            <p className="mt-1 text-sm text-red-600 font-cabin">
+              {errors.city}
+            </p>
           )}
         </div>
         <div>
@@ -499,7 +510,9 @@ function AddressForm({
             }`}
           />
           {errors.state && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.state}</p>
+            <p className="mt-1 text-sm text-red-600 font-cabin">
+              {errors.state}
+            </p>
           )}
         </div>
       </div>
@@ -524,7 +537,9 @@ function AddressForm({
             }`}
           />
           {errors.zipCode && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.zipCode}</p>
+            <p className="mt-1 text-sm text-red-600 font-cabin">
+              {errors.zipCode}
+            </p>
           )}
         </div>
         <div>
@@ -545,7 +560,9 @@ function AddressForm({
             }`}
           />
           {errors.phone && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">{errors.phone}</p>
+            <p className="mt-1 text-sm text-red-600 font-cabin">
+              {errors.phone}
+            </p>
           )}
         </div>
       </div>
@@ -553,7 +570,8 @@ function AddressForm({
       {/* Delivery Notes */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Delivery Instructions <span className="text-elite-black/40">(Optional)</span>
+          Delivery Instructions{" "}
+          <span className="text-elite-black/40">(Optional)</span>
         </label>
         <textarea
           maxLength={ADDRESS_VALIDATION.NOTES_MAX_LENGTH}
@@ -573,7 +591,8 @@ function AddressForm({
             <p className="text-sm text-red-600 font-cabin">{errors.notes}</p>
           )}
           <p className="text-xs text-elite-black/40 font-cabin ml-auto">
-            {formData.notes?.length || 0}/{ADDRESS_VALIDATION.NOTES_MAX_LENGTH} characters
+            {formData.notes?.length || 0}/{ADDRESS_VALIDATION.NOTES_MAX_LENGTH}{" "}
+            characters
           </p>
         </div>
       </div>

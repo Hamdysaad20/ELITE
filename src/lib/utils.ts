@@ -132,9 +132,9 @@ export function slugify(text: string): string {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')     // Replace spaces with -
-    .replace(/[^\w-]+/g, '')  // Remove all non-word chars
-    .replace(/--+/g, '-');    // Replace multiple - with single -
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-"); // Replace multiple - with single -
 }
 
 /**
@@ -146,21 +146,21 @@ export function extractBaseName(name: string): string {
 
   // Remove common variant indicators to find the "Visual Master"
   let base = name
-    .replace(/\[.*\]/g, '') // Remove [L]
-    .replace(/single|double|triple|regular|large|small/gi, '')
+    .replace(/\[.*\]/g, "") // Remove [L]
+    .replace(/single|double|triple|regular|large|small/gi, "")
     .trim();
 
   // Handle Suffixes like "Spanish Latte (Iced)" -> "Iced Spanish Latte"
   if (/\(\s*iced\s*\)/i.test(base)) {
-    base = "Iced " + base.replace(/\(\s*iced\s*\)/i, '');
+    base = "Iced " + base.replace(/\(\s*iced\s*\)/i, "");
   }
 
   // Handle "(Hot)" -> Remove it (Implied default)
-  base = base.replace(/\(\s*hot\s*\)/i, '');
+  base = base.replace(/\(\s*hot\s*\)/i, "");
 
   // Handle generic parenthesis removal (safely after checks)
-  base = base.replace(/\(.*\)/g, '').trim();
+  base = base.replace(/\(.*\)/g, "").trim();
 
   // Normalize spaces
-  return base.replace(/\s+/g, ' ').trim();
+  return base.replace(/\s+/g, " ").trim();
 }

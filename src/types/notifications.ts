@@ -1,10 +1,10 @@
 // Notification types for the analytics system
-export type NotificationType = 
-  | 'tier_upgrade'
-  | 'points_earned'
-  | 'points_expiring'
-  | 'milestone_reached'
-  | 'savings_milestone';
+export type NotificationType =
+  | "tier_upgrade"
+  | "points_earned"
+  | "points_expiring"
+  | "milestone_reached"
+  | "savings_milestone";
 
 export interface Notification {
   id: string;

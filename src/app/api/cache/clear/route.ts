@@ -13,11 +13,11 @@ import { syncProductsFromOdoo } from "@/server/utils/syncProducts";
 
 export async function POST(_request: NextRequest) {
   try {
-    console.log('[CACHE-CLEAR] Manual cache clear requested');
-    
+    console.log("[CACHE-CLEAR] Manual cache clear requested");
+
     // Trigger sync (has built-in rate limiting - max once per 30 seconds)
     const result = await syncProductsFromOdoo();
-    
+
     if (!result.success) {
       return jsonResponse(
         errorResponse(result.error || "Failed to refresh cache"),
@@ -39,4 +39,3 @@ export async function POST(_request: NextRequest) {
 export async function GET(request: NextRequest) {
   return POST(request);
 }
-

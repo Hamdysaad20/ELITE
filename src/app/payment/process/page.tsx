@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { CreditCard, Loader2, AlertCircle, ArrowLeft, Shield, Lock } from "lucide-react";
+import {
+  CreditCard,
+  Loader2,
+  AlertCircle,
+  ArrowLeft,
+  Shield,
+  Lock,
+} from "lucide-react";
 import { useToast } from "@/components/ToastProvider";
 import Link from "next/link";
 
@@ -30,10 +37,10 @@ function PaymentProcessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { push } = useToast();
-  
+
   const orderId = searchParams.get("orderId");
   const paymentKey = searchParams.get("paymentKey");
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -63,7 +70,9 @@ function PaymentProcessContent() {
 
   const initializePayment = useCallback(() => {
     if (!orderId || !paymentKey) {
-      setError("Missing payment information. Please return to checkout and try again.");
+      setError(
+        "Missing payment information. Please return to checkout and try again.",
+      );
       setLoading(false);
       return;
     }
@@ -83,13 +92,17 @@ function PaymentProcessContent() {
         .then((res) => {
           clearTimeout(timeoutId);
           if (!res.ok) {
-            throw new Error("Could not load payment settings. Please try again.");
+            throw new Error(
+              "Could not load payment settings. Please try again.",
+            );
           }
           return res.json();
         })
         .then((data) => {
           if (!data.success || !data.data?.publicKey) {
-            throw new Error("Payment settings are invalid. Please contact support.");
+            throw new Error(
+              "Payment settings are invalid. Please contact support.",
+            );
           }
 
           const publicKey = data.data.publicKey;
@@ -110,7 +123,9 @@ function PaymentProcessContent() {
             },
             onClose: () => {
               // User closed payment window
-              router.push(`/payment/callback?orderId=${orderId}&status=cancelled`);
+              router.push(
+                `/payment/callback?orderId=${orderId}&status=cancelled`,
+              );
             },
           });
 
@@ -121,7 +136,7 @@ function PaymentProcessContent() {
           clearTimeout(timeoutId);
           console.error("[Payment] Config error:", err);
           let message = "Could not load payment settings. Please try again.";
-          
+
           if (err instanceof Error) {
             if (err.name === "AbortError" || err.message.includes("timeout")) {
               message = "Request took too long. Please try again.";
@@ -129,7 +144,7 @@ function PaymentProcessContent() {
               message = err.message;
             }
           }
-          
+
           setError(message);
           setLoading(false);
         });
@@ -158,7 +173,9 @@ function PaymentProcessContent() {
       }, 100);
     };
     script.onerror = () => {
-      setError("Payment gateway could not load. Please check your connection and refresh the page.");
+      setError(
+        "Payment gateway could not load. Please check your connection and refresh the page.",
+      );
       setLoading(false);
     };
     document.body.appendChild(script);
@@ -197,11 +214,11 @@ function PaymentProcessContent() {
           <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-lg">
             <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-red-500" />
           </div>
-          
+
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
             Payment Error
           </h2>
-          
+
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
             {error}
           </p>
@@ -243,7 +260,7 @@ function PaymentProcessContent() {
             <ArrowLeft className="w-5 h-5" />
             Back to Checkout
           </Link>
-          
+
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-6 md:p-8">
             <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
               <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-elite-burgundy rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -264,7 +281,9 @@ function PaymentProcessContent() {
             {orderInfo?.total && (
               <div className="bg-elite-cream/50 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8">
                 <div className="flex justify-between items-center">
-                  <span className="font-cabin text-elite-black/70 text-base sm:text-lg">Total Amount</span>
+                  <span className="font-cabin text-elite-black/70 text-base sm:text-lg">
+                    Total Amount
+                  </span>
                   <span className="font-calistoga text-elite-burgundy text-xl sm:text-2xl md:text-3xl font-bold">
                     {orderInfo.total.toFixed(2)} EGP
                   </span>
@@ -290,13 +309,13 @@ function PaymentProcessContent() {
               <p className="font-cabin text-elite-black/70 text-base sm:text-lg text-center">
                 Please complete your payment using the secure form below.
               </p>
-              
+
               {/* Paymob iframe container */}
-              <div 
-                id="paymob-iframe-container" 
+              <div
+                id="paymob-iframe-container"
                 className="w-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px] border-2 border-elite-burgundy/10 rounded-3xl bg-white overflow-hidden"
               />
-              
+
               <div className="flex items-center justify-center gap-2 text-elite-black/50 text-xs sm:text-sm font-cabin">
                 <Lock className="w-3 h-3" />
                 <span>Your payment information is encrypted and secure</span>
@@ -307,7 +326,9 @@ function PaymentProcessContent() {
           {!processing && (
             <div className="text-center py-8 sm:py-12">
               <Loader2 className="w-12 h-12 animate-spin text-elite-burgundy mx-auto mb-4" />
-              <p className="font-cabin text-elite-black/70">Preparing payment form...</p>
+              <p className="font-cabin text-elite-black/70">
+                Preparing payment form...
+              </p>
             </div>
           )}
         </div>
@@ -318,16 +339,20 @@ function PaymentProcessContent() {
 
 export default function PaymentProcessPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-elite-burgundy/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Loader2 className="w-10 h-10 text-elite-burgundy animate-spin" />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-elite-burgundy/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Loader2 className="w-10 h-10 text-elite-burgundy animate-spin" />
+            </div>
+            <p className="font-calistoga text-elite-burgundy text-2xl font-bold">
+              Loading...
+            </p>
           </div>
-          <p className="font-calistoga text-elite-burgundy text-2xl font-bold">Loading...</p>
         </div>
-      </div>
-    }>
+      }
+    >
       <PaymentProcessContent />
     </Suspense>
   );

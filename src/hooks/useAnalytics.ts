@@ -36,7 +36,7 @@ export function useUserSavings() {
       try {
         setLoading(true);
         const response = await fetch("/api/user/savings");
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch savings");
         }
@@ -66,7 +66,7 @@ export function useUserPoints() {
       try {
         setLoading(true);
         const response = await fetch("/api/user/points");
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch points");
         }
@@ -96,7 +96,7 @@ export function usePointsHistory(limit: number = 20) {
       try {
         setLoading(true);
         const response = await fetch(`/api/user/points/history?limit=${limit}`);
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch points history");
         }

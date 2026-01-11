@@ -1,8 +1,8 @@
 /**
  * Cron endpoint to retry failed Odoo syncs
- * 
+ *
  * Schedule: Every 5 minutes (Vercel Cron)
- * 
+ *
  * Logic:
  * 1. Find orders with failed Odoo sync (odooStatusSale/Pos = "failed")
  * 2. Filter: created within last 30 minutes
@@ -19,7 +19,10 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { enqueueOrderSync } from "@/server/services/odooSync";
-import { sendOrderSyncFailureEmail, isEmailConfigured } from "@/server/utils/emailService";
+import {
+  sendOrderSyncFailureEmail,
+  isEmailConfigured,
+} from "@/server/utils/emailService";
 
 const MAX_RETRY_ATTEMPTS = 5;
 const MAX_RETRY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
@@ -31,12 +34,12 @@ export async function GET(request: NextRequest) {
     const adminToken = request.headers.get("x-admin-token");
     const cronSecret = process.env.CRON_SECRET;
     const expectedAdminToken = process.env.ADMIN_TOKEN;
-    
+
     // Allow either CRON_SECRET (Vercel) or ADMIN_TOKEN (GitHub Actions)
-    const isAuthorized = 
+    const isAuthorized =
       (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
       (expectedAdminToken && adminToken === expectedAdminToken);
-    
+
     if (!isAuthorized) {
       return jsonResponse(errorResponse("Unauthorized"), 401);
     }
@@ -49,10 +52,7 @@ export async function GET(request: NextRequest) {
     // Find orders that need retry
     const ordersToRetry = await prisma.order.findMany({
       where: {
-        OR: [
-          { odooStatusSale: "failed" },
-          { odooStatusPos: "failed" },
-        ],
+        OR: [{ odooStatusSale: "failed" }, { odooStatusPos: "failed" }],
         createdAt: {
           gte: thirtyMinutesAgo, // Only retry orders from last 30 min
         },
@@ -75,7 +75,9 @@ export async function GET(request: NextRequest) {
       take: 20, // Process max 20 orders per cron run
     });
 
-    console.log(`[cron:retry-odoo-sync] Found ${ordersToRetry.length} orders to retry`);
+    console.log(
+      `[cron:retry-odoo-sync] Found ${ordersToRetry.length} orders to retry`,
+    );
 
     const results = {
       retried: 0,
@@ -87,7 +89,7 @@ export async function GET(request: NextRequest) {
     for (const order of ordersToRetry) {
       try {
         const orderAge = now.getTime() - order.createdAt.getTime();
-        const isNearDeadline = orderAge >= MAX_RETRY_WINDOW_MS - (5 * 60 * 1000); // Within 5 min of 30-min deadline
+        const isNearDeadline = orderAge >= MAX_RETRY_WINDOW_MS - 5 * 60 * 1000; // Within 5 min of 30-min deadline
 
         // If order is near the 30-min deadline and hasn't been notified, send email first
         if (isNearDeadline && !order.odooSyncNotifiedAt && order.user?.email) {
@@ -105,9 +107,14 @@ export async function GET(request: NextRequest) {
               });
 
               results.notified++;
-              console.log(`[cron:retry-odoo-sync] Notified customer for order ${order.id}`);
+              console.log(
+                `[cron:retry-odoo-sync] Notified customer for order ${order.id}`,
+              );
             } catch (emailErr) {
-              console.error(`[cron:retry-odoo-sync] Failed to send email for order ${order.id}:`, emailErr);
+              console.error(
+                `[cron:retry-odoo-sync] Failed to send email for order ${order.id}:`,
+                emailErr,
+              );
             }
           }
         }
@@ -155,21 +162,23 @@ export async function GET(request: NextRequest) {
         });
 
         results.retried++;
-        console.log(`[cron:retry-odoo-sync] Retried sync for order ${order.id} (attempt ${order.odooSyncAttempts + 1})`);
+        console.log(
+          `[cron:retry-odoo-sync] Retried sync for order ${order.id} (attempt ${order.odooSyncAttempts + 1})`,
+        );
       } catch (err) {
         const errorMsg = `Order ${order.id}: ${err instanceof Error ? err.message : String(err)}`;
         results.errors.push(errorMsg);
-        console.error(`[cron:retry-odoo-sync] Error retrying order ${order.id}:`, err);
+        console.error(
+          `[cron:retry-odoo-sync] Error retrying order ${order.id}:`,
+          err,
+        );
       }
     }
 
     // Find orders that exceeded the 30-min window and mark them as permanently failed
     const expiredOrders = await prisma.order.findMany({
       where: {
-        OR: [
-          { odooStatusSale: "failed" },
-          { odooStatusPos: "failed" },
-        ],
+        OR: [{ odooStatusSale: "failed" }, { odooStatusPos: "failed" }],
         createdAt: {
           lt: thirtyMinutesAgo, // Older than 30 minutes
         },
@@ -191,7 +200,11 @@ export async function GET(request: NextRequest) {
 
     // Send notification for expired orders if not already notified
     for (const order of expiredOrders) {
-      if (!order.odooSyncNotifiedAt && order.user?.email && isEmailConfigured()) {
+      if (
+        !order.odooSyncNotifiedAt &&
+        order.user?.email &&
+        isEmailConfigured()
+      ) {
         try {
           await sendOrderSyncFailureEmail({
             to: order.user.email,
@@ -201,23 +214,36 @@ export async function GET(request: NextRequest) {
 
           await prisma.order.update({
             where: { id: order.id },
-            data: { 
+            data: {
               odooSyncNotifiedAt: now,
               // Mark as permanently failed (manual intervention needed)
-              odooStatusSale: order.odooStatusSale === "failed" ? "failed_permanent" : order.odooStatusSale,
-              odooStatusPos: order.odooStatusPos === "failed" ? "failed_permanent" : order.odooStatusPos,
+              odooStatusSale:
+                order.odooStatusSale === "failed"
+                  ? "failed_permanent"
+                  : order.odooStatusSale,
+              odooStatusPos:
+                order.odooStatusPos === "failed"
+                  ? "failed_permanent"
+                  : order.odooStatusPos,
             },
           });
 
           results.notified++;
-          console.log(`[cron:retry-odoo-sync] Notified customer for expired order ${order.id}`);
+          console.log(
+            `[cron:retry-odoo-sync] Notified customer for expired order ${order.id}`,
+          );
         } catch (emailErr) {
-          console.error(`[cron:retry-odoo-sync] Failed to send email for expired order ${order.id}:`, emailErr);
+          console.error(
+            `[cron:retry-odoo-sync] Failed to send email for expired order ${order.id}:`,
+            emailErr,
+          );
         }
       }
     }
 
-    console.log(`[cron:retry-odoo-sync] Completed: ${results.retried} retried, ${results.notified} notified, ${results.errors.length} errors`);
+    console.log(
+      `[cron:retry-odoo-sync] Completed: ${results.retried} retried, ${results.notified} notified, ${results.errors.length} errors`,
+    );
 
     return jsonResponse(
       successResponse(results, "Odoo sync retry job completed"),
@@ -228,4 +254,3 @@ export async function GET(request: NextRequest) {
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

@@ -20,7 +20,10 @@ export async function GET(_req: NextRequest) {
 
     if (!isOdooConfigured()) {
       return jsonResponse(
-        successResponse({ configured: false, hasPos: false }, "Odoo not configured"),
+        successResponse(
+          { configured: false, hasPos: false },
+          "Odoo not configured",
+        ),
       );
     }
 
@@ -52,9 +55,7 @@ export async function GET(_req: NextRequest) {
       successResponse(data, `Found ${withSession.length} POS configs`),
     );
   } catch (err: any) {
-    const message =
-      err?.message || "Failed to fetch POS availability";
+    const message = err?.message || "Failed to fetch POS availability";
     return jsonResponse(errorResponse(message), 500);
   }
 }
-

@@ -1,5 +1,5 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface AnalyticsData {
   userName: string;
@@ -32,15 +32,15 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
 
   // Header
   doc.setFillColor(...burgundy);
-  doc.rect(0, 0, 210, 40, 'F');
+  doc.rect(0, 0, 210, 40, "F");
 
   doc.setTextColor(...cream);
   doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Elite Coffee Analytics', 15, 20);
+  doc.setFont("helvetica", "bold");
+  doc.text("Elite Coffee Analytics", 15, 20);
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
   doc.text(`${data.userName} (${data.userEmail})`, 15, 28);
   doc.text(`Period: ${data.period}`, 15, 34);
 
@@ -51,33 +51,33 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
 
   // Summary Section
   doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Summary', 15, yPos);
+  doc.setFont("helvetica", "bold");
+  doc.text("Summary", 15, yPos);
   yPos += 10;
 
   const summaryData = [
-    ['Total Orders', data.totalOrders.toString()],
-    ['Total Spent', `EGP ${data.totalSpent.toFixed(2)}`],
-    ['Total Saved', `EGP ${data.totalSaved.toFixed(2)}`],
+    ["Total Orders", data.totalOrders.toString()],
+    ["Total Spent", `EGP ${data.totalSpent.toFixed(2)}`],
+    ["Total Saved", `EGP ${data.totalSaved.toFixed(2)}`],
     [
-      'Average Savings per Order',
+      "Average Savings per Order",
       `EGP ${data.averageSavingsPerOrder.toFixed(2)}`,
     ],
-    ['Current Points Balance', data.currentPoints.toLocaleString()],
-    ['Total Points Earned', data.totalPointsEarned.toLocaleString()],
-    ['Tier', data.tier.toUpperCase()],
+    ["Current Points Balance", data.currentPoints.toLocaleString()],
+    ["Total Points Earned", data.totalPointsEarned.toLocaleString()],
+    ["Tier", data.tier.toUpperCase()],
   ];
 
   autoTable(doc, {
     startY: yPos,
-    head: [['Metric', 'Value']],
+    head: [["Metric", "Value"]],
     body: summaryData,
-    theme: 'grid',
+    theme: "grid",
     headStyles: {
       fillColor: burgundy,
       textColor: cream,
       fontSize: 10,
-      fontStyle: 'bold',
+      fontStyle: "bold",
     },
     bodyStyles: {
       fontSize: 9,
@@ -87,13 +87,15 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
     },
   });
 
-  yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
+  yPos =
+    (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable
+      .finalY + 15;
 
   // Savings by Month
   if (data.savingsByMonth && data.savingsByMonth.length > 0) {
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Savings by Month', 15, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.text("Savings by Month", 15, yPos);
     yPos += 5;
 
     const savingsData = data.savingsByMonth.map((item) => [
@@ -103,14 +105,14 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Month', 'Savings']],
+      head: [["Month", "Savings"]],
       body: savingsData,
-      theme: 'grid',
+      theme: "grid",
       headStyles: {
         fillColor: burgundy,
         textColor: cream,
         fontSize: 10,
-        fontStyle: 'bold',
+        fontStyle: "bold",
       },
       bodyStyles: {
         fontSize: 9,
@@ -120,7 +122,9 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
       },
     });
 
-    yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
+    yPos =
+      (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable
+        .finalY + 15;
   }
 
   // New page if needed
@@ -132,8 +136,8 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
   // Points by Month
   if (data.pointsByMonth && data.pointsByMonth.length > 0) {
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Points Earned by Month', 15, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.text("Points Earned by Month", 15, yPos);
     yPos += 5;
 
     const pointsData = data.pointsByMonth.map((item) => [
@@ -143,14 +147,14 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Month', 'Points']],
+      head: [["Month", "Points"]],
       body: pointsData,
-      theme: 'grid',
+      theme: "grid",
       headStyles: {
         fillColor: burgundy,
         textColor: cream,
         fontSize: 10,
-        fontStyle: 'bold',
+        fontStyle: "bold",
       },
       bodyStyles: {
         fontSize: 9,
@@ -160,7 +164,9 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
       },
     });
 
-    yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
+    yPos =
+      (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable
+        .finalY + 15;
   }
 
   // Top Orders
@@ -172,8 +178,8 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
     }
 
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Top Orders', 15, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.text("Top Orders", 15, yPos);
     yPos += 5;
 
     const ordersData = data.topOrders.map((order) => [
@@ -185,14 +191,14 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Date', 'Amount', 'Saved', 'Points']],
+      head: [["Date", "Amount", "Saved", "Points"]],
       body: ordersData,
-      theme: 'grid',
+      theme: "grid",
       headStyles: {
         fillColor: burgundy,
         textColor: cream,
         fontSize: 10,
-        fontStyle: 'bold',
+        fontStyle: "bold",
       },
       bodyStyles: {
         fontSize: 9,
@@ -212,13 +218,13 @@ export function generateAnalyticsPDF(data: AnalyticsData): void {
     doc.text(
       `Generated on ${new Date().toLocaleDateString()} | Page ${i} of ${pageCount}`,
       15,
-      290
+      290,
     );
-    doc.text('Elite Coffee Analytics Report', 140, 290);
+    doc.text("Elite Coffee Analytics Report", 140, 290);
   }
 
   // Save PDF
-  const fileName = `elite-analytics-${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = `elite-analytics-${new Date().toISOString().split("T")[0]}.pdf`;
   doc.save(fileName);
 }
 
@@ -226,13 +232,13 @@ export async function fetchAndExportAnalytics(): Promise<void> {
   try {
     // Fetch all analytics data
     const [savingsRes, pointsRes, historyRes] = await Promise.all([
-      fetch('/api/user/savings'),
-      fetch('/api/user/points'),
-      fetch('/api/user/points/history?limit=10'),
+      fetch("/api/user/savings"),
+      fetch("/api/user/points"),
+      fetch("/api/user/points/history?limit=10"),
     ]);
 
     if (!savingsRes.ok || !pointsRes.ok || !historyRes.ok) {
-      throw new Error('Failed to fetch analytics data');
+      throw new Error("Failed to fetch analytics data");
     }
 
     const savingsData = await savingsRes.json();
@@ -241,39 +247,52 @@ export async function fetchAndExportAnalytics(): Promise<void> {
 
     // Prepare data for PDF
     const analyticsData: AnalyticsData = {
-      userName: 'User', // You'd get this from session
-      userEmail: 'user@example.com', // You'd get this from session
-      period: 'All Time',
+      userName: "User", // You'd get this from session
+      userEmail: "user@example.com", // You'd get this from session
+      period: "All Time",
       totalOrders: savingsData.totalOrders || 0,
       totalSpent: savingsData.totalSpent || 0,
       totalSaved: savingsData.totalSaved || 0,
       averageSavingsPerOrder: savingsData.averageSavingsPerOrder || 0,
       currentPoints: pointsData.currentBalance || 0,
       totalPointsEarned: pointsData.totalEarned || 0,
-      tier: pointsData.tier || 'bronze',
+      tier: pointsData.tier || "bronze",
       savingsByMonth:
-        savingsData.savingsByMonth?.slice(0, 6).map((item: { month: string; amount: number }) => ({
-          month: item.month,
-          amount: Number(item.amount),
-        })) || [],
+        savingsData.savingsByMonth
+          ?.slice(0, 6)
+          .map((item: { month: string; amount: number }) => ({
+            month: item.month,
+            amount: Number(item.amount),
+          })) || [],
       pointsByMonth:
-        historyData.byMonth?.slice(0, 6).map((item: { month: string; points: number }) => ({
-          month: item.month,
-          points: item.points,
-        })) || [],
+        historyData.byMonth
+          ?.slice(0, 6)
+          .map((item: { month: string; points: number }) => ({
+            month: item.month,
+            points: item.points,
+          })) || [],
       topOrders:
-        savingsData.topSavingOrders?.slice(0, 10).map((order: { date: string; total: number; saved: number; points?: number }) => ({
-          date: new Date(order.date).toLocaleDateString(),
-          amount: order.total,
-          saved: order.saved,
-          points: order.points || 0,
-        })) || [],
+        savingsData.topSavingOrders
+          ?.slice(0, 10)
+          .map(
+            (order: {
+              date: string;
+              total: number;
+              saved: number;
+              points?: number;
+            }) => ({
+              date: new Date(order.date).toLocaleDateString(),
+              amount: order.total,
+              saved: order.saved,
+              points: order.points || 0,
+            }),
+          ) || [],
     };
 
     // Generate PDF
     generateAnalyticsPDF(analyticsData);
   } catch (error) {
-    console.error('Error exporting analytics:', error);
+    console.error("Error exporting analytics:", error);
     throw error;
   }
 }
