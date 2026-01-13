@@ -5,6 +5,8 @@ import { signIn } from "next-auth/react";
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   Coffee,
   Mail,
@@ -94,6 +96,29 @@ function SignInContent() {
           <div className="absolute top-20 left-10 w-64 h-64 bg-elite-cream/5 rounded-full blur-3xl" />
           <div className="absolute bottom-40 right-10 w-80 h-80 bg-elite-cream/5 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-elite-cream/3 rounded-full blur-[100px]" />
+
+          {/* Floating Coffee Beans */}
+          <motion.div
+            className="absolute inset-0 z-0 opacity-10 pointer-events-none"
+            animate={{
+              y: [0, -15, 0],
+              rotate: [0, 1, 0]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Image
+              src="/images/coffee-beans-floating.png"
+              alt=""
+              fill
+              className="object-cover object-center"
+              quality={90}
+              priority
+            />
+          </motion.div>
         </div>
 
         {/* Content */}
