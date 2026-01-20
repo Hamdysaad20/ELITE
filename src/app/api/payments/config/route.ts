@@ -30,9 +30,12 @@ export async function GET() {
       );
     }
 
+    const iframeId = process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID || "983628";
+
     return jsonResponse(
       successResponse({
         publicKey: client.getPublicKey(),
+        iframeId,
       }),
     );
   } catch (error: unknown) {

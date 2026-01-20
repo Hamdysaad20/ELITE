@@ -22,6 +22,11 @@ export interface PaymobConfig {
   publicKey: string;
   integrationId: number; // Default integration ID for cards
   walletIntegrationId?: number; // Integration ID for wallets
+  subscriptionIntegrationId?: number; // Subscription integration
+  hostIntegrationId?: number; // Host integration
+  balanceTransferIntegrationId?: number; // Balance transfer
+  cashCollectionIntegrationId?: number; // Cash collection / deposit
+  billPaymentIntegrationId?: number; // Bill payment
   hmacSecret: string;
   environment: "sandbox" | "production";
 }
@@ -324,15 +329,67 @@ export class PaymobClient {
   /**
    * Get integration ID based on payment method
    *
-   * Note: If walletIntegrationId is not configured, the default integrationId
-   * will be used for all payment methods including wallets.
+   * Supports all Paymob integration types:
+   * - card / CARD → Online Card integration
+   * - wallet / WALLET → Mobile Wallet integration
+   * - installments → Uses card integration (installments handled by iframe)
+   * - subscription → Subscription integration
+   * - host → Host integration
+   * - balance_transfer → Balance transfer
+   * - cash_collection → Cash collection / deposit
+   * - bill_payment → Bill payment
+   *
+   * Falls back to default card integration if specific integration not configured.
    */
   getIntegrationId(paymentMethod: string): number {
-    if (paymentMethod === "wallet" && this.config.walletIntegrationId) {
+    const method = paymentMethod.toLowerCase();
+
+    // Wallet integration
+    if ((method === "wallet" || method === "w") && this.config.walletIntegrationId) {
       return this.config.walletIntegrationId;
     }
-    // Use default integration ID for all payment methods if wallet-specific ID not set
+
+    // Subscription integration
+    if ((method === "subscription" || method === "sub") && this.config.subscriptionIntegrationId) {
+      return this.config.subscriptionIntegrationId;
+    }
+
+    // Host integration
+    if (method === "host" && this.config.hostIntegrationId) {
+      return this.config.hostIntegrationId;
+    }
+
+    // Balance transfer
+    if ((method === "balance_transfer" || method === "balance") && this.config.balanceTransferIntegrationId) {
+      return this.config.balanceTransferIntegrationId;
+    }
+
+    // Cash collection / deposit
+    if ((method === "cash_collection" || method === "deposit") && this.config.cashCollectionIntegrationId) {
+      return this.config.cashCollectionIntegrationId;
+    }
+
+    // Bill payment
+    if ((method === "bill_payment" || method === "bill") && this.config.billPaymentIntegrationId) {
+      return this.config.billPaymentIntegrationId;
+    }
+
+    // Installments use card integration (installment options shown in iframe)
+    if (method === "installments") {
+      return this.config.integrationId;
+    }
+
+    // Default: Card integration for card payments and any unmatched methods
     return this.config.integrationId;
+  }
+
+  /**
+   * Check if installments are supported (based on iframe configuration)
+   */
+  supportsInstallments(): boolean {
+    // Installments are supported via the custom iframe (983628)
+    // This is determined by Paymob iframe configuration, not integration ID
+    return true;
   }
 
   /**
@@ -345,6 +402,7 @@ export class PaymobClient {
 
 /**
  * Create Paymob client from environment variables
+ * Supports all production integration types
  */
 export function createPaymobClient(): PaymobClient | null {
   const apiKey = process.env.PAYMOB_API_KEY;
@@ -353,6 +411,11 @@ export function createPaymobClient(): PaymobClient | null {
   const hmacSecret = process.env.PAYMOB_HMAC_SECRET;
   const integrationId = process.env.PAYMOB_INTEGRATION_ID;
   const walletIntegrationId = process.env.PAYMOB_WALLET_INTEGRATION_ID;
+  const subscriptionIntegrationId = process.env.PAYMOB_INTEGRATION_SUBSCRIPTION;
+  const hostIntegrationId = process.env.PAYMOB_INTEGRATION_HOST;
+  const balanceTransferIntegrationId = process.env.PAYMOB_INTEGRATION_BALANCE_TRANSFER;
+  const cashCollectionIntegrationId = process.env.PAYMOB_INTEGRATION_CASH_COLLECTION;
+  const billPaymentIntegrationId = process.env.PAYMOB_INTEGRATION_BILL_PAYMENT;
   const environment = (process.env.PAYMOB_ENVIRONMENT || "sandbox") as
     | "sandbox"
     | "production";
@@ -375,6 +438,21 @@ export function createPaymobClient(): PaymobClient | null {
     integrationId: integrationIdNum,
     walletIntegrationId: walletIntegrationId
       ? parseInt(walletIntegrationId, 10)
+      : undefined,
+    subscriptionIntegrationId: subscriptionIntegrationId
+      ? parseInt(subscriptionIntegrationId, 10)
+      : undefined,
+    hostIntegrationId: hostIntegrationId
+      ? parseInt(hostIntegrationId, 10)
+      : undefined,
+    balanceTransferIntegrationId: balanceTransferIntegrationId
+      ? parseInt(balanceTransferIntegrationId, 10)
+      : undefined,
+    cashCollectionIntegrationId: cashCollectionIntegrationId
+      ? parseInt(cashCollectionIntegrationId, 10)
+      : undefined,
+    billPaymentIntegrationId: billPaymentIntegrationId
+      ? parseInt(billPaymentIntegrationId, 10)
       : undefined,
     hmacSecret,
     environment,
