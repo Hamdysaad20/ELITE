@@ -156,16 +156,19 @@ export class FluxPromptBuilder {
         } else if (name.includes("black cat")) {
             color = "deep purple/blue soda";
             layers = "blueberry soda base with fresh lemon juice";
-            toppings = "lemon slice and fresh mint garnish";
+            toppings = "fresh mint leaves and a subtle citrus syrup swirl (no slices)";
         } else if (name.includes("mojito")) {
             color = "clear/cloudy soda with green tint";
-            layers = "soda water with muddled fresh mint leaves and lime wedges";
-            toppings = "lots of fresh mint and lime slices. NO whole fruits.";
+            // No lime wedges/slices; use syrup + mint only
+            layers =
+                "soda water with muddled fresh mint leaves, lime syrup integrated into the liquid, and lots of ice";
+            toppings =
+                "lots of fresh mint leaves and subtle lime syrup swirl (no slices, no wedges)";
         } else if (name.includes("hibiscus")) {
             color = "deep translucent red tea";
             layers = isCold ? "refreshing red tea over ice" : "";
             surfaceTexture = isCold ? "ice cubes" : "clear red surface";
-            toppings = isCold ? "lemon slice" : "clean, minimal presentation";
+            toppings = isCold ? "subtle citrus syrup swirl (no slices)" : "clean, minimal presentation";
             if (!isCold) cupStyle = "single-wall paper takeaway cup with white lid (lid removed for photo, no glass/ceramic)";
         } else if (name.includes("water")) {
             color = "crystal clear water";
@@ -195,16 +198,16 @@ export class FluxPromptBuilder {
             cupStyle += ". Appetizing condensation and drips running down the side";
         }
 
-        // CONSTRAINT ENFORCEMENT
-        // "full fruits parts we don't have", "cherry ... don't have"
-        // "we work with sauses, toppings and jars of cruches frutres"
-        const forbiddenConstraint = "Constraint: DO NOT include whole fruits, whole berries, or cherries. Use only sauces, crushes, or purees.";
+        // CONSTRAINT ENFORCEMENT (STRICT)
+        // User requirement: NO fruit parts/slices around the cup. Only sauces/crush/toppings.
+        const forbiddenConstraint =
+            "STRICT CONSTRAINTS: NO whole fruits, NO fruit slices, NO wedges, NO fruit pieces, NO berries, NO cherries, and NO raw ingredients placed around the cup. " +
+            "Use ONLY sauces, purees, drizzles, crushed toppings (Ostenberg-style), crumbs, powders, and syrups integrated with the drink.";
 
-        // Append constraint to a suitable field or ensure it's in the template. 
-        // Since we return specific fields, let's append it to 'toppings' or 'layers' where appropriate,
-        // or we need to update the caller to include this.
-        // For now, let's append to 'toppings' if it's not "clean".
-        if (toppings !== "clean, minimal presentation") {
+        // Always append so it applies even when toppings are 'clean'
+        if (toppings === "clean, minimal presentation") {
+            toppings = `clean, minimal presentation. ${forbiddenConstraint}`;
+        } else {
             toppings += `. ${forbiddenConstraint}`;
         }
 

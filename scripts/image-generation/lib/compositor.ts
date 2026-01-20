@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
+import { LogoAdjustment } from "./validator";
 
 export class LogoCompositor {
     private logoPath: string;
@@ -10,7 +11,10 @@ export class LogoCompositor {
         this.logoPath = path.join(process.cwd(), "public/images/PRINTING_CUP.png");
     }
 
-    async composite(originalImageBuffer: Buffer): Promise<Buffer> {
+    async composite(
+        originalImageBuffer: Buffer, 
+        adjustment?: LogoAdjustment
+    ): Promise<Buffer> {
         try {
             // Check if logo exists
             await fs.access(this.logoPath);
@@ -57,20 +61,66 @@ export class LogoCompositor {
 
             console.log(`   🎯 Detected Subject: ${subjectBox.width}x${subjectBox.height} at (${subjectBox.left}, ${subjectBox.top})`);
 
+            // If trim-based detection failed (common when background isn't transparent),
+            // fall back to a conservative "cup body safe zone" in the center.
+            // This is where the logo should live for our centered product shots.
+            const detectionLooksLikeFullFrame =
+                subjectBox.left === 0 &&
+                subjectBox.top === 0 &&
+                subjectBox.width >= Math.round(width * 0.95) &&
+                subjectBox.height >= Math.round(height * 0.95);
+
+            if (detectionLooksLikeFullFrame) {
+                subjectBox = {
+                    left: Math.round(width * 0.22),
+                    top: Math.round(height * 0.20),
+                    width: Math.round(width * 0.56),
+                    height: Math.round(height * 0.70),
+                };
+                console.log(
+                    `   🎯 Subject detection fallback: using cup body safe zone ${subjectBox.width}x${subjectBox.height} at (${subjectBox.left}, ${subjectBox.top})`,
+                );
+            }
+
             // 2. Dynamic Scaling
-            // Target: Logo should be ~40% of the CUP width (subject width)
-            // But clamp it to not be massive if the cup is huge (max 50% of image width)
-            let logoWidth = Math.round(subjectBox.width * 0.40);
-            const maxLogoWidth = Math.round(width * 0.50);
+            // Target: Logo should be ~28-33% of the CUP width (subject width) (smaller than before)
+            // Clamp to avoid over-sizing.
+            let logoWidth = Math.round(subjectBox.width * 0.30);
+            const maxLogoWidth = Math.round(width * 0.38);
             if (logoWidth > maxLogoWidth) logoWidth = maxLogoWidth;
 
             // Min size safety
             if (logoWidth < 50) logoWidth = 50;
 
+            // Apply size adjustment if provided
+            if (adjustment?.sizeMultiplier) {
+                logoWidth = Math.round(logoWidth * adjustment.sizeMultiplier);
+                // Re-clamp after adjustment
+                if (logoWidth > maxLogoWidth) logoWidth = maxLogoWidth;
+                if (logoWidth < 50) logoWidth = 50;
+            }
+
             // Load and resize logo
-            const logoBuffer = await sharp(this.logoPath)
+            let logoBuffer = await sharp(this.logoPath)
                 .resize({ width: logoWidth })
                 .toBuffer();
+
+            // Slight affine warp to mimic cup curvature (subtle, safe default).
+            // This is NOT full perspective, but helps avoid a "flat sticker" feel.
+            // Can be tuned later with AI-provided geometry if we add it.
+            try {
+                logoBuffer = await sharp(logoBuffer)
+                    .affine(
+                        [
+                            [1, 0.08], // x' = x + 0.08*y  (subtle x-shear)
+                            [0, 1],
+                        ],
+                        { background: { r: 0, g: 0, b: 0, alpha: 0 } },
+                    )
+                    .toBuffer();
+            } catch {
+                // If affine fails, keep original logo buffer.
+            }
 
             const logoMetadata = await sharp(logoBuffer).metadata();
             const logoHeight = logoMetadata.height || logoWidth;
@@ -78,13 +128,29 @@ export class LogoCompositor {
             // 3. Dynamic Positioning
             // Center horizontally on the SUBJECT
             const subjectCenterX = subjectBox.left + (subjectBox.width / 2);
-            const left = Math.round(subjectCenterX - (logoWidth / 2));
+            let left = Math.round(subjectCenterX - (logoWidth / 2));
 
-            // Vertically: Center on SUBJECT, but slightly lower
-            // +10% of subject height to be visually "on the body" rather than the rim
-            const subjectCenterY = subjectBox.top + (subjectBox.height / 2);
-            const verticalOffset = Math.round(subjectBox.height * 0.10);
-            const top = Math.round(subjectCenterY - (logoHeight / 2) + verticalOffset);
+            // Vertically: place logo on the cup "body" area (avoid rim + base).
+            // ~60% down within the subject box tends to land on the cup sleeve area.
+            const logoCenterY = subjectBox.top + Math.round(subjectBox.height * 0.60);
+            let top = Math.round(logoCenterY - (logoHeight / 2));
+
+            // Apply position adjustments if provided
+            if (adjustment?.horizontalOffset) {
+                left = Math.round(left + adjustment.horizontalOffset);
+                // Ensure logo doesn't go off-screen
+                left = Math.max(0, Math.min(left, width - logoWidth));
+            }
+
+            if (adjustment?.verticalOffset) {
+                top = Math.round(top + adjustment.verticalOffset);
+                // Ensure logo doesn't go off-screen
+                top = Math.max(0, Math.min(top, height - logoHeight));
+            }
+
+            if (adjustment) {
+                console.log(`   🔧 Applied adjustments: size=${adjustment.sizeMultiplier || 1.0}x, hOffset=${adjustment.horizontalOffset || 0}, vOffset=${adjustment.verticalOffset || 0}`);
+            }
 
             return await sharp(originalImageBuffer)
                 .composite([

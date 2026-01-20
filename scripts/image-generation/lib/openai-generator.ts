@@ -2,6 +2,7 @@ import axios from "axios";
 import fs from "fs/promises";
 import path from "path";
 import { LogoCompositor } from "./compositor";
+import { LogoAdjustment } from "./validator";
 
 interface GenerationResult {
     url?: string;
@@ -23,7 +24,20 @@ export class OpenAIGenerator {
         this.compositor = new LogoCompositor();
     }
 
-    async generateImage(prompt: string, fileName: string, slug: string, applyLogo: boolean = true): Promise<GenerationResult> {
+    private normalizeAzureEndpoint(endpoint: string): string {
+        let base = endpoint.trim().replace(/\/+$/, "");
+        if (base.endsWith("/openai")) base = base.slice(0, -"/openai".length);
+        return base;
+    }
+
+    async generateImage(
+        prompt: string, 
+        fileName: string, 
+        slug: string, 
+        applyLogo: boolean = true,
+        adjustment?: LogoAdjustment,
+        saveBaseImage: boolean = false
+    ): Promise<GenerationResult & { baseImagePath?: string }> {
         console.log(`🎨 Generating image for [${slug}] (${applyLogo ? "With Logo" : "No Logo"})...`);
 
         try {
@@ -39,9 +53,9 @@ export class OpenAIGenerator {
             if (azureEndpoint) {
                 // Azure OpenAI format
                 // https://{resource}.openai.azure.com/openai/deployments/{deployment}/images/generations?api-version={version}
-                const apiVersion = "2024-02-01";
+                const apiVersion = process.env.AZURE_OPENAI_API_VERSION_IMAGES || "2024-02-01";
                 // Ensure endpoint doesn't end with slash
-                const baseUrl = azureEndpoint.replace(/\/+$/, "");
+                const baseUrl = this.normalizeAzureEndpoint(azureEndpoint);
                 url = `${baseUrl}/openai/deployments/${azureDeployment}/images/generations?api-version=${apiVersion}`;
 
                 headers = {
@@ -77,9 +91,16 @@ export class OpenAIGenerator {
             const relativePath = `products/${slug}/${fileName}.png`;
             const fullPath = path.join(process.cwd(), "public/products", `${slug}/${fileName}.png`);
 
-            await this.saveBase64(base64Image, fullPath, applyLogo);
+            // Save base image separately if requested (for efficient recomposition)
+            let baseImagePath: string | undefined;
+            if (saveBaseImage && applyLogo) {
+                baseImagePath = path.join(process.cwd(), "public/products", `${slug}/${fileName}_base.png`);
+                await this.saveBaseImage(base64Image, baseImagePath);
+            }
 
-            return { url: relativePath, prompt };
+            await this.saveBase64(base64Image, fullPath, applyLogo, adjustment);
+
+            return { url: relativePath, prompt, baseImagePath };
 
         } catch (error: any) {
             console.error(`❌ Generation failed for [${slug}]:`, error?.response?.data || error.message);
@@ -87,16 +108,66 @@ export class OpenAIGenerator {
         }
     }
 
-    private async saveBase64(base64Data: string, destPath: string, applyLogo: boolean) {
+    private async saveBase64(
+        base64Data: string, 
+        destPath: string, 
+        applyLogo: boolean,
+        adjustment?: LogoAdjustment
+    ) {
         await fs.mkdir(path.dirname(destPath), { recursive: true });
 
         let buffer: Buffer = Buffer.from(base64Data, 'base64');
 
         // Apply Logo Overlay ONLY if requested
         if (applyLogo) {
-            buffer = await this.compositor.composite(buffer);
+            buffer = await this.compositor.composite(buffer, adjustment);
         }
 
         await fs.writeFile(destPath, buffer);
+    }
+
+    /**
+     * Recomposites the logo on an existing image with adjustments.
+     * This is more efficient than regenerating the entire image.
+     */
+    async recompositeLogo(
+        imagePath: string,
+        adjustment: LogoAdjustment
+    ): Promise<void> {
+        console.log(`   🔧 Recompositing logo with adjustments...`);
+        
+        try {
+            const imageBuffer = await fs.readFile(imagePath);
+            // Remove existing logo by using the base image (we'll need to save base separately)
+            // For now, we'll composite on top - this might cause double logos
+            // Better approach: save base image separately on first generation
+            const compositedBuffer = await this.compositor.composite(imageBuffer, adjustment);
+            await fs.writeFile(imagePath, compositedBuffer);
+        } catch (error: any) {
+            console.error(`   ❌ Recomposition failed:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Saves the base image (without logo) for later recomposition
+     */
+    async saveBaseImage(base64Data: string, baseImagePath: string): Promise<void> {
+        await fs.mkdir(path.dirname(baseImagePath), { recursive: true });
+        const buffer = Buffer.from(base64Data, 'base64');
+        await fs.writeFile(baseImagePath, buffer);
+    }
+
+    /**
+     * Composites logo on a saved base image
+     */
+    async compositeOnBaseImage(
+        baseImagePath: string,
+        outputPath: string,
+        adjustment?: LogoAdjustment
+    ): Promise<void> {
+        const baseBuffer = await fs.readFile(baseImagePath);
+        const compositedBuffer = await this.compositor.composite(baseBuffer, adjustment);
+        await fs.writeFile(outputPath, compositedBuffer);
     }
 }

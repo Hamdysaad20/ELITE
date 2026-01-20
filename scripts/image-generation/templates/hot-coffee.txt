@@ -22,4 +22,6 @@ No reflections.
 
 [Style/Vibe]
 Commercial product mockup, ultra-clean, isolated subject.
+ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere in the image.
+Cup surface must be BLANK/unbranded (no printed patterns, no graphics).
 No text on the cup.

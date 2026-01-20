@@ -17,3 +17,4 @@ Background is extremely blurred (bokeh).
 [Style/Vibe]
 Refreshing, freezing cold, sensory detail, thirst-quenching.
 NO text, NO logos, pure texture.
+ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere.

@@ -22,4 +22,6 @@ Natural daylight aesthetic.
 
 [Style/Vibe]
 Commercial food photography, appetizing, thirst-quenching, high resolution, 4k.
+ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere in the image.
+Cup surface must be BLANK/unbranded (no printed patterns, no graphics).
 No text, no logos.
