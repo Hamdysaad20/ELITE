@@ -1,9 +1,10 @@
 import { config } from "dotenv";
 import fs from "fs/promises";
 import path from "path";
-import { FluxGenerator } from "./lib/generator";
+import { OpenAIGenerator } from "./lib/openai-generator";
 import { MockGenerator } from "./lib/mock-generator";
 import { FluxPromptBuilder } from "./lib/prompt-builder";
+import { ImageValidator } from "./lib/validator";
 
 // Load env
 config({ path: ".env.local" }); // Load local env for keys
@@ -16,7 +17,7 @@ async function main() {
     const isForce = args.includes("--force");
     const targetSlug = args.find(a => a.startsWith("--slug="))?.split("=")[1];
 
-    console.log(`🚀 Starting Image Generation [Mode: ${isLive ? "LIVE ($$$)" : "MOCK (Free)"}]`);
+    console.log(`🚀 Starting Image Generation [Mode: ${isLive ? "LIVE (DALL-E 3 $$$)" : "MOCK (Free)"}]`);
     if (isForce) console.log("⚠️  FORCE MODE: Overwriting existing images.");
 
     // 1. Load Dataset
@@ -28,8 +29,9 @@ async function main() {
     const products = rawData.products;
 
     // 2. Init Components
-    const generator = isLive ? new FluxGenerator() : new MockGenerator();
-    const generatorAny = generator as any; // Type hack for shared interface
+    const generator = isLive ? new OpenAIGenerator() : new MockGenerator();
+    const generatorAny = generator as any;
+    const validator = new ImageValidator();
 
     const promptBuilder = new FluxPromptBuilder();
     await promptBuilder.init();
@@ -42,37 +44,78 @@ async function main() {
 
         console.log(`📸 Processing [${p.slug}]...`);
 
-        // Generate Prompts for 3 Variations
-        // Expecting p to have full product data from ingest
+        // Generate Prompts
         const prompts = promptBuilder.generatePrompts(p);
 
         const variations = [
             { suffix: "v1-1", prompt: prompts.main, logo: true },      // Main: Standard + Logo
-            { suffix: "v1-2", prompt: prompts.detail, logo: false }    // Detail: Macro + No Logo
+            //  { suffix: "v1-2", prompt: prompts.detail, logo: false }    // Detail: Macro + No Logo (Skipping for now to save cost/focus on main)
         ];
 
         for (const v of variations) {
             const fileName = v.suffix;
-            const filePath = `public/products/${p.slug}/${fileName}.png`;
+            const relativePath = `products/${p.slug}/${fileName}.png`;
+            const fullPath = path.join(process.cwd(), "public", relativePath);
 
             // IDEMPOTENCY CHECK
             if (!isForce) {
                 try {
-                    await fs.access(path.join(process.cwd(), filePath));
-                    continue; // Skip if exists
+                    await fs.access(fullPath);
+                    console.log(`   ⏭️  Skipping existing: ${fileName}`);
+                    continue;
                 } catch {
                     // Generate
                 }
             }
 
-            console.log(`   > Generating ${v.suffix} (${isLive ? 'Live' : 'Mock'})...`);
+            // RETRY LOOP FOR VALIDATION
+            let attempts = 0;
+            const maxAttempts = isLive ? 3 : 1;
+            let success = false;
 
-            if (isLive) {
-                // FluxGenerator supports applyLogo param
-                await (generator as FluxGenerator).generateImage(v.prompt, fileName, p.slug, v.logo);
-            } else {
-                // MockGenerator ignores extra params usually
-                await generatorAny.generateImage(v.prompt, fileName, p.slug);
+            while (attempts < maxAttempts && !success) {
+                attempts++;
+                console.log(`   > Attempt ${attempts}/${maxAttempts} for ${v.suffix}...`);
+
+                if (isLive) {
+                    // 1. Generate
+                    await (generator as OpenAIGenerator).generateImage(v.prompt, fileName, p.slug, v.logo);
+
+                    // 2. Validate - DISABLED per user request
+                    /*
+                    if (v.logo) {
+                        // Draw box for debugging/reference (optional, maybe save as _debug.png?)
+                        // For now, we validate the generated image directly.
+                        // But Validator.drawValidationBox saves to a path.
+                        const debugPath = path.join(process.cwd(), "public", `products/${p.slug}/${fileName}_debug.png`);
+                        await validator.drawValidationBox(fullPath, debugPath);
+
+                        // Validate
+                        const valResult = await validator.validateImage(fullPath, v.prompt, p.baseName);
+                        if (valResult.isValid) {
+                            console.log(`      ✅ Validation Passed: ${valResult.reason}`);
+                            success = true;
+                            // Clean up debug file
+                            await fs.unlink(debugPath).catch(() => { });
+                        } else {
+                            console.warn(`      ❌ Validation Failed: ${valResult.reason}`);
+                            // If completely failed, we might want to retry.
+                            if (attempts < maxAttempts) {
+                                console.log("      🔄 Retrying...");
+                            } else {
+                                console.error("      🛑 Max attempts reached. Keeping the last invalid image.");
+                            }
+                        }
+                    } else {
+                        success = true; // No validation for non-logo images for now
+                    }
+                    */
+                    success = true; // Always succeed if validation is disabled
+
+                } else {
+                    await generatorAny.generateImage(v.prompt, fileName, p.slug);
+                    success = true;
+                }
             }
 
             processedCount++;

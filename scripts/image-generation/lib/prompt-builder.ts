@@ -108,6 +108,14 @@ export class FluxPromptBuilder {
         let surfaceTexture = isCold ? "ice cubes and liquid surface" : "smooth crema or foam";
 
         // Logic Rules
+        // Global enhancements
+        if (!isCold) {
+            // Add subtle steam to all hot drinks for "feeling"
+            // We append this to surfaceTexture or create a generic atmosphere descriptor
+            // Let's modify the template data later, or just append to surfaceTexture.
+            surfaceTexture += ". Delicate wisps of steam rising from the cup";
+        }
+
         if (name.includes("matcha")) {
             color = "vibrant creamy green";
             surfaceTexture = "fine microfoam with green tint";
@@ -123,9 +131,13 @@ export class FluxPromptBuilder {
             layers = "stunning tri-layer effect: Bottom layer of orange peach and passion fruit syrup. Middle section of clear soda with full ice cubes. Top layer of vibrant Blue Curaçao syrup creating a gradient.";
             toppings = "fruit puree swirl at the very bottom";
         }
-        else if (name.includes("chocolate") || name.includes("mocha")) {
+        else if (name.includes("chocolate") || name.includes("mocha") || name.includes("hot chocolate")) { // Added hot chocolate
             color = "rich dark chocolate brown";
             toppings = "chocolate powder dusting";
+            if (name.includes("hot chocolate")) {
+                // Specific rule: 3 big white pices not colored marchemillo flamed with fire
+                toppings = "3 big white marshmallows, flame-toasted/browned with a torch for texture";
+            }
         } else if (name.includes("strawberry")) {
             color = "pastel pink";
             layers = isCold ? "creamy pink texture" : "";
@@ -148,7 +160,7 @@ export class FluxPromptBuilder {
         } else if (name.includes("mojito")) {
             color = "clear/cloudy soda with green tint";
             layers = "soda water with muddled fresh mint leaves and lime wedges";
-            toppings = "lots of fresh mint and lime slices";
+            toppings = "lots of fresh mint and lime slices. NO whole fruits.";
         } else if (name.includes("hibiscus")) {
             color = "deep translucent red tea";
             layers = isCold ? "refreshing red tea over ice" : "";
@@ -164,16 +176,41 @@ export class FluxPromptBuilder {
         } else if (name.includes("frappe")) {
             color = "creamy blended texture";
             surfaceTexture = "high swirl of whipped cream"; // Frappe usually implies whip
-            toppings = "drizzle of sauce on the whipped cream";
+            toppings = "rich drizzle of sauce (matching flavor) on the whipped cream. Appetizing drips on the cup sides";
         } else if (name.includes("turkish")) {
             color = "very dark, thick coffee";
             surfaceTexture = "thick foam (face) with bubbles";
             cupStyle = "traditional small paper espresso cup";
+        } else if (name.includes("shake") || name.includes("milkshake")) {
+            color = "thick creamy milkshake texture";
+            surfaceTexture = "whipped cream";
+            if (name.includes("vanilla")) {
+                toppings = "silver edible sparkles on whipped cream";
+            }
+        } else if (name.includes("taro") || name.includes("boba")) {
+            // "boba at the bottom and iced cubes and the taro milk drink but at the top we have a fomey bubbly layer as we used the shaker... with drips"
+            color = name.includes("taro") ? "soft lavender purple" : "milky tea color";
+            layers = "bottom layer of black tapioca pearls (boba) and ice cubes. Main body is creamy liquid";
+            surfaceTexture = "thick foamy bubbly layer (shaken tea effect)";
+            cupStyle += ". Appetizing condensation and drips running down the side";
+        }
+
+        // CONSTRAINT ENFORCEMENT
+        // "full fruits parts we don't have", "cherry ... don't have"
+        // "we work with sauses, toppings and jars of cruches frutres"
+        const forbiddenConstraint = "Constraint: DO NOT include whole fruits, whole berries, or cherries. Use only sauces, crushes, or purees.";
+
+        // Append constraint to a suitable field or ensure it's in the template. 
+        // Since we return specific fields, let's append it to 'toppings' or 'layers' where appropriate,
+        // or we need to update the caller to include this.
+        // For now, let's append to 'toppings' if it's not "clean".
+        if (toppings !== "clean, minimal presentation") {
+            toppings += `. ${forbiddenConstraint}`;
         }
 
         // Checking attributes from Odoo
         if (p.attributes) {
-            if (JSON.stringify(p.attributes).toLowerCase().includes("whipped cream")) {
+            if (JSON.stringify(p.attributes).toLowerCase().includes("whipped cream") && !toppings.includes("whipped cream")) {
                 toppings += ", swirl of whipped cream on top";
             }
         }
