@@ -209,12 +209,13 @@ export class PaymentService {
     const lastName = nameParts.slice(1).join(" ") || "Customer";
 
     return {
-      apartment: address.apartment || "",
+      // Paymob is strict about some billing_data fields; prefer non-empty strings.
+      apartment: address.apartment || "0",
       email: user.email,
-      floor: "",
+      floor: "0",
       first_name: firstName,
       street: address.street,
-      building: "",
+      building: "0",
       phone_number: normalizedPhone,
       shipping_method: "PKG",
       postal_code: address.zipCode || "",

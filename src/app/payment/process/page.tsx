@@ -11,6 +11,7 @@ import {
   Lock,
   Wallet,
   Receipt,
+  ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/components/ToastProvider";
 import Link from "next/link";
@@ -26,6 +27,7 @@ function PaymentProcessContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [opened, setOpened] = useState(false);
   const [orderInfo, setOrderInfo] = useState<{
     total?: number;
     orderNumber?: string;
@@ -104,29 +106,7 @@ function PaymentProcessContent() {
 
   // Build iframe URL
   const iframeId = iframeConfig?.iframeId || process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID || "983628";
-  const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentKey}`;
-
-  // Handle payment completion via iframe message
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Verify origin
-      if (!event.origin.includes("paymob.com")) {
-        return;
-      }
-
-      // Handle payment completion
-      if (event.data?.type === "payment_success" || event.data?.success === true) {
-        router.push(`/payment/callback?orderId=${orderId}&status=success`);
-      } else if (event.data?.type === "payment_failed" || event.data?.success === false) {
-        router.push(`/payment/callback?orderId=${orderId}&status=failed`);
-      } else if (event.data?.type === "payment_cancelled") {
-        router.push(`/payment/callback?orderId=${orderId}&status=cancelled`);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [orderId, router]);
+  const paymobCheckoutUrl = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentKey}`;
 
   // Loading state - matches order page design
   if (loading) {
@@ -261,19 +241,48 @@ function PaymentProcessContent() {
           {processing && paymentKey && (
             <div className="space-y-4 sm:space-y-6">
               <p className="font-cabin text-elite-black/70 text-base sm:text-lg text-center">
-                Please complete your payment using the secure form below.
+                For security reasons, we don&apos;t collect card details on our website.
+                You&apos;ll be redirected to Paymob&apos;s secure checkout to enter your payment info.
               </p>
 
-              {/* Paymob iframe - branded custom iframe */}
-              <div className="w-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px] border-2 border-elite-burgundy/10 rounded-3xl bg-white overflow-hidden">
-                <iframe
-                  src={iframeUrl}
-                  className="w-full h-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px] border-0 rounded-3xl"
-                  title="Payment Form"
-                  allow="payment; fullscreen"
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-                  loading="lazy"
-                />
+              {/* No embedded iframe: open Paymob hosted checkout */}
+              <div className="bg-elite-cream/30 rounded-3xl p-4 sm:p-6">
+                <div className="flex flex-col gap-3 sm:gap-4">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
+                    onClick={() => {
+                      // Open in a new tab to avoid embedding while keeping this page available
+                      // for status verification and the "I've completed payment" action.
+                      window.open(paymobCheckoutUrl, "_blank", "noopener,noreferrer");
+                      setOpened(true);
+                      push({
+                        type: "success",
+                        message:
+                          "Paymob checkout opened in a new tab. Complete payment there, then return here.",
+                      });
+                    }}
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    Open Secure Payment Page
+                  </button>
+
+                  <a
+                    href={paymobCheckoutUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    If it didn&apos;t open, click here
+                  </a>
+                </div>
+
+                <div className="mt-4 text-center font-cabin text-xs sm:text-sm text-elite-black/60">
+                  {opened
+                    ? "After paying in the Paymob tab, come back here and click “I've Completed Payment”."
+                    : "We’ll keep this page open so you can verify payment status after finishing."}
+                </div>
               </div>
 
               {/* Manual completion action (some Paymob flows don't postMessage to parent reliably) */}
