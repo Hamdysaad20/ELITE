@@ -7,7 +7,7 @@ import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
 import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
-import { sanitizeImages } from "@/lib/imageUtils";
+import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 
 interface ProductModalProps {
   product: Product | null;
@@ -103,7 +103,9 @@ export default function ProductModal({
         quantity: quantity,
         attributes: attributes,
         totalPrice: totalPrice,
-        image: sanitizeImages(product.images)[0],
+        image:
+          getLocalProductImageCandidates(product.name)[0] ||
+          sanitizeImages(product.images)[0],
       });
 
       setJustAdded(true);

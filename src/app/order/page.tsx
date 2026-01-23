@@ -15,7 +15,7 @@ import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import { mapPaymentMethodToPaymob } from "@/types/payments";
-import { extractBaseName, slugify } from "@/lib/utils";
+import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 import {
   ShoppingBag,
   ChevronRight,
@@ -410,10 +410,28 @@ export default function OrderPage() {
     ? hasAuthForOnlinePayment && hasPhoneForOnlinePayment && stepDetailsDone
     : true;
 
-  const getLocalProductImage = (name?: string) => {
-    if (!name) return undefined;
-    const slug = slugify(extractBaseName(name));
-    return `/products/${slug}/v1-1.png`;
+  const getCartItemImageSources = (item: LocalCartItem): string[] => {
+    return [
+      ...getLocalProductImageCandidates(item.name),
+      item.image,
+    ].filter(Boolean) as string[];
+  };
+
+  const formatCartItemOptions = (item: LocalCartItem): string | null => {
+    const attrs = item.attributes || {};
+    const entries = Object.entries(attrs).filter(
+      ([, values]) => Array.isArray(values) && values.length > 0,
+    );
+    if (entries.length === 0) return null;
+
+    const parts = entries.map(([k, values]) => {
+      const names = values.map((v) => v.valueName).filter(Boolean).join(", ");
+      return names ? `${k}: ${names}` : k;
+    });
+
+    const shown = parts.slice(0, 2);
+    const remaining = parts.length - shown.length;
+    return remaining > 0 ? `${shown.join(" • ")} • +${remaining} more` : shown.join(" • ");
   };
 
   if (loading)
@@ -755,10 +773,7 @@ export default function OrderPage() {
                           {/* Item Image */}
                           <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 shadow-lg relative">
                             <ImageWithFallback
-                              src={[
-                                getLocalProductImage(item.name),
-                                item.image,
-                              ].filter(Boolean) as string[]}
+                              src={getCartItemImageSources(item)}
                               alt={item.name}
                               fill
                               objectFit="cover"
@@ -1128,10 +1143,7 @@ export default function OrderPage() {
                         >
                           <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-elite-burgundy/10 flex-shrink-0">
                             <ImageWithFallback
-                              src={[
-                                getLocalProductImage(it.name),
-                                it.image,
-                              ].filter(Boolean) as string[]}
+                              src={getCartItemImageSources(it)}
                               alt={it.name}
                               fill
                               objectFit="cover"
@@ -1143,9 +1155,14 @@ export default function OrderPage() {
                             <div className="font-cabin font-semibold text-elite-black truncate">
                               {it.name}
                             </div>
-                            <div className="font-cabin text-xs text-elite-black/60">
-                              Qty: {it.quantity} •{" "}
-                              <span className="tabular-nums">
+                            {formatCartItemOptions(it) && (
+                              <div className="font-cabin text-[11px] text-elite-black/60 line-clamp-1">
+                                {formatCartItemOptions(it)}
+                              </div>
+                            )}
+                            <div className="font-cabin text-xs text-elite-black/60 flex items-center justify-between gap-2">
+                              <span>Qty: {it.quantity}</span>
+                              <span className="tabular-nums font-semibold text-elite-black/70">
                                 {it.totalPrice.toFixed(2)} EGP
                               </span>
                             </div>

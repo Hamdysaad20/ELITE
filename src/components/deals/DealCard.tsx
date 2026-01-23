@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Check, Tag } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
-import { sanitizeImages } from "@/lib/imageUtils";
+import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
 
@@ -110,7 +110,7 @@ export default function DealCard({
         quantity: 1,
         attributes: {},
         totalPrice: dealPrice,
-        image: validImages[0],
+        image: getLocalProductImageCandidates(displayName)[0] || validImages[0],
       });
 
       setAddToOrderState({ adding: false, added: true });

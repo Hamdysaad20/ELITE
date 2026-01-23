@@ -2,6 +2,8 @@
  * Image utility functions for handling Odoo images, fallbacks, and validation
  */
 
+import { extractBaseName, slugify } from "@/lib/utils";
+
 /**
  * Marker used when images are stripped from list view for performance
  * The actual image will be fetched on-demand when viewing product details
@@ -153,4 +155,19 @@ export function sanitizeImages(
 ): string[] {
   if (!images || !Array.isArray(images)) return [];
   return images.filter((img): img is string => isValidImage(img));
+}
+
+/**
+ * Local product image candidates from our generated images library.
+ * Tries "base name" and the full name so we can handle variants consistently.
+ */
+export function getLocalProductImageCandidates(
+  name: string | undefined | null,
+  filename: string = "v1-1.png",
+): string[] {
+  if (!name) return [];
+  const base = extractBaseName(name);
+  const slugs = [slugify(base), slugify(name)].filter(Boolean);
+  const uniqueSlugs = Array.from(new Set(slugs));
+  return uniqueSlugs.map((s) => `/products/${s}/${filename}`);
 }

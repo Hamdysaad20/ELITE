@@ -9,7 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
-import { sanitizeImages } from "@/lib/imageUtils";
+import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import type { ComboDeal } from "@/types/deals";
@@ -84,7 +84,9 @@ export default function ComboDealCard({
             quantity: 1,
             attributes: {},
             totalPrice: item.price,
-            image: item.image,
+            image:
+              getLocalProductImageCandidates(item.name)[0] ||
+              item.image,
           });
         }
       }

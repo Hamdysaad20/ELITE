@@ -20,6 +20,7 @@ import DrinkCard from "@/components/DrinkCard";
 import { ReviewCard } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
+import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 
 interface AttributeValue {
   id: number;
@@ -190,7 +191,7 @@ export default function ProductDetailClient({
       quantity,
       attributes: cartAttributes,
       totalPrice: unitPrice * quantity,
-      image: product.images?.[0],
+      image: getLocalProductImageCandidates(product.name)[0] || product.images?.[0],
     });
 
     // Show success feedback

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import ImageWithFallback from "./ui/ImageWithFallback";
-import { getFirstValidImage } from "@/lib/imageUtils";
+import { getFirstValidImage, getLocalProductImageCandidates } from "@/lib/imageUtils";
 import { apiClient } from "@/lib/auth/apiClient";
 import Link from "next/link";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -450,7 +450,9 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
             quantity: item.quantity,
             attributes: attributes,
             totalPrice: item.totalPrice,
-            image: item.menuItem?.images?.[0],
+            image:
+              getLocalProductImageCandidates(item.menuItem?.name)[0] ||
+              item.menuItem?.images?.[0],
           });
 
           itemsAdded++;
