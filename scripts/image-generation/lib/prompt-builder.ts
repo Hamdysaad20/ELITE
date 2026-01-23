@@ -131,7 +131,8 @@ export class FluxPromptBuilder {
             "food",
             "sandwich", "cake", "bakery", "dessert", "cookie", "croissant", "muffin",
             "snack", "breakfast", "salad", "toast", "wrap", "panini", "waffle", "donut",
-            "brownie", "brownies", "baguette", "ciabatta", "pastry", "pie", "tart",
+            "brownie", "brownies", "baguette", "ciabatta", "bread", "bun", "bagel", "brioche", "pita",
+            "pastry", "pie", "tart", "steak",
             "chicken", "bbq", "ranch",
         ];
         if (foodKeywords.some(k => name.includes(k) || cat.includes(k))) return true;
