@@ -7,28 +7,28 @@ export enum AuthEvent {
   SIGNIN_STARTED = "auth.signin.started",
   SIGNIN_SUCCESS = "auth.signin.success",
   SIGNIN_FAILED = "auth.signin.failed",
-  
+
   // Magic link events
   MAGIC_LINK_SENT = "auth.magiclink.sent",
   MAGIC_LINK_CLICKED = "auth.magiclink.clicked",
   MAGIC_LINK_EXPIRED = "auth.magiclink.expired",
   MAGIC_LINK_INVALID = "auth.magiclink.invalid",
-  
+
   // Session events
   SESSION_CREATED = "auth.session.created",
   SESSION_UPDATED = "auth.session.updated",
   SESSION_EXPIRED = "auth.session.expired",
   SESSION_REVOKED = "auth.session.revoked",
-  
+
   // Account events
   ACCOUNT_CREATED = "auth.account.created",
   ACCOUNT_UPDATED = "auth.account.updated",
   ACCOUNT_DELETED = "auth.account.deleted",
   ACCOUNT_SUSPENDED = "auth.account.suspended",
-  
+
   // Rate limit events
   RATE_LIMIT_EXCEEDED = "auth.ratelimit.exceeded",
-  
+
   // Security events
   SUSPICIOUS_ACTIVITY = "auth.security.suspicious",
   TOKEN_REUSE_DETECTED = "auth.security.token_reuse",
@@ -74,40 +74,42 @@ export function logAuthEvent(
   // In production, send to logging service (DataDog, Sentry, CloudWatch, etc.)
   if (process.env.NODE_ENV === "production") {
     console.log(JSON.stringify(log));
-    
+
     // Send to Sentry if configured
     if (typeof window === "undefined" && process.env.NEXT_PUBLIC_SENTRY_DSN) {
       // Dynamic import to avoid require()
-      import("@sentry/nextjs").then((SentryModule) => {
-        const Sentry = SentryModule.default || SentryModule;
-        
-        if (severity === "error" || severity === "critical") {
-          Sentry.captureException(new Error(event), {
-            level: severity === "critical" ? "fatal" : "error",
-            contexts: {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              auth: context as Record<string, any>,
-            },
-            tags: {
-              event_type: event,
-              user_id: context.userId,
-            },
-          });
-        } else {
-          Sentry.captureMessage(event, {
-            level: severity === "warning" ? "warning" : "info",
-            contexts: {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              auth: context as Record<string, any>,
-            },
-            tags: {
-              event_type: event,
-            },
-          });
-        }
-      }).catch(() => {
-        // Fail silently if Sentry is not available
-      });
+      import("@sentry/nextjs")
+        .then((SentryModule) => {
+          const Sentry = SentryModule.default || SentryModule;
+
+          if (severity === "error" || severity === "critical") {
+            Sentry.captureException(new Error(event), {
+              level: severity === "critical" ? "fatal" : "error",
+              contexts: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                auth: context as Record<string, any>,
+              },
+              tags: {
+                event_type: event,
+                user_id: context.userId,
+              },
+            });
+          } else {
+            Sentry.captureMessage(event, {
+              level: severity === "warning" ? "warning" : "info",
+              contexts: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                auth: context as Record<string, any>,
+              },
+              tags: {
+                event_type: event,
+              },
+            });
+          }
+        })
+        .catch(() => {
+          // Fail silently if Sentry is not available
+        });
     }
   } else {
     // In development, pretty print
@@ -138,12 +140,12 @@ export function logAuthEvent(
               },
             ],
           }),
-        }).catch(err => console.error("Slack alert failed:", err));
+        }).catch((err) => console.error("Slack alert failed:", err));
       } catch (err) {
         console.error("Failed to send alert:", err);
       }
     }
-    
+
     console.error("🚨 CRITICAL AUTH EVENT:", log);
   }
 }
@@ -173,9 +175,13 @@ function getSeverityEmoji(severity: AuthLog["severity"]): string {
 /**
  * Helper to extract request metadata for logging
  */
-export function getRequestMetadata(request: Request): Pick<AuthLogContext, "ip" | "userAgent"> {
+export function getRequestMetadata(
+  request: Request,
+): Pick<AuthLogContext, "ip" | "userAgent"> {
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip") || "unknown";
+  const ip = forwarded
+    ? forwarded.split(",")[0].trim()
+    : request.headers.get("x-real-ip") || "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
 
   return { ip, userAgent };
@@ -201,23 +207,27 @@ export function logRateLimitExceeded(
 /**
  * Helper to detect suspicious activity patterns
  */
-export async function detectSuspiciousActivity(context: AuthLogContext): Promise<boolean> {
+export async function detectSuspiciousActivity(
+  context: AuthLogContext,
+): Promise<boolean> {
   // Basic suspicious activity detection
   // Can be enhanced with ML/AI models or external fraud detection services
-  
+
   let suspicious = false;
-  
+
   // Check for rapid session creation (more than 5 sessions in 5 minutes)
   if (context.sessionId && context.ip) {
     try {
       const redisKey = `sus:sessions:${context.ip}`;
-      const { redisIncr, redisExpire, redisGet } = await import("@/server/cache/redis");
-      
+      const { redisIncr, redisExpire, redisGet } = await import(
+        "@/server/cache/redis"
+      );
+
       const count = await redisIncr(redisKey);
       if (count === 1) {
         await redisExpire(redisKey, 300); // 5 minutes
       }
-      
+
       if (count > 5) {
         suspicious = true;
         logAuthEvent(
@@ -233,11 +243,10 @@ export async function detectSuspiciousActivity(context: AuthLogContext): Promise
       console.error("Failed to check session creation rate:", err);
     }
   }
-  
+
   // Check for user agent switching (same user, different user agent in short time)
   // This could indicate account compromise
   // TODO: Implement more sophisticated detection with ML
-  
+
   return suspicious;
 }
-

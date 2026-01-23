@@ -47,7 +47,7 @@ interface UseOrderStatusReturn {
 
 /**
  * Hook to fetch and poll order status with Odoo integration status
- * 
+ *
  * @example
  * ```tsx
  * const { status, isPolling, loading } = useOrderStatus({
@@ -55,7 +55,7 @@ interface UseOrderStatusReturn {
  *   pollInterval: 5000,
  *   stopWhen: (s) => s.odooStatusSale === "synced" && s.odooStatusPos === "synced"
  * });
- * 
+ *
  * return (
  *   <div>
  *     <p>Status: {status?.status}</p>
@@ -65,14 +65,16 @@ interface UseOrderStatusReturn {
  * );
  * ```
  */
-export function useOrderStatus(options: UseOrderStatusOptions): UseOrderStatusReturn {
+export function useOrderStatus(
+  options: UseOrderStatusOptions,
+): UseOrderStatusReturn {
   const { orderId, pollInterval = 3000, enabled = true, stopWhen } = options;
-  
+
   const [status, setStatus] = useState<OrderStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(enabled);
-  
+
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
@@ -85,8 +87,10 @@ export function useOrderStatus(options: UseOrderStatusOptions): UseOrderStatusRe
         setError(null);
       }
 
-      const response = await apiClient.get<OrderStatus>(`/api/orders/${orderId}/status`);
-      
+      const response = await apiClient.get<OrderStatus>(
+        `/api/orders/${orderId}/status`,
+      );
+
       if (isMountedRef.current) {
         setStatus(response);
         setLoading(false);
@@ -98,7 +102,8 @@ export function useOrderStatus(options: UseOrderStatusOptions): UseOrderStatusRe
       }
     } catch (err) {
       if (isMountedRef.current) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load order status";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load order status";
         setError(errorMessage);
         setLoading(false);
         console.error("Failed to fetch order status:", err);
@@ -171,10 +176,13 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
       params.append("limit", String(limit));
       params.append("offset", String(offset));
 
-      const response = await apiClient.get<{ orders: OrderType[] }>(`/api/orders?${params.toString()}`);
+      const response = await apiClient.get<{ orders: OrderType[] }>(
+        `/api/orders?${params.toString()}`,
+      );
       setOrders(response.orders || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load orders";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load orders";
       setError(errorMessage);
       console.error("Failed to fetch orders:", err);
     } finally {
@@ -193,5 +201,3 @@ export function useOrders(options: { limit?: number; offset?: number } = {}) {
     refetch: fetchOrders,
   };
 }
-
-

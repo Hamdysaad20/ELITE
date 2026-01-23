@@ -24,4 +24,3 @@ export async function GET(request: NextRequest) {
     return jsonResponse(errorResponse(msg), 401);
   }
 }
-

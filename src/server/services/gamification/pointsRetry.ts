@@ -1,6 +1,6 @@
 /**
  * Points Retry Service
- * 
+ *
  * Handles retrying failed points operations to ensure eventual consistency
  * between loyalty and analytics systems.
  */
@@ -183,8 +183,7 @@ export async function processPointsRetry(
         await updateUserPoints(userId, points, "earn", undefined, reason);
         success = true;
       } catch (err) {
-        error =
-          err instanceof Error ? err.message : String(err);
+        error = err instanceof Error ? err.message : String(err);
         success = false;
       }
     }
@@ -284,7 +283,7 @@ export function startPointsRetryWorker() {
 
 /**
  * Enqueue a points retry operation
- * 
+ *
  * Strategy:
  * 1. In serverless (Vercel/Netlify): Run inline retry directly (no queue worker available)
  * 2. In non-serverless with Redis: Queue the job for async processing with retries
@@ -350,4 +349,3 @@ export async function enqueuePointsRetry(
     }
   }
 }
-

@@ -19,20 +19,17 @@ export default function ProductGridSkeleton({
     3: "grid-cols-2 md:grid-cols-3",
     4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
   };
-  
+
   return (
     <div
       className={cn(
         "grid gap-3 sm:gap-4 lg:gap-5",
         columnClasses[columns],
-        className
+        className,
       )}
     >
       {Array.from({ length: count }).map((_, index) => (
-        <div 
-          key={index}
-          style={{ animationDelay: `${index * 50}ms` }}
-        >
+        <div key={index} style={{ animationDelay: `${index * 50}ms` }}>
           <ProductCardSkeleton size="small" />
         </div>
       ))}

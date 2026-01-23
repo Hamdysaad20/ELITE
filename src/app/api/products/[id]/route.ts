@@ -28,14 +28,16 @@ export async function GET(
         lastUpdate: lastUpdate || null,
       }),
     );
-    
+
     // Cache for 5 minutes, stale-while-revalidate for 1 hour
-    response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
-    
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=300, stale-while-revalidate=3600",
+    );
+
     return response;
   } catch (err: any) {
     const msg = err?.message || "Failed to fetch product";
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

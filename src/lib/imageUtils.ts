@@ -19,34 +19,36 @@ export function isImageMarker(src: string | undefined | null): boolean {
  * Validates if a string is a valid image URL or base64
  */
 export function isValidImage(src: string | undefined | null): boolean {
-  if (!src || typeof src !== 'string') return false;
-  
+  if (!src || typeof src !== "string") return false;
+
   // The "has-image" marker is not a valid displayable image
   if (src === HAS_IMAGE_MARKER) return false;
-  
+
   // Check if base64
-  if (src.startsWith('data:image/')) return true;
-  
+  if (src.startsWith("data:image/")) return true;
+
   // Check if URL
   try {
     new URL(src);
     return true;
   } catch {
     // Check if relative path
-    return src.startsWith('/') || src.startsWith('./');
+    return src.startsWith("/") || src.startsWith("./");
   }
 }
 
 /**
  * Get fallback image by type
  */
-export function getFallbackImage(type: 'product' | 'category' | 'user' = 'product'): string {
+export function getFallbackImage(
+  type: "product" | "category" | "user" = "product",
+): string {
   const fallbacks = {
-    product: '/images/placeholder.svg',
-    category: '/images/placeholder.svg',
-    user: '/images/placeholder.svg',
+    product: "/images/placeholder.svg",
+    category: "/images/placeholder.svg",
+    user: "/images/placeholder.svg",
   };
-  
+
   return fallbacks[type];
 }
 
@@ -55,21 +57,24 @@ export function getFallbackImage(type: 'product' | 'category' | 'user' = 'produc
  */
 export function getFirstValidImage(
   images: (string | undefined | null)[] | undefined | null,
-  fallback?: string
+  fallback?: string,
 ): string {
   if (!images || !Array.isArray(images)) {
-    return fallback || getFallbackImage('product');
+    return fallback || getFallbackImage("product");
   }
-  
-  const validImage = images.find(img => isValidImage(img));
-  return validImage || fallback || getFallbackImage('product');
+
+  const validImage = images.find((img) => isValidImage(img));
+  return validImage || fallback || getFallbackImage("product");
 }
 
 /**
  * Convert Odoo base64 image to optimized format
  * Note: This is a placeholder - actual optimization would require server-side processing
  */
-export function optimizeOdooImage(base64: string, quality: number = 80): string {
+export function optimizeOdooImage(
+  base64: string,
+  quality: number = 80,
+): string {
   // For now, just return the base64 as-is
   // In production, you might want to:
   // 1. Decode the base64
@@ -85,13 +90,13 @@ export function optimizeOdooImage(base64: string, quality: number = 80): string 
 export function preloadImage(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (!isValidImage(src)) {
-      reject(new Error('Invalid image source'));
+      reject(new Error("Invalid image source"));
       return;
     }
-    
+
     const img = new Image();
     img.onload = () => resolve();
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = src;
   });
 }
@@ -107,18 +112,20 @@ export async function preloadImages(sources: string[]): Promise<void> {
 /**
  * Get image dimensions
  */
-export function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
+export function getImageDimensions(
+  src: string,
+): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     if (!isValidImage(src)) {
-      reject(new Error('Invalid image source'));
+      reject(new Error("Invalid image source"));
       return;
     }
-    
+
     const img = new Image();
     img.onload = () => {
       resolve({ width: img.naturalWidth, height: img.naturalHeight });
     };
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = src;
   });
 }
@@ -127,7 +134,7 @@ export function getImageDimensions(src: string): Promise<{ width: number; height
  * Check if image is base64
  */
 export function isBase64Image(src: string): boolean {
-  return typeof src === 'string' && src.startsWith('data:image/');
+  return typeof src === "string" && src.startsWith("data:image/");
 }
 
 /**
@@ -142,7 +149,7 @@ export function getImagePriority(index: number, totalImages: number): boolean {
  * Sanitize image array - remove nulls, undefineds, and invalid images
  */
 export function sanitizeImages(
-  images: (string | undefined | null)[] | undefined | null
+  images: (string | undefined | null)[] | undefined | null,
 ): string[] {
   if (!images || !Array.isArray(images)) return [];
   return images.filter((img): img is string => isValidImage(img));

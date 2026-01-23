@@ -1,0 +1,29 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Studio lighting, high key, bright, sharp focus, refreshing feel
+Camera: Macro lens, shallow depth of field, focus on condensation and texture
+Composition: Centered, straight-on view
+
+[Subject]
+A premium {{ drinkName }} in {{ cupDescription }}.
+{{ customOverlay }}
+{{ textRules }}
+The drink features {{ layers }}.
+Filled with clear ice cubes.
+Heavy cold condensation droplets on the outside of the cup.
+The liquid color is {{ color }}.
+NO LID. NO COVER. NO STRAW. Open-top cup only.
+
+[Toppings/Garnish]
+{{ toppings }}
+NO fruit pieces/chunks/cubes/berries on top or around the cup. Sauces/purees/crushed toppings only.
+NO props: no scattered ice cubes, no coffee beans, no crumbs, nothing placed around the cup.
+
+[Background/Environment]
+Clean, minimal cafe counter surface.
+Soft, blurred background (neutral tones to keep focus on the drink).
+Natural daylight aesthetic.
+
+[Style/Vibe]
+Commercial food photography, appetizing, thirst-quenching, high resolution, 4k.

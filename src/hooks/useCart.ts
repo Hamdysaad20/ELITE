@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useOptimistic, useTransition } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useOptimistic,
+  useTransition,
+} from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/auth/apiClient";
 import type { Cart, CartItem } from "@/types";
@@ -36,11 +42,11 @@ interface UseCartReturn {
  * const { cart, addToCart, removeFromCart, loading } = useCart();
  *
  * if (loading) return <Spinner />;
- * 
+ *
  * // Add item to cart
  * await addToCart('item-id', 2, { size: 'Large', flavor: 'Vanilla' });
  * ```
- * 
+ *
  * Note: Automatically handles authentication via NextAuth session.
  * Cart is user-specific and persists across sessions.
  */
@@ -50,13 +56,16 @@ type CartAction =
   | { type: "update"; itemId: string; quantity: number }
   | { type: "clear" };
 
-function applyOptimisticUpdate(cart: Cart | null, action: CartAction): Cart | null {
+function applyOptimisticUpdate(
+  cart: Cart | null,
+  action: CartAction,
+): Cart | null {
   if (!cart) return cart;
 
   switch (action.type) {
     case "add": {
       const existingItemIndex = cart.items.findIndex(
-        (item) => item.menuItemId === action.item.menuItemId
+        (item) => item.menuItemId === action.item.menuItemId,
       );
       if (existingItemIndex >= 0) {
         const newItems = [...cart.items];
@@ -77,7 +86,9 @@ function applyOptimisticUpdate(cart: Cart | null, action: CartAction): Cart | nu
       return {
         ...cart,
         items: cart.items.map((item) =>
-          item.id === action.itemId ? { ...item, quantity: action.quantity } : item
+          item.id === action.itemId
+            ? { ...item, quantity: action.quantity }
+            : item,
         ),
       };
     case "clear":
@@ -92,7 +103,7 @@ export function useCart(): UseCartReturn {
   const [cart, setCart] = useState<Cart | null>(null);
   const [optimisticCart, setOptimisticCart] = useOptimistic(
     cart,
-    applyOptimisticUpdate
+    applyOptimisticUpdate,
   );
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(true);
@@ -183,7 +194,7 @@ export function useCart(): UseCartReturn {
       } catch (err) {
         // Revert optimistic update on error
         await fetchCart();
-        
+
         const errorMessage =
           err instanceof Error ? err.message : "Failed to add item to cart";
         setError(errorMessage);
@@ -217,7 +228,7 @@ export function useCart(): UseCartReturn {
       } catch (err) {
         // Revert optimistic update on error
         await fetchCart();
-        
+
         const errorMessage =
           err instanceof Error ? err.message : "Failed to remove item";
         setError(errorMessage);
@@ -251,7 +262,7 @@ export function useCart(): UseCartReturn {
       } catch (err) {
         // Revert optimistic update on error
         await fetchCart();
-        
+
         const errorMessage =
           err instanceof Error ? err.message : "Failed to update quantity";
         setError(errorMessage);
@@ -286,14 +297,14 @@ export function useCart(): UseCartReturn {
     } catch (err) {
       // Revert optimistic update on error
       await fetchCart();
-      
+
       const errorMessage =
         err instanceof Error ? err.message : "Failed to clear cart";
       setError(errorMessage);
       console.error("Failed to clear cart:", err);
       throw err;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, fetchCart]);
 
   // Calculate item count from optimistic cart
@@ -301,7 +312,8 @@ export function useCart(): UseCartReturn {
     optimisticCart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   // Calculate total from optimistic cart
-  const total = optimisticCart?.items.reduce((sum, item) => sum + item.price, 0) || 0;
+  const total =
+    optimisticCart?.items.reduce((sum, item) => sum + item.price, 0) || 0;
 
   return {
     cart: optimisticCart,

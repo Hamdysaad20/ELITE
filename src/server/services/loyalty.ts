@@ -33,8 +33,8 @@ export async function awardOrderPoints(
     // Get order details
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { 
-        total: true, 
+      select: {
+        total: true,
         status: true,
         userId: true,
         paymentStatus: true,
@@ -49,7 +49,9 @@ export async function awardOrderPoints(
 
     // Only award points for delivered/completed orders
     if (!["DELIVERED", "COMPLETED"].includes(order.status)) {
-      console.log(`ℹ️ Order ${orderId} status is ${order.status}, not awarding points yet`);
+      console.log(
+        `ℹ️ Order ${orderId} status is ${order.status}, not awarding points yet`,
+      );
       return null;
     }
 
@@ -58,9 +60,11 @@ export async function awardOrderPoints(
     // Online payments must have PAID status
     const isCashPayment = order.paymentMethod === "CASH";
     const isPaid = order.paymentStatus === "PAID";
-    
+
     if (!isCashPayment && !isPaid) {
-      console.log(`ℹ️ Order ${orderId} payment not confirmed (${order.paymentStatus}), not awarding points yet`);
+      console.log(
+        `ℹ️ Order ${orderId} payment not confirmed (${order.paymentStatus}), not awarding points yet`,
+      );
       return null;
     }
 
@@ -151,8 +155,10 @@ export async function awardOrderPoints(
     );
 
     if (levelChanged) {
-      console.log(`🎉 User ${userId} tier upgraded: ${loyaltyAccount.level} → ${newLevel}`);
-      
+      console.log(
+        `🎉 User ${userId} tier upgraded: ${loyaltyAccount.level} → ${newLevel}`,
+      );
+
       // Create tier upgrade ledger entry
       await prisma.loyaltyLedger.create({
         data: {

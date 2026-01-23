@@ -1,10 +1,10 @@
 /**
  * Time validation utilities for Monday Morning Deals
- * 
+ *
  * Deals are valid:
  * - Day: Monday
  * - Time: 8:00 AM - 1:00 PM (13:00)
- * 
+ *
  * Note: Time is validated in the application timezone (Egypt/Cairo)
  */
 
@@ -20,17 +20,17 @@ export function isDealActive(date: Date = new Date()): boolean {
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const totalMinutes = hours * 60 + minutes;
-  
+
   // Monday = 1
   if (dayOfWeek !== 1) {
     return false;
   }
-  
+
   // 8:00 AM = 8 * 60 = 480 minutes
   // 1:00 PM = 13 * 60 = 780 minutes
   const startMinutes = 8 * 60; // 8:00 AM
   const endMinutes = 13 * 60; // 1:00 PM (13:00)
-  
+
   return totalMinutes >= startMinutes && totalMinutes < endMinutes;
 }
 
@@ -41,18 +41,18 @@ export function isDealActive(date: Date = new Date()): boolean {
 export function getNextDealTime(): Date {
   const now = new Date();
   const dayOfWeek = now.getDay();
-  
+
   // Calculate days until next Monday
   let daysUntilMonday = (1 - dayOfWeek + 7) % 7;
   if (daysUntilMonday === 0 && now.getHours() >= 13) {
     // If it's Monday but past 1 PM, get next Monday
     daysUntilMonday = 7;
   }
-  
+
   const nextMonday = new Date(now);
   nextMonday.setDate(now.getDate() + daysUntilMonday);
   nextMonday.setHours(8, 0, 0, 0); // 8:00 AM
-  
+
   return nextMonday;
 }
 
@@ -70,15 +70,15 @@ export function getTimeUntilNextDeal(): string {
   const nextDeal = getNextDealTime();
   const now = new Date();
   const diffMs = nextDeal.getTime() - now.getTime();
-  
+
   if (diffMs <= 0) {
     return "Available now";
   }
-  
+
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  
+
   if (days > 0) {
     return `Available in ${days} day${days > 1 ? "s" : ""} ${hours} hour${hours !== 1 ? "s" : ""}`;
   } else if (hours > 0) {
@@ -87,4 +87,3 @@ export function getTimeUntilNextDeal(): string {
     return `Available in ${minutes} minute${minutes !== 1 ? "s" : ""}`;
   }
 }
-

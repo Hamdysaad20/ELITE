@@ -9,19 +9,20 @@ import { getProductsSafe } from "@/server/services/product.service";
 
 type Product = {
   id: string;
-  name: string;              // Standardized naming
+  name: string; // Standardized naming
   description?: string | null;
   price: number;
   categoryId?: string;
-  category?: {               // Category object
+  category?: {
+    // Category object
     id: string;
     name: string;
   };
   available?: boolean;
   images?: string[];
   sku?: string;
-  stock?: number | null;     // Stock level
-  sequence?: number;         // Sort order
+  stock?: number | null; // Stock level
+  sequence?: number; // Sort order
 };
 
 // Categories that should not be displayed on the website menu
@@ -31,14 +32,14 @@ type Product = {
 // - Promotional/discount categories (not browsable menu items)
 // - Internal/expense categories
 const EXCLUDED_CATEGORIES = [
-  'Extras',         // Add-ons and extras (these are attributes)
-  'EXTRA',          // Case variation
-  'Services',       // Administrative items like "OPEN REGISTER"
-  'Offers',         // Discounts and promotions (not browsable menu items)
-  'Expenses',       // Internal expense tracking
-  'Toppings',       // Add-ons (handled as product attributes)
-  'Sauces',         // Add-ons (handled as product attributes)
-  'Elite Essentials', // Internal supplies
+  "Extras", // Add-ons and extras (these are attributes)
+  "EXTRA", // Case variation
+  "Services", // Administrative items like "OPEN REGISTER"
+  "Offers", // Discounts and promotions (not browsable menu items)
+  "Expenses", // Internal expense tracking
+  "Toppings", // Add-ons (handled as product attributes)
+  "Sauces", // Add-ons (handled as product attributes)
+  "Elite Essentials", // Internal supplies
 ];
 
 function applyFilters(
@@ -94,13 +95,13 @@ function stripImagesForListView(product: any): Product {
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
-    
+
     // Support fetching single product by ID
     const productId = url.searchParams.get("id");
     const categoryId = url.searchParams.get("categoryId");
     const limit = url.searchParams.get("limit");
     const includeImages = url.searchParams.get("includeImages") === "true";
-    
+
     const page = Number(url.searchParams.get("page") || "1");
     const pageSize = Number(url.searchParams.get("pageSize") || "50");
     const category = url.searchParams.get("category");
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest) {
     const { products: allProducts, lastUpdate } = await getProductsSafe();
 
     // Filter out excluded categories (Extras, Services, etc.)
-    const websiteProducts = allProducts.filter(product => {
+    const websiteProducts = allProducts.filter((product) => {
       if (!product.category) return true; // Include products without category
       return !EXCLUDED_CATEGORIES.includes(product.category.name);
     });
@@ -124,25 +125,41 @@ export async function GET(request: NextRequest) {
         return jsonResponse(errorResponse("Product not found"), 404);
       }
       // Single product view: include full images
-      return jsonResponse(successResponse([product], lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
+      return jsonResponse(
+        successResponse(
+          [product],
+          lastUpdate ? `Last updated: ${lastUpdate}` : undefined,
+        ),
+      );
     }
 
     // Apply filters
-    let filtered = applyFilters(websiteProducts, { category, search, availability });
-    
+    let filtered = applyFilters(websiteProducts, {
+      category,
+      search,
+      availability,
+    });
+
     // Filter by categoryId if provided (for related products)
     if (categoryId) {
       filtered = filtered.filter((p) => p.categoryId === categoryId);
     }
-    
+
     // Apply limit if provided (for related products)
     if (limit) {
       const limitNum = Number(limit);
       if (Number.isFinite(limitNum) && limitNum > 0) {
         filtered = filtered.slice(0, limitNum);
         // Strip images for list view unless explicitly requested
-        const items = includeImages ? filtered : filtered.map(stripImagesForListView);
-        return jsonResponse(successResponse(items, lastUpdate ? `Last updated: ${lastUpdate}` : undefined));
+        const items = includeImages
+          ? filtered
+          : filtered.map(stripImagesForListView);
+        return jsonResponse(
+          successResponse(
+            items,
+            lastUpdate ? `Last updated: ${lastUpdate}` : undefined,
+          ),
+        );
       }
     }
 
@@ -151,7 +168,7 @@ export async function GET(request: NextRequest) {
     const start = (p - 1) * ps;
     const end = start + ps;
     const slice = filtered.slice(start, end);
-    
+
     // Strip base64 images for list view (massive payload reduction: 1MB -> ~50KB)
     // Images are fetched on-demand for individual product pages
     const items = includeImages ? slice : slice.map(stripImagesForListView);
@@ -167,16 +184,18 @@ export async function GET(request: NextRequest) {
         lastUpdate: lastUpdate || null,
       }),
     );
-    
+
     // Cache for 5 minutes, stale-while-revalidate for 1 hour
-    response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
-    
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=300, stale-while-revalidate=3600",
+    );
+
     return response;
   } catch (err: any) {
     const msg = err?.message || "Failed to fetch products";
     // Log full error for debugging but return user-friendly message
-    console.error('[API] /api/products error:', err);
+    console.error("[API] /api/products error:", err);
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

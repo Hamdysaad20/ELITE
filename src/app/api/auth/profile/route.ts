@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
 import { z } from "zod";
 import { createOdooClient } from "@/server/utils/odooClient";
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/).optional().nullable(),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/)
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -50,19 +58,23 @@ export async function GET(request: NextRequest) {
       return jsonResponse(errorResponse("User not found"), 404);
     }
 
-    return jsonResponse(successResponse({
-      ...profile,
-      loyalty: profile.loyalty || {
-        points: 0,
-        totalSpent: 0,
-        level: "bronze",
-        updatedAt: new Date(),
-      },
-      orderCount: profile._count.orders,
-    }));
+    return jsonResponse(
+      successResponse({
+        ...profile,
+        loyalty: profile.loyalty || {
+          points: 0,
+          totalSpent: 0,
+          level: "bronze",
+          updatedAt: new Date(),
+        },
+        orderCount: profile._count.orders,
+      }),
+    );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch profile";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch profile";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
@@ -114,11 +126,13 @@ export async function PATCH(request: NextRequest) {
       const odooClient = createOdooClient();
       if (odooClient && updatedUser.email) {
         await odooClient.findOrCreatePartner({
-          name: updatedUser.name || updatedUser.email.split('@')[0] || 'Guest',
+          name: updatedUser.name || updatedUser.email.split("@")[0] || "Guest",
           email: updatedUser.email,
           phone: updatedUser.phone || undefined,
         });
-        console.log(`✅ Profile update synced to Odoo for user ${updatedUser.id}`);
+        console.log(
+          `✅ Profile update synced to Odoo for user ${updatedUser.id}`,
+        );
       }
     } catch (error) {
       console.error("❌ Failed to sync profile update to Odoo:", error);
@@ -130,8 +144,10 @@ export async function PATCH(request: NextRequest) {
     );
   } catch (error) {
     console.error("Profile update error:", error);
-    const message = error instanceof Error ? error.message : "Failed to update profile";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error ? error.message : "Failed to update profile";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
@@ -159,14 +175,13 @@ export async function DELETE(request: NextRequest) {
       "info",
     );
 
-    return jsonResponse(
-      successResponse(null, "Account deleted successfully"),
-    );
+    return jsonResponse(successResponse(null, "Account deleted successfully"));
   } catch (error) {
     console.error("Account deletion error:", error);
-    const message = error instanceof Error ? error.message : "Failed to delete account";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error ? error.message : "Failed to delete account";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
-

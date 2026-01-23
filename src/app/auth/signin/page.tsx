@@ -5,18 +5,20 @@ import { signIn } from "next-auth/react";
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  Coffee, 
-  Mail, 
-  ArrowLeft, 
-  Info, 
-  Sparkles, 
-  Gift, 
-  Zap, 
+import Image from "next/image";
+import { motion } from "framer-motion";
+import {
+  Coffee,
+  Mail,
+  ArrowLeft,
+  Info,
+  Sparkles,
+  Gift,
+  Zap,
   Star,
   Award,
   Heart,
-  Check
+  Check,
 } from "lucide-react";
 
 // App benefits for desktop sidebar
@@ -24,27 +26,27 @@ const benefits = [
   {
     icon: Gift,
     title: "Earn Points",
-    description: "Get 1 point for every EGP spent on your orders"
+    description: "Get 1 point for every EGP spent on your orders",
   },
   {
     icon: Zap,
     title: "Faster Checkout",
-    description: "Save your preferences and order in seconds"
+    description: "Save your preferences and order in seconds",
   },
   {
     icon: Star,
     title: "Exclusive Deals",
-    description: "Members-only discounts and early access to new drinks"
+    description: "Members-only discounts and early access to new drinks",
   },
   {
     icon: Award,
     title: "VIP Tiers",
-    description: "Unlock Bronze, Silver, Gold & Platinum rewards"
+    description: "Unlock Bronze, Silver, Gold & Platinum rewards",
   },
   {
     icon: Heart,
     title: "Save Favorites",
-    description: "Quick reorder your favorite drinks anytime"
+    description: "Quick reorder your favorite drinks anytime",
   },
 ];
 
@@ -94,6 +96,29 @@ function SignInContent() {
           <div className="absolute top-20 left-10 w-64 h-64 bg-elite-cream/5 rounded-full blur-3xl" />
           <div className="absolute bottom-40 right-10 w-80 h-80 bg-elite-cream/5 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-elite-cream/3 rounded-full blur-[100px]" />
+
+          {/* Floating Coffee Beans */}
+          <motion.div
+            className="absolute inset-0 z-0 opacity-10 pointer-events-none"
+            animate={{
+              y: [0, -15, 0],
+              rotate: [0, 1, 0]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Image
+              src="/images/coffee-beans-floating.png"
+              alt=""
+              fill
+              className="object-cover object-center"
+              quality={90}
+              priority
+            />
+          </motion.div>
         </div>
 
         {/* Content */}
@@ -103,7 +128,9 @@ function SignInContent() {
             <div className="w-14 h-14 bg-elite-cream rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <Coffee className="w-8 h-8 text-elite-burgundy" />
             </div>
-            <span className="font-calistoga text-3xl text-elite-cream">Elite</span>
+            <span className="font-calistoga text-3xl text-elite-cream">
+              Elite
+            </span>
           </Link>
 
           {/* Headline */}
@@ -121,10 +148,10 @@ function SignInContent() {
           {/* Benefits List */}
           <div className="space-y-5">
             {benefits.map((benefit, index) => (
-              <div 
+              <div
                 key={benefit.title}
                 className="flex items-start gap-4 group"
-                style={{ 
+                style={{
                   animationDelay: `${index * 100}ms`,
                 }}
               >
@@ -149,11 +176,13 @@ function SignInContent() {
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div 
+                    <div
                       key={i}
                       className="w-8 h-8 rounded-full bg-elite-cream/20 border-2 border-elite-burgundy flex items-center justify-center"
                     >
-                      <span className="text-xs text-elite-cream font-bold">{i}</span>
+                      <span className="text-xs text-elite-cream font-bold">
+                        {i}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -174,7 +203,7 @@ function SignInContent() {
           <div className="absolute inset-0">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-elite-cream/5 rounded-full blur-2xl" />
           </div>
-          
+
           <div className="relative z-10">
             <Link
               href="/"
@@ -189,8 +218,12 @@ function SignInContent() {
                 <Coffee className="w-7 h-7 text-elite-burgundy" />
               </div>
               <div>
-                <h1 className="font-calistoga text-2xl text-elite-cream">Welcome Back</h1>
-                <p className="font-cabin text-elite-cream/70 text-sm">Sign in to continue</p>
+                <h1 className="font-calistoga text-2xl text-elite-cream">
+                  Welcome Back
+                </h1>
+                <p className="font-cabin text-elite-cream/70 text-sm">
+                  Sign in to continue
+                </p>
               </div>
             </div>
           </div>
@@ -222,10 +255,13 @@ function SignInContent() {
             <div className="lg:hidden mb-8 -mt-5 bg-white rounded-3xl shadow-lg p-6 border border-elite-burgundy/10">
               <div className="flex items-center gap-3 mb-4">
                 <Sparkles className="w-5 h-5 text-elite-burgundy" />
-                <span className="font-cabin font-bold text-elite-burgundy text-sm">No password needed!</span>
+                <span className="font-cabin font-bold text-elite-burgundy text-sm">
+                  No password needed!
+                </span>
               </div>
               <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
-                We'll send you a secure magic link. Just check your email and tap to sign in instantly.
+                We'll send you a secure magic link. Just check your email and
+                tap to sign in instantly.
               </p>
             </div>
 
@@ -233,8 +269,8 @@ function SignInContent() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label 
-                    htmlFor="email" 
+                  <label
+                    htmlFor="email"
                     className="block font-cabin font-bold text-elite-black text-base"
                   >
                     Email Address
@@ -276,11 +312,21 @@ function SignInContent() {
                 <div className="rounded-2xl bg-red-50 border-2 border-red-200 p-4 animate-shake">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-0.5">
-                      <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      <svg
+                        className="h-5 w-5 text-red-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
-                    <p className="font-cabin text-sm text-red-700 font-medium">{error}</p>
+                    <p className="font-cabin text-sm text-red-700 font-medium">
+                      {error}
+                    </p>
                   </div>
                 </div>
               )}
@@ -292,9 +338,25 @@ function SignInContent() {
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 text-elite-cream" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-5 w-5 text-elite-cream"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     <span>Sending Magic Link...</span>
                   </>
@@ -314,8 +376,13 @@ function SignInContent() {
                   <Sparkles className="w-5 h-5 text-elite-burgundy" />
                 </div>
                 <div className="font-cabin text-elite-black/70 text-sm leading-relaxed">
-                  <p className="font-semibold text-elite-burgundy mb-1">Passwordless Sign In</p>
-                  <p>We'll send you a secure link. Just click it to sign in instantly - no password to remember!</p>
+                  <p className="font-semibold text-elite-burgundy mb-1">
+                    Passwordless Sign In
+                  </p>
+                  <p>
+                    We'll send you a secure link. Just click it to sign in
+                    instantly - no password to remember!
+                  </p>
                 </div>
               </div>
             </div>
@@ -330,7 +397,9 @@ function SignInContent() {
                 {benefits.slice(0, 3).map((benefit) => (
                   <div key={benefit.title} className="flex items-center gap-3">
                     <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <span className="font-cabin text-elite-black/70 text-sm">{benefit.title}</span>
+                    <span className="font-cabin text-elite-black/70 text-sm">
+                      {benefit.title}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -344,7 +413,7 @@ function SignInContent() {
 
 export default function SignInPage() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="min-h-screen bg-elite-cream flex items-center justify-center">
           <div className="w-12 h-12 border-3 border-elite-burgundy border-t-transparent rounded-full animate-spin" />

@@ -13,10 +13,10 @@ export default function CategoryPageSkeleton() {
           <div className="flex gap-2.5 min-w-max py-1">
             {/* Category pills skeleton */}
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton 
-                key={i} 
-                className="h-10 flex-shrink-0 w-24" 
-                rounded="full" 
+              <Skeleton
+                key={i}
+                className="h-10 flex-shrink-0 w-24"
+                rounded="full"
               />
             ))}
           </div>
@@ -40,10 +40,7 @@ export default function CategoryPageSkeleton() {
                   <div className="flex items-center justify-between p-4 rounded-xl">
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-2 h-2" rounded="full" />
-                      <Skeleton 
-                        className="h-5 w-32" 
-                        rounded="lg" 
-                      />
+                      <Skeleton className="h-5 w-32" rounded="lg" />
                     </div>
                   </div>
                   {i < 5 && <div className="h-px bg-elite-burgundy/10 my-3" />}

@@ -27,7 +27,7 @@ export interface OrderSavingsData {
  * Called after order is placed
  */
 export async function calculateOrderSavings(
-  orderId: string
+  orderId: string,
 ): Promise<OrderSavingsData | null> {
   try {
     const order = await prisma.order.findUnique({
@@ -51,7 +51,7 @@ export async function calculateOrderSavings(
 
     // Build discount details
     const discounts: DiscountDetail[] = [];
-    
+
     if (order.discount && Number(order.discount) > 0) {
       discounts.push({
         type: "fixed",
@@ -105,7 +105,7 @@ export async function calculateOrderSavings(
  */
 export async function updateUserSavings(
   userId: string,
-  newSavings: number
+  newSavings: number,
 ): Promise<void> {
   try {
     const existing = await prisma.userSavings.findUnique({
@@ -116,9 +116,13 @@ export async function updateUserSavings(
 
     if (existing) {
       // Update existing record
-      const savingsByMonth = (existing.savingsByMonth as unknown as Array<{ month: string; amount: number }>) || [];
+      const savingsByMonth =
+        (existing.savingsByMonth as unknown as Array<{
+          month: string;
+          amount: number;
+        }>) || [];
       const monthIndex = savingsByMonth.findIndex(
-        (m: { month: string; amount: number }) => m.month === currentMonth
+        (m: { month: string; amount: number }) => m.month === currentMonth,
       );
 
       if (monthIndex >= 0) {
@@ -147,7 +151,9 @@ export async function updateUserSavings(
           totalSaved: newSavings,
           totalOrders: 1,
           averageSavingsPerOrder: newSavings,
-          savingsByMonth: [{ month: currentMonth, amount: newSavings }] as unknown as never,
+          savingsByMonth: [
+            { month: currentMonth, amount: newSavings },
+          ] as unknown as never,
         },
       });
     }
@@ -178,7 +184,10 @@ export async function getUserSavings(userId: string) {
       totalSaved: Number(savings.totalSaved),
       totalOrders: savings.totalOrders,
       averageSavingsPerOrder: Number(savings.averageSavingsPerOrder),
-      savingsByMonth: savings.savingsByMonth as unknown as Array<{ month: string; amount: number }>,
+      savingsByMonth: savings.savingsByMonth as unknown as Array<{
+        month: string;
+        amount: number;
+      }>,
     };
   } catch (error) {
     console.error("Error fetching user savings:", error);

@@ -10,7 +10,10 @@ interface Database {
 }
 
 // Check if we're in a serverless/production environment where file system is read-only
-const isServerless = process.env.NETLIFY === "true" || process.env.VERCEL === "1" || process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
+const isServerless =
+  process.env.NETLIFY === "true" ||
+  process.env.VERCEL === "1" ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
 
 // Path to the JSON database file
 const DB_PATH = path.join(process.cwd(), "data", "database.json");
@@ -29,7 +32,7 @@ function initializeDatabase(): Database {
   if (isServerless) {
     return { carts: {}, orders: [] };
   }
-  
+
   ensureDataDirectory();
 
   if (!fs.existsSync(DB_PATH)) {
@@ -60,7 +63,7 @@ function readDatabase(): Database {
   if (isServerless) {
     return { carts: {}, orders: [] }; // Not used in serverless
   }
-  
+
   try {
     const data = fs.readFileSync(DB_PATH, "utf-8");
     return JSON.parse(data);
@@ -75,7 +78,7 @@ function writeDatabase(data: Database): void {
   if (isServerless) {
     return; // No-op in serverless
   }
-  
+
   try {
     ensureDataDirectory();
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
@@ -128,7 +131,7 @@ export const cartDB = {
       }
       return;
     }
-    
+
     const db = readDatabase();
     if (!db.carts[userId]) {
       db.carts[userId] = [];
@@ -186,7 +189,7 @@ export const cartDB = {
       }
       return;
     }
-    
+
     const db = readDatabase();
     if (db.carts[userId]) {
       const item = db.carts[userId].find((item) => item.id === cartItemId);
@@ -252,7 +255,10 @@ export const orderDB = {
       const { id, orderNumber, createdAt, updatedAt, ...baseOrder } = order;
       return inMemoryStore.orders.create(
         order.userId,
-        baseOrder as Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt">
+        baseOrder as Omit<
+          Order,
+          "id" | "orderNumber" | "createdAt" | "updatedAt"
+        >,
       );
     }
     const db = readDatabase();
@@ -273,7 +279,7 @@ export const orderDB = {
       }
       return inMemoryStore.orders.update(userId, orderId, updates) || null;
     }
-    
+
     const db = readDatabase();
     const orderIndex = db.orders.findIndex((order) => order.id === orderId);
 
@@ -292,7 +298,7 @@ export const orderDB = {
       console.warn("Delete order not implemented for serverless");
       return false;
     }
-    
+
     const db = readDatabase();
     const initialLength = db.orders.length;
     db.orders = db.orders.filter((order) => order.id !== orderId);

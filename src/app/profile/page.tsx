@@ -2,7 +2,17 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, Mail, LogOut, ShoppingBag, MapPin, Package, Award, Settings, Camera } from "lucide-react";
+import {
+  User,
+  Mail,
+  LogOut,
+  ShoppingBag,
+  MapPin,
+  Package,
+  Award,
+  Settings,
+  Camera,
+} from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
@@ -25,9 +35,14 @@ function ProfileContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-  
+
   // Fetch orders data
-  const { orders, loading: ordersLoading, error: ordersError, refetch: refetchOrders } = useOrders();
+  const {
+    orders,
+    loading: ordersLoading,
+    error: ordersError,
+    refetch: refetchOrders,
+  } = useOrders();
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -35,7 +50,10 @@ function ProfileContent() {
   // Handle URL tab parameter
   useEffect(() => {
     const tabParam = searchParams.get("tab") as TabType | null;
-    if (tabParam && ["orders", "addresses", "rewards", "settings"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["orders", "addresses", "rewards", "settings"].includes(tabParam)
+    ) {
       setActiveTab(tabParam);
       // Scroll to top of page when navigating via URL parameter
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -57,20 +75,23 @@ function ProfileContent() {
   const tabs = [
     { id: "orders" as TabType, label: "Orders", icon: ShoppingBag },
     { id: "addresses" as TabType, label: "Addresses", icon: MapPin },
-    { id: "rewards" as TabType, label: "Rewards", icon: Award, comingSoon: true },
+    {
+      id: "rewards" as TabType,
+      label: "Rewards",
+      icon: Award,
+      comingSoon: true,
+    },
     { id: "settings" as TabType, label: "Settings", icon: Settings },
   ];
 
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block">
-      </div>
+      <div className="hidden md:block"></div>
       <MobileHeader title="Profile" showBack={true} />
-      
+
       <main className="min-h-screen bg-elite-cream pb-28 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-12 space-y-3 md:space-y-6">
-          
           {/* Profile Header - Premium rounded design */}
           <div className="bg-white rounded-3xl shadow-lg border border-elite-burgundy/10 overflow-hidden">
             <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 p-4 sm:p-6 md:p-8">
@@ -88,7 +109,9 @@ function ProfileContent() {
                       />
                     ) : (
                       <span className="font-calistoga text-xl sm:text-2xl md:text-3xl text-elite-burgundy">
-                        {session.user?.name?.charAt(0).toUpperCase() || session.user?.email?.charAt(0).toUpperCase() || "U"}
+                        {session.user?.name?.charAt(0).toUpperCase() ||
+                          session.user?.email?.charAt(0).toUpperCase() ||
+                          "U"}
                       </span>
                     )}
                   </div>
@@ -103,7 +126,9 @@ function ProfileContent() {
                 {/* User Info */}
                 <div className="flex-1 min-w-0">
                   <h1 className="font-calistoga text-lg sm:text-xl md:text-2xl text-elite-cream truncate leading-tight">
-                    {session.user?.name || session.user?.email?.split('@')[0] || "User"}
+                    {session.user?.name ||
+                      session.user?.email?.split("@")[0] ||
+                      "User"}
                   </h1>
                   <div className="flex items-center gap-1.5 text-elite-cream/70 mt-0.5">
                     <Mail className="w-3.5 h-3.5 flex-shrink-0" />
@@ -114,17 +139,25 @@ function ProfileContent() {
                 </div>
               </div>
             </div>
-            
+
             {/* Stats Bar - Compact */}
             <div className="bg-elite-cream/40 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-around">
               <div className="text-center">
-                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">{orders.length}</p>
-                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">Orders</p>
+                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">
+                  {orders.length}
+                </p>
+                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">
+                  Orders
+                </p>
               </div>
               <div className="w-px h-8 bg-elite-burgundy/15" />
               <div className="text-center">
-                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">0</p>
-                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">Points</p>
+                <p className="font-calistoga text-lg sm:text-xl text-elite-burgundy">
+                  0
+                </p>
+                <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">
+                  Points
+                </p>
               </div>
             </div>
           </div>
@@ -146,7 +179,9 @@ function ProfileContent() {
                         : "text-elite-black/50 active:bg-elite-cream/50"
                     } ${tab.comingSoon ? "opacity-40" : ""}`}
                   >
-                    <Icon className={`w-5 h-5 sm:w-5 sm:h-5 ${isActive ? "" : ""}`} />
+                    <Icon
+                      className={`w-5 h-5 sm:w-5 sm:h-5 ${isActive ? "" : ""}`}
+                    />
                     <span className="text-[10px] sm:text-xs">{tab.label}</span>
                     {tab.comingSoon && (
                       <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-elite-burgundy rounded-full" />
@@ -169,14 +204,18 @@ function ProfileContent() {
                     className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all whitespace-nowrap"
                   >
                     <ShoppingBag className="w-4 h-4 text-elite-burgundy" />
-                    <span className="font-cabin text-sm font-semibold text-elite-black">View All</span>
+                    <span className="font-cabin text-sm font-semibold text-elite-black">
+                      View All
+                    </span>
                   </Link>
                   <Link
                     href="/analytics"
                     className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-elite-burgundy text-elite-cream hover:bg-elite-burgundy/90 transition-all whitespace-nowrap"
                   >
                     <Package className="w-4 h-4" />
-                    <span className="font-cabin text-sm font-semibold">Analytics</span>
+                    <span className="font-cabin text-sm font-semibold">
+                      Analytics
+                    </span>
                   </Link>
                 </div>
 
@@ -185,10 +224,10 @@ function ProfileContent() {
 
                 {/* Orders List */}
                 <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-4 sm:p-5">
-                  <OrdersList 
-                    orders={orders} 
-                    loading={ordersLoading} 
-                    error={ordersError} 
+                  <OrdersList
+                    orders={orders}
+                    loading={ordersLoading}
+                    error={ordersError}
                     onRetry={refetchOrders}
                     compact={true}
                     maxItems={3}
@@ -201,7 +240,9 @@ function ProfileContent() {
             {/* Addresses Tab */}
             {activeTab === "addresses" && (
               <div className="bg-white rounded-3xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-elite-burgundy/10">
-                <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-5">Delivery Addresses</h2>
+                <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-5">
+                  Delivery Addresses
+                </h2>
                 <AddressManager />
               </div>
             )}
@@ -213,9 +254,12 @@ function ProfileContent() {
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
                     <Award className="w-10 h-10 sm:w-12 sm:h-12 text-elite-burgundy" />
                   </div>
-                  <h2 className="font-calistoga text-2xl text-elite-black mb-3">Rewards Program</h2>
+                  <h2 className="font-calistoga text-2xl text-elite-black mb-3">
+                    Rewards Program
+                  </h2>
                   <p className="font-cabin text-elite-black/60 max-w-md mx-auto">
-                    Earn points with every purchase and unlock exclusive benefits
+                    Earn points with every purchase and unlock exclusive
+                    benefits
                   </p>
                 </div>
               </div>
@@ -228,7 +272,9 @@ function ProfileContent() {
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-elite-burgundy/10 flex items-center justify-center mx-auto mb-6">
                     <Settings className="w-10 h-10 sm:w-12 sm:h-12 text-elite-burgundy" />
                   </div>
-                  <h2 className="font-calistoga text-2xl text-elite-black mb-3">Account Settings</h2>
+                  <h2 className="font-calistoga text-2xl text-elite-black mb-3">
+                    Account Settings
+                  </h2>
                   <p className="font-cabin text-elite-black/60 max-w-md mx-auto mb-6">
                     Manage your preferences and account details
                   </p>
@@ -254,7 +300,6 @@ function ProfileContent() {
         </div>
       </main>
 
-      
       {/* Avatar Upload Modal */}
       {showAvatarUpload && (
         <AvatarUpload
@@ -268,11 +313,13 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent" />
+        </div>
+      }
+    >
       <ProfileContent />
     </Suspense>
   );

@@ -9,7 +9,9 @@ interface UserActivationCTAProps {
   className?: string;
 }
 
-export default function UserActivationCTA({ className }: UserActivationCTAProps) {
+export default function UserActivationCTA({
+  className,
+}: UserActivationCTAProps) {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -32,24 +34,27 @@ export default function UserActivationCTA({ className }: UserActivationCTAProps)
   };
 
   return (
-    <div className={cn(
-      "bg-gradient-to-r from-elite-burgundy to-elite-burgundy/90 rounded-2xl p-6 md:p-8 text-elite-cream",
-      "shadow-lg border border-elite-burgundy/20",
-      className
-    )}>
+    <div
+      className={cn(
+        "bg-gradient-to-r from-elite-burgundy to-elite-burgundy/90 rounded-2xl p-6 md:p-8 text-elite-cream",
+        "shadow-lg border border-elite-burgundy/20",
+        className,
+      )}
+    >
       <div className="flex items-start gap-4">
         <div className="bg-elite-cream/20 rounded-xl p-3 flex-shrink-0">
           <Sparkles className="w-6 h-6 text-elite-cream" />
         </div>
-        
+
         <div className="flex-1">
           <h3 className="font-calistoga text-xl md:text-2xl mb-2">
             🎁 Unlock Exclusive Deals
           </h3>
           <p className="font-cabin text-elite-cream/90 mb-4 text-sm md:text-base">
-            Complete your profile to get personalized deals, early access to new offers, and special discounts.
+            Complete your profile to get personalized deals, early access to new
+            offers, and special discounts.
           </p>
-          
+
           <ul className="space-y-2 mb-4 text-sm md:text-base">
             <li className="flex items-center gap-2 font-cabin text-elite-cream/90">
               <span className="text-emerald-300">✓</span>
@@ -64,7 +69,7 @@ export default function UserActivationCTA({ className }: UserActivationCTAProps)
               Special discounts and promotions
             </li>
           </ul>
-          
+
           <button
             onClick={handleClick}
             className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-6 py-3 rounded-xl font-cabin font-bold text-sm md:text-base hover:bg-elite-cream/90 transition-all flex items-center justify-center gap-2 shadow-md"
@@ -78,4 +83,3 @@ export default function UserActivationCTA({ className }: UserActivationCTAProps)
     </div>
   );
 }
-

@@ -22,6 +22,11 @@ export interface PaymobConfig {
   publicKey: string;
   integrationId: number; // Default integration ID for cards
   walletIntegrationId?: number; // Integration ID for wallets
+  subscriptionIntegrationId?: number; // Subscription integration
+  hostIntegrationId?: number; // Host integration
+  balanceTransferIntegrationId?: number; // Balance transfer
+  cashCollectionIntegrationId?: number; // Cash collection / deposit
+  billPaymentIntegrationId?: number; // Bill payment
   hmacSecret: string;
   environment: "sandbox" | "production";
 }
@@ -41,7 +46,7 @@ export class PaymobClient {
   constructor(config: PaymobConfig) {
     this.config = config;
     const baseURL = PAYMOB_BASE_URL[config.environment];
-    
+
     this.axios = axios.create({
       baseURL,
       timeout: 30000, // 30 seconds
@@ -57,7 +62,7 @@ export class PaymobClient {
    */
   private async authenticate(): Promise<string> {
     const now = Date.now();
-    
+
     // Return cached token if still valid
     if (this.authToken && now < this.authTokenExpiry) {
       return this.authToken;
@@ -70,11 +75,13 @@ export class PaymobClient {
 
       const response = await this.axios.post<PaymobAuthResponse>(
         "/auth/tokens",
-        payload
+        payload,
       );
 
       if (!response.data?.token) {
-        throw new Error("Failed to authenticate with Paymob: No token received");
+        throw new Error(
+          "Failed to authenticate with Paymob: No token received",
+        );
       }
 
       this.authToken = response.data.token;
@@ -82,9 +89,15 @@ export class PaymobClient {
 
       return this.authToken;
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                      (error as { message?: string })?.message || 
-                      "Paymob authentication failed";
+      const message =
+        (
+          error as {
+            response?: { data?: { detail?: string } };
+            message?: string;
+          }
+        )?.response?.data?.detail ||
+        (error as { message?: string })?.message ||
+        "Paymob authentication failed";
       throw new Error(`Paymob authentication error: ${message}`);
     }
   }
@@ -94,9 +107,14 @@ export class PaymobClient {
    */
   async createOrder(
     amountCents: number,
-    items: Array<{ name: string; amount_cents: number; description?: string; quantity: number }>,
+    items: Array<{
+      name: string;
+      amount_cents: number;
+      description?: string;
+      quantity: number;
+    }>,
     merchantOrderId: string,
-    deliveryNeeded: boolean = false
+    deliveryNeeded: boolean = false,
   ): Promise<PaymobOrderResponse> {
     try {
       const authToken = await this.authenticate();
@@ -111,7 +129,7 @@ export class PaymobClient {
 
       const response = await this.axios.post<PaymobOrderResponse>(
         "/ecommerce/orders",
-        payload
+        payload,
       );
 
       if (!response.data?.id) {
@@ -120,9 +138,15 @@ export class PaymobClient {
 
       return response.data;
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                      (error as { message?: string })?.message || 
-                      "Failed to create Paymob order";
+      const message =
+        (
+          error as {
+            response?: { data?: { detail?: string } };
+            message?: string;
+          }
+        )?.response?.data?.detail ||
+        (error as { message?: string })?.message ||
+        "Failed to create Paymob order";
       throw new Error(`Paymob order creation error: ${message}`);
     }
   }
@@ -134,7 +158,7 @@ export class PaymobClient {
     orderId: number,
     amountCents: number,
     billingData: PaymobBillingData,
-    integrationId?: number
+    integrationId?: number,
   ): Promise<string> {
     try {
       const authToken = await this.authenticate();
@@ -155,7 +179,7 @@ export class PaymobClient {
 
       const response = await this.axios.post<PaymobPaymentKeyResponse>(
         "/acceptance/payment_keys",
-        payload
+        payload,
       );
 
       if (!response.data?.token) {
@@ -164,9 +188,15 @@ export class PaymobClient {
 
       return response.data.token;
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                      (error as { message?: string })?.message || 
-                      "Failed to get payment key";
+      const message =
+        (
+          error as {
+            response?: { data?: { detail?: string } };
+            message?: string;
+          }
+        )?.response?.data?.detail ||
+        (error as { message?: string })?.message ||
+        "Failed to get payment key";
       throw new Error(`Paymob payment key error: ${message}`);
     }
   }
@@ -174,7 +204,9 @@ export class PaymobClient {
   /**
    * Retrieve transaction details
    */
-  async retrieveTransaction(transactionId: number): Promise<PaymobTransactionResponse> {
+  async retrieveTransaction(
+    transactionId: number,
+  ): Promise<PaymobTransactionResponse> {
     try {
       const authToken = await this.authenticate();
 
@@ -184,54 +216,63 @@ export class PaymobClient {
           params: {
             token: authToken,
           },
-        }
+        },
       );
 
       return response.data;
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                      (error as { message?: string })?.message || 
-                      "Failed to retrieve transaction";
+      const message =
+        (
+          error as {
+            response?: { data?: { detail?: string } };
+            message?: string;
+          }
+        )?.response?.data?.detail ||
+        (error as { message?: string })?.message ||
+        "Failed to retrieve transaction";
       throw new Error(`Paymob transaction retrieval error: ${message}`);
     }
   }
 
   /**
    * Verify HMAC signature from webhook
-   * 
+   *
    * According to Paymob documentation, HMAC is calculated using:
    * - Multiple fields from the transaction object (obj)
    * - Fields sorted alphabetically by key
    * - HMAC secret used as the key for crypto.createHmac()
-   * 
+   *
    * @param transaction - The transaction object from webhook payload (obj field)
    * @param hmac - The HMAC signature from webhook payload
    * @returns true if HMAC is valid, false otherwise
    */
-  verifyWebhookSignature(transaction: {
-    amount_cents: number;
-    created_at: string;
-    currency: string;
-    error_occured?: boolean;
-    has_parent_transaction: boolean;
-    id: number;
-    integration_id: number;
-    is_3d_secure: boolean;
-    is_auth: boolean;
-    is_capture: boolean;
-    is_refunded: boolean;
-    is_standalone_payment?: boolean;
-    is_voided: boolean;
-    order: { id: number };
-    owner?: number;
-    pending: boolean;
-    source_data?: {
-      pan?: string;
-      sub_type?: string;
-      type?: string;
-    };
-    success: boolean;
-  }, hmac: string): boolean {
+  verifyWebhookSignature(
+    transaction: {
+      amount_cents: number;
+      created_at: string;
+      currency: string;
+      error_occured?: boolean;
+      has_parent_transaction: boolean;
+      id: number;
+      integration_id: number;
+      is_3d_secure: boolean;
+      is_auth: boolean;
+      is_capture: boolean;
+      is_refunded: boolean;
+      is_standalone_payment?: boolean;
+      is_voided: boolean;
+      order: { id: number };
+      owner?: number;
+      pending: boolean;
+      source_data?: {
+        pan?: string;
+        sub_type?: string;
+        type?: string;
+      };
+      success: boolean;
+    },
+    hmac: string,
+  ): boolean {
     try {
       // Build HMAC data string from transaction fields, sorted alphabetically
       // Note: Some fields may be optional, so we handle them safely
@@ -261,7 +302,7 @@ export class PaymobClient {
       // Sort keys alphabetically and concatenate values
       const hmacString = Object.keys(hmacDataSource)
         .sort()
-        .map(key => String(hmacDataSource[key]))
+        .map((key) => String(hmacDataSource[key]))
         .join("");
 
       // Calculate HMAC using the secret as the key (not as part of the data)
@@ -277,7 +318,7 @@ export class PaymobClient {
 
       return crypto.timingSafeEqual(
         Buffer.from(calculatedHmac, "hex"),
-        Buffer.from(hmac, "hex")
+        Buffer.from(hmac, "hex"),
       );
     } catch (error) {
       console.error("[Paymob] HMAC verification error:", error);
@@ -287,16 +328,68 @@ export class PaymobClient {
 
   /**
    * Get integration ID based on payment method
-   * 
-   * Note: If walletIntegrationId is not configured, the default integrationId
-   * will be used for all payment methods including wallets.
+   *
+   * Supports all Paymob integration types:
+   * - card / CARD → Online Card integration
+   * - wallet / WALLET → Mobile Wallet integration
+   * - installments → Uses card integration (installments handled by iframe)
+   * - subscription → Subscription integration
+   * - host → Host integration
+   * - balance_transfer → Balance transfer
+   * - cash_collection → Cash collection / deposit
+   * - bill_payment → Bill payment
+   *
+   * Falls back to default card integration if specific integration not configured.
    */
   getIntegrationId(paymentMethod: string): number {
-    if (paymentMethod === "wallet" && this.config.walletIntegrationId) {
+    const method = paymentMethod.toLowerCase();
+
+    // Wallet integration
+    if ((method === "wallet" || method === "w") && this.config.walletIntegrationId) {
       return this.config.walletIntegrationId;
     }
-    // Use default integration ID for all payment methods if wallet-specific ID not set
+
+    // Subscription integration
+    if ((method === "subscription" || method === "sub") && this.config.subscriptionIntegrationId) {
+      return this.config.subscriptionIntegrationId;
+    }
+
+    // Host integration
+    if (method === "host" && this.config.hostIntegrationId) {
+      return this.config.hostIntegrationId;
+    }
+
+    // Balance transfer
+    if ((method === "balance_transfer" || method === "balance") && this.config.balanceTransferIntegrationId) {
+      return this.config.balanceTransferIntegrationId;
+    }
+
+    // Cash collection / deposit
+    if ((method === "cash_collection" || method === "deposit") && this.config.cashCollectionIntegrationId) {
+      return this.config.cashCollectionIntegrationId;
+    }
+
+    // Bill payment
+    if ((method === "bill_payment" || method === "bill") && this.config.billPaymentIntegrationId) {
+      return this.config.billPaymentIntegrationId;
+    }
+
+    // Installments use card integration (installment options shown in iframe)
+    if (method === "installments") {
+      return this.config.integrationId;
+    }
+
+    // Default: Card integration for card payments and any unmatched methods
     return this.config.integrationId;
+  }
+
+  /**
+   * Check if installments are supported (based on iframe configuration)
+   */
+  supportsInstallments(): boolean {
+    // Installments are supported via the custom iframe (983628)
+    // This is determined by Paymob iframe configuration, not integration ID
+    return true;
   }
 
   /**
@@ -309,6 +402,7 @@ export class PaymobClient {
 
 /**
  * Create Paymob client from environment variables
+ * Supports all production integration types
  */
 export function createPaymobClient(): PaymobClient | null {
   const apiKey = process.env.PAYMOB_API_KEY;
@@ -317,7 +411,14 @@ export function createPaymobClient(): PaymobClient | null {
   const hmacSecret = process.env.PAYMOB_HMAC_SECRET;
   const integrationId = process.env.PAYMOB_INTEGRATION_ID;
   const walletIntegrationId = process.env.PAYMOB_WALLET_INTEGRATION_ID;
-  const environment = (process.env.PAYMOB_ENVIRONMENT || "sandbox") as "sandbox" | "production";
+  const subscriptionIntegrationId = process.env.PAYMOB_INTEGRATION_SUBSCRIPTION;
+  const hostIntegrationId = process.env.PAYMOB_INTEGRATION_HOST;
+  const balanceTransferIntegrationId = process.env.PAYMOB_INTEGRATION_BALANCE_TRANSFER;
+  const cashCollectionIntegrationId = process.env.PAYMOB_INTEGRATION_CASH_COLLECTION;
+  const billPaymentIntegrationId = process.env.PAYMOB_INTEGRATION_BILL_PAYMENT;
+  const environment = (process.env.PAYMOB_ENVIRONMENT || "sandbox") as
+    | "sandbox"
+    | "production";
 
   if (!apiKey || !secretKey || !publicKey || !hmacSecret || !integrationId) {
     console.warn("[Paymob] Missing required environment variables");
@@ -335,7 +436,24 @@ export function createPaymobClient(): PaymobClient | null {
     secretKey,
     publicKey,
     integrationId: integrationIdNum,
-    walletIntegrationId: walletIntegrationId ? parseInt(walletIntegrationId, 10) : undefined,
+    walletIntegrationId: walletIntegrationId
+      ? parseInt(walletIntegrationId, 10)
+      : undefined,
+    subscriptionIntegrationId: subscriptionIntegrationId
+      ? parseInt(subscriptionIntegrationId, 10)
+      : undefined,
+    hostIntegrationId: hostIntegrationId
+      ? parseInt(hostIntegrationId, 10)
+      : undefined,
+    balanceTransferIntegrationId: balanceTransferIntegrationId
+      ? parseInt(balanceTransferIntegrationId, 10)
+      : undefined,
+    cashCollectionIntegrationId: cashCollectionIntegrationId
+      ? parseInt(cashCollectionIntegrationId, 10)
+      : undefined,
+    billPaymentIntegrationId: billPaymentIntegrationId
+      ? parseInt(billPaymentIntegrationId, 10)
+      : undefined,
     hmacSecret,
     environment,
   };
@@ -355,4 +473,3 @@ export function isPaymobConfigured(): boolean {
     process.env.PAYMOB_INTEGRATION_ID
   );
 }
-

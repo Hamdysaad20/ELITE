@@ -11,20 +11,14 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(getAuthOptions());
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
     const file = formData.get("avatar") as File;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "No file provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Validate file type
@@ -32,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         { error: "Invalid file type. Only JPEG, PNG, and WebP are allowed." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,7 +35,7 @@ export async function POST(req: NextRequest) {
     if (file.size > maxSize) {
       return NextResponse.json(
         { error: "File size exceeds 5MB limit" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -86,7 +80,7 @@ export async function POST(req: NextRequest) {
     console.error("Error uploading avatar:", error);
     return NextResponse.json(
       { error: "Failed to upload avatar" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -96,10 +90,7 @@ export async function DELETE(req: NextRequest) {
     const session = await getServerSession(getAuthOptions());
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Remove avatar from database
@@ -122,7 +113,7 @@ export async function DELETE(req: NextRequest) {
     console.error("Error removing avatar:", error);
     return NextResponse.json(
       { error: "Failed to remove avatar" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

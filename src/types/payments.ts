@@ -19,8 +19,10 @@ export enum PaymobPaymentMethod {
 
 // Map PaymentMethod enum to PaymobPaymentMethod
 export function mapPaymentMethodToPaymob(method: string): PaymobPaymentMethod {
-  switch (method) {
+  switch (method.toUpperCase()) {
     case "CARD":
+    case "INSTALLMENTS":
+      // Installments use card integration, options shown in iframe
       return PaymobPaymentMethod.CARD;
     case "WALLET":
       return PaymobPaymentMethod.WALLET;
@@ -29,6 +31,24 @@ export function mapPaymentMethodToPaymob(method: string): PaymobPaymentMethod {
     default:
       return PaymobPaymentMethod.CARD;
   }
+}
+
+/**
+ * Check if payment method supports installments
+ * Installments are handled by Paymob iframe (983628) for card payments
+ */
+export function supportsInstallments(method: string): boolean {
+  const normalized = method.toUpperCase();
+  return normalized === "CARD" || normalized === "INSTALLMENTS";
+}
+
+/**
+ * Check if payment method supports saved cards
+ * Saved cards require Paymob tokenization (customer identifier)
+ */
+export function supportsSavedCards(method: string): boolean {
+  const normalized = method.toUpperCase();
+  return normalized === "CARD" || normalized === "INSTALLMENTS";
 }
 
 /**
@@ -243,4 +263,3 @@ export interface PaymentStatusResponse {
   paidAt: string | null;
   error: string | null;
 }
-

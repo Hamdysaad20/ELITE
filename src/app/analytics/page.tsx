@@ -25,15 +25,16 @@ export default function AnalyticsPage() {
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
   const [exporting, setExporting] = useState(false);
 
-  const loading = authLoading || savingsLoading || pointsLoading || ordersLoading;
+  const loading =
+    authLoading || savingsLoading || pointsLoading || ordersLoading;
 
   const handleExportPDF = async () => {
     setExporting(true);
     try {
       await fetchAndExportAnalytics();
     } catch (error) {
-      console.error('Failed to export PDF:', error);
-      alert('Failed to export analytics. Please try again.');
+      console.error("Failed to export PDF:", error);
+      alert("Failed to export analytics. Please try again.");
     } finally {
       setExporting(false);
     }
@@ -47,7 +48,9 @@ export default function AnalyticsPage() {
         <main className="min-h-screen bg-elite-cream flex items-center justify-center pt-16 md:pt-0">
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
-            <p className="text-elite-black/70 font-cabin text-lg">Loading analytics...</p>
+            <p className="text-elite-black/70 font-cabin text-lg">
+              Loading analytics...
+            </p>
           </div>
         </main>
         <Footer />
@@ -56,51 +59,74 @@ export default function AnalyticsPage() {
   }
 
   // Prepare chart data from savings
-  const savingsChartData = savings?.savingsByMonth?.slice(-6).map((item: { month: string; amount: number }) => ({
-    month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
-    savings: item.amount,
-    spending: 0 // Will be calculated from orders
-  })) || [];
+  const savingsChartData =
+    savings?.savingsByMonth
+      ?.slice(-6)
+      .map((item: { month: string; amount: number }) => ({
+        month: new Date(item.month + "-01").toLocaleDateString("en-US", {
+          month: "short",
+        }),
+        savings: item.amount,
+        spending: 0, // Will be calculated from orders
+      })) || [];
 
   // Calculate spending by month from orders
-  const spendingByMonth = orders?.reduce((acc: Record<string, number>, order: { createdAt: Date | string; total: number }) => {
-    const month = new Date(order.createdAt).toISOString().slice(0, 7);
-    if (!acc[month]) acc[month] = 0;
-    acc[month] += Number(order.total);
-    return acc;
-  }, {}) || {};
+  const spendingByMonth =
+    orders?.reduce(
+      (
+        acc: Record<string, number>,
+        order: { createdAt: Date | string; total: number },
+      ) => {
+        const month = new Date(order.createdAt).toISOString().slice(0, 7);
+        if (!acc[month]) acc[month] = 0;
+        acc[month] += Number(order.total);
+        return acc;
+      },
+      {},
+    ) || {};
 
   // Merge spending data into chart data
-  const spendingChartData = savingsChartData.map((item: { month: string; savings: number; spending: number }, index: number) => {
-    const monthKey = Object.keys(spendingByMonth)[index];
-    return {
-      ...item,
-      spending: spendingByMonth[monthKey] || 0
-    };
-  });
+  const spendingChartData = savingsChartData.map(
+    (
+      item: { month: string; savings: number; spending: number },
+      index: number,
+    ) => {
+      const monthKey = Object.keys(spendingByMonth)[index];
+      return {
+        ...item,
+        spending: spendingByMonth[monthKey] || 0,
+      };
+    },
+  );
 
   // Calculate points earned by month
-  const pointsChartData = savings?.savingsByMonth?.slice(-6).map((item: { month: string; amount: number }) => ({
-    month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
-    earned: item.amount * 100, // Rough estimate: savings to points
-    redeemed: 0
-  })) || [];
+  const pointsChartData =
+    savings?.savingsByMonth
+      ?.slice(-6)
+      .map((item: { month: string; amount: number }) => ({
+        month: new Date(item.month + "-01").toLocaleDateString("en-US", {
+          month: "short",
+        }),
+        earned: item.amount * 100, // Rough estimate: savings to points
+        redeemed: 0,
+      })) || [];
 
   // Calculate percentage change for savings
   const lastMonthSavings = savings?.savingsByMonth?.slice(-2)[0]?.amount || 0;
-  const currentMonthSavings = savings?.savingsByMonth?.slice(-1)[0]?.amount || 0;
-  const percentageChange = lastMonthSavings > 0 
-    ? ((currentMonthSavings - lastMonthSavings) / lastMonthSavings) * 100 
-    : 0;
+  const currentMonthSavings =
+    savings?.savingsByMonth?.slice(-1)[0]?.amount || 0;
+  const percentageChange =
+    lastMonthSavings > 0
+      ? ((currentMonthSavings - lastMonthSavings) / lastMonthSavings) * 100
+      : 0;
 
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <MobileHeader title="Analytics" showBack={true} />
-      
+
       <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4 md:space-y-6">
-          
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -112,7 +138,7 @@ export default function AnalyticsPage() {
                 Track your savings, points, and spending habits
               </p>
             </div>
-            
+
             {/* Export PDF Button */}
             <button
               onClick={handleExportPDF}
@@ -155,16 +181,16 @@ export default function AnalyticsPage() {
           {/* Top Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Savings */}
-            <SavingsCard 
+            <SavingsCard
               totalSaved={savings?.totalSaved || 0}
               percentageChange={percentageChange}
               period="last month"
             />
 
             {/* Points Balance */}
-            <PointsCard 
+            <PointsCard
               balance={points?.totalPoints || 0}
-              tier={points?.tier || 'bronze'}
+              tier={points?.tier || "bronze"}
               nextTierAt={points?.nextTierAt || 100000}
               pointsToNextTier={points?.pointsToNextTier}
             />
@@ -173,7 +199,9 @@ export default function AnalyticsPage() {
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-6 h-6 text-elite-burgundy" />
-                <h3 className="font-calistoga text-xl text-elite-black">Avg. Savings</h3>
+                <h3 className="font-calistoga text-xl text-elite-black">
+                  Avg. Savings
+                </h3>
               </div>
               <p className="font-calistoga text-4xl text-elite-burgundy mb-1">
                 {savings?.averageSavingsPerOrder.toFixed(0) || 0}
@@ -188,7 +216,9 @@ export default function AnalyticsPage() {
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <Award className="w-6 h-6 text-elite-burgundy" />
-                <h3 className="font-calistoga text-xl text-elite-black">Total Orders</h3>
+                <h3 className="font-calistoga text-xl text-elite-black">
+                  Total Orders
+                </h3>
               </div>
               <p className="font-calistoga text-4xl text-elite-black mb-1">
                 {orders?.length || 0}
@@ -212,7 +242,9 @@ export default function AnalyticsPage() {
 
           {/* Quick Links */}
           <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
-            <h3 className="font-calistoga text-xl text-elite-black mb-4">Quick Actions</h3>
+            <h3 className="font-calistoga text-xl text-elite-black mb-4">
+              Quick Actions
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link
                 href="/points/history"
@@ -240,7 +272,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </>
   );

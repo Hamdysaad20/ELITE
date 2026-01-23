@@ -45,14 +45,18 @@ export const paymobWebhookSchema = z.object({
     created_at: z.string(),
     currency: z.string(),
     merchant_order_id: z.string(),
-    data: z.object({
-      message: z.string().optional(),
-    }).optional(),
-    source_data: z.object({
-      type: z.string(),
-      pan: z.string().optional(),
-      sub_type: z.string().optional(),
-    }).optional(),
+    data: z
+      .object({
+        message: z.string().optional(),
+      })
+      .optional(),
+    source_data: z
+      .object({
+        type: z.string(),
+        pan: z.string().optional(),
+        sub_type: z.string().optional(),
+      })
+      .optional(),
     api_source: z.string().optional(),
     url: z.string().optional(),
   }),
@@ -68,4 +72,3 @@ export const refundPaymentSchema = z.object({
   amount: z.number().positive().optional(), // Optional, defaults to full refund
   reason: z.string().max(500).optional(),
 });
-

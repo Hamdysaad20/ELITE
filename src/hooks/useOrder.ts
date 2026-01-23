@@ -27,17 +27,18 @@ export function useOrder(orderId: string): UseOrderReturn {
       setError(null);
 
       const response = await apiClient.get<Order>(`/api/orders/${orderId}`);
-      
+
       // Convert date strings to Date objects
       const orderWithDates: Order = {
         ...response,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
       };
-      
+
       setOrder(orderWithDates);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load order";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load order";
       setError(errorMessage);
       console.error("Failed to fetch order:", err);
     } finally {
@@ -56,4 +57,3 @@ export function useOrder(orderId: string): UseOrderReturn {
     refetch: fetchOrder,
   };
 }
-

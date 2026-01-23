@@ -1,6 +1,13 @@
 import { NextRequest } from "next/server";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
-import { isPaymobConfigured, createPaymobClient } from "@/server/services/paymob/paymobClient";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
+import {
+  isPaymobConfigured,
+  createPaymobClient,
+} from "@/server/services/paymob/paymobClient";
 
 /**
  * GET /api/payments/config
@@ -11,7 +18,7 @@ export async function GET() {
     if (!isPaymobConfigured()) {
       return jsonResponse(
         errorResponse("Payment gateway is not configured"),
-        503
+        503,
       );
     }
 
@@ -19,19 +26,23 @@ export async function GET() {
     if (!client) {
       return jsonResponse(
         errorResponse("Payment service is not available"),
-        503
+        503,
       );
     }
+
+    const iframeId = process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID || "983628";
 
     return jsonResponse(
       successResponse({
         publicKey: client.getPublicKey(),
-      })
+        iframeId,
+      }),
     );
   } catch (error: unknown) {
     console.error("[Payment Config] Error:", error);
-    const message = (error as { message?: string })?.message || "Failed to get payment configuration";
+    const message =
+      (error as { message?: string })?.message ||
+      "Failed to get payment configuration";
     return jsonResponse(errorResponse(message), 500);
   }
 }
-

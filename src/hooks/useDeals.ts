@@ -25,14 +25,14 @@ interface UseDealsReturn {
 
 /**
  * Hook to fetch all deals from the API
- * 
+ *
  * @example
  * ```tsx
  * const { deals, loading, error } = useDeals();
- * 
+ *
  * if (loading) return <Spinner />;
  * if (error) return <Error message={error} />;
- * 
+ *
  * return deals.map(deal => (
  *   <DealSection key={deal.id} deal={deal} />
  * ));

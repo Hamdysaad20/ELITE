@@ -16,14 +16,16 @@ export default function CategoryPillSkeleton({
   const widths = ["w-20", "w-28", "w-24", "w-32", "w-26"];
 
   return (
-    <div className={cn("flex gap-2.5 py-3 overflow-x-auto scrollbar-hide -mx-4 px-4", className)}>
+    <div
+      className={cn(
+        "flex gap-2.5 py-3 overflow-x-auto scrollbar-hide -mx-4 px-4",
+        className,
+      )}
+    >
       {Array.from({ length: count }).map((_, index) => (
         <Skeleton
           key={index}
-          className={cn(
-            "h-11 flex-shrink-0",
-            widths[index % widths.length]
-          )}
+          className={cn("h-11 flex-shrink-0", widths[index % widths.length])}
           rounded="full"
           variant="shimmer"
         />

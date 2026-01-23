@@ -1,0 +1,13 @@
+{
+  "slug": "mojito-soda",
+  "fileName": "v1-1",
+  "reason": "The logo placement and image content violate multiple critical validation criteria.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo itself is positioned and scaled correctly. However, adjustments to other elements in the composition are required to meet content constraints."
+  },
+  "timestamp": "2026-01-20T22:57:00.144Z"
+}

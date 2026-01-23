@@ -7,11 +7,11 @@ import { getAuthOptions } from "@/server/auth/options";
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -22,14 +22,14 @@ export async function PATCH(req: NextRequest) {
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json(
         { success: false, error: "Name is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (name.trim().length > 100) {
       return NextResponse.json(
         { success: false, error: "Name must be less than 100 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,7 +55,7 @@ export async function PATCH(req: NextRequest) {
         success: false,
         error: error instanceof Error ? error.message : "Failed to update user",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

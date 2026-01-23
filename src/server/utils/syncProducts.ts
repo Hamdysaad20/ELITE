@@ -2,7 +2,11 @@
 import crypto from "node:crypto";
 import { isOdooConfigured, createOdooClient } from "./odooClient";
 import { redisSet, redisGet, redisSetNx, redisDel } from "../cache/redis";
-import { isRequestAllowed, recordSuccess, recordFailure } from "./circuitBreaker";
+import {
+  isRequestAllowed,
+  recordSuccess,
+  recordFailure,
+} from "./circuitBreaker";
 
 type ProductRecord = {
   id: number;
@@ -51,42 +55,53 @@ function normalizeProduct(
   rec: ProductRecord,
   templateImages?: Map<number, ProductTemplateRecord>,
   categoriesRaw: CategoryRecord[] = [],
-  attributesByTemplate?: Map<number, Record<string, any>>
+  attributesByTemplate?: Map<number, Record<string, any>>,
 ) {
   const categoryId = Array.isArray(rec.categ_id)
     ? rec.categ_id[0]
     : rec.categ_id;
-  const categoryName = Array.isArray(rec.categ_id) ? rec.categ_id[1] : undefined;
-  
-  const categoryDetail = categoriesRaw.find(c => c.id === categoryId);
-  
-  const templateId = Array.isArray(rec.product_tmpl_id) ? rec.product_tmpl_id[0] : rec.product_tmpl_id;
-  const template = templateId && templateImages ? templateImages.get(templateId) : null;
-  
+  const categoryName = Array.isArray(rec.categ_id)
+    ? rec.categ_id[1]
+    : undefined;
+
+  const categoryDetail = categoriesRaw.find((c) => c.id === categoryId);
+
+  const templateId = Array.isArray(rec.product_tmpl_id)
+    ? rec.product_tmpl_id[0]
+    : rec.product_tmpl_id;
+  const template =
+    templateId && templateImages ? templateImages.get(templateId) : null;
+
   // Product availability: active and sale_ok
   // Note: available_in_pos is not used here because products can be available for both website and POS
   const available = rec.active !== false && rec.sale_ok !== false;
-  
-  const attributes = templateId && attributesByTemplate ? attributesByTemplate.get(templateId) : undefined;
-  
-  const image1024 = (rec.image_1024 && typeof rec.image_1024 === 'string') 
-    ? rec.image_1024 
-    : (template?.image_1024 && typeof template.image_1024 === 'string') 
-      ? template.image_1024 
-      : null;
-      
-  const image1920 = (rec.image_1920 && typeof rec.image_1920 === 'string')
-    ? rec.image_1920
-    : (template?.image_1920 && typeof template.image_1920 === 'string')
-      ? template.image_1920
-      : null;
-      
-  const image128 = (rec.image_128 && typeof rec.image_128 === 'string')
-    ? rec.image_128
-    : (template?.image_128 && typeof template.image_128 === 'string')
-      ? template.image_128
-      : null;
-  
+
+  const attributes =
+    templateId && attributesByTemplate
+      ? attributesByTemplate.get(templateId)
+      : undefined;
+
+  const image1024 =
+    rec.image_1024 && typeof rec.image_1024 === "string"
+      ? rec.image_1024
+      : template?.image_1024 && typeof template.image_1024 === "string"
+        ? template.image_1024
+        : null;
+
+  const image1920 =
+    rec.image_1920 && typeof rec.image_1920 === "string"
+      ? rec.image_1920
+      : template?.image_1920 && typeof template.image_1920 === "string"
+        ? template.image_1920
+        : null;
+
+  const image128 =
+    rec.image_128 && typeof rec.image_128 === "string"
+      ? rec.image_128
+      : template?.image_128 && typeof template.image_128 === "string"
+        ? template.image_128
+        : null;
+
   return {
     id: String(rec.id),
     name: rec.name,
@@ -94,13 +109,17 @@ function normalizeProduct(
     sku: rec.default_code || String(rec.id),
     price: rec.list_price ?? 0,
     categoryId: categoryId ? String(categoryId) : undefined,
-    category: categoryDetail ? {
-      id: String(categoryDetail.id),
-      name: categoryDetail.name,
-    } : (categoryName ? {
-      id: String(categoryId),
-      name: categoryName,
-    } : undefined),
+    category: categoryDetail
+      ? {
+          id: String(categoryDetail.id),
+          name: categoryDetail.name,
+        }
+      : categoryName
+        ? {
+            id: String(categoryId),
+            name: categoryName,
+          }
+        : undefined,
     available,
     stock: (rec as any).qty_available ?? null,
     sequence: (rec as any).sequence ?? 0,
@@ -124,7 +143,9 @@ function normalizeCategory(rec: CategoryRecord) {
     id: String(rec.id),
     name: rec.name,
     description: (rec as any).display_name || rec.name,
-    parentId: Array.isArray(rec.parent_id) ? String(rec.parent_id[0]) : undefined,
+    parentId: Array.isArray(rec.parent_id)
+      ? String(rec.parent_id[0])
+      : undefined,
   };
 }
 
@@ -145,7 +166,7 @@ const MAX_BATCH_SIZE = 5000; // Hard limit to prevent memory issues
 async function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  errorMessage: string
+  errorMessage: string,
 ): Promise<T> {
   const timeout = new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
@@ -153,29 +174,39 @@ async function withTimeout<T>(
   return Promise.race([promise, timeout]);
 }
 
-export async function syncProductsFromOdoo(options?: { bypassCircuitBreaker?: boolean }): Promise<{ success: boolean; error?: string; data?: any }> {
+export async function syncProductsFromOdoo(options?: {
+  bypassCircuitBreaker?: boolean;
+}): Promise<{ success: boolean; error?: string; data?: any }> {
   // Wrap entire sync in timeout to prevent hanging
   return withTimeout(
     performSync(options?.bypassCircuitBreaker),
     SYNC_TIMEOUT_MS,
-    `Sync operation timed out after ${SYNC_TIMEOUT_MS}ms`
-  ).catch(err => {
-    console.error('[AUTO-SYNC] Sync timeout or error:', err);
-    return { success: false, error: err instanceof Error ? err.message : String(err) };
+    `Sync operation timed out after ${SYNC_TIMEOUT_MS}ms`,
+  ).catch((err) => {
+    console.error("[AUTO-SYNC] Sync timeout or error:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   });
 }
 
-async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ success: boolean; error?: string; data?: any }> {
+async function performSync(
+  bypassCircuitBreaker: boolean = false,
+): Promise<{ success: boolean; error?: string; data?: any }> {
   // Check circuit breaker before attempting sync (unless bypassed)
   if (!bypassCircuitBreaker) {
     const allowed = await isRequestAllowed();
     if (!allowed) {
-      const errorMsg = 'Circuit breaker is OPEN - Odoo is consistently failing. Sync blocked to prevent cascading failures.';
+      const errorMsg =
+        "Circuit breaker is OPEN - Odoo is consistently failing. Sync blocked to prevent cascading failures.";
       console.error(`[AUTO-SYNC] ${errorMsg}`);
       return { success: false, error: errorMsg };
     }
   } else {
-    console.log('[MANUAL-SYNC] Circuit breaker bypass enabled (admin-triggered sync)');
+    console.log(
+      "[MANUAL-SYNC] Circuit breaker bypass enabled (admin-triggered sync)",
+    );
   }
 
   // Try to acquire distributed lock (atomic operation)
@@ -184,16 +215,16 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     lockAcquired = await redisSetNx(
       SYNC_LOCK_KEY,
       Date.now().toString(),
-      SYNC_LOCK_TTL
+      SYNC_LOCK_TTL,
     );
   } catch (err) {
     // Redis might be down - log but continue (will fail later if Redis is needed)
-    console.warn('[AUTO-SYNC] Failed to check lock (Redis may be down):', err);
+    console.warn("[AUTO-SYNC] Failed to check lock (Redis may be down):", err);
   }
 
   if (!lockAcquired) {
-    console.log('[AUTO-SYNC] Sync already in progress, skipping...');
-    return { success: false, error: 'Sync already in progress' };
+    console.log("[AUTO-SYNC] Sync already in progress, skipping...");
+    return { success: false, error: "Sync already in progress" };
   }
 
   // Check rate limiting using Redis (works across instances)
@@ -203,17 +234,19 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
       const lastAttempt = parseInt(lastAttemptStr, 10);
       const now = Date.now();
       const timeSinceLastAttempt = (now - lastAttempt) / 1000; // seconds
-      
+
       if (timeSinceLastAttempt < SYNC_RATE_LIMIT_SECONDS) {
-        console.log(`[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`);
+        console.log(
+          `[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`,
+        );
         // Release lock since we're not syncing
         await redisDel(SYNC_LOCK_KEY).catch(() => {});
-        return { success: false, error: 'Rate limited' };
+        return { success: false, error: "Rate limited" };
       }
     }
   } catch (err) {
     // Redis error - log but continue (rate limiting is best-effort)
-    console.warn('[AUTO-SYNC] Failed to check rate limit:', err);
+    console.warn("[AUTO-SYNC] Failed to check rate limit:", err);
   }
 
   try {
@@ -221,10 +254,10 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     try {
       await redisSet(SYNC_LAST_ATTEMPT_KEY, Date.now().toString(), 60); // Keep for 1 minute
     } catch (err) {
-      console.warn('[AUTO-SYNC] Failed to update last attempt timestamp:', err);
+      console.warn("[AUTO-SYNC] Failed to update last attempt timestamp:", err);
     }
-    
-    console.log('[AUTO-SYNC] Starting product sync from Odoo...');
+
+    console.log("[AUTO-SYNC] Starting product sync from Odoo...");
 
     if (!process.env.REDIS_URL) {
       throw new Error("REDIS_URL is not configured for sync");
@@ -240,30 +273,51 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     }
 
     // Get batch size from env or use default
-    const batchSizeEnv = Number(process.env.SYNC_PRODUCTS_BATCH_SIZE || String(DEFAULT_BATCH_SIZE));
-    const batchSize = Number.isFinite(batchSizeEnv) && batchSizeEnv > 0 
-      ? Math.min(batchSizeEnv, MAX_BATCH_SIZE) 
-      : DEFAULT_BATCH_SIZE;
+    const batchSizeEnv = Number(
+      process.env.SYNC_PRODUCTS_BATCH_SIZE || String(DEFAULT_BATCH_SIZE),
+    );
+    const batchSize =
+      Number.isFinite(batchSizeEnv) && batchSizeEnv > 0
+        ? Math.min(batchSizeEnv, MAX_BATCH_SIZE)
+        : DEFAULT_BATCH_SIZE;
 
     // Legacy limit support (for testing/development)
     const limitEnv = Number(process.env.SYNC_PRODUCTS_LIMIT || "0");
-    const limit = Number.isFinite(limitEnv) && limitEnv > 0 ? limitEnv : undefined;
+    const limit =
+      Number.isFinite(limitEnv) && limitEnv > 0 ? limitEnv : undefined;
 
     const productFields = [
-      "id", "name", "default_code", "list_price", "categ_id", "active", "sale_ok", "available_in_pos",
+      "id",
+      "name",
+      "default_code",
+      "list_price",
+      "categ_id",
+      "active",
+      "sale_ok",
+      "available_in_pos",
       // Note: website_published is NOT available in Odoo v19 on product.product
       // Product filtering uses regex patterns as fallback (see filtering logic below)
-      "image_128", "image_1024", "image_1920", "uom_id", "taxes_id", "product_tmpl_id",
-      "description_sale", "qty_available", "virtual_available", "sequence",
+      "image_128",
+      "image_1024",
+      "image_1920",
+      "uom_id",
+      "taxes_id",
+      "product_tmpl_id",
+      "description_sale",
+      "qty_available",
+      "virtual_available",
+      "sequence",
     ];
 
-    console.log(`[AUTO-SYNC] Fetching products with batch size: ${batchSize}${limit ? ` (limited to ${limit})` : ''}`);
+    console.log(
+      `[AUTO-SYNC] Fetching products with batch size: ${batchSize}${limit ? ` (limited to ${limit})` : ""}`,
+    );
 
     // 1. Fetch Products and Categories
     // Use pagination for products if no limit is set, otherwise use simple searchRead
     let productsRaw: ProductRecord[];
     let categoriesRaw: CategoryRecord[];
-    
+
     try {
       if (limit) {
         // Legacy mode: use simple searchRead with limit
@@ -278,7 +332,7 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
             "product.category",
             [],
             ["id", "name", "parent_id", "display_name", "complete_name"],
-          )
+          ),
         ]);
       } else {
         // Production mode: use pagination for large catalogs
@@ -293,13 +347,15 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
             "product.category",
             [],
             ["id", "name", "parent_id", "display_name", "complete_name"],
-          )
+          ),
         ]);
       }
-      
+
       // Record success for circuit breaker
       await recordSuccess();
-      console.log(`[AUTO-SYNC] Fetched ${productsRaw.length} products, ${categoriesRaw.length} categories`);
+      console.log(
+        `[AUTO-SYNC] Fetched ${productsRaw.length} products, ${categoriesRaw.length} categories`,
+      );
     } catch (err) {
       // Record failure for circuit breaker
       await recordFailure();
@@ -309,28 +365,39 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     const templateIds = Array.from(
       new Set(
         productsRaw
-          .map(p => Array.isArray(p.product_tmpl_id) ? p.product_tmpl_id[0] : p.product_tmpl_id)
-          .filter(Boolean)
-      )
+          .map((p) =>
+            Array.isArray(p.product_tmpl_id)
+              ? p.product_tmpl_id[0]
+              : p.product_tmpl_id,
+          )
+          .filter(Boolean),
+      ),
     );
-    
+
     // 2. Fetch Templates and Attributes in parallel (Dependent on Products)
     let templatesRaw: ProductTemplateRecord[] = [];
     let ptavsRaw: AttributeValueRecord[] = [];
-    
+
     if (templateIds.length > 0) {
       try {
         [templatesRaw, ptavsRaw] = await Promise.all([
           client.searchRead<ProductTemplateRecord>(
             "product.template",
             [["id", "in", templateIds]],
-            ["id", "available_in_pos", "image_128", "image_1024", "image_1920", "attribute_line_ids"]
+            [
+              "id",
+              "available_in_pos",
+              "image_128",
+              "image_1024",
+              "image_1920",
+              "attribute_line_ids",
+            ],
           ),
           client.searchRead<AttributeValueRecord>(
             "product.template.attribute.value",
             [["product_tmpl_id", "in", templateIds]],
-            ["id", "name", "attribute_id", "price_extra", "product_tmpl_id"]
-          )
+            ["id", "name", "attribute_id", "price_extra", "product_tmpl_id"],
+          ),
         ]);
         await recordSuccess(); // Record success for additional Odoo calls
       } catch (err) {
@@ -338,41 +405,45 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
         throw err;
       }
     }
-    
-    const templateImages = new Map(templatesRaw.map(t => [t.id, t]));
+
+    const templateImages = new Map(templatesRaw.map((t) => [t.id, t]));
 
     const attributesByTemplate = new Map<number, Record<string, any>>();
-    
+
     for (const ptav of ptavsRaw) {
-      const tmplId = Array.isArray(ptav.product_tmpl_id) ? ptav.product_tmpl_id[0] : ptav.product_tmpl_id;
-      const attrName = Array.isArray(ptav.attribute_id) ? ptav.attribute_id[1] : "Unknown";
-      
+      const tmplId = Array.isArray(ptav.product_tmpl_id)
+        ? ptav.product_tmpl_id[0]
+        : ptav.product_tmpl_id;
+      const attrName = Array.isArray(ptav.attribute_id)
+        ? ptav.attribute_id[1]
+        : "Unknown";
+
       if (!attributesByTemplate.has(tmplId)) {
         attributesByTemplate.set(tmplId, {});
       }
-      
+
       const tmplAttrs = attributesByTemplate.get(tmplId)!;
-      
+
       if (!tmplAttrs[attrName]) {
         tmplAttrs[attrName] = [];
       }
-      
+
       tmplAttrs[attrName].push({
         id: ptav.id,
         name: ptav.name,
-        priceExtra: ptav.price_extra || 0
+        priceExtra: ptav.price_extra || 0,
       });
     }
 
     /**
      * Filter out POS-only products using regex patterns on product names.
-     * 
+     *
      * NOTE: In Odoo v19, the `website_published` field is NOT available on `product.product`.
      * It only exists on `product.template` (as `is_published`), but we query `product.product` variants.
-     * 
+     *
      * Current approach: Use regex patterns to identify POS-only products by name.
      * This works for known patterns but may need updates if naming conventions change.
-     * 
+     *
      * Future enhancement: Could query `product.template.is_published` separately and join,
      * but the current regex-based approach is simpler and sufficient for now.
      */
@@ -382,39 +453,51 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
       /spanish latte.*single/i,
       /spanish latte.*double/i,
     ];
-    
+
     // Filter out POS-only variant products before normalization
-    const websiteProductsRaw = productsRaw.filter(p => {
+    const websiteProductsRaw = productsRaw.filter((p) => {
       // Use regex patterns to exclude POS-only products
-      const name = p.name?.toLowerCase() || '';
-      const matchesPosOnlyPattern = posOnlyVariantPatterns.some(pattern => pattern.test(name));
-      
+      const name = p.name?.toLowerCase() || "";
+      const matchesPosOnlyPattern = posOnlyVariantPatterns.some((pattern) =>
+        pattern.test(name),
+      );
+
       if (matchesPosOnlyPattern) {
         console.log(
-          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern (POS-only variant)`
+          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern (POS-only variant)`,
         );
         return false;
       }
-      
+
       return true;
     });
-    
+
     const products = websiteProductsRaw
-      .map(p => normalizeProduct(p, templateImages, categoriesRaw, attributesByTemplate))
-      .filter(p => p.available !== false); // Final filter to exclude inactive/unavailable products
-    
+      .map((p) =>
+        normalizeProduct(
+          p,
+          templateImages,
+          categoriesRaw,
+          attributesByTemplate,
+        ),
+      )
+      .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
+
     const uniqueCategories = new Map<string, any>();
-    categoriesRaw.forEach(cat => {
-      if (cat.name.toLowerCase() === 'extras') return;
+    categoriesRaw.forEach((cat) => {
+      if (cat.name.toLowerCase() === "extras") return;
       const normalized = normalizeCategory(cat);
       if (!uniqueCategories.has(normalized.name)) {
         uniqueCategories.set(normalized.name, normalized);
       }
     });
-    
+
     const categories = Array.from(uniqueCategories.values());
 
-    const etag = crypto.createHash("sha1").update(JSON.stringify(products)).digest("hex");
+    const etag = crypto
+      .createHash("sha1")
+      .update(JSON.stringify(products))
+      .digest("hex");
     const lastUpdate = new Date().toISOString();
 
     // Cache for 7 days (long TTL to avoid "first hit penalty")
@@ -423,16 +506,20 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
 
     // Clear old product cache keys before writing new data (cleanup)
     // Note: We don't delete all keys to avoid race conditions, but we overwrite the main ones
-    console.log(`[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`);
+    console.log(
+      `[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`,
+    );
 
     // Cache with partial failure handling - cache what we can even if some writes fail
     const cacheErrors: string[] = [];
-    
+
     try {
       await redisSet("categories:list", categories, cacheTTL);
     } catch (err) {
-      cacheErrors.push(`Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`);
-      console.error('[AUTO-SYNC] Failed to cache categories:', err);
+      cacheErrors.push(
+        `Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      console.error("[AUTO-SYNC] Failed to cache categories:", err);
     }
 
     // Cache products individually to allow partial success
@@ -442,7 +529,9 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
         await redisSet(`products:${p.id}`, p, cacheTTL);
         cachedCount++;
       } catch (err) {
-        cacheErrors.push(`Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`);
+        cacheErrors.push(
+          `Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`,
+        );
         // Continue caching other products
       }
     }
@@ -450,12 +539,16 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     try {
       await redisSet("products:all", products, cacheTTL);
     } catch (err) {
-      cacheErrors.push(`Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`);
-      console.error('[AUTO-SYNC] Failed to cache products:all:', err);
+      cacheErrors.push(
+        `Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      console.error("[AUTO-SYNC] Failed to cache products:all:", err);
     }
-    
+
     if (cacheErrors.length > 0) {
-      console.warn(`[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors), but ${cachedCount}/${products.length} products cached`);
+      console.warn(
+        `[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors), but ${cachedCount}/${products.length} products cached`,
+      );
     }
 
     const pageSize = 50;
@@ -470,32 +563,43 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     try {
       await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
     } catch (err) {
-      cacheErrors.push(`Failed to cache products list summary: ${err instanceof Error ? err.message : String(err)}`);
+      cacheErrors.push(
+        `Failed to cache products list summary: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
 
     try {
       await redisSet("sync:last_update", lastUpdate, cacheTTL);
     } catch (err) {
-      cacheErrors.push(`Failed to cache last_update: ${err instanceof Error ? err.message : String(err)}`);
-      console.error('[AUTO-SYNC] Failed to cache last_update:', err);
+      cacheErrors.push(
+        `Failed to cache last_update: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      console.error("[AUTO-SYNC] Failed to cache last_update:", err);
     }
 
     try {
       await redisSet("sync:etag", etag, cacheTTL);
     } catch (err) {
-      cacheErrors.push(`Failed to cache etag: ${err instanceof Error ? err.message : String(err)}`);
+      cacheErrors.push(
+        `Failed to cache etag: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
 
     // Consider sync successful if we cached at least some products
-    const isSuccess = cachedCount > 0 || (products.length === 0 && categories.length > 0);
-    
+    const isSuccess =
+      cachedCount > 0 || (products.length === 0 && categories.length > 0);
+
     if (isSuccess) {
-      console.log(`[AUTO-SYNC] Completed: ${cachedCount}/${products.length} products, ${categories.length} categories cached`);
+      console.log(
+        `[AUTO-SYNC] Completed: ${cachedCount}/${products.length} products, ${categories.length} categories cached`,
+      );
       if (cacheErrors.length > 0) {
-        console.warn(`[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors)`);
+        console.warn(
+          `[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors)`,
+        );
       }
     } else {
-      throw new Error(`Failed to cache any data: ${cacheErrors.join('; ')}`);
+      throw new Error(`Failed to cache any data: ${cacheErrors.join("; ")}`);
     }
 
     return {
@@ -505,7 +609,7 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
         categories: categories.length,
         lastUpdate,
         etag,
-      }
+      },
     };
   } catch (err: any) {
     const msg = err?.message || "Failed to sync products";
@@ -513,8 +617,8 @@ async function performSync(bypassCircuitBreaker: boolean = false): Promise<{ suc
     return { success: false, error: msg };
   } finally {
     // Always release the lock
-    await redisDel(SYNC_LOCK_KEY).catch(err => {
-      console.error('[AUTO-SYNC] Failed to release lock:', err);
+    await redisDel(SYNC_LOCK_KEY).catch((err) => {
+      console.error("[AUTO-SYNC] Failed to release lock:", err);
     });
   }
 }
@@ -545,7 +649,7 @@ export async function shouldRefreshCache(): Promise<boolean> {
 
     return false;
   } catch (err) {
-    console.error('[CACHE-CHECK] Error checking cache:', err);
+    console.error("[CACHE-CHECK] Error checking cache:", err);
     return true; // On error, trigger refresh
   }
 }
@@ -553,7 +657,7 @@ export async function shouldRefreshCache(): Promise<boolean> {
 // Non-blocking background sync
 export function triggerBackgroundSync(): void {
   // Don't await - run in background
-  syncProductsFromOdoo().catch(err => {
-    console.error('[BACKGROUND-SYNC] Failed:', err);
+  syncProductsFromOdoo().catch((err) => {
+    console.error("[BACKGROUND-SYNC] Failed:", err);
   });
 }

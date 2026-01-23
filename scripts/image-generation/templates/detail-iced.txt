@@ -1,0 +1,20 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Bright, crisp lighting, emphasizing condensation and refraction
+Camera: Macro lens, extreme close-up
+Composition: Filling the frame with the cup surface and ice
+
+[Subject]
+Micro-closeup of an iced {{name}}.
+Focus on the condensation droplets on the cup and the ice cubes.
+Showing fresh water droplets, frost, and the refreshing cold temperature.
+Visible texture of {{layers}} and {{toppings}}.
+
+[Background/Environment]
+Background is extremely blurred (bokeh).
+
+[Style/Vibe]
+Refreshing, freezing cold, sensory detail, thirst-quenching.
+NO text, NO logos, pure texture.
+ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere.

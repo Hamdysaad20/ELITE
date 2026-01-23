@@ -1,7 +1,11 @@
 import { NextRequest } from "next/server";
 import { requireRole } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 
 /**
  * GET /api/admin/users - List all users (admin only)
@@ -12,7 +16,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 100);
+    const limit = Math.min(
+      parseInt(searchParams.get("limit") || "20", 10),
+      100,
+    );
     const status = searchParams.get("status");
     const search = searchParams.get("search");
 
@@ -21,9 +28,12 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: {
       status?: string;
-      OR?: Array<{ email: { contains: string; mode: "insensitive" } } | { name: { contains: string; mode: "insensitive" } }>;
+      OR?: Array<
+        | { email: { contains: string; mode: "insensitive" } }
+        | { name: { contains: string; mode: "insensitive" } }
+      >;
     } = {};
-    
+
     if (status) {
       where.status = status;
     }
@@ -81,9 +91,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("Admin users list error:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch users";
-    const isAuthError = error instanceof Error && error.message.includes("required");
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch users";
+    const isAuthError =
+      error instanceof Error && error.message.includes("required");
     return jsonResponse(errorResponse(message), isAuthError ? 403 : 500);
   }
 }
-

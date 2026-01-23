@@ -1,5 +1,9 @@
 import { getSession } from "next-auth/react";
-import { withRetry, classifyError, type RetryOptions } from "@/lib/errorRecovery";
+import {
+  withRetry,
+  classifyError,
+  type RetryOptions,
+} from "@/lib/errorRecovery";
 
 const DEFAULT_RETRY_OPTIONS: RetryOptions = {
   maxRetries: 3,
@@ -11,7 +15,7 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
 
 /**
  * Authenticated fetch wrapper that automatically includes NextAuth session
- * 
+ *
  * @example
  * ```typescript
  * const response = await authFetch("/api/orders");
@@ -41,12 +45,12 @@ export async function authFetch(
 
 /**
  * Type-safe API client with automatic error handling and retry logic
- * 
+ *
  * @example
  * ```typescript
  * const orders = await apiClient.get<Order[]>("/api/orders");
  * const newOrder = await apiClient.post<Order>("/api/orders", { items: [...] });
- * 
+ *
  * // Disable retry for specific request
  * const data = await apiClient.get<Data>("/api/data", {}, { maxRetries: 0 });
  * ```
@@ -55,7 +59,7 @@ export const apiClient = {
   async get<T>(
     url: string,
     options?: RequestInit,
-    retryOptions?: RetryOptions
+    retryOptions?: RetryOptions,
   ): Promise<T> {
     return withRetry(
       async () => {
@@ -71,7 +75,7 @@ export const apiClient = {
         const data = await response.json();
         return data.data || data;
       },
-      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions },
     );
   },
 
@@ -79,7 +83,7 @@ export const apiClient = {
     url: string,
     body?: unknown,
     options?: RequestInit,
-    retryOptions?: RetryOptions
+    retryOptions?: RetryOptions,
   ): Promise<T> {
     return withRetry(
       async () => {
@@ -100,7 +104,7 @@ export const apiClient = {
         const data = await response.json();
         return data.data || data;
       },
-      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions },
     );
   },
 
@@ -108,7 +112,7 @@ export const apiClient = {
     url: string,
     body?: unknown,
     options?: RequestInit,
-    retryOptions?: RetryOptions
+    retryOptions?: RetryOptions,
   ): Promise<T> {
     return withRetry(
       async () => {
@@ -129,14 +133,14 @@ export const apiClient = {
         const data = await response.json();
         return data.data || data;
       },
-      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions },
     );
   },
 
   async delete<T>(
     url: string,
     options?: RequestInit,
-    retryOptions?: RetryOptions
+    retryOptions?: RetryOptions,
   ): Promise<T> {
     return withRetry(
       async () => {
@@ -152,7 +156,7 @@ export const apiClient = {
         const data = await response.json();
         return data.data || data;
       },
-      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions }
+      { ...DEFAULT_RETRY_OPTIONS, ...retryOptions },
     );
   },
 };
@@ -167,7 +171,7 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = "ApiError";
-    
+
     // Ensure proper prototype chain for instanceof checks
     Object.setPrototypeOf(this, ApiError.prototype);
   }
@@ -187,13 +191,12 @@ export class ApiError extends Error {
   get isRateLimited() {
     return this.status === 429;
   }
-  
+
   get isServerError() {
     return this.status >= 500;
   }
-  
+
   get isClientError() {
     return this.status >= 400 && this.status < 500;
   }
 }
-

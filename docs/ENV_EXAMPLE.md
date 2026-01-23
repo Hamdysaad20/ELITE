@@ -36,6 +36,26 @@ BRAND_NAME="Elite Coffee Shop"  # optional, for email branding
 NEXT_PUBLIC_API_BASE=https://your-app.com/api
 NEXT_PUBLIC_APP_URL=https://your-app.com
 
+# ---- Paymob Payment Gateway (Production) ----
+PAYMOB_ENVIRONMENT=production
+PAYMOB_API_KEY=your_paymob_api_key
+PAYMOB_SECRET_KEY=your_paymob_secret_key
+PAYMOB_PUBLIC_KEY=your_paymob_public_key
+PAYMOB_HMAC_SECRET=your_paymob_hmac_secret
+
+# Integration IDs (all live production integrations)
+PAYMOB_INTEGRATION_ID=5421577                    # Online Card (VPC-card_present)
+PAYMOB_WALLET_INTEGRATION_ID=5421576             # Mobile Wallet (UIG-in_store)
+PAYMOB_INTEGRATION_SUBSCRIPTION=5461543          # Subscription
+PAYMOB_INTEGRATION_HOST=5435497                  # Host integration
+PAYMOB_INTEGRATION_BALANCE_TRANSFER=5421987      # Balance Transfer
+PAYMOB_INTEGRATION_CASH_COLLECTION=5421986       # Cash Collection / Deposit
+PAYMOB_INTEGRATION_BILL_PAYMENT=5421985          # Bill Payment
+
+# Public frontend configuration
+NEXT_PUBLIC_PAYMOB_PUBLIC_KEY=your_paymob_public_key
+NEXT_PUBLIC_PAYMOB_IFRAME_ID=983628              # Custom branded iframe
+
 # ---- External Services (Optional) ----
 # Sentry Error Tracking
 NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx

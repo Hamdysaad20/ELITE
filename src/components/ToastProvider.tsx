@@ -42,12 +42,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [dismiss],
   );
 
-  const success = useCallback((message: string) => push({ message, type: "success" }), [push]);
-  const error = useCallback((message: string) => push({ message, type: "error" }), [push]);
-  const info = useCallback((message: string) => push({ message, type: "info" }), [push]);
+  const success = useCallback(
+    (message: string) => push({ message, type: "success" }),
+    [push],
+  );
+  const error = useCallback(
+    (message: string) => push({ message, type: "error" }),
+    [push],
+  );
+  const info = useCallback(
+    (message: string) => push({ message, type: "info" }),
+    [push],
+  );
 
   return (
-    <ToastContext.Provider value={{ toasts, push, dismiss, success, error, info }}>
+    <ToastContext.Provider
+      value={{ toasts, push, dismiss, success, error, info }}
+    >
       {children}
       <div className="fixed z-[100] top-4 left-0 right-0 md:top-20 md:right-4 md:left-auto flex flex-col gap-3 w-full md:max-w-sm pointer-events-none px-4 md:px-0">
         <AnimatePresence mode="popLayout">
@@ -57,34 +68,55 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               layout
               initial={{ opacity: 0, y: -50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.9, transition: { duration: 0.2 } }}
+              exit={{
+                opacity: 0,
+                y: -20,
+                scale: 0.9,
+                transition: { duration: 0.2 },
+              }}
               className={cn(
                 "pointer-events-auto relative overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl border-2 p-4 md:p-5 flex items-start gap-3 backdrop-blur-md touch-manipulation",
-                t.type === "success" && "bg-white/95 border-green-200 text-green-900",
+                t.type === "success" &&
+                  "bg-white/95 border-green-200 text-green-900",
                 t.type === "error" && "bg-white/95 border-red-200 text-red-900",
-                (!t.type || t.type === "info") && "bg-white/95 border-elite-burgundy/10 text-elite-burgundy"
+                (!t.type || t.type === "info") &&
+                  "bg-white/95 border-elite-burgundy/10 text-elite-burgundy",
               )}
             >
               {/* Icon */}
-              <div className={cn(
-                "flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center",
-                t.type === "success" && "bg-green-100 text-green-600",
-                t.type === "error" && "bg-red-100 text-red-600",
-                (!t.type || t.type === "info") && "bg-elite-burgundy/10 text-elite-burgundy"
-              )}>
-                {t.type === "success" && <Check className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />}
-                {t.type === "error" && <AlertCircle className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />}
-                {(!t.type || t.type === "info") && <Info className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />}
+              <div
+                className={cn(
+                  "flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center",
+                  t.type === "success" && "bg-green-100 text-green-600",
+                  t.type === "error" && "bg-red-100 text-red-600",
+                  (!t.type || t.type === "info") &&
+                    "bg-elite-burgundy/10 text-elite-burgundy",
+                )}
+              >
+                {t.type === "success" && (
+                  <Check className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+                )}
+                {t.type === "error" && (
+                  <AlertCircle
+                    className="w-5 h-5 md:w-6 md:h-6"
+                    strokeWidth={2.5}
+                  />
+                )}
+                {(!t.type || t.type === "info") && (
+                  <Info className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+                )}
               </div>
 
               {/* Content */}
               <div className="flex-1 pt-0.5 md:pt-1 min-w-0">
-                <p className={cn(
-                  "font-cabin font-semibold text-sm md:text-base leading-relaxed",
-                  t.type === "success" && "text-green-800",
-                  t.type === "error" && "text-red-800",
-                  (!t.type || t.type === "info") && "text-elite-black"
-                )}>
+                <p
+                  className={cn(
+                    "font-cabin font-semibold text-sm md:text-base leading-relaxed",
+                    t.type === "success" && "text-green-800",
+                    t.type === "error" && "text-red-800",
+                    (!t.type || t.type === "info") && "text-elite-black",
+                  )}
+                >
                   {t.message}
                 </p>
               </div>
@@ -102,12 +134,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <motion.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
-                transition={{ duration: (t.timeout || 4000) / 1000, ease: "linear" }}
+                transition={{
+                  duration: (t.timeout || 4000) / 1000,
+                  ease: "linear",
+                }}
                 className={cn(
                   "absolute bottom-0 left-0 right-0 h-1 origin-left opacity-20",
                   t.type === "success" && "bg-green-500",
                   t.type === "error" && "bg-red-500",
-                  (!t.type || t.type === "info") && "bg-elite-burgundy"
+                  (!t.type || t.type === "info") && "bg-elite-burgundy",
                 )}
               />
             </motion.div>

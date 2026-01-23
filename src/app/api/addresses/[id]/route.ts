@@ -9,15 +9,15 @@ import type { ZodIssue } from "zod";
 // GET /api/addresses/[id] - Get single address
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function GET(
     if (!address) {
       return NextResponse.json(
         { success: false, error: "Address not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -42,9 +42,10 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch address",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch address",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -52,15 +53,15 @@ export async function GET(
 // PATCH /api/addresses/[id] - Update address
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -75,7 +76,7 @@ export async function PATCH(
     if (!existingAddress) {
       return NextResponse.json(
         { success: false, error: "Address not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -92,7 +93,7 @@ export async function PATCH(
           error: "Validation failed",
           errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -102,8 +103,10 @@ export async function PATCH(
     if (validatedData.street && validatedData.city) {
       const normalizedStreet = validatedData.street.trim().toLowerCase();
       const normalizedCity = validatedData.city.trim().toLowerCase();
-      const normalizedApartment = (validatedData.apartment || "").trim().toLowerCase();
-      
+      const normalizedApartment = (validatedData.apartment || "")
+        .trim()
+        .toLowerCase();
+
       // Get all user addresses except current one
       const userAddresses = await prisma.address.findMany({
         where: {
@@ -116,7 +119,7 @@ export async function PATCH(
         const addrStreet = (addr.street || "").trim().toLowerCase();
         const addrCity = (addr.city || "").trim().toLowerCase();
         const addrApartment = (addr.apartment || "").trim().toLowerCase();
-        
+
         return (
           addrStreet === normalizedStreet &&
           addrCity === normalizedCity &&
@@ -126,8 +129,11 @@ export async function PATCH(
 
       if (isDuplicate) {
         return NextResponse.json(
-          { success: false, error: "This address already exists in your address book" },
-          { status: 400 }
+          {
+            success: false,
+            error: "This address already exists in your address book",
+          },
+          { status: 400 },
         );
       }
     }
@@ -142,16 +148,25 @@ export async function PATCH(
 
     // Merge validated data with existing address (only update provided fields)
     const updateData: Record<string, unknown> = {};
-    if (validatedData.label !== undefined) updateData.label = validatedData.label;
-    if (validatedData.street !== undefined) updateData.street = validatedData.street;
-    if (validatedData.apartment !== undefined) updateData.apartment = validatedData.apartment;
+    if (validatedData.label !== undefined)
+      updateData.label = validatedData.label;
+    if (validatedData.street !== undefined)
+      updateData.street = validatedData.street;
+    if (validatedData.apartment !== undefined)
+      updateData.apartment = validatedData.apartment;
     if (validatedData.city !== undefined) updateData.city = validatedData.city;
-    if (validatedData.state !== undefined) updateData.state = validatedData.state;
-    if (validatedData.zipCode !== undefined) updateData.zipCode = validatedData.zipCode;
-    if (validatedData.country !== undefined) updateData.country = validatedData.country;
-    if (validatedData.phone !== undefined) updateData.phone = validatedData.phone;
-    if (validatedData.notes !== undefined) updateData.notes = validatedData.notes;
-    if (validatedData.isDefault !== undefined) updateData.isDefault = validatedData.isDefault;
+    if (validatedData.state !== undefined)
+      updateData.state = validatedData.state;
+    if (validatedData.zipCode !== undefined)
+      updateData.zipCode = validatedData.zipCode;
+    if (validatedData.country !== undefined)
+      updateData.country = validatedData.country;
+    if (validatedData.phone !== undefined)
+      updateData.phone = validatedData.phone;
+    if (validatedData.notes !== undefined)
+      updateData.notes = validatedData.notes;
+    if (validatedData.isDefault !== undefined)
+      updateData.isDefault = validatedData.isDefault;
 
     const address = await prisma.address.update({
       where: { id },
@@ -163,14 +178,17 @@ export async function PATCH(
       const odooClient = createOdooClient();
       if (odooClient && session.user.email) {
         await odooClient.findOrCreatePartner({
-          name: session.user.name || session.user.email.split('@')[0] || 'Guest',
+          name:
+            session.user.name || session.user.email.split("@")[0] || "Guest",
           email: session.user.email,
           phone: address.phone || undefined,
-          street: `${address.street}${address.apartment ? ', ' + address.apartment : ''}`,
+          street: `${address.street}${address.apartment ? ", " + address.apartment : ""}`,
           city: address.city,
           zip: address.zipCode || undefined,
         });
-        console.log(`✅ Address update synced to Odoo for user ${session.user.id}`);
+        console.log(
+          `✅ Address update synced to Odoo for user ${session.user.id}`,
+        );
       }
     } catch (error) {
       console.error("❌ Failed to sync address update to Odoo:", error);
@@ -186,9 +204,10 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to update address",
+        error:
+          error instanceof Error ? error.message : "Failed to update address",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -196,15 +215,15 @@ export async function PATCH(
 // DELETE /api/addresses/[id] - Delete address
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(getAuthOptions());
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -218,7 +237,7 @@ export async function DELETE(
     if (!address) {
       return NextResponse.json(
         { success: false, error: "Address not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -249,9 +268,10 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete address",
+        error:
+          error instanceof Error ? error.message : "Failed to delete address",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -53,7 +53,8 @@ export async function GET(
       }),
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to fetch order status";
+    const msg =
+      err instanceof Error ? err.message : "Failed to fetch order status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }
@@ -76,9 +77,23 @@ export async function PATCH(
     const { status, paymentStatus } = body;
 
     // Validate status
-    const validStatuses = ["PENDING", "CONFIRMED", "PREPARING", "READY", "DELIVERING", "DELIVERED", "COMPLETED", "CANCELLED"];
+    const validStatuses = [
+      "PENDING",
+      "CONFIRMED",
+      "PREPARING",
+      "READY",
+      "DELIVERING",
+      "DELIVERED",
+      "COMPLETED",
+      "CANCELLED",
+    ];
     if (status && !validStatuses.includes(status)) {
-      return jsonResponse(errorResponse(`Invalid status. Must be one of: ${validStatuses.join(", ")}`), 400);
+      return jsonResponse(
+        errorResponse(
+          `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+        ),
+        400,
+      );
     }
 
     // Fetch existing order
@@ -126,11 +141,13 @@ export async function PATCH(
     const isPaid = updatedOrder.paymentStatus === "PAID";
     const isCashPayment = updatedOrder.paymentMethod === "CASH";
     const isCompleted = status && ["DELIVERED", "COMPLETED"].includes(status);
-    
+
     if (isCompleted && updatedOrder.userId && (isPaid || isCashPayment)) {
       const result = await awardOrderPoints(id, updatedOrder.userId);
       if (result) {
-        console.log(`✅ Awarded ${result.pointsAwarded} points for order ${id}`);
+        console.log(
+          `✅ Awarded ${result.pointsAwarded} points for order ${id}`,
+        );
       }
 
       // Process gamification rewards (achievements, badges, streaks)
@@ -148,7 +165,9 @@ export async function PATCH(
         });
 
         if (!existingReward) {
-          const { processDealPurchaseRewards } = await import("@/server/services/gamification/dealRewards");
+          const { processDealPurchaseRewards } = await import(
+            "@/server/services/gamification/dealRewards"
+          );
           const orderWithItems = await prisma.order.findUnique({
             where: { id },
             include: { items: true },
@@ -170,26 +189,33 @@ export async function PATCH(
         }
       } catch (error) {
         // Don't fail order update if gamification fails
-        console.error(`⚠️ Failed to process gamification rewards for order ${id}:`, error);
+        console.error(
+          `⚠️ Failed to process gamification rewards for order ${id}:`,
+          error,
+        );
       }
     }
 
     return jsonResponse(
-      successResponse({
-        id: updatedOrder.id,
-        status: updatedOrder.status,
-        paymentStatus: updatedOrder.paymentStatus,
-        saleOrderId: updatedOrder.saleOrderId,
-        posOrderId: updatedOrder.posOrderId,
-        odooWebUrl: updatedOrder.odooWebUrl,
-        odooStatusSale: updatedOrder.odooStatusSale || "pending",
-        odooStatusPos: updatedOrder.odooStatusPos || "pending",
-        updatedAt: updatedOrder.updatedAt,
-        createdAt: updatedOrder.createdAt,
-      }, "Order status updated successfully"),
+      successResponse(
+        {
+          id: updatedOrder.id,
+          status: updatedOrder.status,
+          paymentStatus: updatedOrder.paymentStatus,
+          saleOrderId: updatedOrder.saleOrderId,
+          posOrderId: updatedOrder.posOrderId,
+          odooWebUrl: updatedOrder.odooWebUrl,
+          odooStatusSale: updatedOrder.odooStatusSale || "pending",
+          odooStatusPos: updatedOrder.odooStatusPos || "pending",
+          updatedAt: updatedOrder.updatedAt,
+          createdAt: updatedOrder.createdAt,
+        },
+        "Order status updated successfully",
+      ),
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to update order status";
+    const msg =
+      err instanceof Error ? err.message : "Failed to update order status";
     return jsonResponse(errorResponse(msg), 500);
   }
 }

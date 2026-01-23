@@ -122,3 +122,45 @@ export function initWebVitals() {
   // getTTFB(reportWebVitals);
   // getFCP(reportWebVitals);
 }
+
+/**
+ * Normalizes text to a URL-friendly slug
+ * Matches the logic used in image generation script
+ */
+export function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-"); // Replace multiple - with single -
+}
+
+/**
+ * Extracts the base product name by removing size/variant indicators
+ * Matches the logic used in image generation script
+ */
+export function extractBaseName(name: string): string {
+  if (!name) return "";
+
+  // Remove common variant indicators to find the "Visual Master"
+  let base = name
+    .replace(/\[.*\]/g, "") // Remove [L]
+    .replace(/single|double|triple|regular|large|small/gi, "")
+    .trim();
+
+  // Handle Suffixes like "Spanish Latte (Iced)" -> "Iced Spanish Latte"
+  if (/\(\s*iced\s*\)/i.test(base)) {
+    base = "Iced " + base.replace(/\(\s*iced\s*\)/i, "");
+  }
+
+  // Handle "(Hot)" -> Remove it (Implied default)
+  base = base.replace(/\(\s*hot\s*\)/i, "");
+
+  // Handle generic parenthesis removal (safely after checks)
+  base = base.replace(/\(.*\)/g, "").trim();
+
+  // Normalize spaces
+  return base.replace(/\s+/g, " ").trim();
+}

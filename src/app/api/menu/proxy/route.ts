@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest) {
   try {
     // Use safe catalog fetching with SWR strategy
     const { categories, products, lastUpdate } = await getCatalogSafe();
-    
+
     return jsonResponse(
       successResponse({
         categories,
@@ -25,4 +25,3 @@ export async function GET(_req: NextRequest) {
     return jsonResponse(errorResponse(msg), 500);
   }
 }
-

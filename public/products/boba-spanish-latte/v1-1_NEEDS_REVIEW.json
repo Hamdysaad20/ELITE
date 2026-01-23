@@ -1,0 +1,13 @@
+{
+  "slug": "boba-spanish-latte",
+  "fileName": "v1-1",
+  "reason": "The image violates several critical criteria for validation. The logo placement and cup content require adjustments as follows.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo is correctly placed and sized, but other content violations must be addressed. The cup has a lid and straw, which are not allowed per constraints. Forbidden fruit pieces (ice cubes) and powder spill props around the cup must be removed."
+  },
+  "timestamp": "2026-01-20T22:57:10.124Z"
+}

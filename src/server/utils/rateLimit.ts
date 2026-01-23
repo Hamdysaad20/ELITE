@@ -45,11 +45,11 @@ export const PAYMENT_RATE_LIMITS = {
  */
 export async function checkOrderRateLimit(
   userId: string,
-  operation: keyof typeof ORDER_RATE_LIMITS
+  operation: keyof typeof ORDER_RATE_LIMITS,
 ): Promise<{ allowed: boolean; resetAt?: Date }> {
   const config = ORDER_RATE_LIMITS[operation];
   const result = await checkRateLimit(userId, config);
-  
+
   return {
     allowed: result.allowed,
     resetAt: result.resetAt,
@@ -61,14 +61,13 @@ export async function checkOrderRateLimit(
  */
 export async function checkPaymentRateLimit(
   userId: string,
-  operation: keyof typeof PAYMENT_RATE_LIMITS
+  operation: keyof typeof PAYMENT_RATE_LIMITS,
 ): Promise<{ allowed: boolean; resetAt?: Date }> {
   const config = PAYMENT_RATE_LIMITS[operation];
   const result = await checkRateLimit(userId, config);
-  
+
   return {
     allowed: result.allowed,
     resetAt: result.resetAt,
   };
 }
-

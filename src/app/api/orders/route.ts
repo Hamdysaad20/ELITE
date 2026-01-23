@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/server/db/client";
-import type { Order as PrismaOrder, OrderItem as PrismaOrderItem } from "@prisma/client";
+import type {
+  Order as PrismaOrder,
+  OrderItem as PrismaOrderItem,
+} from "@prisma/client";
 import {
   successResponse,
   errorResponse,
@@ -10,9 +13,18 @@ import {
   getQueryParams,
   getUserId,
 } from "@/server/utils/apiHelpers";
-import { OrderStatus, PaymentStatus, OrderType, PaymentMethod, type Order } from "@/types";
+import {
+  OrderStatus,
+  PaymentStatus,
+  OrderType,
+  PaymentMethod,
+  type Order,
+} from "@/types";
 import { createOrderSchema } from "@/server/validators/orderSchemas";
-import { BadRequestError, ServiceUnavailableError } from "@/server/utils/errors";
+import {
+  BadRequestError,
+  ServiceUnavailableError,
+} from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
 import { getAuthUser } from "@/server/auth/session";
 import { getCheckoutConfig } from "@/server/services/checkoutConfig";
@@ -114,19 +126,19 @@ export async function POST(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
-    
+
     // Rate limiting
     const rateLimitResult = await checkOrderRateLimit(userId, "ORDER_CREATE");
     if (!rateLimitResult.allowed) {
-      const resetTime = rateLimitResult.resetAt 
+      const resetTime = rateLimitResult.resetAt
         ? new Date(rateLimitResult.resetAt).toLocaleTimeString()
         : "in a moment";
       return jsonResponse(
         errorResponse("Too many orders. Please wait a moment and try again."),
-        429
+        429,
       );
     }
-    
+
     const raw = await parseRequestBody(request);
     const body = createOrderSchema.parse(raw);
 
@@ -187,7 +199,8 @@ export async function POST(request: NextRequest) {
               const unitPrice = item.totalPrice / item.quantity;
               // Format attributes for storage
               const attributesList = Object.entries(item.attributes).flatMap(
-                ([attrName, values]) => values.map(v => `${attrName}: ${v.valueName}`)
+                ([attrName, values]) =>
+                  values.map((v) => `${attrName}: ${v.valueName}`),
               );
               return {
                 productId: item.productId,
@@ -206,14 +219,14 @@ export async function POST(request: NextRequest) {
             }),
           },
         },
-        include: { 
+        include: {
           items: true,
           address: true,
           user: true,
         },
       }),
       REQUEST_TIMEOUTS.ORDER_CREATE,
-      "Order creation took too long. Please try again."
+      "Order creation took too long. Please try again.",
     );
 
     // For online payment methods, create payment intent
@@ -223,20 +236,25 @@ export async function POST(request: NextRequest) {
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
     if (onlinePaymentMethods.includes(body.paymentMethod)) {
       try {
-        const { getPaymentService } = await import("@/server/services/paymob/paymentService");
-        const { isPaymobConfigured } = await import("@/server/services/paymob/paymobClient");
-        
+        const { getPaymentService } = await import(
+          "@/server/services/paymob/paymentService"
+        );
+        const { isPaymobConfigured } = await import(
+          "@/server/services/paymob/paymobClient"
+        );
+
         if (isPaymobConfigured()) {
           const paymentService = getPaymentService();
           if (paymentService) {
             // Determine payment method for Paymob
             const { PaymobPaymentMethod } = await import("@/types/payments");
-            const paymobPaymentMethod = body.paymentMethod === PaymentMethod.CARD 
-              ? PaymobPaymentMethod.CARD
-              : body.paymentMethod === PaymentMethod.WALLET 
-              ? PaymobPaymentMethod.WALLET
-              : PaymobPaymentMethod.CARD; // Default to card
-            
+            const paymobPaymentMethod =
+              body.paymentMethod === PaymentMethod.CARD
+                ? PaymobPaymentMethod.CARD
+                : body.paymentMethod === PaymentMethod.WALLET
+                  ? PaymobPaymentMethod.WALLET
+                  : PaymobPaymentMethod.CARD; // Default to card
+
             try {
               paymentIntent = await withTimeout(
                 paymentService.createPaymentIntent({
@@ -244,19 +262,27 @@ export async function POST(request: NextRequest) {
                   paymentMethod: paymobPaymentMethod,
                 }),
                 REQUEST_TIMEOUTS.PAYMENT_CREATE,
-                "Payment setup took too long. Please try again."
+                "Payment setup took too long. Please try again.",
               );
             } catch (paymentError: unknown) {
               // Log error but don't fail order creation
               // Frontend can retry payment intent creation
-              const errorMessage = paymentError instanceof Error ? paymentError.message : "Payment setup failed";
-              console.error("[Order] Failed to create payment intent:", errorMessage);
+              const errorMessage =
+                paymentError instanceof Error
+                  ? paymentError.message
+                  : "Payment setup failed";
+              console.error(
+                "[Order] Failed to create payment intent:",
+                errorMessage,
+              );
             }
           }
         }
       } catch (error) {
         // Payment service not available - log but continue
-        console.warn("[Order] Payment service not available, order created without payment intent");
+        console.warn(
+          "[Order] Payment service not available, order created without payment intent",
+        );
       }
     }
 
@@ -286,7 +312,7 @@ export async function POST(request: NextRequest) {
     // For online payments, wait for payment confirmation via webhook
     const isCashPayment = body.paymentMethod === PaymentMethod.CASH;
     const isPaid = created.paymentStatus === PaymentStatus.PAID;
-    
+
     if (isCashPayment || isPaid) {
       // Enqueue Odoo sync (fire-and-forget stub). Defaults: sale enabled, pos disabled.
       const enableSale = body.odoo?.sale?.enable !== false;
@@ -295,7 +321,8 @@ export async function POST(request: NextRequest) {
         orderId: created.id,
         clientOrderRef: clientOrderRef,
         partner: {
-          name: body.odoo?.partner?.name || authUser?.name || "Website Customer",
+          name:
+            body.odoo?.partner?.name || authUser?.name || "Website Customer",
           email: body.odoo?.partner?.email || authUser?.email,
           phone: addressInfo?.phone || body.odoo?.partner?.phone,
           street: addressInfo?.street || body.odoo?.partner?.street,
@@ -311,7 +338,9 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // For online payments, Odoo sync will be triggered by webhook after payment confirmation
-      console.log(`[Order] Online payment order ${created.id} - Odoo sync will be triggered after payment confirmation`);
+      console.log(
+        `[Order] Online payment order ${created.id} - Odoo sync will be triggered after payment confirmation`,
+      );
     }
 
     // Clear cart after order
@@ -341,7 +370,8 @@ export async function POST(request: NextRequest) {
       };
     } = {
       order: serializeOrder(created),
-      integrationStatus: isCashPayment || isPaid ? "pending" : "waiting_payment",
+      integrationStatus:
+        isCashPayment || isPaid ? "pending" : "waiting_payment",
     };
 
     // Include payment intent if created
@@ -360,29 +390,37 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     const duration = Date.now() - startTime;
-    await trackApiPerformance("/api/orders", duration, error instanceof BadRequestError ? 400 : 500);
-    
+    await trackApiPerformance(
+      "/api/orders",
+      duration,
+      error instanceof BadRequestError ? 400 : 500,
+    );
+
     if (error instanceof Error && "issues" in error) {
       await trackOrderEvent("order_failed", {
         userId: getUserId(request),
         error: "Invalid request body",
       });
-      return handleApiError(new BadRequestError("Please check your information and try again."));
+      return handleApiError(
+        new BadRequestError("Please check your information and try again."),
+      );
     }
-    
+
     if (error instanceof Error && error.message.includes("timeout")) {
       await trackOrderEvent("order_failed", {
         userId: getUserId(request),
         error: "Timeout",
       });
-      return handleApiError(new ServiceUnavailableError("Request took too long. Please try again."));
+      return handleApiError(
+        new ServiceUnavailableError("Request took too long. Please try again."),
+      );
     }
-    
+
     await trackOrderEvent("order_failed", {
       userId: getUserId(request),
       error: error instanceof Error ? error.message : "Unknown error",
     });
-    
+
     return handleApiError(error);
   }
 }

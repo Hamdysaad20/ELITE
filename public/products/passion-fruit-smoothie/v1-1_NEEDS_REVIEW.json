@@ -1,0 +1,13 @@
+{
+  "slug": "passion-fruit-smoothie",
+  "fileName": "v1-1",
+  "reason": "Logo placement and product presentation do not meet the critical validation criteria. The cup has a lid, straw, and visible fruit pieces (passion fruit seeds, raw ingredients) which are forbidden. Furthermore, the logo does not fully occupy 60–95% of the intended red bounding box, making the size unsatisfactory.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1.2,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo should be resized to occupy a larger area relative to the red bounding box to align with visual standards. Additionally, the lid, straw, and the forbidden fruit pieces should be removed for compliance."
+  },
+  "timestamp": "2026-01-20T23:02:19.503Z"
+}

@@ -27,7 +27,7 @@ interface Product {
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params?.id as string;
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,37 +39,41 @@ export default function ProductDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!productId) return;
-      
+
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch single product using dedicated endpoint
         const productRes = await fetch(`/api/products/${productId}`);
         if (!productRes.ok) throw new Error("Failed to fetch product");
-        
+
         const productData = await productRes.json();
         const foundProduct = productData.data?.product || null;
-        
+
         if (!foundProduct) {
           setError("Product not found");
           setLoading(false);
           return;
         }
-        
+
         setProduct(foundProduct);
-        
+
         // Fetch related products from same category
         if (foundProduct.category?.id) {
-          const relatedRes = await fetch(`/api/products?categoryId=${foundProduct.category.id}&limit=4`);
+          const relatedRes = await fetch(
+            `/api/products?categoryId=${foundProduct.category.id}&limit=4`,
+          );
           if (relatedRes.ok) {
             const relatedData = await relatedRes.json();
             // Filter out current product
-            const filtered = (relatedData.data || []).filter((p: Product) => p.id !== productId);
+            const filtered = (relatedData.data || []).filter(
+              (p: Product) => p.id !== productId,
+            );
             setRelatedProducts(filtered.slice(0, 3));
           }
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -85,14 +89,15 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <div className="hidden md:block">
-        </div>
+        <div className="hidden md:block"></div>
         <MobileHeader title="Product" showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
-              <p className="mt-4 font-cabin text-elite-burgundy">Loading product...</p>
+              <p className="mt-4 font-cabin text-elite-burgundy">
+                Loading product...
+              </p>
             </div>
           </div>
         </main>
@@ -107,13 +112,14 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <div className="hidden md:block">
-        </div>
+        <div className="hidden md:block"></div>
         <MobileHeader title="Product" showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center max-w-md">
-              <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">Product Not Found</h1>
+              <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
+                Product Not Found
+              </h1>
               <p className="font-cabin text-elite-black/70 mb-6">
                 {error || "The product you're looking for doesn't exist."}
               </p>
@@ -136,12 +142,11 @@ export default function ProductDetailPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block">
-      </div>
+      <div className="hidden md:block"></div>
       <MobileHeader title={product.name} showBack={true} />
       <main className="page-transition loaded min-h-screen bg-elite-burgundy pt-16 md:pt-0 pb-20 md:pb-0">
-        <ProductDetailClient 
-          product={product} 
+        <ProductDetailClient
+          product={product}
           relatedProducts={relatedProducts}
         />
       </main>

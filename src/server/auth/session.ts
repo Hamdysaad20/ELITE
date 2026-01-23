@@ -23,12 +23,10 @@ function getNextAuthSecret() {
  * Get authenticated user from NextAuth JWT token
  * Returns null if no valid session exists
  */
-export async function getAuthUser(
-  req: NextRequest,
-): Promise<AuthUser | null> {
+export async function getAuthUser(req: NextRequest): Promise<AuthUser | null> {
   try {
     const token = await getToken({ req, secret: getNextAuthSecret() });
-    
+
     if (!token || !token.sub) {
       return null;
     }
@@ -57,11 +55,11 @@ export async function getAuthUser(
  */
 export async function requireAuth(req: NextRequest): Promise<AuthUser> {
   const user = await getAuthUser(req);
-  
+
   if (!user) {
     throw new Error("Authentication required");
   }
-  
+
   return user;
 }
 
@@ -73,23 +71,26 @@ export async function requireRole(
   allowedRoles: string[],
 ): Promise<AuthUser> {
   const user = await requireAuth(req);
-  
+
   if (!user.role || !allowedRoles.includes(user.role)) {
     throw new Error(`Required role: ${allowedRoles.join(" or ")}`);
   }
-  
+
   return user;
 }
 
 /**
  * Check if user has permission (role-based)
  */
-export function hasPermission(user: AuthUser | null, requiredRole: string): boolean {
+export function hasPermission(
+  user: AuthUser | null,
+  requiredRole: string,
+): boolean {
   if (!user || !user.role) return false;
-  
+
   // Admin has all permissions
   if (user.role === "admin") return true;
-  
+
   return user.role === requiredRole;
 }
 
@@ -134,13 +135,16 @@ export async function updateLastLogin(userId: string): Promise<void> {
 /**
  * Suspend user account
  */
-export async function suspendUser(userId: string, reason?: string): Promise<boolean> {
+export async function suspendUser(
+  userId: string,
+  reason?: string,
+): Promise<boolean> {
   try {
     await prisma.user.update({
       where: { id: userId },
       data: { status: "suspended" },
     });
-    
+
     console.log(`User ${userId} suspended. Reason: ${reason || "N/A"}`);
     return true;
   } catch (error) {
@@ -158,7 +162,7 @@ export async function reactivateUser(userId: string): Promise<boolean> {
       where: { id: userId },
       data: { status: "active" },
     });
-    
+
     console.log(`User ${userId} reactivated`);
     return true;
   } catch (error) {

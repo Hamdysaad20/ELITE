@@ -1,0 +1,19 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Soft diffused studio lighting, clean and consistent
+Camera: Slightly above eye-level (hero product shot)
+Composition: Centered, isolated subject
+
+[Subject]
+A premium menu item: "{{ name }}".
+This is a FOOD item (not a drink). Present it on a simple matte white plate or tray, centered.
+No packaging logos, no printed labels.
+{{ customOverlay }}
+{{ textRules }}
+
+[Background/Environment]
+Pure white or very light neutral background, minimal shadows, no props, no hands, no utensils.
+
+[Style/Vibe]
+Commercial product photo for a modern coffee shop website, consistent theme across the menu.

@@ -1,7 +1,11 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 
 /**
  * GET /api/loyalty - Get user's loyalty information
@@ -32,16 +36,48 @@ export async function GET(request: NextRequest) {
 
     // Calculate next tier info
     const tiers = [
-      { level: "bronze", minPoints: 0, benefits: ["Earn 1 point per 10 EGP", "Birthday reward"] },
-      { level: "silver", minPoints: 100, benefits: ["Earn 1.5 points per 10 EGP", "Free delivery", "Birthday reward"] },
-      { level: "gold", minPoints: 500, benefits: ["Earn 2 points per 10 EGP", "Free delivery", "Priority support", "Exclusive offers"] },
-      { level: "platinum", minPoints: 1000, benefits: ["Earn 3 points per 10 EGP", "Free delivery", "Priority support", "Exclusive offers", "VIP events"] },
+      {
+        level: "bronze",
+        minPoints: 0,
+        benefits: ["Earn 1 point per 10 EGP", "Birthday reward"],
+      },
+      {
+        level: "silver",
+        minPoints: 100,
+        benefits: [
+          "Earn 1.5 points per 10 EGP",
+          "Free delivery",
+          "Birthday reward",
+        ],
+      },
+      {
+        level: "gold",
+        minPoints: 500,
+        benefits: [
+          "Earn 2 points per 10 EGP",
+          "Free delivery",
+          "Priority support",
+          "Exclusive offers",
+        ],
+      },
+      {
+        level: "platinum",
+        minPoints: 1000,
+        benefits: [
+          "Earn 3 points per 10 EGP",
+          "Free delivery",
+          "Priority support",
+          "Exclusive offers",
+          "VIP events",
+        ],
+      },
     ];
 
     const currentLevel = loyalty?.level || "bronze";
     const currentPoints = loyalty?.points || 0;
-    const currentTierIndex = tiers.findIndex(t => t.level === currentLevel);
-    const nextTier = currentTierIndex < tiers.length - 1 ? tiers[currentTierIndex + 1] : null;
+    const currentTierIndex = tiers.findIndex((t) => t.level === currentLevel);
+    const nextTier =
+      currentTierIndex < tiers.length - 1 ? tiers[currentTierIndex + 1] : null;
 
     return jsonResponse(
       successResponse({
@@ -51,7 +87,7 @@ export async function GET(request: NextRequest) {
           level: currentLevel,
           updatedAt: loyalty?.updatedAt || new Date(),
         },
-        recentActivity: recentActivity.map(item => ({
+        recentActivity: recentActivity.map((item) => ({
           id: item.id,
           deltaPoints: item.deltaPoints,
           reason: item.reason,
@@ -64,17 +100,24 @@ export async function GET(request: NextRequest) {
           next: nextTier,
           all: tiers,
           progress: nextTier
-            ? Math.min(100, ((currentPoints - tiers[currentTierIndex].minPoints) / (nextTier.minPoints - tiers[currentTierIndex].minPoints)) * 100)
+            ? Math.min(
+                100,
+                ((currentPoints - tiers[currentTierIndex].minPoints) /
+                  (nextTier.minPoints - tiers[currentTierIndex].minPoints)) *
+                  100,
+              )
             : 100,
         },
       }),
     );
   } catch (error) {
     console.error("Loyalty fetch error:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch loyalty information";
-    const isAuthError = error instanceof Error && error.message === "Authentication required";
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch loyalty information";
+    const isAuthError =
+      error instanceof Error && error.message === "Authentication required";
     return jsonResponse(errorResponse(message), isAuthError ? 401 : 500);
   }
 }
-
-

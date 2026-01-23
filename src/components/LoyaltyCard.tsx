@@ -44,12 +44,21 @@ const TIER_COLORS = {
   },
 };
 
-export function LoyaltyCard({ points, level, totalSpent, progress, nextTier }: LoyaltyCardProps) {
+export function LoyaltyCard({
+  points,
+  level,
+  totalSpent,
+  progress,
+  nextTier,
+}: LoyaltyCardProps) {
   const Icon = TIER_ICONS[level as keyof typeof TIER_ICONS] || Award;
-  const colors = TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
+  const colors =
+    TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
 
   return (
-    <div className={`relative bg-gradient-to-br ${colors.bg} rounded-3xl shadow-2xl overflow-hidden`}>
+    <div
+      className={`relative bg-gradient-to-br ${colors.bg} rounded-3xl shadow-2xl overflow-hidden`}
+    >
       {/* Decorative background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -64,14 +73,20 @@ export function LoyaltyCard({ points, level, totalSpent, progress, nextTier }: L
               <Icon className={`w-8 h-8 ${colors.text}`} />
             </div>
             <div>
-              <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>Your Status</p>
-              <h2 className={`text-2xl font-calistoga ${colors.text} capitalize`}>
+              <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
+                Your Status
+              </p>
+              <h2
+                className={`text-2xl font-calistoga ${colors.text} capitalize`}
+              >
                 {level} Member
               </h2>
             </div>
           </div>
           <div className="text-right">
-            <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>Total Spent</p>
+            <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
+              Total Spent
+            </p>
             <p className={`text-xl font-bold ${colors.text} font-cabin`}>
               {Number(totalSpent).toFixed(0)} EGP
             </p>
@@ -84,7 +99,9 @@ export function LoyaltyCard({ points, level, totalSpent, progress, nextTier }: L
             <h3 className={`text-5xl font-bold ${colors.text} font-calistoga`}>
               {points}
             </h3>
-            <span className={`text-xl ${colors.text} opacity-80 font-cabin`}>Points</span>
+            <span className={`text-xl ${colors.text} opacity-80 font-cabin`}>
+              Points
+            </span>
           </div>
         </div>
 
@@ -115,8 +132,12 @@ export function LoyaltyCard({ points, level, totalSpent, progress, nextTier }: L
         {!nextTier && (
           <div className={`text-center py-4 ${colors.text}`}>
             <Crown className="w-12 h-12 mx-auto mb-2 opacity-80" />
-            <p className="font-cabin font-semibold">You've reached the highest tier!</p>
-            <p className="text-sm opacity-80 mt-1">Enjoy all exclusive benefits</p>
+            <p className="font-cabin font-semibold">
+              You've reached the highest tier!
+            </p>
+            <p className="text-sm opacity-80 mt-1">
+              Enjoy all exclusive benefits
+            </p>
           </div>
         )}
       </div>
@@ -130,7 +151,8 @@ interface LoyaltyBenefitsProps {
 }
 
 export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
-  const colors = TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
+  const colors =
+    TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
@@ -144,9 +166,21 @@ export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
       <ul className="space-y-3">
         {benefits.map((benefit, index) => (
           <li key={index} className="flex items-start gap-3">
-            <div className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${colors.bg} flex items-center justify-center mt-0.5`}>
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <div
+              className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${colors.bg} flex items-center justify-center mt-0.5`}
+            >
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
             <span className="text-gray-700 font-cabin">{benefit}</span>
@@ -191,7 +225,9 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
       <div className="flex items-center gap-3 mb-6">
         <TrendingUp className="w-5 h-5 text-elite-burgundy" />
-        <h3 className="text-xl font-calistoga text-gray-900">Recent Activity</h3>
+        <h3 className="text-xl font-calistoga text-gray-900">
+          Recent Activity
+        </h3>
       </div>
 
       <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -249,8 +285,11 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
 
       <div className="space-y-4">
         {tiers.map((tier, index) => {
-          const Icon = TIER_ICONS[tier.level as keyof typeof TIER_ICONS] || Award;
-          const colors = TIER_COLORS[tier.level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
+          const Icon =
+            TIER_ICONS[tier.level as keyof typeof TIER_ICONS] || Award;
+          const colors =
+            TIER_COLORS[tier.level as keyof typeof TIER_COLORS] ||
+            TIER_COLORS.bronze;
           const isCurrent = tier.level === currentLevel;
 
           return (
@@ -299,7 +338,9 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
                       isCurrent ? "text-white/80" : "text-gray-600"
                     }`}
                   >
-                    {tier.minPoints === 0 ? "Starting tier" : `${tier.minPoints}+ points`}
+                    {tier.minPoints === 0
+                      ? "Starting tier"
+                      : `${tier.minPoints}+ points`}
                   </p>
 
                   <ul className="space-y-1">
@@ -310,9 +351,11 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
                           isCurrent ? "text-white/90" : "text-gray-600"
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          isCurrent ? "bg-white/60" : "bg-gray-400"
-                        }`}></span>
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isCurrent ? "bg-white/60" : "bg-gray-400"
+                          }`}
+                        ></span>
                         {benefit}
                       </li>
                     ))}
@@ -326,5 +369,3 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
     </div>
   );
 }
-
-

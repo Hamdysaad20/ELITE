@@ -1,0 +1,13 @@
+{
+  "slug": "strawberry-smoothie",
+  "fileName": "v1-1",
+  "reason": "The logo fails validation due to incorrect position and size. Additionally, the drink contains forbidden strawberry pieces, a whole strawberry on top, and ice, which does not adhere to the content constraints.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1.2,
+    "horizontalOffset": 5,
+    "verticalOffset": -10,
+    "reason": "The logo needs to be slightly larger to occupy 60-95% of the red box width and needs to be centered both horizontally and vertically inside the red box. Additionally, all prohibited fruit pieces, the whole strawberry, and ice cubes must be removed to meet content constraints."
+  },
+  "timestamp": "2026-01-20T23:01:52.635Z"
+}

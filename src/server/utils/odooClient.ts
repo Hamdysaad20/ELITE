@@ -158,7 +158,7 @@ export class OdooClient {
   /**
    * Search and read with pagination support for large datasets
    * Automatically handles pagination to fetch all records
-   * 
+   *
    * @param model - Odoo model name
    * @param domain - Search domain
    * @param fields - Fields to fetch
@@ -175,7 +175,7 @@ export class OdooClient {
   ): Promise<T[]> {
     // Enforce max batch size to prevent memory issues
     const safeBatchSize = Math.min(Math.max(1, batchSize), 5000);
-    
+
     const allResults: T[] = [];
     let offset = 0;
     let hasMore = true;
@@ -188,14 +188,19 @@ export class OdooClient {
         offset,
       } as Record<string, unknown>;
 
-      const batch = await this.rpc<T[]>(model, "search_read", [domain], batchOptions);
-      
+      const batch = await this.rpc<T[]>(
+        model,
+        "search_read",
+        [domain],
+        batchOptions,
+      );
+
       if (batch.length === 0) {
         hasMore = false;
       } else {
         allResults.push(...batch);
         offset += batch.length;
-        
+
         // If we got fewer results than requested, we've reached the end
         if (batch.length < safeBatchSize) {
           hasMore = false;
@@ -212,7 +217,10 @@ export class OdooClient {
   async findPricelistByName(name: string): Promise<number | null> {
     const pricelists = await this.searchRead<{ id: number; name: string }>(
       "product.pricelist",
-      [["name", "=", name], ["active", "=", true]],
+      [
+        ["name", "=", name],
+        ["active", "=", true],
+      ],
       ["id", "name"],
       { limit: 1 },
     );
@@ -246,7 +254,10 @@ export class OdooClient {
       return templates !== null && templates.length > 0;
     } catch (error) {
       // If field doesn't exist or model doesn't support it, return false
-      console.log("[OdooClient] Combo product support check failed (may not be available):", error);
+      console.log(
+        "[OdooClient] Combo product support check failed (may not be available):",
+        error,
+      );
       return false;
     }
   }
@@ -255,12 +266,14 @@ export class OdooClient {
    * Fetch native combo products from Odoo
    * Returns products with type='combo' and their choice sets
    */
-  async getComboProducts(): Promise<Array<{
-    id: number;
-    name: string;
-    list_price: number;
-    combo_line_ids?: number[]; // Choice set line IDs
-  }>> {
+  async getComboProducts(): Promise<
+    Array<{
+      id: number;
+      name: string;
+      list_price: number;
+      combo_line_ids?: number[]; // Choice set line IDs
+    }>
+  > {
     try {
       const combos = await this.searchRead<{
         id: number;
@@ -269,7 +282,11 @@ export class OdooClient {
         combo_line_ids?: number[];
       }>(
         "product.template",
-        [["type", "=", "combo"], ["sale_ok", "=", true], ["active", "=", true]],
+        [
+          ["type", "=", "combo"],
+          ["sale_ok", "=", true],
+          ["active", "=", true],
+        ],
         ["id", "name", "list_price", "combo_line_ids"],
       );
       return combos || [];
@@ -283,13 +300,15 @@ export class OdooClient {
    * Get combo choice sets for a combo product
    * Returns the choice sets (what products can be selected in the combo)
    */
-  async getComboChoiceSets(comboProductId: number): Promise<Array<{
-    id: number;
-    product_id: number;
-    name: string;
-    required: boolean;
-    quantity: number;
-  }>> {
+  async getComboChoiceSets(comboProductId: number): Promise<
+    Array<{
+      id: number;
+      product_id: number;
+      name: string;
+      required: boolean;
+      quantity: number;
+    }>
+  > {
     try {
       // In Odoo 19, combo choice sets are stored in product.combo.line
       // This is a many2many relationship from product.template
@@ -304,16 +323,21 @@ export class OdooClient {
         [["combo_id", "=", comboProductId]],
         ["id", "product_id", "name", "required", "quantity"],
       );
-      
-      return (comboLines || []).map(line => ({
+
+      return (comboLines || []).map((line) => ({
         id: line.id,
-        product_id: Array.isArray(line.product_id) ? line.product_id[0] : line.product_id,
+        product_id: Array.isArray(line.product_id)
+          ? line.product_id[0]
+          : line.product_id,
         name: line.name,
         required: line.required || false,
         quantity: line.quantity || 1,
       }));
     } catch (error) {
-      console.error(`[OdooClient] Error fetching combo choice sets for ${comboProductId}:`, error);
+      console.error(
+        `[OdooClient] Error fetching combo choice sets for ${comboProductId}:`,
+        error,
+      );
       return [];
     }
   }
@@ -321,7 +345,7 @@ export class OdooClient {
   /**
    * Get product price with pricelist context
    * This uses Odoo's price_get method which respects pricelists
-   * 
+   *
    * Note: Odoo's price_get signature is: price_get(product_ids, pricelist_id, qty, partner_id, uom_id, date)
    * We use a simplified version with just product_ids, pricelist_id, and qty
    */
@@ -342,7 +366,10 @@ export class OdooClient {
       const priceData = result[productId];
       return priceData?.price || 0;
     } catch (error) {
-      console.error(`[OdooClient] Failed to get price for product ${productId} with pricelist ${pricelistId}:`, error);
+      console.error(
+        `[OdooClient] Failed to get price for product ${productId} with pricelist ${pricelistId}:`,
+        error,
+      );
       return 0;
     }
   }
@@ -705,23 +732,29 @@ export class OdooClient {
       // Generate pos_reference and date_order for the fallback
       const pos_reference = websiteOrder.orderNumber || uid;
       const date_order = new Date().toISOString();
-      
+
       // Create the POS order first
-      const createResult = await this.rpc<number | number[]>("pos.order", "create", [
-        {
-          partner_id: partnerId,
-          session_id: sessionId,
-          amount_total,
-          amount_tax: 0,
-          amount_paid: 0,
-          amount_return: 0,
-          pos_reference: pos_reference,
-          date_order: date_order,
-        },
-      ]);
+      const createResult = await this.rpc<number | number[]>(
+        "pos.order",
+        "create",
+        [
+          {
+            partner_id: partnerId,
+            session_id: sessionId,
+            amount_total,
+            amount_tax: 0,
+            amount_paid: 0,
+            amount_return: 0,
+            pos_reference: pos_reference,
+            date_order: date_order,
+          },
+        ],
+      );
 
       // Extract the order ID (handle both single ID and array responses)
-      const orderId = Array.isArray(createResult) ? createResult[0] : createResult;
+      const orderId = Array.isArray(createResult)
+        ? createResult[0]
+        : createResult;
 
       if (!orderId) {
         throw new Error("Failed to get order ID from create response");
@@ -731,7 +764,7 @@ export class OdooClient {
       for (const l of lines) {
         const base = l[2] as any;
         const lineVals = {
-          order_id: orderId,  // Single integer, not array
+          order_id: orderId, // Single integer, not array
           product_id: base.product_id,
           qty: base.qty,
           price_unit: base.price_unit,

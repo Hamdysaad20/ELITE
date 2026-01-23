@@ -1,0 +1,13 @@
+{
+  "slug": "chai-latte-hot",
+  "fileName": "v1-1",
+  "reason": "The logo appears outside the red bounding box and overlaps partially with the cup border. It exceeds the intended placement zone indicated by the box.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.85,
+    "horizontalOffset": 5,
+    "verticalOffset": -8,
+    "reason": "The logo needs to be resized to fit within the red bounding box and repositioned slightly upward and left to align correctly within the specified placement zone."
+  },
+  "timestamp": "2026-01-20T23:04:06.435Z"
+}

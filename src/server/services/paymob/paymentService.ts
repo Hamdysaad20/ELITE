@@ -5,7 +5,11 @@
 
 import { prisma } from "@/server/db/client";
 import { Prisma, type Order, type User, type Address } from "@prisma/client";
-import { PaymobClient, createPaymobClient, isPaymobConfigured } from "./paymobClient";
+import {
+  PaymobClient,
+  createPaymobClient,
+  isPaymobConfigured,
+} from "./paymobClient";
 import {
   PaymentTransactionStatus,
   type CreatePaymentIntentRequest,
@@ -53,7 +57,7 @@ export class PaymentService {
    * Create a payment intent for an order
    */
   async createPaymentIntent(
-    request: CreatePaymentIntentRequest
+    request: CreatePaymentIntentRequest,
   ): Promise<CreatePaymentIntentResponse> {
     // Fetch order
     const order = await prisma.order.findUnique({
@@ -71,13 +75,17 @@ export class PaymentService {
 
     // Validate order can be paid
     if (order.paymentStatus !== "PENDING") {
-      throw new Error(`Order payment status is ${order.paymentStatus}, cannot create payment intent`);
+      throw new Error(
+        `Order payment status is ${order.paymentStatus}, cannot create payment intent`,
+      );
     }
 
     // Check if payment method requires online payment
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
     if (!onlinePaymentMethods.includes(order.paymentMethod as PaymentMethod)) {
-      throw new Error(`Payment method ${order.paymentMethod} does not require online payment`);
+      throw new Error(
+        `Payment method ${order.paymentMethod} does not require online payment`,
+      );
     }
 
     // Convert order items to Paymob format
@@ -93,7 +101,7 @@ export class PaymentService {
       Math.round(Number(order.total) * 100), // Convert to cents
       paymobItems,
       order.clientOrderRef,
-      order.orderType === "DELIVERY"
+      order.orderType === "DELIVERY",
     );
 
     // Prepare billing data
@@ -107,7 +115,7 @@ export class PaymentService {
       paymobOrder.id,
       Math.round(Number(order.total) * 100),
       billingData,
-      integrationId
+      integrationId,
     );
 
     // Create payment transaction record
@@ -143,12 +151,16 @@ export class PaymentService {
 
   /**
    * Prepare billing data from order
-   * 
+   *
    * Validates that required billing information is available.
    * For online payments, valid billing data is required by Paymob.
    */
   private prepareBillingData(order: {
-    user: { name: string | null; email: string | null; phone: string | null } | null;
+    user: {
+      name: string | null;
+      email: string | null;
+      phone: string | null;
+    } | null;
     address: {
       street: string;
       apartment: string | null;
@@ -183,7 +195,9 @@ export class PaymentService {
     // Validate phone number format (Egyptian format: starts with 0 or +20)
     const phoneRegex = /^(\+20|0)?1[0-9]{9}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s/g, ""))) {
-      throw new Error("Invalid phone number format. Please use Egyptian format (e.g., 01000000000)");
+      throw new Error(
+        "Invalid phone number format. Please use Egyptian format (e.g., 01000000000)",
+      );
     }
 
     // Extract first and last name
@@ -219,7 +233,7 @@ export class PaymentService {
     if (payload.hmac) {
       const isValid = this.client.verifyWebhookSignature(
         transaction,
-        payload.hmac
+        payload.hmac,
       );
 
       if (!isValid) {
@@ -230,7 +244,7 @@ export class PaymentService {
     // Find order by merchant_order_id (clientOrderRef)
     const order = await prisma.order.findUnique({
       where: { clientOrderRef: transaction.merchant_order_id },
-      include: { 
+      include: {
         paymentTransactions: true,
         user: true,
         address: true,
@@ -238,7 +252,9 @@ export class PaymentService {
     });
 
     if (!order) {
-      throw new Error(`Order not found for merchant_order_id: ${transaction.merchant_order_id}`);
+      throw new Error(
+        `Order not found for merchant_order_id: ${transaction.merchant_order_id}`,
+      );
     }
 
     // Determine payment status
@@ -264,7 +280,7 @@ export class PaymentService {
     // Update or create payment transaction
     const orderWithRelations = order as OrderWithRelations;
     const existingTransaction = orderWithRelations.paymentTransactions?.find(
-      (pt) => pt.paymobTransactionId === String(transaction.id)
+      (pt) => pt.paymobTransactionId === String(transaction.id),
     );
 
     if (existingTransaction) {
@@ -324,7 +340,10 @@ export class PaymentService {
           partner: {
             name: orderWithRelations.user?.name || "Customer",
             email: orderWithRelations.user?.email || undefined,
-            phone: orderWithRelations.address?.phone || orderWithRelations.user?.phone || undefined,
+            phone:
+              orderWithRelations.address?.phone ||
+              orderWithRelations.user?.phone ||
+              undefined,
             street: orderWithRelations.address?.street || undefined,
             city: orderWithRelations.address?.city || undefined,
             zip: orderWithRelations.address?.zipCode || undefined,
@@ -338,9 +357,14 @@ export class PaymentService {
       }
 
       // Award loyalty points if order is already completed/delivered
-      if (order.userId && (order.status === "DELIVERED" || order.status === "COMPLETED")) {
+      if (
+        order.userId &&
+        (order.status === "DELIVERED" || order.status === "COMPLETED")
+      ) {
         try {
-          const { awardOrderPoints } = await import("@/server/services/loyalty");
+          const { awardOrderPoints } = await import(
+            "@/server/services/loyalty"
+          );
           await awardOrderPoints(order.id, order.userId);
         } catch (err) {
           console.error("[Payment] Failed to award loyalty points:", err);
@@ -377,7 +401,9 @@ export class PaymentService {
     const latestTransaction = orderWithRelations.paymentTransactions?.[0];
 
     return {
-      status: (latestTransaction?.status as PaymentTransactionStatus) || PaymentTransactionStatus.PENDING,
+      status:
+        (latestTransaction?.status as PaymentTransactionStatus) ||
+        PaymentTransactionStatus.PENDING,
       paymobTransactionId: latestTransaction?.paymobTransactionId || null,
       amount: Number(order.total),
       paidAt:
@@ -404,4 +430,3 @@ export function getPaymentService(): PaymentService | null {
 
   return new PaymentService(client);
 }
-

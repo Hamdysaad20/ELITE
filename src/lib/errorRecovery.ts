@@ -33,7 +33,8 @@ export function classifyError(error: unknown): ErrorInfo {
     return {
       type: "network",
       isRetryable: true,
-      message: "Network connection lost. Please check your internet connection.",
+      message:
+        "Network connection lost. Please check your internet connection.",
     };
   }
 
@@ -54,7 +55,7 @@ export function classifyError(error: unknown): ErrorInfo {
   // HTTP errors with status codes
   if (error && typeof error === "object" && "status" in error) {
     const status = (error as { status: number }).status;
-    
+
     // Server errors (5xx) - retryable
     if (status >= 500) {
       return {
@@ -124,7 +125,7 @@ function getBackoffDelay(
 
 /**
  * Retry a function with exponential backoff
- * 
+ *
  * @example
  * ```typescript
  * const data = await withRetry(
@@ -203,15 +204,15 @@ export async function withRetry<T>(
 
 /**
  * Create a retry wrapper for API calls
- * 
+ *
  * @example
  * ```typescript
  * const apiWithRetry = createRetryWrapper({
  *   maxRetries: 3,
  *   initialDelay: 1000
  * });
- * 
- * const data = await apiWithRetry(() => 
+ *
+ * const data = await apiWithRetry(() =>
  *   fetch('/api/products').then(r => r.json())
  * );
  * ```

@@ -1,6 +1,6 @@
 /**
  * Security and business validation for deals
- * 
+ *
  * Prevents abuse and ensures deals serve business targets:
  * - Price manipulation prevention
  * - Discount validation
@@ -53,12 +53,16 @@ export function validateDealProduct(product: DealProduct): {
     errors.push(`Deal price too low: ${product.dealPrice}`);
   }
   if (product.dealPrice > product.originalPrice) {
-    errors.push(`Deal price (${product.dealPrice}) cannot exceed original price (${product.originalPrice})`);
+    errors.push(
+      `Deal price (${product.dealPrice}) cannot exceed original price (${product.originalPrice})`,
+    );
   }
 
   // 2. Discount validation
   if (product.savingsPercent > MAX_DISCOUNT_PERCENT) {
-    errors.push(`Discount exceeds maximum: ${product.savingsPercent}% (max: ${MAX_DISCOUNT_PERCENT}%)`);
+    errors.push(
+      `Discount exceeds maximum: ${product.savingsPercent}% (max: ${MAX_DISCOUNT_PERCENT}%)`,
+    );
   }
   if (product.savings < 0) {
     errors.push(`Negative savings detected: ${product.savings}`);
@@ -66,23 +70,31 @@ export function validateDealProduct(product: DealProduct): {
 
   // 3. Price calculation validation
   const expectedSavings = product.originalPrice - product.dealPrice;
-  const expectedSavingsPercent = product.originalPrice > 0
-    ? ((product.originalPrice - product.dealPrice) / product.originalPrice) * 100
-    : 0;
+  const expectedSavingsPercent =
+    product.originalPrice > 0
+      ? ((product.originalPrice - product.dealPrice) / product.originalPrice) *
+        100
+      : 0;
 
   // Allow small rounding differences (0.01 EGP or 0.1%)
   if (Math.abs(product.savings - expectedSavings) > 0.01) {
-    warnings.push(`Savings calculation mismatch: expected ${expectedSavings.toFixed(2)}, got ${product.savings.toFixed(2)}`);
+    warnings.push(
+      `Savings calculation mismatch: expected ${expectedSavings.toFixed(2)}, got ${product.savings.toFixed(2)}`,
+    );
   }
   if (Math.abs(product.savingsPercent - expectedSavingsPercent) > 0.1) {
-    warnings.push(`Savings percentage mismatch: expected ${expectedSavingsPercent.toFixed(1)}%, got ${product.savingsPercent.toFixed(1)}%`);
+    warnings.push(
+      `Savings percentage mismatch: expected ${expectedSavingsPercent.toFixed(1)}%, got ${product.savingsPercent.toFixed(1)}%`,
+    );
   }
 
   // 4. Business rule: Large item discount validation
   if (product.savingsPercent > 30) {
     const isLargeItem = product.originalPrice >= 100;
     if (!isLargeItem) {
-      errors.push(`Discount > 30% only allowed for large items (price >= 100 EGP). Product: ${product.name} (${product.originalPrice} EGP)`);
+      errors.push(
+        `Discount > 30% only allowed for large items (price >= 100 EGP). Product: ${product.name} (${product.originalPrice} EGP)`,
+      );
     }
   }
 
@@ -105,8 +117,14 @@ export function sanitizeDealProduct(product: DealProduct): DealProduct {
   const sanitized = { ...product };
 
   // Clamp prices to valid ranges
-  sanitized.originalPrice = Math.max(MIN_PRICE, Math.min(MAX_PRICE, sanitized.originalPrice));
-  sanitized.dealPrice = Math.max(MIN_PRICE, Math.min(MAX_PRICE, sanitized.dealPrice));
+  sanitized.originalPrice = Math.max(
+    MIN_PRICE,
+    Math.min(MAX_PRICE, sanitized.originalPrice),
+  );
+  sanitized.dealPrice = Math.max(
+    MIN_PRICE,
+    Math.min(MAX_PRICE, sanitized.dealPrice),
+  );
 
   // Ensure deal price doesn't exceed original
   if (sanitized.dealPrice > sanitized.originalPrice) {
@@ -115,9 +133,14 @@ export function sanitizeDealProduct(product: DealProduct): DealProduct {
 
   // Recalculate savings
   sanitized.savings = sanitized.originalPrice - sanitized.dealPrice;
-  sanitized.savingsPercent = sanitized.originalPrice > 0
-    ? Math.round(((sanitized.originalPrice - sanitized.dealPrice) / sanitized.originalPrice) * 100)
-    : 0;
+  sanitized.savingsPercent =
+    sanitized.originalPrice > 0
+      ? Math.round(
+          ((sanitized.originalPrice - sanitized.dealPrice) /
+            sanitized.originalPrice) *
+            100,
+        )
+      : 0;
 
   // Validate and clamp discount
   const validation = validateDiscount(sanitized.savingsPercent, {
@@ -161,12 +184,16 @@ export function validateComboDeal(combo: {
   // 1. Calculate expected original total
   const expectedTotal = combo.items.reduce((sum, item) => sum + item.price, 0);
   if (Math.abs(combo.originalTotal - expectedTotal) > 0.01) {
-    warnings.push(`Original total mismatch: expected ${expectedTotal.toFixed(2)}, got ${combo.originalTotal.toFixed(2)}`);
+    warnings.push(
+      `Original total mismatch: expected ${expectedTotal.toFixed(2)}, got ${combo.originalTotal.toFixed(2)}`,
+    );
   }
 
   // 2. Combo discount limit (30%)
   if (combo.savingsPercent > MAX_COMBO_DISCOUNT_PERCENT) {
-    errors.push(`Combo discount exceeds maximum: ${combo.savingsPercent}% (max: ${MAX_COMBO_DISCOUNT_PERCENT}%)`);
+    errors.push(
+      `Combo discount exceeds maximum: ${combo.savingsPercent}% (max: ${MAX_COMBO_DISCOUNT_PERCENT}%)`,
+    );
   }
 
   // 3. Price validation
@@ -174,7 +201,9 @@ export function validateComboDeal(combo: {
     errors.push(`Combo deal price too low: ${combo.dealPrice}`);
   }
   if (combo.dealPrice > combo.originalTotal) {
-    errors.push(`Combo deal price (${combo.dealPrice}) cannot exceed original total (${combo.originalTotal})`);
+    errors.push(
+      `Combo deal price (${combo.dealPrice}) cannot exceed original total (${combo.originalTotal})`,
+    );
   }
 
   // 4. Minimum items check
@@ -195,16 +224,15 @@ export function validateComboDeal(combo: {
 export function detectPriceManipulation(
   originalPrice: number,
   dealPrice: number,
-  expectedDiscount: number
+  expectedDiscount: number,
 ): boolean {
   // Calculate actual discount
-  const actualDiscount = originalPrice > 0
-    ? ((originalPrice - dealPrice) / originalPrice) * 100
-    : 0;
+  const actualDiscount =
+    originalPrice > 0 ? ((originalPrice - dealPrice) / originalPrice) * 100 : 0;
 
   // Check if discount is significantly different from expected
   const difference = Math.abs(actualDiscount - expectedDiscount);
-  
+
   // Allow 1% tolerance for rounding
   if (difference > 1) {
     return true;
@@ -217,4 +245,3 @@ export function detectPriceManipulation(
 
   return false;
 }
-

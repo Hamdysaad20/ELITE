@@ -9,11 +9,11 @@ interface SavingsCardProps {
   compact?: boolean;
 }
 
-export function SavingsCard({ 
-  totalSaved, 
-  percentageChange, 
-  period = 'last month',
-  compact = false 
+export function SavingsCard({
+  totalSaved,
+  percentageChange,
+  period = "last month",
+  compact = false,
 }: SavingsCardProps) {
   if (compact) {
     return (
@@ -26,9 +26,7 @@ export function SavingsCard({
           <span className="font-calistoga text-elite-cream text-base">
             {totalSaved.toFixed(2)}
           </span>
-          <span className="font-cabin text-elite-cream/80 text-xs">
-            EGP
-          </span>
+          <span className="font-cabin text-elite-cream/80 text-xs">EGP</span>
         </div>
       </div>
     );
@@ -40,16 +38,17 @@ export function SavingsCard({
         <Sparkles className="w-6 h-6" />
         <h3 className="font-calistoga text-xl">Total Saved</h3>
       </div>
-      
+
       <p className="font-calistoga text-4xl mb-2">
         EGP {totalSaved.toFixed(2)}
       </p>
-      
+
       {percentageChange !== undefined && (
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4" />
           <span className="text-sm font-cabin">
-            {percentageChange > 0 ? '+' : ''}{percentageChange.toFixed(1)}% vs {period}
+            {percentageChange > 0 ? "+" : ""}
+            {percentageChange.toFixed(1)}% vs {period}
           </span>
         </div>
       )}

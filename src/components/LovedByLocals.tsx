@@ -117,7 +117,7 @@ export default function LovedByLocals() {
               ))}
             </div>
           </div>
-          
+
           {/* Desktop: Grid */}
           <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product, index) => (

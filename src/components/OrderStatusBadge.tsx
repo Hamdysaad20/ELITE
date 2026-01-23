@@ -1,6 +1,12 @@
 "use client";
 
-import { CheckCircle, Clock, XCircle, Loader2, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  XCircle,
+  Loader2,
+  AlertTriangle,
+} from "lucide-react";
 
 export interface OrderStatusBadgeProps {
   status: string;
@@ -11,7 +17,11 @@ export interface OrderStatusBadgeProps {
 /**
  * Badge component to display order status with appropriate styling
  */
-export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadgeProps) {
+export function OrderStatusBadge({
+  status,
+  label,
+  size = "md",
+}: OrderStatusBadgeProps) {
   const getStatusConfig = (status: string) => {
     switch (status.toLowerCase()) {
       case "confirmed":
@@ -26,7 +36,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           border: "border-elite-burgundy",
           label: label || "Active",
         };
-      
+
       case "pending":
       case "processing":
         return {
@@ -36,7 +46,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           border: "border-elite-burgundy/20",
           label: label || "Pending",
         };
-      
+
       case "queued":
       case "syncing":
         return {
@@ -47,7 +57,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           label: label || "Syncing",
           animate: true,
         };
-      
+
       case "completed":
       case "delivered":
         return {
@@ -57,7 +67,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           border: "border-elite-burgundy",
           label: label || "Delivered",
         };
-      
+
       case "failed":
       case "cancelled":
       case "error":
@@ -68,7 +78,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           border: "border-elite-burgundy/20",
           label: label || "Cancelled",
         };
-      
+
       case "retry":
       case "retrying":
         return {
@@ -78,7 +88,7 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
           border: "border-elite-burgundy/20",
           label: label || "Retrying",
         };
-      
+
       default:
         return {
           icon: Clock,
@@ -120,7 +130,9 @@ export function OrderStatusBadge({ status, label, size = "md" }: OrderStatusBadg
     <span
       className={`inline-flex items-center ${sizeClass.gap} ${sizeClass.padding} rounded-2xl border-2 ${config.bg} ${config.border} ${config.color} font-cabin font-bold ${sizeClass.text}`}
     >
-      <Icon className={`${sizeClass.icon} ${config.animate ? "animate-spin" : ""}`} />
+      <Icon
+        className={`${sizeClass.icon} ${config.animate ? "animate-spin" : ""}`}
+      />
       {config.label}
     </span>
   );
@@ -145,7 +157,9 @@ export interface OrderIntegrationStatusProps {
   };
 }
 
-export function OrderIntegrationStatus({ integrationStatus }: OrderIntegrationStatusProps) {
+export function OrderIntegrationStatus({
+  integrationStatus,
+}: OrderIntegrationStatusProps) {
   if (!integrationStatus) return null;
 
   const { sale, pos } = integrationStatus;
@@ -156,7 +170,9 @@ export function OrderIntegrationStatus({ integrationStatus }: OrderIntegrationSt
       {sale && (
         <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">Sale Order:</span>
+            <span className="text-sm font-medium text-gray-700">
+              Sale Order:
+            </span>
             <OrderStatusBadge status={sale.status} size="sm" />
           </div>
           {sale.synced && sale.url && (
@@ -176,7 +192,9 @@ export function OrderIntegrationStatus({ integrationStatus }: OrderIntegrationSt
       {pos && (
         <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">Kitchen Display:</span>
+            <span className="text-sm font-medium text-gray-700">
+              Kitchen Display:
+            </span>
             <OrderStatusBadge status={pos.status} size="sm" />
           </div>
           {pos.synced && pos.orderId && (
@@ -189,5 +207,3 @@ export function OrderIntegrationStatus({ integrationStatus }: OrderIntegrationSt
     </div>
   );
 }
-
-

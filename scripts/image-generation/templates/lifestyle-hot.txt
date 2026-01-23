@@ -1,0 +1,27 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Warm, cozy, ambient cafe lighting or winter outdoor overcast light
+Camera: Portrait angle, focus on the hand and cup
+Composition: First-person POV or side profile of a person holding the cup
+
+[Subject]
+A lifestyle shot of a {{name}} in a matte paper cup (burnt orange body, white rim).
+A female hand is holding the cup gently.
+The person is wearing cozy winter clothing (knitted sweater, coat).
+NO FACES visible - crop at the neck or focus on the torso/hands.
+The cup features a specific printed logo design on the side:
+A black vertical rectangular emblem.
+Inside the emblem is a stylized white line-art illustration of a woman's face with curly hair and stars.
+At the bottom of the black emblem, the word "ELITE" is printed in bold white capital letters.
+
+[Toppings/Garnish]
+{{toppings}}
+
+[Background/Environment]
+Blurred winter street or cozy cafe interior.
+Atmosphere is hygge, warm, comfortable.
+
+[Style/Vibe]
+Lifestyle, authentic, cozy, social media aesthetic (Instagram-style).
+Winter vibes, full cover clothes.

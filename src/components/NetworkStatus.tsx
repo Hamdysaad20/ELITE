@@ -27,7 +27,7 @@ export default function NetworkStatus({
     const handleOnline = () => {
       setIsOnline(true);
       setShowNotification(true);
-      
+
       // Hide "back online" notification after 3 seconds
       setTimeout(() => setShowNotification(false), 3000);
     };
@@ -56,7 +56,7 @@ export default function NetworkStatus({
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         showNotification ? "translate-y-0" : "-translate-y-full",
-        className
+        className,
       )}
       role="alert"
       aria-live="polite"
@@ -64,9 +64,7 @@ export default function NetworkStatus({
       <div
         className={cn(
           "flex items-center justify-center gap-2 px-4 py-2 text-sm font-cabin font-semibold shadow-lg",
-          isOnline
-            ? "bg-emerald-600 text-white"
-            : "bg-red-600 text-white"
+          isOnline ? "bg-emerald-600 text-white" : "bg-red-600 text-white",
         )}
       >
         {isOnline ? (
@@ -77,7 +75,10 @@ export default function NetworkStatus({
         ) : (
           <>
             <WifiOff className="w-4 h-4" />
-            <span>No internet connection. Changes will be saved when you're back online.</span>
+            <span>
+              No internet connection. Changes will be saved when you're back
+              online.
+            </span>
           </>
         )}
       </div>

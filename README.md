@@ -3,6 +3,7 @@
 A modern, production-ready coffee shop web application with Odoo ERP integration.
 
 > **📚 Documentation Index:** [/docs/README.md](./docs/README.md)  
+> **🤖 Agent Roles:** [Agent Roles](./docs/AGENT_ROLES_AND_STANDARDS.md)  
 > **🚀 Getting Started:** [Getting Started Guide](./docs/GETTING_STARTED.md)  
 > **📖 System Overview:** [System Overview](./docs/SYSTEM_OVERVIEW.md)  
 > **🏗️ Architecture:** [Architecture V1](./docs/ARCHITECTURE_V1.md)  

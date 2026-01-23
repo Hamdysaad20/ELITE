@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { getAuthOptions } from '@/server/auth/options';
-import { prisma } from '@/server/db/client';
-import { getAvailableRewards } from '@/lib/rewards/catalog';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/server/auth/options";
+import { prisma } from "@/server/db/client";
+import { getAvailableRewards } from "@/lib/rewards/catalog";
 
 export async function GET() {
   try {
     const session = await getServerSession(getAuthOptions());
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -18,10 +18,10 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userTier = user.userPoints?.tier || 'bronze';
+    const userTier = user.userPoints?.tier || "bronze";
     const userPoints = user.userPoints?.totalPoints || 0;
 
     // Get available rewards for user's tier
@@ -32,9 +32,7 @@ export async function GET() {
       ...reward,
       canAfford: userPoints >= reward.pointsCost,
       pointsNeeded:
-        userPoints < reward.pointsCost
-          ? reward.pointsCost - userPoints
-          : 0,
+        userPoints < reward.pointsCost ? reward.pointsCost - userPoints : 0,
     }));
 
     return NextResponse.json({
@@ -43,10 +41,10 @@ export async function GET() {
       userTier,
     });
   } catch (error) {
-    console.error('Error fetching rewards:', error);
+    console.error("Error fetching rewards:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch rewards' },
-      { status: 500 }
+      { error: "Failed to fetch rewards" },
+      { status: 500 },
     );
   }
 }

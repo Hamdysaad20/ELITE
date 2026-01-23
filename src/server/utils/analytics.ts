@@ -14,7 +14,7 @@ export async function trackOrderEvent(
     amount?: number;
     paymentMethod?: string;
     error?: string;
-  }
+  },
 ): Promise<void> {
   try {
     // Simple console logging for now
@@ -45,14 +45,18 @@ export async function trackOrderEvent(
  * Track payment events
  */
 export async function trackPaymentEvent(
-  event: "payment_initiated" | "payment_success" | "payment_failed" | "payment_cancelled",
+  event:
+    | "payment_initiated"
+    | "payment_success"
+    | "payment_failed"
+    | "payment_cancelled",
   data: {
     orderId?: string;
     userId?: string;
     amount?: number;
     paymentMethod?: string;
     error?: string;
-  }
+  },
 ): Promise<void> {
   try {
     console.log(`[Analytics] ${event}:`, {
@@ -70,15 +74,16 @@ export async function trackPaymentEvent(
 export async function trackApiPerformance(
   endpoint: string,
   duration: number,
-  status: number
+  status: number,
 ): Promise<void> {
   try {
     // Only log slow requests (> 2 seconds)
     if (duration > 2000) {
-      console.log(`[Analytics] Slow API request: ${endpoint} took ${duration}ms (status: ${status})`);
+      console.log(
+        `[Analytics] Slow API request: ${endpoint} took ${duration}ms (status: ${status})`,
+      );
     }
   } catch (error) {
     // Silently fail
   }
 }
-

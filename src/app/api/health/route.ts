@@ -1,5 +1,9 @@
 import { NextRequest } from "next/server";
-import { jsonResponse, successResponse, errorResponse } from "@/server/utils/apiHelpers";
+import {
+  jsonResponse,
+  successResponse,
+  errorResponse,
+} from "@/server/utils/apiHelpers";
 import { prisma } from "@/server/db/client";
 import { redisSet } from "@/server/cache/redis";
 
@@ -25,10 +29,18 @@ export async function GET(_req: NextRequest) {
     }
 
     const ok = dbOk && redisOk;
-    const data = { ok, db: dbOk, redis: redisOk, timestamp: new Date().toISOString() };
+    const data = {
+      ok,
+      db: dbOk,
+      redis: redisOk,
+      timestamp: new Date().toISOString(),
+    };
 
     if (!ok) {
-      return jsonResponse(errorResponse("Unhealthy", JSON.stringify(data)), 503);
+      return jsonResponse(
+        errorResponse("Unhealthy", JSON.stringify(data)),
+        503,
+      );
     }
     return jsonResponse(successResponse(data, "Healthy"));
   } catch (err) {
@@ -36,4 +48,3 @@ export async function GET(_req: NextRequest) {
     return jsonResponse(errorResponse(message), 500);
   }
 }
-

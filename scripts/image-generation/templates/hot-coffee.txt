@@ -1,0 +1,26 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Soft diffused studio lighting, flat lighting
+Camera: Slightly above eye-level (showing the drink surface inside)
+Composition: Centered, isolated
+
+[Subject]
+A premium {{ drinkName }} in {{ cupDescription }}.
+{{ customOverlay }}
+{{ textRules }}
+The cup must be the same consistent branded orange cup silhouette for ALL hot drinks (only size changes: 4oz for espresso/turkish; otherwise 16oz).
+NO LID - the top is open.
+The surface of the drink features {{ surfaceTexture }}.
+Liquid color is {{ color }}.
+
+[Toppings/Garnish]
+{{ toppings }}
+
+[Background/Environment]
+Fully transparent background.
+No shadows on the floor/surface.
+No reflections.
+
+[Style/Vibe]
+Commercial product mockup, ultra-clean, isolated subject.

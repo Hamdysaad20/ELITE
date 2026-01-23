@@ -44,7 +44,7 @@ export function ReorderConfirmModal({
         onClose();
       }
     };
-    
+
     if (isOpen) {
       window.addEventListener("keydown", handleEscape);
       return () => window.removeEventListener("keydown", handleEscape);
@@ -113,7 +113,8 @@ export function ReorderConfirmModal({
                     <span className="font-bold text-elite-burgundy">
                       {existingItemCount}
                     </span>{" "}
-                    {existingItemCount === 1 ? "item" : "items"} already in your cart
+                    {existingItemCount === 1 ? "item" : "items"} already in your
+                    cart
                   </p>
                 </div>
 
@@ -168,8 +169,11 @@ export function ReorderConfirmModal({
 
                 {/* Helper Text */}
                 <p className="text-xs text-elite-black/50 font-cabin text-center leading-relaxed pt-2">
-                  <span className="font-semibold">Add to Cart:</span> Keeps your current items and adds new ones.<br />
-                  <span className="font-semibold">Replace Cart:</span> Removes current items and starts fresh.
+                  <span className="font-semibold">Add to Cart:</span> Keeps your
+                  current items and adds new ones.
+                  <br />
+                  <span className="font-semibold">Replace Cart:</span> Removes
+                  current items and starts fresh.
                 </p>
               </div>
             </motion.div>
@@ -179,4 +183,3 @@ export function ReorderConfirmModal({
     </AnimatePresence>
   );
 }
-

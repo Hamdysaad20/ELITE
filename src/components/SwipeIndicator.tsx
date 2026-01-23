@@ -8,7 +8,10 @@ interface SwipeIndicatorProps {
   isActive: boolean;
 }
 
-export default function SwipeIndicator({ progress, isActive }: SwipeIndicatorProps) {
+export default function SwipeIndicator({
+  progress,
+  isActive,
+}: SwipeIndicatorProps) {
   return (
     <AnimatePresence>
       {isActive && progress > 0.1 && (

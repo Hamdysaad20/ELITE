@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { getAuthOptions } from '@/server/auth/options';
-import { prisma } from '@/server/db/client';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/server/auth/options";
+import { prisma } from "@/server/db/client";
 import {
   getRewardById,
   canUserRedeemReward,
   generateRewardCode,
   type Reward,
-} from '@/lib/rewards/catalog';
-import { updateUserPoints } from '@/lib/analytics/points';
+} from "@/lib/rewards/catalog";
+import { updateUserPoints } from "@/lib/analytics/points";
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(getAuthOptions());
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -24,32 +24,32 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const { rewardId } = await request.json();
 
     if (!rewardId) {
       return NextResponse.json(
-        { error: 'Reward ID is required' },
-        { status: 400 }
+        { error: "Reward ID is required" },
+        { status: 400 },
       );
     }
 
     // Get reward details
     const reward = getRewardById(rewardId);
     if (!reward) {
-      return NextResponse.json({ error: 'Reward not found' }, { status: 404 });
+      return NextResponse.json({ error: "Reward not found" }, { status: 404 });
     }
 
     // Check if user can redeem
     const userPoints = user.userPoints?.totalPoints || 0;
-    const userTier = user.userPoints?.tier || 'bronze';
+    const userTier = user.userPoints?.tier || "bronze";
 
     const { canRedeem, reason } = canUserRedeemReward(
       reward,
       userPoints,
-      userTier
+      userTier,
     );
 
     if (!canRedeem) {
@@ -68,9 +68,9 @@ export async function POST(request: Request) {
     await updateUserPoints(
       user.id,
       reward.pointsCost,
-      'redeem',
+      "redeem",
       undefined,
-      `Redeemed: ${reward.name} (Code: ${code})`
+      `Redeemed: ${reward.name} (Code: ${code})`,
     );
 
     // In a real implementation, you'd save to a RedeemedRewards table
@@ -101,10 +101,10 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error('Error redeeming reward:', error);
+    console.error("Error redeeming reward:", error);
     return NextResponse.json(
-      { error: 'Failed to redeem reward' },
-      { status: 500 }
+      { error: "Failed to redeem reward" },
+      { status: 500 },
     );
   }
 }

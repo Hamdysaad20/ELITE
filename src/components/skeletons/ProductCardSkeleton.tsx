@@ -22,13 +22,13 @@ export default function ProductCardSkeleton({
     <div
       className={cn(
         "relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-elite-burgundy/5",
-        className
+        className,
       )}
     >
       {/* Image skeleton with inner padding like real cards */}
       <div className="p-3 sm:p-4">
-        <Skeleton 
-          className={cn("w-full rounded-2xl", sizeClasses[size])} 
+        <Skeleton
+          className={cn("w-full rounded-2xl", sizeClasses[size])}
           variant="shimmer"
           rounded="xl"
         />

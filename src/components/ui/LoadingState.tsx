@@ -27,17 +27,14 @@ export default function LoadingState({
   const containerClasses = cn(
     "flex flex-col items-center justify-center gap-4",
     fullScreen ? "min-h-screen" : "py-12",
-    className
+    className,
   );
 
   if (variant === "spinner") {
     return (
       <div className={containerClasses}>
         <Loader2
-          className={cn(
-            "animate-spin text-elite-burgundy",
-            sizeClasses[size]
-          )}
+          className={cn("animate-spin text-elite-burgundy", sizeClasses[size])}
         />
         {message && (
           <p className="text-elite-black/70 font-cabin text-sm md:text-base">
@@ -59,7 +56,7 @@ export default function LoadingState({
                 "rounded-full bg-elite-burgundy animate-pulse",
                 size === "small" && "w-2 h-2",
                 size === "medium" && "w-3 h-3",
-                size === "large" && "w-4 h-4"
+                size === "large" && "w-4 h-4",
               )}
               style={{
                 animationDelay: `${i * 0.2}s`,

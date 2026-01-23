@@ -10,7 +10,10 @@ interface AvatarUploadProps {
   currentImage?: string | null;
 }
 
-export default function AvatarUpload({ onClose, currentImage }: AvatarUploadProps) {
+export default function AvatarUpload({
+  onClose,
+  currentImage,
+}: AvatarUploadProps) {
   const { update } = useSession();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -141,7 +144,9 @@ export default function AvatarUpload({ onClose, currentImage }: AvatarUploadProp
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Header */}
         <div className="bg-elite-burgundy px-6 py-4 flex items-center justify-between">
-          <h2 className="font-calistoga text-xl text-elite-cream">Change Profile Picture</h2>
+          <h2 className="font-calistoga text-xl text-elite-cream">
+            Change Profile Picture
+          </h2>
           <button
             onClick={onClose}
             className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"

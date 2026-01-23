@@ -4,7 +4,6 @@ import { ShoppingBag, Star, Sparkles } from "lucide-react";
 export default function ShopPage() {
   return (
     <main>
-
       <div className="min-h-screen bg-elite-cream">
         {/* Header */}
         <div className="bg-elite-burgundy text-elite-cream py-20 relative overflow-hidden">

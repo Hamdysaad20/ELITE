@@ -1,6 +1,6 @@
 /**
  * Type definitions for deals system
- * 
+ *
  * Centralized types to avoid circular dependencies
  */
 
@@ -95,4 +95,3 @@ export interface DealDiscovery {
   is_available: boolean;
   ends_in_seconds?: number; // Countdown timer for time-sensitive deals
 }
-

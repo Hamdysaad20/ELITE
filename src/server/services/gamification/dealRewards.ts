@@ -1,6 +1,6 @@
 /**
  * Deal Purchase Rewards Service
- * 
+ *
  * Processes rewards when a user purchases a deal
  */
 
@@ -16,7 +16,7 @@ export interface DealPurchaseData {
 
 /**
  * Process rewards for a deal purchase
- * 
+ *
  * This function triggers multiple reward systems:
  * - Achievement progress (deal-specific and generic)
  * - Streak tracking
@@ -31,7 +31,7 @@ export interface Reward {
 }
 
 export async function processDealPurchaseRewards(
-  data: DealPurchaseData
+  data: DealPurchaseData,
 ): Promise<{ success: boolean; rewards: Reward[] }> {
   try {
     // Idempotency check: prevent duplicate processing
@@ -92,10 +92,7 @@ export async function processDealPurchaseRewards(
     }
 
     // Combine all rewards
-    const allRewards = [
-      ...(result1.rewards || []),
-      ...(result2.rewards || []),
-    ];
+    const allRewards = [...(result1.rewards || []), ...(result2.rewards || [])];
 
     return {
       success: result1.success && result2.success,
@@ -109,4 +106,3 @@ export async function processDealPurchaseRewards(
     };
   }
 }
-

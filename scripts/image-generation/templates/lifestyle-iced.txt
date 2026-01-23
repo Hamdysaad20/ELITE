@@ -1,0 +1,27 @@
+[Technical Specifications]
+Model: FLUX.2-pro
+Aspect Ratio: 1:1 (Square)
+Lighting: Natural daylight, bright and energetic
+Camera: Portrait angle, focus on the hand and cup
+Composition: First-person POV or side profile of a person holding the cup
+
+[Subject]
+A lifestyle shot of an iced {{name}} in a clear plastic PET cup.
+A female hand is holding the cup.
+The person is wearing stylish casual clothing (long sleeves or winter vibe as requested).
+NO FACES visible.
+The cup has heavy condensation.
+The cup features a specific printed logo design on the side:
+A black vertical rectangular emblem.
+Inside the emblem is a stylized white line-art illustration of a woman's face with curly hair and stars.
+At the bottom of the black emblem, the word "ELITE" is printed in bold white capital letters.
+
+[Toppings/Garnish]
+{{toppings}}
+
+[Background/Environment]
+Blurred urban setting or cafe.
+Atmosphere is refreshing, cool, energetic.
+
+[Style/Vibe]
+Lifestyle, authentic, modern, social media aesthetic.

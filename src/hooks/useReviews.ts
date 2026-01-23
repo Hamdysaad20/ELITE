@@ -38,15 +38,15 @@ interface UseReviewsReturn {
 
 /**
  * Hook to fetch and manage product reviews
- * 
+ *
  * @example
  * ```tsx
  * const { reviews, stats, submitReview, loading } = useReviews({
  *   productId: "latte"
  * });
- * 
+ *
  * if (loading) return <Spinner />;
- * 
+ *
  * return (
  *   <div>
  *     <p>Average: {stats.averageRating} stars</p>
@@ -58,7 +58,7 @@ interface UseReviewsReturn {
  */
 export function useReviews(options: UseReviewsOptions): UseReviewsReturn {
   const { productId, status = "approved", limit = 20 } = options;
-  
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,14 +75,16 @@ export function useReviews(options: UseReviewsOptions): UseReviewsReturn {
       params.append("status", status);
       params.append("limit", String(limit));
 
-      const response = await apiClient.get<{ reviews: Review[]; stats: ReviewStats }>(
-        `/api/reviews?${params.toString()}`
-      );
+      const response = await apiClient.get<{
+        reviews: Review[];
+        stats: ReviewStats;
+      }>(`/api/reviews?${params.toString()}`);
 
       setReviews(response.reviews || []);
       setStats(response.stats || null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load reviews";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load reviews";
       setError(errorMessage);
       console.error("Failed to fetch reviews:", err);
     } finally {
@@ -110,7 +112,8 @@ export function useReviews(options: UseReviewsOptions): UseReviewsReturn {
         // Refresh reviews after submission
         await fetchReviews();
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to submit review";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to submit review";
         setError(errorMessage);
         console.error("Failed to submit review:", err);
         throw err;
@@ -118,7 +121,7 @@ export function useReviews(options: UseReviewsOptions): UseReviewsReturn {
         setSubmitting(false);
       }
     },
-    [productId, fetchReviews]
+    [productId, fetchReviews],
   );
 
   return {
@@ -131,4 +134,3 @@ export function useReviews(options: UseReviewsOptions): UseReviewsReturn {
     submitting,
   };
 }
-

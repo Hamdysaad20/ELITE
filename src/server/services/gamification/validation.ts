@@ -6,7 +6,8 @@
  * Validate user ID format (UUID)
  */
 export function isValidUserId(userId: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(userId);
 }
 
@@ -48,4 +49,3 @@ export function isValidStreakType(streakType: string): boolean {
   const validTypes = ["deal_purchase", "daily_checkin", "combo_purchase"];
   return validTypes.includes(streakType) || streakType.length <= 50;
 }
-

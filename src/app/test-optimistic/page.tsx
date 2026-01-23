@@ -10,8 +10,18 @@ import { cn } from "@/lib/utils";
  * Access at: /test-optimistic
  */
 export default function TestOptimisticPage() {
-  const { cart, addToCart, removeFromCart, updateQuantity, isUpdating, loading, error } = useCart();
-  const [testStatus, setTestStatus] = useState<"idle" | "success" | "error">("idle");
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    isUpdating,
+    loading,
+    error,
+  } = useCart();
+  const [testStatus, setTestStatus] = useState<"idle" | "success" | "error">(
+    "idle",
+  );
 
   const runTest = async () => {
     try {
@@ -35,26 +45,36 @@ export default function TestOptimisticPage() {
 
         {/* Status Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className={cn(
-            "p-4 rounded-lg border-2",
-            loading ? "bg-blue-50 border-blue-300" : "bg-gray-50 border-gray-300"
-          )}>
+          <div
+            className={cn(
+              "p-4 rounded-lg border-2",
+              loading
+                ? "bg-blue-50 border-blue-300"
+                : "bg-gray-50 border-gray-300",
+            )}
+          >
             <div className="font-cabin font-semibold mb-1">Loading</div>
             <div className="text-2xl">{loading ? "🔄" : "✓"}</div>
           </div>
 
-          <div className={cn(
-            "p-4 rounded-lg border-2",
-            isUpdating ? "bg-yellow-50 border-yellow-300" : "bg-gray-50 border-gray-300"
-          )}>
+          <div
+            className={cn(
+              "p-4 rounded-lg border-2",
+              isUpdating
+                ? "bg-yellow-50 border-yellow-300"
+                : "bg-gray-50 border-gray-300",
+            )}
+          >
             <div className="font-cabin font-semibold mb-1">Updating</div>
             <div className="text-2xl">{isUpdating ? "⏳" : "✓"}</div>
           </div>
 
-          <div className={cn(
-            "p-4 rounded-lg border-2",
-            error ? "bg-red-50 border-red-300" : "bg-gray-50 border-gray-300"
-          )}>
+          <div
+            className={cn(
+              "p-4 rounded-lg border-2",
+              error ? "bg-red-50 border-red-300" : "bg-gray-50 border-gray-300",
+            )}
+          >
             <div className="font-cabin font-semibold mb-1">Error</div>
             <div className="text-2xl">{error ? "❌" : "✓"}</div>
           </div>
@@ -66,10 +86,11 @@ export default function TestOptimisticPage() {
             Test Optimistic Add to Cart
           </h2>
           <p className="font-cabin text-gray-700 mb-6">
-            Click the button below. You should see instant feedback even before the server responds.
-            Watch the "Updating" indicator - it shows background sync.
+            Click the button below. You should see instant feedback even before
+            the server responds. Watch the "Updating" indicator - it shows
+            background sync.
           </p>
-          
+
           <button
             onClick={runTest}
             disabled={isUpdating}
@@ -77,8 +98,11 @@ export default function TestOptimisticPage() {
               "px-6 py-3 rounded-full font-calistoga text-lg transition-all",
               testStatus === "success" && "bg-emerald-600 text-white",
               testStatus === "error" && "bg-red-600 text-white",
-              testStatus === "idle" && !isUpdating && "bg-elite-burgundy text-elite-cream hover:opacity-90",
-              isUpdating && "bg-elite-burgundy/50 text-elite-cream cursor-not-allowed"
+              testStatus === "idle" &&
+                !isUpdating &&
+                "bg-elite-burgundy text-elite-cream hover:opacity-90",
+              isUpdating &&
+                "bg-elite-burgundy/50 text-elite-cream cursor-not-allowed",
             )}
           >
             {testStatus === "success" ? (
@@ -107,7 +131,7 @@ export default function TestOptimisticPage() {
           <h2 className="font-calistoga text-2xl text-elite-black mb-4">
             Cart Contents (Optimistic State)
           </h2>
-          
+
           {cart?.items.length ? (
             <div className="space-y-3">
               {cart.items.map((item) => (
@@ -133,7 +157,10 @@ export default function TestOptimisticPage() {
               ))}
               <div className="pt-4 border-t border-gray-200">
                 <div className="font-calistoga text-xl text-elite-burgundy">
-                  Total: EGP {cart.items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}
+                  Total: EGP{" "}
+                  {cart.items
+                    .reduce((sum, item) => sum + item.price, 0)
+                    .toFixed(2)}
                 </div>
               </div>
             </div>

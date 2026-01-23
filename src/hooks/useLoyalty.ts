@@ -46,14 +46,14 @@ interface UseLoyaltyReturn {
 
 /**
  * Hook to fetch user's loyalty information
- * 
+ *
  * @example
  * ```tsx
  * const { loyalty, loading, error } = useLoyalty();
- * 
+ *
  * if (loading) return <Spinner />;
  * if (error) return <Error message={error} />;
- * 
+ *
  * return (
  *   <div>
  *     <p>Points: {loyalty.account.points}</p>
@@ -109,5 +109,3 @@ export function useLoyalty(): UseLoyaltyReturn {
     refetch: fetchLoyalty,
   };
 }
-
-

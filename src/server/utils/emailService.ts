@@ -175,4 +175,3 @@ This is an automated message from ${BRAND_NAME}
 export function isEmailConfigured(): boolean {
   return !!(EMAIL_SERVER_HOST && EMAIL_SERVER_USER && EMAIL_SERVER_PASSWORD);
 }
-

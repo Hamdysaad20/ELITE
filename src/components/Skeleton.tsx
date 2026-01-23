@@ -11,10 +11,12 @@ interface SkeletonProps {
 // Detect if device prefers reduced motion or is low-end
 function useAdaptiveAnimation() {
   const [isLowEnd, setIsLowEnd] = useState(false);
-  
+
   useEffect(() => {
     // Check for reduced motion preference
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     // Check for low-end device hints
     interface NavigatorWithConnection extends Navigator {
       connection?: {
@@ -23,23 +25,24 @@ function useAdaptiveAnimation() {
       deviceMemory?: number;
     }
     const nav = navigator as NavigatorWithConnection;
-    const isSlowConnection = nav.connection?.effectiveType === "2g" || 
-                             nav.connection?.effectiveType === "slow-2g";
+    const isSlowConnection =
+      nav.connection?.effectiveType === "2g" ||
+      nav.connection?.effectiveType === "slow-2g";
     const hasLowMemory = nav.deviceMemory !== undefined && nav.deviceMemory < 4;
-    
+
     setIsLowEnd(prefersReduced || isSlowConnection || hasLowMemory);
   }, []);
-  
+
   return isLowEnd;
 }
 
-export function Skeleton({ 
-  className = "", 
+export function Skeleton({
+  className = "",
   variant = "shimmer",
-  rounded = "md" 
+  rounded = "md",
 }: SkeletonProps) {
   const isLowEnd = useAdaptiveAnimation();
-  
+
   const roundedClasses = {
     none: "rounded-none",
     sm: "rounded-sm",
@@ -48,25 +51,26 @@ export function Skeleton({
     xl: "rounded-2xl",
     full: "rounded-full",
   };
-  
+
   // Use simple pulse for low-end devices, shimmer for others
   const effectiveVariant = isLowEnd ? "pulse" : variant;
-  
+
   return (
-    <div 
+    <div
       className={cn(
         "relative overflow-hidden bg-elite-dark-cream/60",
         roundedClasses[rounded],
         effectiveVariant === "pulse" && "animate-pulse",
-        className
+        className,
       )}
     >
       {/* Shimmer effect overlay - only for non-low-end devices */}
       {effectiveVariant === "shimmer" && (
-        <div 
+        <div
           className="absolute inset-0 -translate-x-full animate-shimmer"
           style={{
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
           }}
         />
       )}
@@ -74,24 +78,21 @@ export function Skeleton({
   );
 }
 
-export function SkeletonText({ 
-  lines = 3, 
+export function SkeletonText({
+  lines = 3,
   className = "",
-  lastLineWidth = "w-2/3"
-}: { 
-  lines?: number; 
+  lastLineWidth = "w-2/3",
+}: {
+  lines?: number;
   className?: string;
   lastLineWidth?: string;
 }) {
   return (
     <div className={cn("space-y-2.5", className)}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton 
-          key={i} 
-          className={cn(
-            "h-3",
-            i === lines - 1 ? lastLineWidth : "w-full"
-          )} 
+        <Skeleton
+          key={i}
+          className={cn("h-3", i === lines - 1 ? lastLineWidth : "w-full")}
           rounded="sm"
         />
       ))}
@@ -99,10 +100,10 @@ export function SkeletonText({
   );
 }
 
-export function SkeletonCircle({ 
+export function SkeletonCircle({
   size = "md",
-  className = "" 
-}: { 
+  className = "",
+}: {
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
@@ -112,24 +113,26 @@ export function SkeletonCircle({
     lg: "w-16 h-16",
     xl: "w-20 h-20",
   };
-  
+
   return (
-    <Skeleton 
-      className={cn(sizeClasses[size], className)} 
-      rounded="full" 
-    />
+    <Skeleton className={cn(sizeClasses[size], className)} rounded="full" />
   );
 }
 
-export function SkeletonCard({ 
+export function SkeletonCard({
   className = "",
-  imageHeight = "h-48"
-}: { 
+  imageHeight = "h-48",
+}: {
   className?: string;
   imageHeight?: string;
 }) {
   return (
-    <div className={cn("bg-white rounded-2xl overflow-hidden shadow-md", className)}>
+    <div
+      className={cn(
+        "bg-white rounded-2xl overflow-hidden shadow-md",
+        className,
+      )}
+    >
       <Skeleton className={cn("w-full", imageHeight)} rounded="none" />
       <div className="p-4 space-y-3">
         <Skeleton className="h-5 w-3/4" rounded="md" />
@@ -143,10 +146,10 @@ export function SkeletonCard({
   );
 }
 
-export function SkeletonButton({ 
+export function SkeletonButton({
   className = "",
-  size = "md"
-}: { 
+  size = "md",
+}: {
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
@@ -155,20 +158,17 @@ export function SkeletonButton({
     md: "h-10 w-28",
     lg: "h-12 w-36",
   };
-  
+
   return (
-    <Skeleton 
-      className={cn(sizeClasses[size], className)} 
-      rounded="full" 
-    />
+    <Skeleton className={cn(sizeClasses[size], className)} rounded="full" />
   );
 }
 
-export function SkeletonAvatar({ 
+export function SkeletonAvatar({
   className = "",
   size = "md",
-  withText = false
-}: { 
+  withText = false,
+}: {
   className?: string;
   size?: "sm" | "md" | "lg";
   withText?: boolean;
@@ -178,7 +178,7 @@ export function SkeletonAvatar({
     md: "w-10 h-10",
     lg: "w-14 h-14",
   };
-  
+
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <Skeleton className={sizeClasses[size]} rounded="full" />

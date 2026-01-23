@@ -9,8 +9,8 @@ export interface Category {
   description?: string;
   productCount?: number;
   image?: string;
-  sequence?: number;         // Sort order
-  parentId?: string;         // Parent category
+  sequence?: number; // Sort order
+  parentId?: string; // Parent category
 }
 
 export interface CategoriesResponse {
@@ -32,14 +32,14 @@ interface UseCategoriesReturn {
 
 /**
  * Hook to fetch categories from the API (cache-backed)
- * 
+ *
  * @example
  * ```tsx
  * const { categories, loading, error } = useCategories();
- * 
+ *
  * if (loading) return <Spinner />;
  * if (error) return <Error message={error} />;
- * 
+ *
  * return categories.map(c => (
  *   <CategoryCard key={c.id} category={c} />
  * ));
@@ -57,21 +57,31 @@ export function useCategories(): UseCategoriesReturn {
       setLoading(true);
       setError(null);
 
-      const response = await apiClient.get<CategoriesResponse>("/api/categories");
-      
+      const response =
+        await apiClient.get<CategoriesResponse>("/api/categories");
+
       startTransition(() => {
         setCategories(response?.categories || []);
         setLastUpdate(response?.lastUpdate || null);
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load categories";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load categories";
       setError(errorMessage);
       console.error("Failed to fetch categories:", err);
-      
+
       // Provide user-friendly error messages
-      if (errorMessage.includes("503") || errorMessage.includes("cache is empty")) {
-        setError("Category list is being synchronized. Please try again in a moment.");
-      } else if (errorMessage.includes("Network") || errorMessage.includes("Failed to fetch")) {
+      if (
+        errorMessage.includes("503") ||
+        errorMessage.includes("cache is empty")
+      ) {
+        setError(
+          "Category list is being synchronized. Please try again in a moment.",
+        );
+      } else if (
+        errorMessage.includes("Network") ||
+        errorMessage.includes("Failed to fetch")
+      ) {
         setError("Unable to connect. Please check your internet connection.");
       } else if (errorMessage.includes("timeout")) {
         setError("Request timed out. Please try again.");
@@ -104,5 +114,3 @@ export function useCategories(): UseCategoriesReturn {
     isRefetching: isPending,
   };
 }
-
-
