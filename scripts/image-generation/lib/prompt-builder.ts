@@ -117,9 +117,10 @@ export class FluxPromptBuilder {
         if (this.isColdDrink(p)) return false;
         // Heuristic: common food keywords/categories
         const foodKeywords = [
+            "food",
             "sandwich", "cake", "bakery", "dessert", "cookie", "croissant", "muffin",
             "snack", "breakfast", "salad", "toast", "wrap", "panini", "waffle", "donut",
-            "brownie", "brownies", "baguette", "pastry", "pie", "tart",
+            "brownie", "brownies", "baguette", "ciabatta", "pastry", "pie", "tart",
             "chicken", "bbq", "ranch",
         ];
         if (foodKeywords.some(k => name.includes(k) || cat.includes(k))) return true;
