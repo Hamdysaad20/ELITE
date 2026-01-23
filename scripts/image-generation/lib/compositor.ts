@@ -61,6 +61,19 @@ export class LogoCompositor {
 
                 // If trim returns the same size, it means no trim happened.
                 if (info.width !== width || info.height !== height) {
+                    const hasOffsets =
+                        typeof (info as any).trimOffsetLeft === "number" &&
+                        typeof (info as any).trimOffsetTop === "number";
+
+                    if (!hasOffsets) {
+                        // Some Sharp builds/environments may omit trim offsets.
+                        // In that case we can't reliably compute the subjectBox position,
+                        // so we fall back to the conservative safe-zone logic below.
+                        console.warn(
+                            "⚠️ Sharp trim offsets missing from info; falling back to cup body safe zone.",
+                        );
+                        subjectBox = { left: 0, top: 0, width: width, height: height };
+                    } else {
                     subjectBox = {
                         // Revised Logic:
                         left: Math.abs(info.trimOffsetLeft || 0),
@@ -68,6 +81,7 @@ export class LogoCompositor {
                         width: info.width,
                         height: info.height
                     };
+                    }
                     // specific check for 0 detection
                     if (subjectBox.width < 50 || subjectBox.height < 50) {
                         // Fallback to full size if detected object is tiny noise
