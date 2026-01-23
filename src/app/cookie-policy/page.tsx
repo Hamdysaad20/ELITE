@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { Cookie, Settings, Shield } from "lucide-react";
+import { Cookie, Settings, Shield, Globe, Clock } from "lucide-react";
 
 export default function CookiePolicyPage() {
   const updatedAt = "2026-01-23";
@@ -30,7 +30,7 @@ export default function CookiePolicyPage() {
 
         <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12">
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 space-y-8">
-            <p className="font-cabin text-elite-black/80 text-base sm:text-lg leading-relaxed">
+            <p className="font-cabin text-elite-black/80 text-lg sm:text-xl leading-relaxed">
               Cookies are small files stored on your device. We use them to keep
               the website working, improve performance, and support marketing
               and recommendations.
@@ -68,12 +68,62 @@ export default function CookiePolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Session vs persistent cookies
+              </h2>
+              <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
+                <Clock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                <p className="font-cabin text-elite-black/80 leading-relaxed">
+                  Some cookies expire when you close your browser (session
+                  cookies). Others remain for a longer period (persistent
+                  cookies) to remember preferences or support analytics.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Third‑party cookies
+              </h2>
+              <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
+                <Globe className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                <p className="font-cabin text-elite-black/80 leading-relaxed">
+                  Some third parties (for example, payment providers or embedded
+                  services) may set cookies through our site. Those cookies are
+                  controlled by the third party.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
                 Managing cookies
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed">
                 You can control cookies in your browser settings (block, delete,
                 or limit). Blocking essential cookies may prevent sign-in or
                 checkout from working correctly.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Marketing & recommendations
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                Some cookies may be used to measure which pages are popular, how
+                users navigate the site, and to support better recommendations
+                (for example, showing items similar to what you viewed).
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Do Not Track
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                Some browsers offer a “Do Not Track” setting. There is no single
+                industry standard for how sites respond, so our response may
+                vary depending on the tools in use.
               </p>
             </section>
 
@@ -90,6 +140,16 @@ export default function CookiePolicyPage() {
                   Privacy Policy
                 </Link>
                 .
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Changes to this policy
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                We may update this Cookie Policy from time to time. We will
+                update the “Last updated” date at the top of this page.
               </p>
             </section>
           </div>

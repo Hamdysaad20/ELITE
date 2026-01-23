@@ -2,7 +2,17 @@
 
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { Shield, Mail, MapPin, Cookie, CreditCard } from "lucide-react";
+import {
+  Shield,
+  Mail,
+  MapPin,
+  Cookie,
+  CreditCard,
+  Lock,
+  Megaphone,
+  Clock,
+  UserRound,
+} from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   const updatedAt = "2026-01-23";
@@ -32,7 +42,7 @@ export default function PrivacyPolicyPage() {
         {/* Content */}
         <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12">
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 space-y-8">
-            <p className="font-cabin text-elite-black/80 text-base sm:text-lg leading-relaxed">
+            <p className="font-cabin text-elite-black/80 text-lg sm:text-xl leading-relaxed">
               This Privacy Policy explains how <strong>Elite Coffee</strong>{" "}
               (“we”, “us”) collects and uses information when you use our
               website and ordering experience in Egypt.
@@ -40,9 +50,50 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Who we are
+              </h2>
+              <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <UserRound className="w-5 h-5 text-elite-burgundy" />
+                  <p className="font-cabin text-elite-black/80">
+                    <strong>Elite Coffee</strong> is a café in Egypt that sells
+                    coffee, desserts, and breakfast items.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-5 h-5 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                  <p className="font-cabin text-elite-black/80">
+                    Faiyum, Governorate Club, next to the Governor&apos;s Villa
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Definitions
+              </h2>
+              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
+                <li>
+                  <strong>“Account”</strong>: a profile created using your email.
+                </li>
+                <li>
+                  <strong>“Order”</strong>: a request for coffee, desserts, or
+                  breakfast items through our website.
+                </li>
+                <li>
+                  <strong>“Personal data”</strong>: information that identifies
+                  you directly or indirectly (e.g., phone, address, order
+                  history).
+                </li>
+              </ul>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
                 What we collect
               </h2>
-              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2">
+              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
                   <strong>Account info</strong>: email, name (if provided).
                 </li>
@@ -65,7 +116,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
                 Why we use it
               </h2>
-              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2">
+              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
                   <strong>To process your order</strong> and provide customer
                   support.
@@ -82,6 +133,18 @@ export default function PrivacyPolicyPage() {
                   performance).
                 </li>
               </ul>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Legal basis (general)
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                We process information to perform our services (processing
+                orders), to comply with legal obligations where applicable, and
+                for legitimate business interests such as security, preventing
+                fraud, improving performance, and improving customer experience.
+              </p>
             </section>
 
             <section className="space-y-3">
@@ -120,6 +183,27 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Marketing & recommendations
+              </h2>
+              <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
+                <Megaphone className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                <div className="space-y-2">
+                  <p className="font-cabin text-elite-black/80 leading-relaxed">
+                    We may use purchase history and on-site interactions to
+                    improve menu recommendations and marketing (e.g., suggesting
+                    items you may like).
+                  </p>
+                  <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
+                    You can opt out of marketing messages by following the
+                    unsubscribe instructions (when available) or by contacting
+                    us.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
                 Cookies
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
@@ -140,9 +224,48 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Data retention
+              </h2>
+              <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
+                <Clock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                <p className="font-cabin text-elite-black/80 leading-relaxed">
+                  We keep information only as long as needed for operations,
+                  support, security, accounting, and legal compliance, then
+                  delete or anonymize it where possible.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Security
+              </h2>
+              <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
+                <Lock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
+                <p className="font-cabin text-elite-black/80 leading-relaxed">
+                  We use reasonable technical and organizational measures to
+                  protect information. No system is 100% secure; please keep
+                  your account access secure.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Children’s privacy
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                Our ordering service is intended for general audiences. If you
+                believe a child has provided personal data through our site,
+                contact us and we will take appropriate steps.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
                 Your choices
               </h2>
-              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2">
+              <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
                   You can update delivery addresses and phone numbers in your
                   account settings.
@@ -156,6 +279,17 @@ export default function PrivacyPolicyPage() {
                   information.
                 </li>
               </ul>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-calistoga text-elite-burgundy text-2xl">
+                Changes to this policy
+              </h2>
+              <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
+                We may update this policy from time to time to reflect changes
+                in our practices or services. We will update the “Last updated”
+                date on this page.
+              </p>
             </section>
 
             <section className="space-y-3">

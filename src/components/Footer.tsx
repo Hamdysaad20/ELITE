@@ -204,7 +204,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
             <p className="font-cabin text-elite-white text-base font-medium">
-              © 2025 Elite Coffee. All rights reserved.
+              © {new Date().getFullYear()} Elite Coffee. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <Link
