@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
-export default function OrderPage() {
+function OrderPageContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1281,5 +1281,39 @@ export default function OrderPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function OrderPage() {
+  // Next.js requires `useSearchParams()` to be wrapped in a Suspense boundary
+  // to avoid prerendering errors in production builds.
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-elite-cream">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+            <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-48" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+                <Skeleton className="h-10 w-32 rounded-full" />
+              </div>
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-4">
+                  <Skeleton className="h-40 w-full rounded-3xl" />
+                  <Skeleton className="h-40 w-full rounded-3xl" />
+                  <Skeleton className="h-40 w-full rounded-3xl" />
+                </div>
+                <Skeleton className="h-[520px] w-full rounded-3xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <OrderPageContent />
+    </React.Suspense>
   );
 }
