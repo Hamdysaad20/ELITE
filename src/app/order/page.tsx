@@ -10,10 +10,12 @@ import Footer from "@/components/Footer";
 import AddressManager from "@/components/AddressManager";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
+import { mapPaymentMethodToPaymob } from "@/types/payments";
+import { extractBaseName, slugify } from "@/lib/utils";
 import {
   ShoppingBag,
   ChevronRight,
@@ -37,6 +39,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 export default function OrderPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     items: cartItems,
     isLoading: loading,
@@ -59,7 +62,7 @@ export default function OrderPage() {
     "PICKUP" as OrderType,
   );
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(
-    PaymentMethod.CASH,
+    PaymentMethod.CARD,
   );
   const [selectedAddress, setSelectedAddress] = React.useState<Address | null>(
     null,
@@ -68,6 +71,8 @@ export default function OrderPage() {
   const [submitting, setSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [lastOrder, setLastOrder] = React.useState<Order | null>(null);
+  const [pendingPaymentOrder, setPendingPaymentOrder] =
+    React.useState<Order | null>(null);
   const { push } = useToast();
 
   const [checkoutConfig, setCheckoutConfig] = React.useState<{
@@ -75,7 +80,7 @@ export default function OrderPage() {
     deliveryFee: number;
     codFee: number;
   }>({
-    enabledPaymentMethods: [PaymentMethod.CASH],
+    enabledPaymentMethods: [PaymentMethod.CARD, PaymentMethod.WALLET],
     deliveryFee: 15,
     codFee: 0,
   });
@@ -118,24 +123,109 @@ export default function OrderPage() {
 
   // If backend disables the currently selected method, fall back.
   React.useEffect(() => {
+    if (checkoutConfig.enabledPaymentMethods.length === 0) return;
     if (!checkoutConfig.enabledPaymentMethods.includes(paymentMethod)) {
       setPaymentMethod(
-        checkoutConfig.enabledPaymentMethods[0] || PaymentMethod.CASH,
+        checkoutConfig.enabledPaymentMethods[0] || PaymentMethod.CARD,
       );
     }
   }, [checkoutConfig.enabledPaymentMethods, paymentMethod]);
 
-  // Auto-select default address when switching to delivery
+  const isCheckoutEnabled = checkoutConfig.enabledPaymentMethods.length > 0;
+
+  const isOnlinePayment =
+    paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET;
+  const needsAddressForPayment = isOnlinePayment;
+  const hasAuthForOnlinePayment = Boolean(session?.user?.email);
+  const hasPhoneForOnlinePayment = Boolean(
+    selectedAddress?.phone || session?.user?.phone,
+  );
+
+  // Auto-select default address when switching to delivery or online payment
   React.useEffect(() => {
-    if (orderType === "DELIVERY" && defaultAddress && !selectedAddress) {
+    if (
+      (orderType === "DELIVERY" || needsAddressForPayment) &&
+      defaultAddress &&
+      !selectedAddress
+    ) {
       setSelectedAddress(defaultAddress);
     }
-  }, [orderType, defaultAddress, selectedAddress]);
+  }, [orderType, defaultAddress, selectedAddress, needsAddressForPayment]);
+
+  const retryPaymentForOrder = React.useCallback(
+    async (orderId: string) => {
+      setSubmitting(true);
+      setSubmitError(null);
+      try {
+        const orderRes = await fetch(`/api/orders/${orderId}`, {
+          credentials: "include",
+        });
+        const orderJson = await orderRes.json();
+        const order = (orderJson?.data || orderJson) as {
+          paymentMethod?: string;
+        };
+        const method = order?.paymentMethod || PaymentMethod.CARD;
+        const paymobMethod = mapPaymentMethodToPaymob(method);
+
+        const res = await fetch("/api/payments/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            orderId,
+            paymentMethod: paymobMethod,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok || !json?.success || !json?.data?.paymentKey) {
+          const msg =
+            json?.error ||
+            "Could not initialize payment. Please try again or use cash.";
+          throw new Error(msg);
+        }
+
+        clearCart();
+        window.location.href = `/payment/process?orderId=${orderId}&paymentKey=${json.data.paymentKey}`;
+      } catch (e) {
+        const msg =
+          e instanceof Error && e.message
+            ? e.message
+            : "Could not initialize payment. Please try again.";
+        setSubmitError(msg);
+        push({ type: "error", message: msg });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [clearCart, push],
+  );
+
+  // Handle retry flow from /payment/callback "Retry Payment" link.
+  React.useEffect(() => {
+    const retryOrderId = searchParams?.get("retry");
+    if (!retryOrderId) return;
+    // Fire-and-forget; errors shown via submitError/toast.
+    retryPaymentForOrder(retryOrderId);
+  }, [searchParams, retryPaymentForOrder]);
 
   const placeOrder = async () => {
     setSubmitting(true);
     setSubmitError(null);
     setLastOrder(null);
+    setPendingPaymentOrder(null);
+
+    if (!isCheckoutEnabled) {
+      setSubmitError(
+        "Online ordering is temporarily unavailable. Please try again later.",
+      );
+      setSubmitting(false);
+      push({
+        type: "error",
+        message:
+          "Online ordering is temporarily unavailable. Please try again later.",
+      });
+      return;
+    }
 
     // Validate cart has items
     if (!cartItems || cartItems.length === 0) {
@@ -148,11 +238,51 @@ export default function OrderPage() {
       return;
     }
 
+    // Online-only checkout: force online payment methods only
+    if (paymentMethod !== PaymentMethod.CARD && paymentMethod !== PaymentMethod.WALLET) {
+      setSubmitError("Only online payment is available.");
+      setSubmitting(false);
+      push({ type: "error", message: "Only online payment is available." });
+      return;
+    }
+
     // Validate address for delivery orders
     if (orderType === "DELIVERY" && !selectedAddress) {
       setSubmitError("Please select a delivery address.");
       setSubmitting(false);
       push({ type: "error", message: "Please select a delivery address." });
+      return;
+    }
+
+    // Online payment requires auth + billing details (Paymob requires email, phone, address)
+    if (isOnlinePayment && !hasAuthForOnlinePayment) {
+      setSubmitError("Please sign in to pay online.");
+      setSubmitting(false);
+      push({ type: "error", message: "Please sign in to pay online." });
+      return;
+    }
+    if (needsAddressForPayment && !selectedAddress) {
+      setSubmitError(
+        "Please select an address (required for online payment billing details).",
+      );
+      setSubmitting(false);
+      push({
+        type: "error",
+        message:
+          "Please select an address (required for online payment billing details).",
+      });
+      return;
+    }
+    if (isOnlinePayment && !hasPhoneForOnlinePayment) {
+      setSubmitError(
+        "Please add a valid phone number to your selected address before paying online.",
+      );
+      setSubmitting(false);
+      push({
+        type: "error",
+        message:
+          "Please add a valid phone number to your selected address before paying online.",
+      });
       return;
     }
 
@@ -175,7 +305,10 @@ export default function OrderPage() {
         body: JSON.stringify({
           paymentMethod,
           orderType,
-          addressId: orderType === "DELIVERY" ? selectedAddress?.id : undefined,
+          addressId:
+            orderType === "DELIVERY" || isOnlinePayment
+              ? selectedAddress?.id
+              : undefined,
           notes,
           items: cartItems, // Send cart items from localStorage
           odoo: {
@@ -209,8 +342,24 @@ export default function OrderPage() {
         (paymentMethod === PaymentMethod.CARD ||
           paymentMethod === PaymentMethod.WALLET)
       ) {
+        clearCart(); // Order is created; cart should not remain after redirecting to payment
         // Redirect to payment page
         window.location.href = `/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`;
+        return;
+      }
+
+      // Online payment selected but no payment intent returned: don't pretend we're done.
+      if (
+        paymentMethod === PaymentMethod.CARD ||
+        paymentMethod === PaymentMethod.WALLET
+      ) {
+        const createdOrder = orderData.order || orderData;
+        setPendingPaymentOrder(createdOrder);
+        const msg =
+          orderData.paymentIntentError ||
+          "We created your order, but payment could not be initialized. Please retry payment.";
+        setSubmitError(msg);
+        push({ type: "error", message: msg });
         return;
       }
 
@@ -250,6 +399,22 @@ export default function OrderPage() {
       : 0;
   const totalAmount = subtotal + deliveryFee + codFee;
   const itemCount = localItemCount;
+  const stepCartDone = cartItems.length > 0;
+  const stepDetailsDone =
+    orderType === "DELIVERY"
+      ? Boolean(selectedAddress)
+      : needsAddressForPayment
+        ? Boolean(selectedAddress)
+        : true;
+  const stepPaymentReady = isOnlinePayment
+    ? hasAuthForOnlinePayment && hasPhoneForOnlinePayment && stepDetailsDone
+    : true;
+
+  const getLocalProductImage = (name?: string) => {
+    if (!name) return undefined;
+    const slug = slugify(extractBaseName(name));
+    return `/products/${slug}/v1-1.png`;
+  };
 
   if (loading)
     return (
@@ -317,6 +482,131 @@ export default function OrderPage() {
 
         {/* Main Content - Menu page spacing, prevent overflow on mobile */}
         <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12 lg:pt-32 overflow-x-hidden">
+          {/* Checkout progress */}
+          <div className="mb-4 sm:mb-6">
+            <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                      stepCartDone
+                        ? "bg-emerald-600 text-white"
+                        : "bg-elite-cream text-elite-burgundy"
+                    }`}
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                      Cart
+                    </div>
+                    <div className="font-cabin text-elite-black/60 text-xs truncate">
+                      {itemCount} items
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      stepDetailsDone ? "w-2/3 bg-elite-burgundy" : "w-1/3 bg-elite-burgundy"
+                    }`}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 min-w-0">
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                      stepDetailsDone
+                        ? "bg-emerald-600 text-white"
+                        : "bg-elite-cream text-elite-burgundy"
+                    }`}
+                  >
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 hidden sm:block">
+                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                      Details
+                    </div>
+                    <div className="font-cabin text-elite-black/60 text-xs truncate">
+                      {orderType === "DELIVERY" ? "Delivery" : "Pickup"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden hidden sm:block">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      stepPaymentReady ? "w-full bg-elite-burgundy" : "w-1/2 bg-elite-burgundy"
+                    }`}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 min-w-0">
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                      stepPaymentReady
+                        ? "bg-emerald-600 text-white"
+                        : "bg-elite-cream text-elite-burgundy"
+                    }`}
+                  >
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 hidden sm:block">
+                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                      Payment
+                    </div>
+                    <div className="font-cabin text-elite-black/60 text-xs truncate">
+                      {paymentMethod}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {isOnlinePayment && (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
+                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                  <p className="font-cabin text-amber-900 text-sm">
+                    Online payment needs sign-in + an address with a valid phone number.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Pending payment callout (order created but payment not started) */}
+          {pendingPaymentOrder && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 space-y-3 mb-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <h3 className="font-calistoga text-amber-900 text-xl">
+                    Payment required
+                  </h3>
+                  <p className="font-cabin text-amber-800">
+                    Your order was created, but payment hasn&apos;t started yet.
+                    Please continue to payment to confirm your order.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  className="flex-1 px-6 py-3 bg-elite-burgundy text-elite-cream rounded-full font-cabin font-semibold hover:opacity-90 transition-all disabled:opacity-50"
+                  onClick={() => retryPaymentForOrder(pendingPaymentOrder.id)}
+                  disabled={submitting}
+                >
+                  Continue to Payment
+                </button>
+                <Link
+                  href={`/orders/${pendingPaymentOrder.id}`}
+                  className="flex-1 px-6 py-3 border-2 border-elite-burgundy text-elite-burgundy rounded-full font-cabin font-semibold hover:bg-elite-burgundy/5 transition-all text-center"
+                >
+                  View Order
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Success Message */}
           {lastOrder && (
             <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-2xl p-6 space-y-4">
@@ -465,7 +755,10 @@ export default function OrderPage() {
                           {/* Item Image */}
                           <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 shadow-lg relative">
                             <ImageWithFallback
-                              src={item.image}
+                              src={[
+                                getLocalProductImage(item.name),
+                                item.image,
+                              ].filter(Boolean) as string[]}
                               alt={item.name}
                               fill
                               objectFit="cover"
@@ -481,6 +774,22 @@ export default function OrderPage() {
                             <p className="font-cabin text-elite-burgundy text-sm sm:text-base font-bold mb-2">
                               EGP {item.basePrice.toFixed(2)}
                             </p>
+                            {item.attributes &&
+                              Object.keys(item.attributes).length > 0 && (
+                                <div className="mb-2 flex flex-wrap gap-1.5">
+                                  {Object.entries(item.attributes).flatMap(
+                                    ([attrName, values]) =>
+                                      (values || []).map((v) => (
+                                        <span
+                                          key={`${attrName}:${v.valueId}`}
+                                          className="text-[11px] sm:text-xs font-cabin px-2 py-1 rounded-full bg-elite-cream/60 border border-elite-burgundy/10 text-elite-black/70"
+                                        >
+                                          {attrName}: {v.valueName}
+                                        </span>
+                                      )),
+                                  )}
+                                </div>
+                              )}
                             {/* Quantity Controls */}
                             <div className="flex items-center gap-2">
                               <button
@@ -633,121 +942,68 @@ export default function OrderPage() {
                     <span className="truncate">Payment</span>
                   </h2>
 
-                  <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {/* Show all payment methods, mark unavailable ones as coming soon */}
-                    {Object.values(PaymentMethod).map((m) => {
-                      const isEnabled =
-                        checkoutConfig.enabledPaymentMethods.includes(m);
-                      const isSelected = paymentMethod === m;
-                      const isComingSoon = !isEnabled;
+                  {!isCheckoutEnabled ? (
+                    <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+                      <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-calistoga text-amber-900 text-lg">
+                          Online ordering unavailable
+                        </p>
+                        <p className="font-cabin text-amber-800">
+                          Please try again later.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
+                      {/* Online-only payment methods */}
+                      {checkoutConfig.enabledPaymentMethods.map((m) => {
+                        const isSelected = paymentMethod === m;
+                        const icon =
+                          m === PaymentMethod.WALLET ? (
+                            <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />
+                          ) : (
+                            <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
+                          );
+                        const label = m === PaymentMethod.WALLET ? "Wallet" : "Card";
+                        const desc =
+                          m === PaymentMethod.WALLET
+                            ? "Mobile wallet"
+                            : "Credit/Debit";
 
-                      const getPaymentIcon = () => {
-                        switch (m) {
-                          case PaymentMethod.CASH:
-                            return (
-                              <Receipt className="w-6 h-6 sm:w-7 sm:h-7" />
-                            );
-                          case PaymentMethod.CARD:
-                            return (
-                              <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
-                            );
-                          case PaymentMethod.WALLET:
-                            return <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />;
-                          case PaymentMethod.FAWRY:
-                            return (
-                              <Smartphone className="w-6 h-6 sm:w-7 sm:h-7" />
-                            );
-                          default:
-                            return (
-                              <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
-                            );
-                        }
-                      };
-                      const getPaymentLabel = () => {
-                        switch (m) {
-                          case PaymentMethod.CASH:
-                            return "Cash";
-                          case PaymentMethod.CARD:
-                            return "Card";
-                          case PaymentMethod.WALLET:
-                            return "Wallet";
-                          case PaymentMethod.FAWRY:
-                            return "Fawry";
-                          default:
-                            return m;
-                        }
-                      };
-                      const getPaymentDescription = () => {
-                        if (isComingSoon) {
-                          return "Coming soon";
-                        }
-                        switch (m) {
-                          case PaymentMethod.CASH:
-                            return orderType === "DELIVERY" && codFee > 0
-                              ? `+${codFee.toFixed(2)} EGP fee`
-                              : "On delivery";
-                          case PaymentMethod.CARD:
-                            return "Credit/Debit";
-                          case PaymentMethod.WALLET:
-                            return "Mobile wallet";
-                          case PaymentMethod.FAWRY:
-                            return "Pay with Fawry";
-                          default:
-                            return "";
-                        }
-                      };
-
-                      return (
-                        <label
-                          key={m}
-                          className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden ${
-                            isComingSoon
-                              ? "border-elite-burgundy/10 bg-elite-cream/30 opacity-60 cursor-not-allowed"
-                              : isSelected
-                                ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation"
-                                : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            className="sr-only"
-                            checked={isSelected}
-                            onChange={() =>
-                              !isComingSoon && setPaymentMethod(m)
-                            }
-                            disabled={submitting || isComingSoon}
-                          />
-                          <div
-                            className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
-                              isComingSoon
-                                ? "bg-elite-cream/50 text-elite-burgundy/40"
-                                : isSelected
-                                  ? "bg-elite-burgundy text-elite-cream"
-                                  : "bg-elite-cream text-elite-burgundy"
+                        return (
+                          <label
+                            key={m}
+                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation ${
+                              isSelected
+                                ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
+                                : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
                             }`}
                           >
-                            {getPaymentIcon()}
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
-                              {getPaymentLabel()}
-                            </div>
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              checked={isSelected}
+                              onChange={() => setPaymentMethod(m)}
+                              disabled={submitting}
+                            />
                             <div
-                              className={`font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 ${
-                                isComingSoon
-                                  ? "text-elite-burgundy/50 italic"
-                                  : "text-elite-black/60"
+                              className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                                isSelected
+                                  ? "bg-elite-burgundy text-elite-cream"
+                                  : "bg-elite-cream text-elite-burgundy"
                               }`}
                             >
-                              {getPaymentDescription()}
+                              {icon}
                             </div>
-                          </div>
-                          {isComingSoon && (
-                            <span className="absolute top-2 right-2 bg-elite-burgundy/10 text-elite-burgundy text-[9px] sm:text-[10px] font-cabin font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border border-elite-burgundy/20">
-                              Soon
-                            </span>
-                          )}
-                          {!isComingSoon && (
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                              <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
+                                {label}
+                              </div>
+                              <div className="font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 text-elite-black/60">
+                                {desc}
+                              </div>
+                            </div>
                             <Check
                               className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
                                 isSelected
@@ -756,22 +1012,30 @@ export default function OrderPage() {
                               }`}
                               aria-hidden={!isSelected}
                             />
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Delivery Address Selection - Menu page style, reserved space to prevent layout shift, prevent overflow */}
                 <div
-                  className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 transition-all duration-300 min-h-[120px] md:min-h-[200px] overflow-hidden ${orderType === "DELIVERY" ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                  className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 transition-all duration-300 min-h-[120px] md:min-h-[200px] overflow-hidden ${
+                    orderType === "DELIVERY" || needsAddressForPayment
+                      ? "opacity-100"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                 >
-                  {orderType === "DELIVERY" && (
+                  {(orderType === "DELIVERY" || needsAddressForPayment) && (
                     <>
                       <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
                         <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
-                        <span className="truncate">Delivery Address</span>
+                        <span className="truncate">
+                          {orderType === "DELIVERY"
+                            ? "Delivery Address"
+                            : "Billing Address"}
+                        </span>
                       </h2>
 
                       {/* Reserved space for empty state to prevent layout shift */}
@@ -809,7 +1073,33 @@ export default function OrderPage() {
                           <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
                             <p className="font-cabin text-amber-900 text-sm sm:text-base">
-                              Please select a delivery address
+                              Please select an address
+                            </p>
+                          </div>
+                        )}
+                        {isOnlinePayment &&
+                          selectedAddress &&
+                          !hasPhoneForOnlinePayment && (
+                            <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
+                              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                              <p className="font-cabin text-amber-900 text-sm sm:text-base">
+                                Add a valid phone number to this address to pay
+                                online.
+                              </p>
+                            </div>
+                          )}
+                        {isOnlinePayment && !hasAuthForOnlinePayment && (
+                          <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <p className="font-cabin text-amber-900 text-sm sm:text-base">
+                              Please{" "}
+                              <Link
+                                href="/auth/signin?callbackUrl=%2Forder"
+                                className="underline font-semibold"
+                              >
+                                sign in
+                              </Link>{" "}
+                              to pay online.
                             </p>
                           </div>
                         )}
@@ -827,6 +1117,44 @@ export default function OrderPage() {
                     <Receipt className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
                     <span className="truncate">Summary</span>
                   </h2>
+
+                  {/* Cart items preview (sidebar) */}
+                  <div className="mb-4 sm:mb-5">
+                    <div className="space-y-3">
+                      {cartItems.map((it) => (
+                        <div
+                          key={`summary-${it.id}`}
+                          className="flex items-center gap-3 rounded-2xl bg-elite-cream/30 border border-elite-burgundy/10 p-3"
+                        >
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-elite-burgundy/10 flex-shrink-0">
+                            <ImageWithFallback
+                              src={[
+                                getLocalProductImage(it.name),
+                                it.image,
+                              ].filter(Boolean) as string[]}
+                              alt={it.name}
+                              fill
+                              objectFit="cover"
+                              showErrorIcon={false}
+                              className="rounded-xl"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-cabin font-semibold text-elite-black truncate">
+                              {it.name}
+                            </div>
+                            <div className="font-cabin text-xs text-elite-black/60">
+                              Qty: {it.quantity} •{" "}
+                              <span className="tabular-nums">
+                                {it.totalPrice.toFixed(2)} EGP
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="space-y-3 sm:space-y-4 font-cabin text-base sm:text-lg">
                     <div className="flex justify-between text-elite-black/70">
                       <span>Subtotal</span>
@@ -882,12 +1210,19 @@ export default function OrderPage() {
                     disabled={
                       submitting ||
                       isUpdating ||
-                      (orderType === "DELIVERY" && !selectedAddress)
+                      (orderType === "DELIVERY" && !selectedAddress) ||
+                      (needsAddressForPayment && !selectedAddress) ||
+                      (isOnlinePayment && !hasAuthForOnlinePayment) ||
+                      (isOnlinePayment && !hasPhoneForOnlinePayment)
                     }
                   >
                     <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0" />
                     <span className="truncate">
-                      {submitting ? "Placing Order…" : "Place Order"}
+                      {submitting
+                        ? "Placing Order…"
+                        : isOnlinePayment
+                          ? "Proceed to Payment"
+                          : "Place Order"}
                     </span>
                   </button>
                 </div>
@@ -897,28 +1232,37 @@ export default function OrderPage() {
         </div>
       </div>
       <Footer />
-      <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 p-4 bg-transparent">
-        <div className="flex gap-4">
-          <button
-            className="w-1/3 py-3 rounded-full bg-white/80 backdrop-blur-md text-red-600 font-bold shadow-lg"
-            onClick={clearCart}
-            disabled={isUpdating || submitting}
-          >
-            Clear Cart
-          </button>
-          <button
-            className="w-2/3 py-3 rounded-full bg-elite-burgundy text-white font-bold shadow-lg"
-            onClick={placeOrder}
-            disabled={
-              submitting ||
-              isUpdating ||
-              (orderType === "DELIVERY" && !selectedAddress)
-            }
-          >
-            {submitting ? "Placing Order…" : "Place Order"}
-          </button>
+      {cartItems.length > 0 && (
+        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 p-4 bg-transparent">
+          <div className="flex gap-4">
+            <button
+              className="w-1/3 py-3 rounded-full bg-white/80 backdrop-blur-md text-red-600 font-bold shadow-lg"
+              onClick={clearCart}
+              disabled={isUpdating || submitting}
+            >
+              Clear Cart
+            </button>
+            <button
+              className="w-2/3 py-3 rounded-full bg-elite-burgundy text-white font-bold shadow-lg"
+              onClick={placeOrder}
+              disabled={
+                submitting ||
+                isUpdating ||
+                (orderType === "DELIVERY" && !selectedAddress) ||
+                (needsAddressForPayment && !selectedAddress) ||
+                (isOnlinePayment && !hasAuthForOnlinePayment) ||
+                (isOnlinePayment && !hasPhoneForOnlinePayment)
+              }
+            >
+              {submitting
+                ? "Placing Order…"
+                : isOnlinePayment
+                  ? "Proceed to Payment"
+                  : "Place Order"}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }

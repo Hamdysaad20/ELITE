@@ -122,6 +122,10 @@ export async function GET(
     if (!order) {
       return jsonResponse({ success: false, error: "Order not found" }, 404);
     }
+    // Online-only: only expose orders to users once they're paid.
+    if (order.paymentStatus !== "PAID") {
+      return jsonResponse({ success: false, error: "Order not found" }, 404);
+    }
 
     const serialized = await serializeOrder(order);
     return jsonResponse(successResponse(serialized));

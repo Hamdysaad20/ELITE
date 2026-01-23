@@ -37,6 +37,10 @@ export async function GET(
     if (!order) {
       return jsonResponse(errorResponse("Order not found"), 404);
     }
+    // Online-only: only expose orders to users once they're paid.
+    if (order.paymentStatus !== "PAID") {
+      return jsonResponse(errorResponse("Order not found"), 404);
+    }
 
     return jsonResponse(
       successResponse({

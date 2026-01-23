@@ -28,6 +28,7 @@ import {
 import { enqueueOrderSync } from "@/server/services/odooSync";
 import { getAuthUser } from "@/server/auth/session";
 import { getCheckoutConfig } from "@/server/services/checkoutConfig";
+import { isPaymobConfigured } from "@/server/services/paymob/paymobClient";
 import { cartDB } from "@/server/utils/jsonDatabase";
 import { checkOrderRateLimit } from "@/server/utils/rateLimit";
 import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
@@ -101,13 +102,15 @@ export async function GET(request: NextRequest) {
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
-        where: { userId },
+        // Online-only: treat an order as "placed" only when PAID.
+        // (We keep pending payment orders in DB for webhook/ops, but hide them from users.)
+        where: { userId, paymentStatus: PaymentStatus.PAID },
         orderBy: { createdAt: "desc" },
         skip,
         take,
         include: { items: true },
       }),
-      prisma.order.count({ where: { userId } }),
+      prisma.order.count({ where: { userId, paymentStatus: PaymentStatus.PAID } }),
     ]);
 
     return jsonResponse(
@@ -144,6 +147,22 @@ export async function POST(request: NextRequest) {
 
     const checkoutConfig = await getCheckoutConfig();
 
+    // Online payments require an authenticated user (Paymob requires email and identity)
+    const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
+    const isOnlinePayment = onlinePaymentMethods.includes(body.paymentMethod);
+    // Online-only checkout: all orders must be paid online.
+    if (!isOnlinePayment) {
+      throw new BadRequestError("Only online payment is available.");
+    }
+    if (!isPaymobConfigured()) {
+      throw new ServiceUnavailableError(
+        "Online ordering is temporarily unavailable. Please try again later.",
+      );
+    }
+    if (!authUser?.id) {
+      throw new BadRequestError("Please sign in to pay online.");
+    }
+
     // Use items from request body (LocalCartItem format from client)
     const cartItems = body.items;
     if (!cartItems || cartItems.length === 0) {
@@ -153,6 +172,13 @@ export async function POST(request: NextRequest) {
     // Validate address for delivery orders
     if (body.orderType === "DELIVERY" && !body.addressId) {
       throw new BadRequestError("Please select a delivery address.");
+    }
+
+    // For online payment, we also require an address (used as billing/shipping data for Paymob)
+    if (isOnlinePayment && !body.addressId) {
+      throw new BadRequestError(
+        "Please select an address (required for online payment billing details).",
+      );
     }
 
     // If addressId provided, verify it exists and belongs to user
@@ -230,11 +256,10 @@ export async function POST(request: NextRequest) {
     );
 
     // For online payment methods, create payment intent
-    // Note: Payment intent creation is separate - frontend will call /api/payments/create
-    // This allows user to review order before initiating payment
+    // Note: Payment intent creation is separate - frontend can also call /api/payments/create to retry
     let paymentIntent = null;
-    const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
-    if (onlinePaymentMethods.includes(body.paymentMethod)) {
+    let paymentIntentError: string | undefined;
+    if (isOnlinePayment) {
       try {
         const { getPaymentService } = await import(
           "@/server/services/paymob/paymentService"
@@ -271,6 +296,7 @@ export async function POST(request: NextRequest) {
                 paymentError instanceof Error
                   ? paymentError.message
                   : "Payment setup failed";
+              paymentIntentError = errorMessage;
               console.error(
                 "[Order] Failed to create payment intent:",
                 errorMessage,
@@ -280,6 +306,7 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         // Payment service not available - log but continue
+        paymentIntentError = "Payment service not available";
         console.warn(
           "[Order] Payment service not available, order created without payment intent",
         );
@@ -368,6 +395,7 @@ export async function POST(request: NextRequest) {
         amount: number;
         currency: string;
       };
+      paymentIntentError?: string;
     } = {
       order: serializeOrder(created),
       integrationStatus:
@@ -382,6 +410,8 @@ export async function POST(request: NextRequest) {
         amount: paymentIntent.amount,
         currency: paymentIntent.currency,
       };
+    } else if (isOnlinePayment && paymentIntentError) {
+      response.paymentIntentError = paymentIntentError;
     }
 
     return jsonResponse(

@@ -276,6 +276,27 @@ function PaymentProcessContent() {
                 />
               </div>
 
+              {/* Manual completion action (some Paymob flows don't postMessage to parent reliably) */}
+              {orderId && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
+                    onClick={() => router.push(`/payment/callback?orderId=${orderId}`)}
+                  >
+                    <Receipt className="w-5 h-5" />
+                    I&apos;ve Completed Payment
+                  </button>
+                  <Link
+                    href={`/orders/${orderId}`}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
+                  >
+                    <Receipt className="w-5 h-5" />
+                    View Order
+                  </Link>
+                </div>
+              )}
+
               <div className="flex items-center justify-center gap-2 text-elite-black/50 text-xs sm:text-sm font-cabin">
                 <Lock className="w-3 h-3" />
                 <span>Your payment information is encrypted and secure</span>

@@ -10,7 +10,8 @@ export type CheckoutConfig = {
 };
 
 const DEFAULT_CONFIG: CheckoutConfig = {
-  enabledPaymentMethods: [PaymentMethod.CASH],
+  // Online-only checkout (no COD / no offline methods)
+  enabledPaymentMethods: [PaymentMethod.CARD, PaymentMethod.WALLET],
   deliveryFee: 15,
   codFee: 0,
   paymobEnabled: false,
@@ -46,16 +47,10 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
     // Check if Paymob is configured
     const paymobEnabled = isPaymobConfigured();
 
-    // If Paymob is enabled, add online payment methods if not already present
+    // Online-only: when Paymob isn't configured, disable checkout payment methods entirely.
     const finalPaymentMethods = paymobEnabled
-      ? [
-          ...new Set([
-            ...enabledPaymentMethods,
-            PaymentMethod.CARD,
-            PaymentMethod.WALLET,
-          ]),
-        ]
-      : enabledPaymentMethods;
+      ? [PaymentMethod.CARD, PaymentMethod.WALLET]
+      : [];
 
     if (!row) {
       return {
@@ -74,6 +69,9 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
   } catch {
     return {
       ...DEFAULT_CONFIG,
+      enabledPaymentMethods: isPaymobConfigured()
+        ? [PaymentMethod.CARD, PaymentMethod.WALLET]
+        : [],
       paymobEnabled: isPaymobConfigured(),
     };
   }
