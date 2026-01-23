@@ -4,12 +4,57 @@ import path from "path";
 import { OpenAIGenerator } from "./lib/openai-generator";
 import { MockGenerator } from "./lib/mock-generator";
 import { FluxPromptBuilder } from "./lib/prompt-builder";
+import { FluxGenerator } from "./lib/generator";
 import { ImageValidator } from "./lib/validator";
+import type { LogoProfile } from "./lib/compositor";
 
 // Load env
 config({ path: ".env.local" }); // Load local env for keys
 
 const DATA_FILE = path.join(process.cwd(), "data/flux-dataset.json");
+
+type LiveGenerator = {
+    generateImage: (
+        prompt: string,
+        fileName: string,
+        slug: string,
+        applyLogo?: boolean,
+        adjustment?: any,
+        saveBaseImage?: boolean,
+        logoProfile?: LogoProfile,
+    ) => Promise<{ error?: string; baseImagePath?: string }>;
+    compositeOnBaseImage: (
+        baseImagePath: string,
+        outputPath: string,
+        adjustment?: any,
+        logoProfile?: LogoProfile,
+    ) => Promise<void>;
+};
+
+function normalizeAdjustmentDeltas(adj: any) {
+    const reasonRaw = String(adj?.reason || "").toLowerCase();
+    const out = { ...adj };
+
+    const toNum = (v: any) => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
+
+    const vOff = toNum(out.verticalOffset);
+    if (typeof vOff === "number" && vOff !== 0) {
+        const wantsDown = /\b(down|lower|below)\b/.test(reasonRaw);
+        const wantsUp = /\b(up|higher|above)\b/.test(reasonRaw);
+        if (wantsDown && vOff < 0) out.verticalOffset = Math.abs(vOff);
+        if (wantsUp && vOff > 0) out.verticalOffset = -Math.abs(vOff);
+    }
+
+    const hOff = toNum(out.horizontalOffset);
+    if (typeof hOff === "number" && hOff !== 0) {
+        const wantsLeft = /\b(left)\b/.test(reasonRaw);
+        const wantsRight = /\b(right)\b/.test(reasonRaw);
+        if (wantsLeft && hOff > 0) out.horizontalOffset = -Math.abs(hOff);
+        if (wantsRight && hOff < 0) out.horizontalOffset = Math.abs(hOff);
+    }
+
+    return out;
+}
 
 async function main() {
     const args = process.argv.slice(2);
@@ -17,10 +62,15 @@ async function main() {
     const isForce = args.includes("--force");
     const targetSlug = args.find(a => a.startsWith("--slug="))?.split("=")[1];
     const failedOnly = args.includes("--failed-only");
+    const revalidateOnly = args.includes("--revalidate-only");
+    const engine = args.find(a => a.startsWith("--engine="))?.split("=")[1] || "flux";
+    const withLogo = args.includes("--with-logo"); // opt-in only (default: no logo/text baked into image)
 
-    console.log(`🚀 Starting Image Generation [Mode: ${isLive ? "LIVE (DALL-E 3 $$$)" : "MOCK (Free)"}]`);
+    console.log(`🚀 Starting Image Generation [Mode: ${isLive ? `LIVE (${engine.toUpperCase()})` : "MOCK (Free)"}]`);
     if (isForce) console.log("⚠️  FORCE MODE: Overwriting existing images.");
     if (failedOnly) console.log("🎯 FAILED-ONLY MODE: Only regenerating products flagged with *_NEEDS_REVIEW.json");
+    if (revalidateOnly) console.log("🧪 REVALIDATE-ONLY MODE: Validating existing images and recreating flags (no generation).");
+    if (!withLogo) console.log("🧼 NO-LOGO MODE: Generated images will contain NO logo/text (we will add branding later).");
 
     // 1. Load Dataset
     if (!await fs.stat(DATA_FILE).catch(() => false)) {
@@ -42,9 +92,11 @@ async function main() {
     }
 
     // 2. Init Components
-    const generator = isLive ? new OpenAIGenerator() : new MockGenerator();
+    const generator = isLive
+        ? (engine === "openai" ? new OpenAIGenerator() : new FluxGenerator())
+        : new MockGenerator();
     const generatorAny = generator as any;
-    const validator = new ImageValidator();
+    const validator: ImageValidator | undefined = withLogo ? new ImageValidator() : undefined;
 
     const promptBuilder = new FluxPromptBuilder();
     await promptBuilder.init();
@@ -59,9 +111,10 @@ async function main() {
 
         // Generate Prompts
         const prompts = promptBuilder.generatePrompts(p);
+        const logoProfile: LogoProfile = promptBuilder.isColdProduct(p) ? "iced" : "hot";
 
         const variations = [
-            { suffix: "v1-1", prompt: prompts.main, logo: true },      // Main: Standard + Logo
+            { suffix: "v1-1", prompt: prompts.main, logo: withLogo },      // Main image (logo is opt-in)
             //  { suffix: "v1-2", prompt: prompts.detail, logo: false }    // Detail: Macro + No Logo (Skipping for now to save cost/focus on main)
         ];
 
@@ -69,6 +122,49 @@ async function main() {
             const fileName = v.suffix;
             const relativePath = `products/${p.slug}/${fileName}.png`;
             const fullPath = path.join(process.cwd(), "public", relativePath);
+
+            // If revalidate-only: validate existing image and flag failures (no regeneration)
+            if (revalidateOnly) {
+                const flagPath = path.join(
+                    process.cwd(),
+                    "public/products",
+                    p.slug,
+                    `${fileName}_NEEDS_REVIEW.json`,
+                );
+
+                try {
+                    await fs.access(fullPath);
+                } catch {
+                    // no image to validate
+                    continue;
+                }
+
+                if (!v.logo || !validator) continue;
+                const val = await validator.validateImage(fullPath, v.prompt, p.baseName, 1);
+                if (val.isValid) {
+                    // clear flag if any
+                    await fs.unlink(flagPath).catch(() => { });
+                } else {
+                    await fs.writeFile(
+                        flagPath,
+                        JSON.stringify(
+                            {
+                                slug: p.slug,
+                                fileName,
+                                reason: val.reason,
+                                attempts: 1,
+                                lastAdjustment: val.adjustments,
+                                timestamp: new Date().toISOString(),
+                            },
+                            null,
+                            2,
+                        ),
+                    );
+                }
+
+                processedCount++;
+                continue;
+            }
 
             // IDEMPOTENCY CHECK
             if (!isForce) {
@@ -83,7 +179,8 @@ async function main() {
 
             // RETRY LOOP FOR VALIDATION WITH ITERATIVE REFINEMENT
             let attempts = 0;
-            const maxAttempts = isLive ? 10 : 1;
+            // No-logo mode can still fail transiently (429/timeouts). Give it a few tries.
+            const maxAttempts = isLive ? (v.logo ? 10 : 3) : 1;
             let success = false;
             // Track cumulative adjustments across attempts (relative to the base image)
             let currentAdjustment: any = {
@@ -108,17 +205,22 @@ async function main() {
                     if (attempts === 1) {
                         // First attempt: Generate base image and composite logo
                         // Save base image separately for efficient recomposition on retries
-                        const genResult = await (generator as OpenAIGenerator).generateImage(
+                        const genResult = await (generator as LiveGenerator).generateImage(
                             v.prompt, 
                             fileName, 
                             p.slug, 
                             v.logo,
                             undefined, // No adjustment on first attempt
-                            true // Save base image separately
+                            Boolean(v.logo), // Only save base image when logo recomposition is needed
+                            logoProfile,
                         );
 
                         if (genResult.error) {
                             console.error(`      ❌ Generation failed: ${genResult.error}`);
+                            // No-logo mode should retry on transient failures (timeouts/429/etc)
+                            if (!v.logo && attempts < maxAttempts) {
+                                continue;
+                            }
                             break;
                         }
 
@@ -127,30 +229,54 @@ async function main() {
                             baseImagePath = genResult.baseImagePath;
                         }
                     } else {
+                        // No-logo mode: just retry generation
+                        if (!v.logo) {
+                            const genResult = await (generator as LiveGenerator).generateImage(
+                                v.prompt,
+                                fileName,
+                                p.slug,
+                                false,
+                                undefined,
+                                false,
+                            );
+                            if (genResult.error) {
+                                console.error(`      ❌ Generation failed: ${genResult.error}`);
+                                continue;
+                            }
+                            success = true;
+                            continue;
+                        }
+
                         // Subsequent attempts: Recomposite logo with adjustments (more efficient than regenerating)
                         if (v.logo && baseImagePath && await fileExists(baseImagePath)) {
                             console.log(`      🔄 Recompositing logo with adjustments (using saved base image)...`);
-                            await (generator as OpenAIGenerator).compositeOnBaseImage(
+                            await (generator as LiveGenerator).compositeOnBaseImage(
                                 baseImagePath,
                                 fullPath,
-                                currentAdjustment
+                                currentAdjustment,
+                                logoProfile,
                             );
                         } else if (v.logo) {
                             // Fallback: regenerate if base image not available (shouldn't happen normally)
                             console.log(`      ⚠️  Base image not found, regenerating entire image...`);
-                            await (generator as OpenAIGenerator).generateImage(
+                            const genResult = await (generator as LiveGenerator).generateImage(
                                 v.prompt, 
                                 fileName, 
                                 p.slug, 
                                 v.logo,
                                 currentAdjustment,
-                                false // Don't save base on retry
+                                false, // Don't save base on retry
+                                logoProfile,
                             );
+                            if (genResult.error) {
+                                console.error(`      ❌ Generation failed: ${genResult.error}`);
+                                continue;
+                            }
                         }
                     }
 
                     // 2. Validate if logo is applied
-                    if (v.logo) {
+                    if (v.logo && validator) {
                         const valResult = await validator.validateImage(
                             fullPath, 
                             v.prompt, 
@@ -192,7 +318,8 @@ async function main() {
                             // If we have adjustments and haven't reached max attempts, retry with adjustments
                             if (valResult.adjustments && attempts < maxAttempts) {
                                 // Treat AI suggestions as deltas (relative tweaks) and accumulate.
-                                const adj = valResult.adjustments as any;
+                                const adjRaw = valResult.adjustments as any;
+                                const adj = normalizeAdjustmentDeltas(adjRaw);
                                 const deltaSize = typeof adj.sizeMultiplier === "number" ? adj.sizeMultiplier : 1.0;
                                 const deltaH = typeof adj.horizontalOffset === "number" ? adj.horizontalOffset : 0;
                                 const deltaV = typeof adj.verticalOffset === "number" ? adj.verticalOffset : 0;
@@ -245,7 +372,7 @@ async function main() {
             if (needsManualReview && !success) {
                 console.log(`   ⚠️  [${p.slug}/${v.suffix}] Requires manual review after ${attempts} attempts`);
             } else if (success) {
-                console.log(`   ✅ [${p.slug}/${v.suffix}] Successfully generated and validated`);
+                console.log(`   ✅ [${p.slug}/${v.suffix}] Successfully generated${v.logo ? " and validated" : ""}`);
             }
 
             processedCount++;

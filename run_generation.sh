@@ -13,7 +13,9 @@ if [ -z "$SLUG" ]; then
 fi
 
 echo "🚀 Starting Image Generation for: $SLUG"
-echo "Note: Ensure you have OPENAI_API_KEY in .env.local"
+echo "Note: Ensure you have AZURE_FLUX_ENDPOINT + AZURE_FLUX_KEY in .env.local (default engine: flux)."
+echo "      Optional: pass --engine=openai to use DALL·E instead."
+echo "      Default output has NO logo/text baked in. Pass --with-logo only if you want compositor+logo validation."
 
 # Check if node exists
 if ! command -v node &> /dev/null; then

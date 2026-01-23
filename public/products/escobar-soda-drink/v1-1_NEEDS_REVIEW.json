@@ -1,0 +1,13 @@
+{
+  "slug": "escobar-soda-drink",
+  "fileName": "v1-1",
+  "reason": "Multiple validation issues detected: The logo placement is incorrect and outside the red bounding box. Forbidden fruit pieces and floating ingredients are present, along with ice cubes and mango chunks inside the cup. Lid is present, violating the content constraints. Additional props such as droplets around the cup are also visible.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": -10,
+    "reason": "Logo needs to be moved downwards into the red bounding box to meet the placement requirements. Additionally, mango chunks, blueberries, ice cubes, and lid should be removed to adhere to content constraints."
+  },
+  "timestamp": "2026-01-20T23:04:27.636Z"
+}

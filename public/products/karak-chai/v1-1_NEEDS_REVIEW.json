@@ -1,0 +1,13 @@
+{
+  "slug": "karak-chai",
+  "fileName": "v1-1",
+  "reason": "The logo is positioned below the designated red bounding box and extends partially outside the cup's visible body. Additionally, the logo scales beyond the suggested size for the red box, appearing overly large relative to the cup. The drink presentation adheres to content constraints otherwise.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.8,
+    "horizontalOffset": 0,
+    "verticalOffset": -40,
+    "reason": "The logo needs to be downsized to fit within the red bounding box while moving upward into the designated central zone. Additionally, scaling it smaller enhances proportionality with the cup."
+  },
+  "timestamp": "2026-01-20T22:57:24.092Z"
+}

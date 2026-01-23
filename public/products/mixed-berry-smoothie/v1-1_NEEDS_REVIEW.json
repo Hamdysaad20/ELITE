@@ -1,0 +1,13 @@
+{
+  "slug": "mixed-berry-smoothie",
+  "fileName": "v1-1",
+  "reason": "The logo placement and content constraints are invalid. The logo is inside the red bounding box and positioned on the cup, but there are forbidden fruit pieces (berries) both inside and outside the drink. Minor adjustments to the logo size are also needed.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.9,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo size occupies slightly over 95% of the intended zone, and adjusting it to 90% will ensure it looks proportionate relative to the intended placement. Remove all fruit pieces (berries) from the image."
+  },
+  "timestamp": "2026-01-20T23:02:09.593Z"
+}

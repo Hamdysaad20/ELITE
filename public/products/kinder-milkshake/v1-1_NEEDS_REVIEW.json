@@ -1,0 +1,13 @@
+{
+  "slug": "kinder-milkshake",
+  "fileName": "v1-1",
+  "reason": "The product image does not meet critical validation criteria due to the presence of a lid on the cup and logo placement issues.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo is in the correct position and size, but the lid on the cup violates product constraints. Remove the lid to meet open-top cup requirements."
+  },
+  "timestamp": "2026-01-20T23:00:31.363Z"
+}

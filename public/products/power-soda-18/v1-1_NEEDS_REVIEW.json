@@ -1,0 +1,13 @@
+{
+  "slug": "power-soda-18",
+  "fileName": "v1-1",
+  "reason": "The logo is positioned inside the red bounding box and is on the cup itself, but the size of the logo exceeds the intended area, making it too large within the red box and the cup's visible width. Additionally, the cup has a lid, which violates the content constraints for this product type.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.8,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo size needs to be reduced by 20% to fit within 60–95% of the red bounding box width, ensuring proportions align with the intended design. Additionally, the lid should be removed to comply with constraints for an open-top cup."
+  },
+  "timestamp": "2026-01-20T23:03:31.309Z"
+}

@@ -1,0 +1,13 @@
+{
+  "slug": "mango-passion-fruit-milkshake",
+  "fileName": "v1-1",
+  "reason": "The logo placement and image content fail critical checks. The logo does not meet positioning requirements, and the presence of mango cubes violates content constraints.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 15,
+    "verticalOffset": 5,
+    "reason": "The logo needs to be horizontally shifted to align within the red bounding box, as it is slightly off-center. Vertical repositioning is required to ensure precise placement within the designated zone. Additionally, remove the mango cubes to comply with product constraints, and ensure the lid is removed for an open-top milkshake as per specifications."
+  },
+  "timestamp": "2026-01-20T23:01:13.996Z"
+}

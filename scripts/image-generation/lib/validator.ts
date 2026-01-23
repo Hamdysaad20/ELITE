@@ -58,25 +58,45 @@ export class ImageValidator {
      * Or better: we draw a box around the entire subject if detected/trimmed, or just a static "safe zone".
      * The prompt asked: "drow red box and we validate it with ai to see if it was the right placment"
      */
-    async drawValidationBox(imagePath: string, destPath: string): Promise<void> {
+    private inferLogoProfileFromPrompt(prompt: string): "iced" | "hot" {
+        const p = (prompt || "").toLowerCase();
+        // Templates for iced drinks include clear plastic / iced cup language
+        if (p.includes("clear plastic") || p.includes("iced") || p.includes("pet iced cup")) return "iced";
+        return "hot";
+    }
+
+    async drawValidationBox(imagePath: string, destPath: string, promptForProfile?: string): Promise<void> {
         try {
             const image = sharp(imagePath);
             const metadata = await image.metadata();
             const width = metadata.width || 1024;
             const height = metadata.height || 1024;
 
-            // Define the "Ideal Logo Zone" (must match compositor's cup-body safe zone)
-            // Compositor fallback subjectBox:
-            //   left = 0.22w, top = 0.20h, width = 0.56w, height = 0.70h
-            // Compositor logo center:
-            //   y = top + 0.60 * height  => 0.20h + 0.42h = 0.62h
-            // Logo width baseline:
-            //   0.30 * subjectBox.width => 0.30 * 0.56w = 0.168w
-            // So we draw a slightly-larger "ideal zone" around it (~0.20w).
-            const boxWidth = Math.round(width * 0.20); // ~20% width
-            const boxHeight = Math.round(boxWidth); // square-ish (logo mark)
-            const left = Math.round((width - boxWidth) / 2);
-            const centerY = Math.round(height * 0.62);
+            const profile = this.inferLogoProfileFromPrompt(promptForProfile || "");
+            // Mirror the compositor defaults (approximate expected logo bounds).
+            // NOTE: We use the compositor fallback subject box to avoid expensive trim analysis here.
+            const subjectBox = {
+                left: Math.round(width * 0.22),
+                top: Math.round(height * 0.20),
+                width: Math.round(width * 0.56),
+                height: Math.round(height * 0.70),
+            };
+
+            const widthRatio = profile === "iced" ? 0.42 : 0.34;
+            const maxWidthRatio = profile === "iced" ? 0.52 : 0.44;
+            const centerYRatio = profile === "iced" ? 0.60 : 0.62;
+
+            let boxWidth = Math.round(subjectBox.width * widthRatio);
+            const maxBoxWidth = Math.round(width * maxWidthRatio);
+            if (boxWidth > maxBoxWidth) boxWidth = maxBoxWidth;
+            if (boxWidth < 50) boxWidth = 50;
+
+            // Logo aspect ratio from PRINTING_CUP.png is ~1.28 (tall rectangle)
+            const boxHeight = Math.round(boxWidth * 1.28);
+
+            const centerX = subjectBox.left + Math.round(subjectBox.width / 2);
+            const left = Math.round(centerX - boxWidth / 2);
+            const centerY = subjectBox.top + Math.round(subjectBox.height * centerYRatio);
             const top = Math.round(centerY - boxHeight / 2);
 
             // Create a generic SVG rectangle to overlay
@@ -107,12 +127,14 @@ export class ImageValidator {
         console.log(`🔍 Validating image for [${baseName}] (Attempt ${attemptNumber})...`);
 
         try {
+            const isCustom = (baseName || "").toLowerCase().includes("custom");
+            const isFood = (prompt || "").toLowerCase().includes("this is a food item");
             // First, draw the validation box to show expected logo area
             const debugPath = path.join(
                 path.dirname(imagePath),
                 path.basename(imagePath, '.png') + '_debug.png'
             );
-            await this.drawValidationBox(imagePath, debugPath);
+            await this.drawValidationBox(imagePath, debugPath, prompt);
 
             // Read image as base64
             const imageBuffer = await fs.readFile(imagePath);
@@ -123,6 +145,22 @@ export class ImageValidator {
             const debugBuffer = await fs.readFile(debugPath);
             const debugBase64 = debugBuffer.toString('base64');
             const debugDataUrl = `data:image/png;base64,${debugBase64}`;
+
+            const customAllowance = isCustom
+                ? `
+CUSTOM EXCEPTION:
+- A single large WHITE question mark "?" on the cup is REQUIRED (placeholder item).
+- No other text/letters/numbers are allowed.
+`
+                : "";
+
+            const foodOverride = isFood
+                ? `
+FOOD ITEM MODE:
+- This is NOT a drink. Do NOT check for lids/straws/ice/fruit constraints.
+- Focus ONLY on: (1) logo placement inside red box, (2) no forbidden text/logos besides allowed '?', (3) clean product photo quality.
+`
+                : "";
 
             const checkPrompt = `
 You are a Quality Assurance AI for a premium coffee shop.
@@ -150,15 +188,20 @@ Your task is to validate the logo placement:
    - Is the logo clearly visible and readable?
 
 4. **Content Constraints**: 
-   - NO whole fruits laying around (only slices or purees inside/on top).
+   - ABSOLUTELY NO whole fruits, NO fruit slices, NO wedges, NO fruit cubes/chunks/pieces (including mango cubes).
+   - ABSOLUTELY NO berries (including blueberries/raspberries) anywhere in the image.
    - NO cherries.
    - NO raw ingredients disjointed from the drink.
+   - NO props around the cup (no ice cubes outside, no coffee beans, no crumbs on the table).
+   - NO lid/cover and NO straw (open-top cup only).
 
 5. **Product-Specific Checks**: 
    - If it is a Frappe, does it have drizzle? 
    - If it is a Milkshake (Vanilla), does it have sparkles?
 
 **IMPORTANT**: If the logo placement or size is incorrect, provide specific adjustment recommendations.
+${customAllowance}
+${foodOverride}
 
 Return your response in JSON format:
 {
@@ -168,15 +211,20 @@ Return your response in JSON format:
     "logoInsideBox": boolean,
     "logoOnCup": boolean,
     "logoSizeReasonable": boolean,
+    "hasLidOrStraw": boolean,
+    "hasForbiddenFruitPieces": boolean,
+    "hasPropsAroundCup": boolean,
     "adjustments": {
         "sizeMultiplier": number (0.7-1.3, where 1.0 = no change, 0.8 = make 20% smaller, 1.2 = make 20% larger),
-        "horizontalOffset": number (pixels to shift: negative = left, positive = right, 0 = no change),
-        "verticalOffset": number (pixels to shift: negative = up, positive = down, 0 = no change),
+        "horizontalOffset": number (pixels to shift: -20 = move LEFT 20px, +20 = move RIGHT 20px, 0 = no change),
+        "verticalOffset": number (pixels to shift: -20 = move UP 20px, +20 = move DOWN 20px, 0 = no change),
         "reason": "Why these adjustments are needed"
     }
 }
 
-If isValid is false, you MUST provide adjustments. If isValid is true, adjustments can be null or empty.
+If isValid is false, you MUST provide adjustments.
+CRITICAL: Make sure the signs match your written reason (e.g. if you say "move down", verticalOffset must be positive).
+If isValid is true, adjustments can be null or empty.
 `;
 
             const payload: any = {

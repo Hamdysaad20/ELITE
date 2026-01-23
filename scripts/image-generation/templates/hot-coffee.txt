@@ -6,8 +6,10 @@ Camera: Slightly above eye-level (showing the drink surface inside)
 Composition: Centered, isolated
 
 [Subject]
-A premium {{ drinkName }} in a matte paper cup.
-The cup features a specific branding design: a burnt orange body with a white rim and white base.
+A premium {{ drinkName }} in {{ cupDescription }}.
+{{ customOverlay }}
+{{ textRules }}
+The cup must be the same consistent branded orange cup silhouette for ALL hot drinks (only size changes: 4oz for espresso/turkish; otherwise 16oz).
 NO LID - the top is open.
 The surface of the drink features {{ surfaceTexture }}.
 Liquid color is {{ color }}.
@@ -22,6 +24,3 @@ No reflections.
 
 [Style/Vibe]
 Commercial product mockup, ultra-clean, isolated subject.
-ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere in the image.
-Cup surface must be BLANK/unbranded (no printed patterns, no graphics).
-No text on the cup.

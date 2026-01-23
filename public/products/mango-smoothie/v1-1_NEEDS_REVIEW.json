@@ -1,0 +1,13 @@
+{
+  "slug": "mango-smoothie",
+  "fileName": "v1-1",
+  "reason": "The drink fails several critical validation criteria. While the logo is inside the red bounding box and positioned on the cup, the drink contains forbidden mango cubes, which violate content constraints. Additionally, there are visible props in the form of ice cubes outside the cup. These issues render the image invalid.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "No adjustment to the logo is required, as its placement, size, and positioning are correct. However, the mango cubes and props outside the cup must be removed for content compliance."
+  },
+  "timestamp": "2026-01-20T23:01:40.687Z"
+}

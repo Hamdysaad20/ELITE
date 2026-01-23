@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { LogoCompositor } from "./compositor";
 import { LogoAdjustment } from "./validator";
+import type { LogoProfile } from "./compositor";
 
 interface GenerationResult {
     url?: string;
@@ -36,7 +37,8 @@ export class OpenAIGenerator {
         slug: string, 
         applyLogo: boolean = true,
         adjustment?: LogoAdjustment,
-        saveBaseImage: boolean = false
+        saveBaseImage: boolean = false,
+        logoProfile: LogoProfile = "hot",
     ): Promise<GenerationResult & { baseImagePath?: string }> {
         console.log(`🎨 Generating image for [${slug}] (${applyLogo ? "With Logo" : "No Logo"})...`);
 
@@ -98,7 +100,7 @@ export class OpenAIGenerator {
                 await this.saveBaseImage(base64Image, baseImagePath);
             }
 
-            await this.saveBase64(base64Image, fullPath, applyLogo, adjustment);
+            await this.saveBase64(base64Image, fullPath, applyLogo, adjustment, logoProfile);
 
             return { url: relativePath, prompt, baseImagePath };
 
@@ -112,7 +114,8 @@ export class OpenAIGenerator {
         base64Data: string, 
         destPath: string, 
         applyLogo: boolean,
-        adjustment?: LogoAdjustment
+        adjustment?: LogoAdjustment,
+        logoProfile: LogoProfile = "hot",
     ) {
         await fs.mkdir(path.dirname(destPath), { recursive: true });
 
@@ -120,7 +123,7 @@ export class OpenAIGenerator {
 
         // Apply Logo Overlay ONLY if requested
         if (applyLogo) {
-            buffer = await this.compositor.composite(buffer, adjustment);
+            buffer = await this.compositor.composite(buffer, adjustment, logoProfile);
         }
 
         await fs.writeFile(destPath, buffer);
@@ -164,10 +167,11 @@ export class OpenAIGenerator {
     async compositeOnBaseImage(
         baseImagePath: string,
         outputPath: string,
-        adjustment?: LogoAdjustment
+        adjustment?: LogoAdjustment,
+        logoProfile: LogoProfile = "hot",
     ): Promise<void> {
         const baseBuffer = await fs.readFile(baseImagePath);
-        const compositedBuffer = await this.compositor.composite(baseBuffer, adjustment);
+        const compositedBuffer = await this.compositor.composite(baseBuffer, adjustment, logoProfile);
         await fs.writeFile(outputPath, compositedBuffer);
     }
 }

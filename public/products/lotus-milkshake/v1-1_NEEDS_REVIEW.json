@@ -1,0 +1,13 @@
+{
+  "slug": "lotus-milkshake",
+  "fileName": "v1-1",
+  "reason": "The logo placement is not correctly centered inside the red bounding box. It is too large and extends slightly beyond the borders of the cup. Additionally, there are props around the cup, specifically ice cubes, which violate the specified content constraints.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.85,
+    "horizontalOffset": -10,
+    "verticalOffset": 10,
+    "reason": "The logo needs to be reduced in size to occupy approximately 60–95% of the bounding box width and centered properly within the red box. Props such as ice cubes must be removed to comply with content constraints for a clean product photo."
+  },
+  "timestamp": "2026-01-20T23:01:00.167Z"
+}

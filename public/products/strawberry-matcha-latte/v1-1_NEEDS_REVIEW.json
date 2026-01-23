@@ -1,0 +1,13 @@
+{
+  "slug": "strawberry-matcha-latte",
+  "fileName": "v1-1",
+  "reason": "The logo placement is outside the red bounding box, extending below its intended position and going beyond the cup's lower edge. Additionally, the image contains forbidden fruit ingredients (whole strawberries and strawberry slices).",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 0,
+    "verticalOffset": -30,
+    "reason": "The logo needs to be shifted upward to fit entirely within the red bounding box and avoid extending below the cup edge. Additionally, all forbidden fruit pieces should be removed to comply with content constraints."
+  },
+  "timestamp": "2026-01-20T22:57:36.010Z"
+}

@@ -3,6 +3,24 @@ import path from "path";
 import fs from "fs/promises";
 import { LogoAdjustment } from "./validator";
 
+export type LogoProfile = "iced" | "hot";
+
+type LogoProfileConfig = {
+    /** Baseline logo width as fraction of detected subject width */
+    widthRatio: number;
+    /** Absolute clamp (fraction of full image width) */
+    maxWidthRatio: number;
+    /** Logo center Y as fraction of detected subject height from subjectBox.top */
+    centerYRatio: number;
+};
+
+const LOGO_PROFILE_CONFIG: Record<LogoProfile, LogoProfileConfig> = {
+    // Tuned to match user-provided reference images (iced clear cup has a larger front sticker)
+    iced: { widthRatio: 0.42, maxWidthRatio: 0.52, centerYRatio: 0.60 },
+    // Tuned to match user-provided reference images (hot orange cup sticker slightly smaller)
+    hot: { widthRatio: 0.34, maxWidthRatio: 0.44, centerYRatio: 0.62 },
+};
+
 export class LogoCompositor {
     private logoPath: string;
 
@@ -13,7 +31,8 @@ export class LogoCompositor {
 
     async composite(
         originalImageBuffer: Buffer, 
-        adjustment?: LogoAdjustment
+        adjustment?: LogoAdjustment,
+        profile: LogoProfile = "hot",
     ): Promise<Buffer> {
         try {
             // Check if logo exists
@@ -83,10 +102,10 @@ export class LogoCompositor {
             }
 
             // 2. Dynamic Scaling
-            // Target: Logo should be ~28-33% of the CUP width (subject width) (smaller than before)
-            // Clamp to avoid over-sizing.
-            let logoWidth = Math.round(subjectBox.width * 0.30);
-            const maxLogoWidth = Math.round(width * 0.38);
+            const cfg = LOGO_PROFILE_CONFIG[profile] || LOGO_PROFILE_CONFIG.hot;
+            // Target: tuned per cup type (iced vs hot) to match reference images
+            let logoWidth = Math.round(subjectBox.width * cfg.widthRatio);
+            const maxLogoWidth = Math.round(width * cfg.maxWidthRatio);
             if (logoWidth > maxLogoWidth) logoWidth = maxLogoWidth;
 
             // Min size safety
@@ -131,8 +150,8 @@ export class LogoCompositor {
             let left = Math.round(subjectCenterX - (logoWidth / 2));
 
             // Vertically: place logo on the cup "body" area (avoid rim + base).
-            // ~60% down within the subject box tends to land on the cup sleeve area.
-            const logoCenterY = subjectBox.top + Math.round(subjectBox.height * 0.60);
+            // Tuned per profile to match reference sticker placement.
+            const logoCenterY = subjectBox.top + Math.round(subjectBox.height * cfg.centerYRatio);
             let top = Math.round(logoCenterY - (logoHeight / 2));
 
             // Apply position adjustments if provided

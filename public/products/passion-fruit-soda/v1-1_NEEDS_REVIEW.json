@@ -1,0 +1,13 @@
+{
+  "slug": "passion-fruit-soda",
+  "fileName": "v1-1",
+  "reason": "The logo placement fails several critical criteria. It is not entirely inside the red bounding box and slightly overlaps the bottom edge of the box. The logo is positioned correctly on the cup but is too large relative to both the red bounding box and the visible cup width, exceeding the intended size specifications. Additionally, the drink contains visible passion fruit halves, which violate the content constraints that require no whole fruits, slices, or wedges. Furthermore, the drink has a lid, which also violates the content constraints.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.7,
+    "horizontalOffset": 0,
+    "verticalOffset": -5,
+    "reason": "The logo needs to be reduced in size to fit within approximately 60–95% of the red bounding box's width. It also needs a slight upward adjustment to center it properly within the red box. Additionally, remove the lid and ensure the drink contains no forbidden fruit elements."
+  },
+  "timestamp": "2026-01-20T23:03:18.415Z"
+}

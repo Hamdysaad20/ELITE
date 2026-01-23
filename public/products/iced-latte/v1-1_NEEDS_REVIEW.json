@@ -1,0 +1,13 @@
+{
+  "slug": "iced-latte",
+  "fileName": "v1-1",
+  "reason": "The logo placement doesn't meet all validation criteria. The logo is slightly below the center of the red bounding box, though it is fully inside the cup's borders. The size of the logo is smaller than the ideal proportion relative to the red box (it occupies approximately 50% of the red box width where 60-95% is optimal). No forbidden elements are detected, and the drink presentation is otherwise high-quality.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1.2,
+    "horizontalOffset": 0,
+    "verticalOffset": -10,
+    "reason": "The logo needs to be slightly larger to occupy the appropriate proportion of the intended red box zone. Additionally, it should be adjusted upwards to align better with the center of the red bounding box."
+  },
+  "timestamp": "2026-01-20T22:57:51.279Z"
+}

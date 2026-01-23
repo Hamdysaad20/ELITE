@@ -6,14 +6,19 @@ Camera: Macro lens, shallow depth of field, focus on condensation and texture
 Composition: Centered, straight-on view
 
 [Subject]
-A premium {{ drinkName }} in a clear plastic PET iced cup.
+A premium {{ drinkName }} in {{ cupDescription }}.
+{{ customOverlay }}
+{{ textRules }}
 The drink features {{ layers }}.
 Filled with clear ice cubes.
 Heavy cold condensation droplets on the outside of the cup.
 The liquid color is {{ color }}.
+NO LID. NO COVER. NO STRAW. Open-top cup only.
 
 [Toppings/Garnish]
 {{ toppings }}
+NO fruit pieces/chunks/cubes/berries on top or around the cup. Sauces/purees/crushed toppings only.
+NO props: no scattered ice cubes, no coffee beans, no crumbs, nothing placed around the cup.
 
 [Background/Environment]
 Clean, minimal cafe counter surface.
@@ -22,6 +27,3 @@ Natural daylight aesthetic.
 
 [Style/Vibe]
 Commercial food photography, appetizing, thirst-quenching, high resolution, 4k.
-ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere in the image.
-Cup surface must be BLANK/unbranded (no printed patterns, no graphics).
-No text, no logos.

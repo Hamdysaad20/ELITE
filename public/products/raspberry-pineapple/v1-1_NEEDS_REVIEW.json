@@ -1,0 +1,13 @@
+{
+  "slug": "raspberry-pineapple",
+  "fileName": "v1-1",
+  "reason": "The logo placement and size do not fully adhere to the validation criteria. Specifically, the logo extends slightly beyond the red bounding box and seems somewhat oversized relative to the width of the cup. Additionally, props (ice cubes outside the cup) violate the content constraints for this drink.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 0.9,
+    "horizontalOffset": 0,
+    "verticalOffset": 10,
+    "reason": "The logo should be reduced slightly to fit comfortably within the red bounding box and to occupy an appropriate proportion of the cup's visible body. Vertical adjustment is recommended to center it better within the box. Remove the ice cubes outside the cup to comply with content constraints."
+  },
+  "timestamp": "2026-01-20T23:05:06.294Z"
+}

@@ -27,7 +27,8 @@ export class FluxPromptBuilder {
         const templates = [
             "iced-drink.txt", "hot-coffee.txt",
             "detail-iced.txt", "detail-hot.txt",
-            "lifestyle-iced.txt", "lifestyle-hot.txt"
+            "lifestyle-iced.txt", "lifestyle-hot.txt",
+            "food-item.txt",
         ];
 
         for (const t of templates) {
@@ -38,9 +39,9 @@ export class FluxPromptBuilder {
 
     generatePrompts(product: NormalizedProduct): PromptVariations {
         const isCold = this.isColdDrink(product);
-        const type = isCold ? "iced" : "hot";
+        const isFood = this.isFoodItem(product);
 
-        const mainTplName = isCold ? "iced-drink.txt" : "hot-coffee.txt";
+        const mainTplName = isFood ? "food-item.txt" : (isCold ? "iced-drink.txt" : "hot-coffee.txt");
         const detailTplName = isCold ? "detail-iced.txt" : "detail-hot.txt";
         const lifestyleTplName = isCold ? "lifestyle-iced.txt" : "lifestyle-hot.txt";
 
@@ -62,10 +63,25 @@ export class FluxPromptBuilder {
         };
     }
 
+    /**
+     * Exposes the same cold/hot heuristic used for prompt selection so other scripts
+     * (e.g. logo overlay) can stay consistent.
+     */
+    isColdProduct(product: NormalizedProduct): boolean {
+        return this.isColdDrink(product);
+    }
+
+    isFoodProduct(product: NormalizedProduct): boolean {
+        return this.isFoodItem(product);
+    }
+
     private buildVisualSummary(name: string, attrs: any, isCold: boolean): string {
         if (isCold) {
             const sideDesc = attrs.layers ? attrs.layers : `Uniform ${attrs.color} liquid`;
-            const topDesc = attrs.toppings && attrs.toppings !== "clean, minimal presentation" ? `Top: ${attrs.toppings}` : "Top: Standard flat/dome lid";
+            const topDesc =
+                attrs.toppings && attrs.toppings !== "clean, minimal presentation"
+                    ? `Top: ${attrs.toppings}`
+                    : "Top: Open-top cup (NO lid, NO straw)";
 
             return `1. ${name} in Clear Plastic Cup (Cold/Condensation).\n` +
                 `2. Side View: ${sideDesc}. ${topDesc}.`;
@@ -94,18 +110,74 @@ export class FluxPromptBuilder {
         return false;
     }
 
+    private isFoodItem(p: NormalizedProduct): boolean {
+        const name = p.name.toLowerCase();
+        const cat = p.category.toLowerCase();
+        // If it's cold/hot drink, it's not food.
+        if (this.isColdDrink(p)) return false;
+        // Heuristic: common food keywords/categories
+        const foodKeywords = [
+            "sandwich", "cake", "bakery", "dessert", "cookie", "croissant", "muffin",
+            "snack", "breakfast", "salad", "toast", "wrap", "panini", "waffle", "donut",
+            "brownie", "brownies", "baguette", "pastry", "pie", "tart",
+            "chicken", "bbq", "ranch",
+        ];
+        if (foodKeywords.some(k => name.includes(k) || cat.includes(k))) return true;
+        // Default: not food (hot drinks, etc.)
+        return false;
+    }
+
     private deriveVisualAttributes(p: NormalizedProduct) {
         const name = p.name.toLowerCase();
         const isCold = this.isColdDrink(p);
+        const isCustom =
+            name.includes("custom") ||
+            String(p.slug || "").toLowerCase().startsWith("custom-");
 
         // Default values
         let color = "rich brown coffee color";
         let layers = isCold ? "consistent liquid texture" : ""; // Hot drinks have NO layers
         let toppings = "clean, minimal presentation";
-        let cupStyle = isCold
-            ? "clear plastic PET takeaway cup with visible external condensation droplets (no glass)"
-            : "single-wall paper takeaway cup with white lid (lid removed for photo, no glass/ceramic)";
+        // Cup rules (per your spec):
+        // - Iced: ONE consistent smart cup, same shape/curves, 16oz, clear/transparent, NO lid/cover/straw
+        // - Hot: branded orange cup, 4oz for espresso/turkish, 16oz for all other hot drinks, NO lid/cover
+        const isSmallHot =
+            !isCold && (name.includes("espresso") || name.includes("turkish"));
+        const cupSizeOz = isCold ? "16" : isSmallHot ? "4" : "16";
+
+        const cupDescription = isCold
+            ? "a standardized 16oz clear plastic PET iced cup (transparent), with the exact same consistent cup silhouette (shape and curves) used for ALL iced drinks; open-top (NO lid, NO cover, NO straw)"
+            : `a standardized ${cupSizeOz}oz matte paper cup with a burnt orange body, white rim, and white base; open-top (NO lid, NO cover)`;
+
+        // Keep legacy variable (some templates may still reference it)
+        // (mutable because some product-specific branches append minor notes like "drips")
+        let cupStyle = cupDescription;
         let surfaceTexture = isCold ? "ice cubes and liquid surface" : "smooth crema or foam";
+
+        // Text rules default (no text/logos baked into generation)
+        let textRules =
+            "ABSOLUTELY NO readable text, letters, numbers, labels, or brand names anywhere in the image.\n" +
+            "ABSOLUTELY NO watermarks or model text such as 'FLUX', 'FLUX.2', 'AI', or any signature.\n" +
+            "Cup surface must be BLANK/unbranded (no printed patterns, no graphics).\n" +
+            "No text, no logos.";
+
+        // Custom items: show as black cutout with a big '?' (per provided reference)
+        let customOverlay = "";
+        if (isCustom) {
+            textRules =
+                "CUSTOM PLACEHOLDER ITEM RULES:\n" +
+                "- Render the entire cup + drink as a clean, solid BLACK cutout/silhouette (like a product cutout).\n" +
+                "- Add ONE large WHITE question mark '?' centered on the cup front.\n" +
+                "- No other text, no logos, no letters, no numbers besides that single '?'.";
+            customOverlay =
+                "SPECIAL INSTRUCTION (CUSTOM ITEM): the drink should look like a placeholder cutout. " +
+                "Cup and drink are a solid black silhouette; a single large white '?' is printed/overlaid on the cup front.";
+            // Make the liquid description generic so model doesn't hallucinate specific flavors
+            color = "solid matte black silhouette (no visible flavor color)";
+            layers = isCold ? "no visible layers (silhouette cutout)" : "";
+            surfaceTexture = isCold ? "flat top surface (silhouette cutout)" : "flat top surface (silhouette cutout)";
+            toppings = "clean, minimal presentation";
+        }
 
         // Logic Rules
         // Global enhancements
@@ -116,9 +188,23 @@ export class FluxPromptBuilder {
             surfaceTexture += ". Delicate wisps of steam rising from the cup";
         }
 
-        if (name.includes("matcha")) {
-            color = "vibrant creamy green";
-            surfaceTexture = "fine microfoam with green tint";
+        if (!isCustom && name.includes("matcha")) {
+            // Matcha should always be green (avoid generic latte overrides)
+            if (isCold && (name.includes("latte") || name.includes("matcha latte"))) {
+                color =
+                    "two-tone: creamy milk white at the bottom and vibrant matcha green on top (NOT coffee brown / NOT latte tan), with a beautiful swirling gradient mixing zone in the middle";
+                layers =
+                    "CLEARLY VISIBLE distinct layers: bottom layer of cold milk (white), top layer of vivid matcha (green), with a marbled mixing transition in the middle (amazing swirl). No uniform blending.";
+                surfaceTexture = "matcha foam/microfoam on the top green layer with ice visible (no latte art)";
+                // Avoid powder garnish as it triggers 'raw ingredient' constraints in validation
+                toppings = "clean, minimal presentation (NO powder garnish, NO matcha powder dusting, NO garnish cubes)";
+            } else {
+                color = "vivid matcha green (NOT coffee brown / NOT latte tan)";
+                surfaceTexture = isCold
+                    ? "matcha foam on top with ice visible (no latte art)"
+                    : "solid vivid matcha-green microfoam surface, smooth and uniform (NO latte art, NO heart/rosette, NO white foam patterns, NO powder dusting, NO garnish cubes)";
+                toppings = "clean, minimal presentation (NO powder garnish, NO matcha powder dusting, NO garnish cubes)";
+            }
         }
 
         if (name.includes("strawberry") && name.includes("matcha")) {
@@ -145,7 +231,7 @@ export class FluxPromptBuilder {
         } else if (name.includes("mango")) {
             color = "vibrant yellow-orange";
             layers = isCold ? "thick smoothie texture" : "";
-        } else if (name.includes("latte")) {
+        } else if (name.includes("latte") && !name.includes("matcha")) {
             color = "light creamy tan";
             surfaceTexture = "latte art (heart or rosette)";
         } else if (name.includes("americano") || name.includes("espresso")) {
@@ -169,13 +255,11 @@ export class FluxPromptBuilder {
             layers = isCold ? "refreshing red tea over ice" : "";
             surfaceTexture = isCold ? "ice cubes" : "clear red surface";
             toppings = isCold ? "subtle citrus syrup swirl (no slices)" : "clean, minimal presentation";
-            if (!isCold) cupStyle = "single-wall paper takeaway cup with white lid (lid removed for photo, no glass/ceramic)";
         } else if (name.includes("water")) {
             color = "crystal clear water";
             layers = "";
             surfaceTexture = "still water surface";
             toppings = "clean, minimal presentation";
-            cupStyle = "clear plastic PET bottle or cup"; // Water usually in bottle? Or cup? User said takeaway.
         } else if (name.includes("frappe")) {
             color = "creamy blended texture";
             surfaceTexture = "high swirl of whipped cream"; // Frappe usually implies whip
@@ -183,7 +267,6 @@ export class FluxPromptBuilder {
         } else if (name.includes("turkish")) {
             color = "very dark, thick coffee";
             surfaceTexture = "thick foam (face) with bubbles";
-            cupStyle = "traditional small paper espresso cup";
         } else if (name.includes("shake") || name.includes("milkshake")) {
             color = "thick creamy milkshake texture";
             surfaceTexture = "whipped cream";
@@ -201,7 +284,9 @@ export class FluxPromptBuilder {
         // CONSTRAINT ENFORCEMENT (STRICT)
         // User requirement: NO fruit parts/slices around the cup. Only sauces/crush/toppings.
         const forbiddenConstraint =
-            "STRICT CONSTRAINTS: NO whole fruits, NO fruit slices, NO wedges, NO fruit pieces, NO berries, NO cherries, and NO raw ingredients placed around the cup. " +
+            "STRICT CONSTRAINTS: NO whole fruits, NO fruit slices, NO wedges, NO fruit pieces, NO fruit chunks/cubes (e.g., mango cubes), " +
+            "NO berries (e.g., blueberries/raspberries), NO cherries, and NO raw ingredients placed around the cup. " +
+            "NO props around the cup (no ice cubes outside, no beans, no garnish on the table). " +
             "Use ONLY sauces, purees, drizzles, crushed toppings (Ostenberg-style), crumbs, powders, and syrups integrated with the drink.";
 
         // Always append so it applies even when toppings are 'clean'
@@ -218,6 +303,6 @@ export class FluxPromptBuilder {
             }
         }
 
-        return { color, layers, toppings, cupStyle, surfaceTexture };
+        return { color, layers, toppings, cupStyle, surfaceTexture, cupDescription, cupSizeOz, customOverlay, textRules };
     }
 }

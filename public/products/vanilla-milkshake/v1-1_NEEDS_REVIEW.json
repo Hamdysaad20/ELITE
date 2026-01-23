@@ -1,0 +1,13 @@
+{
+  "slug": "vanilla-milkshake",
+  "fileName": "v1-1",
+  "reason": "Multiple critical violations detected: (1) Logo placement is slightly off-center from the red bounding box and needs adjustment; (2) The image contains forbidden fruit pieces (blueberries and sliced peach) as props near the cup, which violates content constraints; (3) The milkshake cup includes a straw, which is prohibited for product-specific checks on Vanilla Milkshakes.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1,
+    "horizontalOffset": 10,
+    "verticalOffset": -5,
+    "reason": "Logo needs to be aligned to the center of the bounding box."
+  },
+  "timestamp": "2026-01-20T22:59:55.339Z"
+}

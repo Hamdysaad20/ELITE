@@ -1,0 +1,13 @@
+{
+  "slug": "oreo-milkshake",
+  "fileName": "v1-1",
+  "reason": "The logo placement does not fully satisfy the validation criteria. While the logo is centered in the red bounding box and positioned directly on the cup, its size is smaller than the recommended range and does not sufficiently occupy the intended logo zone. Additionally, the cup has a lid, which violates content constraints.",
+  "attempts": 1,
+  "lastAdjustment": {
+    "sizeMultiplier": 1.2,
+    "horizontalOffset": 0,
+    "verticalOffset": 0,
+    "reason": "The logo should be scaled up by 20% to occupy approximately 60–95% of the red bounding box width. Additionally, the lid should be removed to comply with content constraints for a milkshake presentation."
+  },
+  "timestamp": "2026-01-20T23:00:20.264Z"
+}
