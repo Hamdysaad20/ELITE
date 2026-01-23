@@ -40,6 +40,7 @@ export class FluxPromptBuilder {
     generatePrompts(product: NormalizedProduct): PromptVariations {
         const isCold = this.isColdDrink(product);
         const isFood = this.isFoodItem(product);
+        const safeBaseName = this.sanitizePromptName(product.baseName || product.name);
 
         const mainTplName = isFood ? "food-item.txt" : (isCold ? "iced-drink.txt" : "hot-coffee.txt");
         const detailTplName = isCold ? "detail-iced.txt" : "detail-hot.txt";
@@ -48,12 +49,12 @@ export class FluxPromptBuilder {
         // Derived Visual Attributes
         const visualAttrs = this.deriveVisualAttributes(product);
         const placeholders = {
-            drinkName: product.baseName,
-            name: product.baseName, // Alias for new templates
+            drinkName: safeBaseName,
+            name: safeBaseName, // Alias for new templates
             ...visualAttrs
         };
 
-        const visualSummary = this.buildVisualSummary(product.baseName, visualAttrs, isCold);
+        const visualSummary = this.buildVisualSummary(safeBaseName, visualAttrs, isCold);
 
         return {
             main: this.fillTemplate(mainTplName, placeholders),
@@ -95,6 +96,16 @@ export class FluxPromptBuilder {
     private fillTemplate(tplName: string, data: Record<string, string>): string {
         const template = this.templateCache.get(tplName) || "";
         return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => data[key] || "");
+    }
+
+    private sanitizePromptName(name: string): string {
+        if (!name) return "";
+        let safe = String(name);
+        // Avoid blocked terms in image generation prompts (e.g., "hemp").
+        safe = safe.replace(/\bhemp\s+milk\b/gi, "seed milk");
+        safe = safe.replace(/\bhemp\s+seeds?\b/gi, "nutty seeds");
+        safe = safe.replace(/\bhemp\b/gi, "seed");
+        return safe;
     }
 
     private isColdDrink(p: NormalizedProduct): boolean {
