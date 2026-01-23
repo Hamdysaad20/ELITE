@@ -175,8 +175,9 @@ export function useLocalCart() {
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const tax = subtotal * 0.14; // 14% tax
-  const total = subtotal + tax;
+  // Online checkout pricing: customers pay the item price as-is (no added tax line in UI).
+  const tax = 0;
+  const total = subtotal;
 
   return {
     items,

@@ -125,6 +125,7 @@ export class PaymobClient {
         amount_cents: amountCents,
         currency: "EGP",
         items,
+        merchant_order_id: merchantOrderId,
       };
 
       const response = await this.axios.post<PaymobOrderResponse>(
@@ -138,16 +139,22 @@ export class PaymobClient {
 
       return response.data;
     } catch (error: unknown) {
+      const resp = (error as { response?: { status?: number; data?: unknown } })
+        ?.response;
       const message =
-        (
-          error as {
-            response?: { data?: { detail?: string } };
-            message?: string;
-          }
-        )?.response?.data?.detail ||
+        (resp as { data?: { detail?: string; message?: string } })?.data?.detail ||
+        (resp as { data?: { message?: string } })?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to create Paymob order";
-      throw new Error(`Paymob order creation error: ${message}`);
+      const details =
+        resp?.data && typeof resp.data !== "string"
+          ? JSON.stringify(resp.data)
+          : resp?.data
+            ? String(resp.data)
+            : undefined;
+      throw new Error(
+        `Paymob order creation error: ${message}${resp?.status ? ` (HTTP ${resp.status})` : ""}${details ? ` :: ${details}` : ""}`,
+      );
     }
   }
 
@@ -188,16 +195,22 @@ export class PaymobClient {
 
       return response.data.token;
     } catch (error: unknown) {
+      const resp = (error as { response?: { status?: number; data?: unknown } })
+        ?.response;
       const message =
-        (
-          error as {
-            response?: { data?: { detail?: string } };
-            message?: string;
-          }
-        )?.response?.data?.detail ||
+        (resp as { data?: { detail?: string; message?: string } })?.data?.detail ||
+        (resp as { data?: { message?: string } })?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to get payment key";
-      throw new Error(`Paymob payment key error: ${message}`);
+      const details =
+        resp?.data && typeof resp.data !== "string"
+          ? JSON.stringify(resp.data)
+          : resp?.data
+            ? String(resp.data)
+            : undefined;
+      throw new Error(
+        `Paymob payment key error: ${message}${resp?.status ? ` (HTTP ${resp.status})` : ""}${details ? ` :: ${details}` : ""}`,
+      );
     }
   }
 

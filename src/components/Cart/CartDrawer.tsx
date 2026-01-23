@@ -2,10 +2,11 @@
 
 import { X, ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useTransition, useOptimistic } from "react";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -45,6 +46,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       body.style.paddingRight = previousPaddingRight;
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onClose]);
 
   // Optimistic cart state
   const [optimisticItems, setOptimisticItems] = useOptimistic(
@@ -131,6 +143,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
       {/* Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping cart"
         className={`fixed right-0 top-0 h-full w-full sm:w-[min(480px,calc(100vw-2rem))] md:w-[min(540px,calc(100vw-2rem))] lg:w-[600px] xl:w-[640px] bg-elite-cream shadow-2xl z-[70] transform transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -205,20 +220,18 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                         {/* Image - Optimized sizing with aspect ratio */}
                         <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5 aspect-square">
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              width={112}
-                              height={112}
-                              className="w-full h-full object-cover"
-                              priority
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-elite-burgundy/5 to-elite-burgundy/10 flex items-center justify-center aspect-square">
-                              <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-elite-burgundy/20" />
-                            </div>
-                          )}
+                          <ImageWithFallback
+                            src={[
+                              ...getLocalProductImageCandidates(item.name),
+                              item.image,
+                            ].filter(Boolean) as string[]}
+                            alt={item.name}
+                            width={112}
+                            height={112}
+                            objectFit="cover"
+                            showErrorIcon={false}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
 
                         {/* Details */}
@@ -331,22 +344,27 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Footer (Totals and Checkout) - Enhanced mobile padding */}
           {items.length > 0 && (
             <div className="border-t-2 border-elite-burgundy/10 bg-white p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0 safe-area-inset-bottom">
-              <div className="space-y-2 sm:space-y-2.5 mb-5 sm:mb-6 lg:mb-8">
-                <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">
-                    {subtotal.toFixed(2)} EGP
-                  </span>
-                </div>
-                <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
-                  <span>Tax (14%)</span>
-                  <span className="font-semibold">{tax.toFixed(2)} EGP</span>
-                </div>
+              {(() => {
+                // Only show a detailed breakdown if we introduce additional pricing components in the future
+                // (e.g., taxes, fees, discounts). For now, customers pay the item price as-is.
+                const showBreakdown = tax > 0 || subtotal !== total;
+                return (
+                  <div className="space-y-2 sm:space-y-2.5 mb-5 sm:mb-6 lg:mb-8">
+                    {showBreakdown && (
+                      <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
+                        <span>Subtotal</span>
+                        <span className="font-semibold">
+                          {subtotal.toFixed(2)} EGP
+                        </span>
+                      </div>
+                    )}
                 <div className="border-t-2 border-elite-burgundy/20 pt-2 sm:pt-2.5 flex justify-between font-calistoga text-elite-burgundy text-xl sm:text-2xl lg:text-3xl">
                   <span>Total</span>
                   <span>{total.toFixed(2)} EGP</span>
                 </div>
-              </div>
+                  </div>
+                );
+              })()}
 
               <button
                 onClick={handleCheckout}

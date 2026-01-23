@@ -124,19 +124,20 @@ export default function ProductModal({
   if (!product) return null;
 
   const validImages = sanitizeImages(product.images);
+  const localImages = getLocalProductImageCandidates(product.name);
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Customize Your Order"
-      className="max-w-2xl md:max-w-3xl"
+      className="max-w-2xl md:max-w-4xl lg:max-w-5xl"
     >
       <div className="flex flex-col">
         <div className="p-4 pt-6 sm:p-6 sm:pt-8 lg:p-8">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {/* Image - Optimized for mobile with fixed aspect ratio */}
-            <div className="w-full md:w-1/3 flex-shrink-0">
+            <div className="w-full md:w-2/5 flex-shrink-0">
               <div className="relative w-full aspect-square">
                 <div className="absolute inset-0 p-2">
                   <div
@@ -145,7 +146,7 @@ export default function ProductModal({
                     )}
                   >
                     <ImageWithFallback
-                      src={validImages}
+                      src={[...localImages, ...validImages]}
                       alt={product.name}
                       className="w-full h-full object-contain sm:object-cover"
                       objectFit="cover"

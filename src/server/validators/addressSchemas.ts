@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeEgyptianMobile } from "@/lib/phone";
 
 // Validation constants - shared between FE and BE
 export const ADDRESS_VALIDATION = {
@@ -70,17 +71,15 @@ const validatePhoneCountry = (
   country: string = "Egypt",
 ): boolean => {
   if (!phone) return true;
-  const cleaned = phone.replace(/\s/g, "");
 
   if (country === "Egypt" || country === "EG" || country === "EGY") {
-    // Egyptian phone: +20 or 0 followed by 1 and 9 digits
-    return (
-      ADDRESS_VALIDATION.PHONE_EGYPT_REGEX.test(cleaned) ||
-      ADDRESS_VALIDATION.PHONE_REGEX.test(cleaned)
-    );
+    // Egyptian phone: accept common variants and normalize to canonical local form.
+    return !!normalizeEgyptianMobile(phone);
   }
 
   // Default to international format
+  // Normalize common separators so the international regex can match reliably.
+  const cleaned = phone.replace(/[\s\-\(\)]/g, "");
   return ADDRESS_VALIDATION.PHONE_REGEX.test(cleaned);
 };
 
@@ -131,29 +130,33 @@ const baseAddressSchema = z.object({
       message: "Street address contains invalid characters",
     }),
 
-  apartment: z
-    .string()
-    .min(
-      ADDRESS_VALIDATION.APARTMENT_MIN_LENGTH,
-      `Apartment must be at least ${ADDRESS_VALIDATION.APARTMENT_MIN_LENGTH} character if provided`,
-    )
-    .max(
-      ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH,
-      `Apartment must be less than ${ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH} characters`,
-    )
-    .trim()
-    .transform(sanitizeInput)
-    .refine((val) => !val || validateNoXSS(val), {
-      message: "Apartment contains invalid characters",
-    })
-    .refine((val) => !val || validateNoSQLInjection(val), {
-      message: "Apartment contains invalid characters",
-    })
-    .refine((val) => !val || ADDRESS_VALIDATION.APARTMENT_REGEX.test(val), {
-      message: "Apartment contains invalid characters",
-    })
-    .optional()
-    .nullable(),
+  apartment: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+    z
+      .string()
+      .min(
+        ADDRESS_VALIDATION.APARTMENT_MIN_LENGTH,
+        `Apartment must be at least ${ADDRESS_VALIDATION.APARTMENT_MIN_LENGTH} character if provided`,
+      )
+      .max(
+        ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH,
+        `Apartment must be less than ${ADDRESS_VALIDATION.APARTMENT_MAX_LENGTH} characters`,
+      )
+      .trim()
+      .transform(sanitizeInput)
+      .refine((val) => !val || validateNoXSS(val), {
+        message: "Apartment contains invalid characters",
+      })
+      .refine((val) => !val || validateNoSQLInjection(val), {
+        message: "Apartment contains invalid characters",
+      })
+      .refine((val) => !val || ADDRESS_VALIDATION.APARTMENT_REGEX.test(val), {
+        message: "Apartment contains invalid characters",
+      })
+      .optional()
+      .nullable(),
+  ),
 
   city: z
     .string()
@@ -175,29 +178,33 @@ const baseAddressSchema = z.object({
       message: "City name cannot contain numbers or special characters",
     }),
 
-  state: z
-    .string()
-    .min(
-      ADDRESS_VALIDATION.STATE_MIN_LENGTH,
-      `State must be at least ${ADDRESS_VALIDATION.STATE_MIN_LENGTH} characters if provided`,
-    )
-    .max(
-      ADDRESS_VALIDATION.STATE_MAX_LENGTH,
-      `State must be less than ${ADDRESS_VALIDATION.STATE_MAX_LENGTH} characters`,
-    )
-    .trim()
-    .transform(sanitizeInput)
-    .refine((val) => !val || validateNoXSS(val), {
-      message: "State contains invalid characters",
-    })
-    .refine((val) => !val || validateNoSQLInjection(val), {
-      message: "State contains invalid characters",
-    })
-    .refine((val) => !val || ADDRESS_VALIDATION.STATE_REGEX.test(val), {
-      message: "State contains invalid characters",
-    })
-    .optional()
-    .nullable(),
+  state: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+    z
+      .string()
+      .min(
+        ADDRESS_VALIDATION.STATE_MIN_LENGTH,
+        `State must be at least ${ADDRESS_VALIDATION.STATE_MIN_LENGTH} characters if provided`,
+      )
+      .max(
+        ADDRESS_VALIDATION.STATE_MAX_LENGTH,
+        `State must be less than ${ADDRESS_VALIDATION.STATE_MAX_LENGTH} characters`,
+      )
+      .trim()
+      .transform(sanitizeInput)
+      .refine((val) => !val || validateNoXSS(val), {
+        message: "State contains invalid characters",
+      })
+      .refine((val) => !val || validateNoSQLInjection(val), {
+        message: "State contains invalid characters",
+      })
+      .refine((val) => !val || ADDRESS_VALIDATION.STATE_REGEX.test(val), {
+        message: "State contains invalid characters",
+      })
+      .optional()
+      .nullable(),
+  ),
 
   country: z
     .string()
@@ -213,71 +220,83 @@ const baseAddressSchema = z.object({
     )
     .optional(),
 
-  zipCode: z
-    .string()
-    .trim()
-    .min(
-      ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH,
-      `Zip code must be at least ${ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH} characters if provided`,
-    )
-    .max(
-      ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH,
-      `Zip code must be less than ${ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH} characters`,
-    )
-    .transform(sanitizeInput)
-    .refine(
-      (val: string) =>
-        !val || val === "" || ADDRESS_VALIDATION.ZIP_REGEX.test(val),
-      {
-        message:
-          "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
-      },
-    )
-    .optional()
-    .nullable(),
+  zipCode: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+    z
+      .string()
+      .trim()
+      .min(
+        ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH,
+        `Zip code must be at least ${ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH} characters if provided`,
+      )
+      .max(
+        ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH,
+        `Zip code must be less than ${ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH} characters`,
+      )
+      .transform(sanitizeInput)
+      .refine(
+        (val: string) =>
+          !val || val === "" || ADDRESS_VALIDATION.ZIP_REGEX.test(val),
+        {
+          message:
+            "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
+        },
+      )
+      .optional()
+      .nullable(),
+  ),
 
-  phone: z
-    .string()
-    .trim()
-    .min(
-      ADDRESS_VALIDATION.PHONE_MIN_LENGTH,
-      `Phone number must be at least ${ADDRESS_VALIDATION.PHONE_MIN_LENGTH} digits if provided`,
-    )
-    .max(
-      ADDRESS_VALIDATION.PHONE_MAX_LENGTH,
-      `Phone number must be less than ${ADDRESS_VALIDATION.PHONE_MAX_LENGTH} characters`,
-    )
-    .transform(sanitizeInput)
-    .refine(
-      (val: string) =>
-        !val ||
-        val === "" ||
-        ADDRESS_VALIDATION.PHONE_REGEX.test(val.replace(/\s/g, "")),
-      { message: "Please enter a valid phone number (e.g., +20 123 456 7890)" },
-    )
-    .optional()
-    .nullable(),
+  phone: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+    z
+      .string()
+      .trim()
+      .min(
+        ADDRESS_VALIDATION.PHONE_MIN_LENGTH,
+        `Phone number must be at least ${ADDRESS_VALIDATION.PHONE_MIN_LENGTH} digits if provided`,
+      )
+      .max(
+        ADDRESS_VALIDATION.PHONE_MAX_LENGTH,
+        `Phone number must be less than ${ADDRESS_VALIDATION.PHONE_MAX_LENGTH} characters`,
+      )
+      .transform(sanitizeInput)
+      .refine(
+        (val: string) => !val || val === "" || validatePhoneCountry(val, "Egypt"),
+        {
+          message:
+            "Please enter a valid phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)",
+        },
+      )
+      .optional()
+      .nullable(),
+  ),
 
-  notes: z
-    .string()
-    .trim()
-    .min(
-      ADDRESS_VALIDATION.NOTES_MIN_LENGTH,
-      `Notes must be at least ${ADDRESS_VALIDATION.NOTES_MIN_LENGTH} character if provided`,
-    )
-    .max(
-      ADDRESS_VALIDATION.NOTES_MAX_LENGTH,
-      `Notes must be less than ${ADDRESS_VALIDATION.NOTES_MAX_LENGTH} characters`,
-    )
-    .transform(sanitizeInput)
-    .refine((val: string) => !val || validateNoXSS(val), {
-      message: "Notes contains invalid characters",
-    })
-    .refine((val: string) => !val || validateNoSQLInjection(val), {
-      message: "Notes contains invalid characters",
-    })
-    .optional()
-    .nullable(),
+  notes: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+    z
+      .string()
+      .trim()
+      .min(
+        ADDRESS_VALIDATION.NOTES_MIN_LENGTH,
+        `Notes must be at least ${ADDRESS_VALIDATION.NOTES_MIN_LENGTH} character if provided`,
+      )
+      .max(
+        ADDRESS_VALIDATION.NOTES_MAX_LENGTH,
+        `Notes must be less than ${ADDRESS_VALIDATION.NOTES_MAX_LENGTH} characters`,
+      )
+      .transform(sanitizeInput)
+      .refine((val: string) => !val || validateNoXSS(val), {
+        message: "Notes contains invalid characters",
+      })
+      .refine((val: string) => !val || validateNoSQLInjection(val), {
+        message: "Notes contains invalid characters",
+      })
+      .optional()
+      .nullable(),
+  ),
 
   isDefault: z.boolean().optional().default(false),
 });
@@ -314,24 +333,9 @@ export const addressSchema = baseAddressSchema.superRefine((data, ctx) => {
     }
   }
 
-  // Address completeness check: must have street, city, and at least one more field
-  const hasStreet = !!data.street;
-  const hasCity = !!data.city;
-  const hasAdditional = !!(
-    data.apartment ||
-    data.state ||
-    data.zipCode ||
-    data.phone
-  );
-
-  if (!hasStreet || !hasCity || !hasAdditional) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        "Address must include street, city, and at least one additional field (apartment, state, zip code, or phone)",
-      path: ["street"],
-    });
-  }
+  // Note: We intentionally do NOT enforce "completeness" here.
+  // Apartment/notes and other fields are optional; checkout/payment flows can
+  // enforce stricter requirements when needed.
 });
 
 // Schema for creating a new address (all fields required except optional ones)

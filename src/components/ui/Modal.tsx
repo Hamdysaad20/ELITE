@@ -130,7 +130,8 @@ export default function Modal({
         {/* Modal Content - Rounded design */}
         <div
           className={cn(
-            "relative w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-200",
+            // Slightly larger default on desktop; individual modals can override with className.
+            "relative w-full max-w-2xl lg:max-w-3xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-200",
             isClosing ? "opacity-0 scale-95" : "opacity-100 scale-100",
             className,
           )}

@@ -68,6 +68,8 @@ export interface PaymobOrderRequest {
   amount_cents: number;
   currency: string;
   items: PaymobOrderItem[];
+  // Used to link Paymob orders back to our system (e.g. `web-...`)
+  merchant_order_id?: string;
 }
 
 export interface PaymobOrderItem {

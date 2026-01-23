@@ -88,11 +88,22 @@ export default function AddressManager({
     setSubmitting(true);
 
     try {
+      // Normalize optional fields so empty strings don't get treated as "provided" values
+      // by backend validation (and to avoid saving empty strings in DB).
+      const payload: Partial<Address> = {
+        ...formData,
+        apartment: formData.apartment?.trim() ? formData.apartment : undefined,
+        state: formData.state?.trim() ? formData.state : undefined,
+        zipCode: formData.zipCode?.trim() ? formData.zipCode : undefined,
+        phone: formData.phone?.trim() ? formData.phone : undefined,
+        notes: formData.notes?.trim() ? formData.notes : undefined,
+      };
+
       if (editingId) {
-        await updateAddress(editingId, formData);
+        await updateAddress(editingId, payload);
         setEditingId(null);
       } else {
-        const created = await createAddress(formData);
+        const created = await createAddress(payload);
         if (created) {
           onAddressCreated?.(created);
           onSelectAddress?.(created);

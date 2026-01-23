@@ -10,6 +10,7 @@ import {
   createPaymobClient,
   isPaymobConfigured,
 } from "./paymobClient";
+import { normalizeEgyptianMobile } from "@/lib/phone";
 import {
   PaymentTransactionStatus,
   type CreatePaymentIntentRequest,
@@ -192,9 +193,10 @@ export class PaymentService {
       throw new Error("Phone number is required for online payment");
     }
 
-    // Validate phone number format (Egyptian format: starts with 0 or +20)
-    const phoneRegex = /^(\+20|0)?1[0-9]{9}$/;
-    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ""))) {
+    // Normalize Egyptian phone into a strict local format for Paymob billing data.
+    // (Paymob is strict in practice; we avoid passing "+20..." or "0020..." variants.)
+    const normalizedPhone = normalizeEgyptianMobile(phoneNumber);
+    if (!normalizedPhone) {
       throw new Error(
         "Invalid phone number format. Please use Egyptian format (e.g., 01000000000)",
       );
@@ -213,7 +215,7 @@ export class PaymentService {
       first_name: firstName,
       street: address.street,
       building: "",
-      phone_number: phoneNumber.replace(/\s/g, ""),
+      phone_number: normalizedPhone,
       shipping_method: "PKG",
       postal_code: address.zipCode || "",
       city: address.city,

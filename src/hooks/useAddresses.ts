@@ -21,6 +21,23 @@ export function useAddresses(): UseAddressesReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getErrorMessageFromResponse = async (res: Response) => {
+    try {
+      const json = await res.json();
+      if (json?.errors && Array.isArray(json.errors) && json.errors.length > 0) {
+        // API returns { error: "Validation failed", errors: [{field,message}, ...] }
+        const first = json.errors[0];
+        if (first?.field && first?.message) return `${first.field}: ${first.message}`;
+        if (first?.message) return String(first.message);
+      }
+      if (json?.error) return String(json.error);
+      if (json?.message) return String(json.message);
+    } catch {
+      // ignore JSON parse errors
+    }
+    return `Request failed (${res.status})`;
+  };
+
   const fetchAddresses = useCallback(async () => {
     try {
       setLoading(true);
@@ -61,7 +78,7 @@ export function useAddresses(): UseAddressesReturn {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to create address");
+        throw new Error(await getErrorMessageFromResponse(res));
       }
 
       const json = await res.json();
@@ -89,7 +106,7 @@ export function useAddresses(): UseAddressesReturn {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to update address");
+        throw new Error(await getErrorMessageFromResponse(res));
       }
 
       const json = await res.json();
@@ -112,7 +129,7 @@ export function useAddresses(): UseAddressesReturn {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete address");
+        throw new Error(await getErrorMessageFromResponse(res));
       }
 
       await fetchAddresses(); // Refetch to update list
@@ -133,7 +150,7 @@ export function useAddresses(): UseAddressesReturn {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to set default address");
+        throw new Error(await getErrorMessageFromResponse(res));
       }
 
       await fetchAddresses(); // Refetch to update list
