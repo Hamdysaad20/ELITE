@@ -17,6 +17,9 @@
 import { startOdooWorker } from "./odooSync";
 import { createOdooQueueEvents } from "@/server/queue/odooQueue";
 
+const GLOBAL_ODOO_HANDLERS_KEY = "__elite_odooWorkerShutdownHandlersAttached";
+const GLOBAL_ODOO_AUTOINIT_KEY = "__elite_odooWorkerAutoInitScheduled";
+
 let workerStarted = false;
 let worker: ReturnType<typeof startOdooWorker> | null = null;
 let lockAcquired = false;
@@ -204,7 +207,12 @@ async function shutdownWorker(): Promise<void> {
  * Attach shutdown handlers (only once)
  */
 function attachShutdownHandlers(): void {
-  if (shutdownHandlersAttached) {
+  if (
+    shutdownHandlersAttached ||
+    ((globalThis as unknown as Record<string, unknown>)[GLOBAL_ODOO_HANDLERS_KEY] ===
+      true)
+  ) {
+    shutdownHandlersAttached = true;
     return;
   }
 
@@ -234,6 +242,7 @@ function attachShutdownHandlers(): void {
     // Don't exit on unhandled rejection, just log
   });
 
+  (globalThis as unknown as Record<string, unknown>)[GLOBAL_ODOO_HANDLERS_KEY] = true;
   shutdownHandlersAttached = true;
 }
 
@@ -322,23 +331,28 @@ if (
   typeof process !== "undefined" &&
   process.env
 ) {
-  // Use setImmediate to avoid blocking module loading
-  // In serverless, this will run on first API call
-  setImmediate(async () => {
-    // Auto-start worker:
-    // - In traditional hosting: Always start
-    // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
-    // - Can be disabled by setting ENABLE_ODOO_WORKER=false
-    const shouldStart = process.env.ENABLE_ODOO_WORKER !== "false";
+  // In dev with HMR, this module can be evaluated multiple times; avoid scheduling auto-init repeatedly.
+  const g = globalThis as unknown as Record<string, unknown>;
+  if (g[GLOBAL_ODOO_AUTOINIT_KEY] !== true) {
+    g[GLOBAL_ODOO_AUTOINIT_KEY] = true;
+    // Use setImmediate to avoid blocking module loading
+    // In serverless, this will run on first API call
+    setImmediate(async () => {
+      // Auto-start worker:
+      // - In traditional hosting: Always start
+      // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
+      // - Can be disabled by setting ENABLE_ODOO_WORKER=false
+      const shouldStart = process.env.ENABLE_ODOO_WORKER !== "false";
 
-    if (shouldStart) {
-      await initializeOdooWorker();
-    } else {
-      console.log(
-        "[odoo-worker] Auto-start disabled (ENABLE_ODOO_WORKER=false)",
-      );
-    }
-  });
+      if (shouldStart) {
+        await initializeOdooWorker();
+      } else {
+        console.log(
+          "[odoo-worker] Auto-start disabled (ENABLE_ODOO_WORKER=false)",
+        );
+      }
+    });
+  }
 }
 
 // Export shutdown function for manual cleanup if needed

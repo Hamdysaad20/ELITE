@@ -17,6 +17,10 @@
 import { startPointsRetryWorker } from "./gamification/pointsRetry";
 import { createPointsRetryQueueEvents } from "@/server/queue/pointsQueue";
 
+const GLOBAL_POINTS_HANDLERS_KEY =
+  "__elite_pointsRetryWorkerShutdownHandlersAttached";
+const GLOBAL_POINTS_AUTOINIT_KEY = "__elite_pointsRetryWorkerAutoInitScheduled";
+
 let workerStarted = false;
 let worker: ReturnType<typeof startPointsRetryWorker> | null = null;
 let lockAcquired = false;
@@ -207,7 +211,13 @@ async function shutdownWorker(): Promise<void> {
  * Attach shutdown handlers (only once)
  */
 function attachShutdownHandlers(): void {
-  if (shutdownHandlersAttached) {
+  if (
+    shutdownHandlersAttached ||
+    ((globalThis as unknown as Record<string, unknown>)[
+      GLOBAL_POINTS_HANDLERS_KEY
+    ] === true)
+  ) {
+    shutdownHandlersAttached = true;
     return;
   }
 
@@ -237,6 +247,8 @@ function attachShutdownHandlers(): void {
     // Don't exit on unhandled rejection, just log
   });
 
+  (globalThis as unknown as Record<string, unknown>)[GLOBAL_POINTS_HANDLERS_KEY] =
+    true;
   shutdownHandlersAttached = true;
 }
 
@@ -333,23 +345,28 @@ if (
   typeof process !== "undefined" &&
   process.env
 ) {
-  // Use setImmediate to avoid blocking module loading
-  // In serverless, this will run on first API call
-  setImmediate(async () => {
-    // Auto-start worker:
-    // - In traditional hosting: Always start
-    // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
-    // - Can be disabled by setting ENABLE_POINTS_RETRY_WORKER=false
-    const shouldStart = process.env.ENABLE_POINTS_RETRY_WORKER !== "false";
+  // In dev with HMR, this module can be evaluated multiple times; avoid scheduling auto-init repeatedly.
+  const g = globalThis as unknown as Record<string, unknown>;
+  if (g[GLOBAL_POINTS_AUTOINIT_KEY] !== true) {
+    g[GLOBAL_POINTS_AUTOINIT_KEY] = true;
+    // Use setImmediate to avoid blocking module loading
+    // In serverless, this will run on first API call
+    setImmediate(async () => {
+      // Auto-start worker:
+      // - In traditional hosting: Always start
+      // - In serverless (Vercel): Start with distributed locking (only one instance runs worker)
+      // - Can be disabled by setting ENABLE_POINTS_RETRY_WORKER=false
+      const shouldStart = process.env.ENABLE_POINTS_RETRY_WORKER !== "false";
 
-    if (shouldStart) {
-      await initializePointsRetryWorker();
-    } else {
-      console.log(
-        "[points-retry-worker] Auto-start disabled (ENABLE_POINTS_RETRY_WORKER=false)",
-      );
-    }
-  });
+      if (shouldStart) {
+        await initializePointsRetryWorker();
+      } else {
+        console.log(
+          "[points-retry-worker] Auto-start disabled (ENABLE_POINTS_RETRY_WORKER=false)",
+        );
+      }
+    });
+  }
 }
 
 // Export shutdown function for manual cleanup if needed

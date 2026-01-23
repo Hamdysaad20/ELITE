@@ -57,8 +57,8 @@ if (
   console.error("Please set NEXTAUTH_SECRET in your environment variables.");
 }
 
-// Log email configuration status at startup
-if (typeof window === "undefined") {
+// Log email configuration status only in development to avoid noisy build/prod logs.
+if (typeof window === "undefined" && process.env.NODE_ENV === "development") {
   console.log("📧 Email Configuration Check:");
   console.log("  EMAIL_SERVER_HOST:", EMAIL_SERVER_HOST ? "✅" : "❌ MISSING");
   console.log("  EMAIL_SERVER_PORT:", EMAIL_SERVER_PORT);
