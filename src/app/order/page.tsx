@@ -138,7 +138,7 @@ export default function OrderPage() {
   const needsAddressForPayment = isOnlinePayment;
   const hasAuthForOnlinePayment = Boolean(session?.user?.email);
   const hasPhoneForOnlinePayment = Boolean(
-    selectedAddress?.phone || session?.user?.phone,
+    selectedAddress?.phone,
   );
 
   // Auto-select default address when switching to delivery or online payment

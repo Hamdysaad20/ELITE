@@ -271,7 +271,6 @@ export class OdooClient {
       id: number;
       name: string;
       list_price: number;
-      combo_line_ids?: number[]; // Choice set line IDs
     }>
   > {
     try {
@@ -279,7 +278,6 @@ export class OdooClient {
         id: number;
         name: string;
         list_price: number;
-        combo_line_ids?: number[];
       }>(
         "product.template",
         [
@@ -287,7 +285,9 @@ export class OdooClient {
           ["sale_ok", "=", true],
           ["active", "=", true],
         ],
-        ["id", "name", "list_price", "combo_line_ids"],
+        // Some Odoo deployments don't expose `combo_line_ids` on product.template.
+        // We don't need it anyway because we fetch combo items from `product.combo.line`.
+        ["id", "name", "list_price"],
       );
       return combos || [];
     } catch (error) {
