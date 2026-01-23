@@ -30,6 +30,11 @@ interface DrinkCardProps {
   categoryId?: string;
   onQuickAdd?: () => void;
   animationDelay?: number;
+  /**
+   * Cache-buster for local `/public/products/<slug>/v1-1.png` images.
+   * This avoids Next.js image optimizer serving a stale cached transform after we regenerate assets.
+   */
+  imageVersion?: string | null;
   // Deal-specific props
   dealInfo?: DealInfo;
   isDealsPage?: boolean; // If true, show deal details inside card
@@ -74,6 +79,7 @@ export default function DrinkCard({
   categoryId,
   onQuickAdd,
   animationDelay = 0,
+  imageVersion = null,
   dealInfo,
   isDealsPage = false,
 }: DrinkCardProps) {
@@ -105,7 +111,8 @@ export default function DrinkCard({
   if (name) {
     const slug = slugify(extractBaseName(name));
     // Default to v1-1 (Main Shot)
-    const localImage = `/products/${slug}/v1-1.png`;
+    const v = imageVersion ? encodeURIComponent(imageVersion) : "";
+    const localImage = `/products/${slug}/v1-1.png${v ? `?v=${v}` : ""}`;
     // Prepend to list so it is tried first.
     // ImageWithFallback will skip it if it 404s (doesn't exist) thanks to our update.
     displayImages = [localImage, ...validImages];

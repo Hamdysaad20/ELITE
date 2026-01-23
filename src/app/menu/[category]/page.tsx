@@ -74,6 +74,7 @@ export default function CategoryPage() {
     loading: productsLoading,
     error: productsError,
     refetch: refetchProducts,
+    lastUpdate: productsLastUpdate,
   } = useProducts();
 
   const loading = categoriesLoading || productsLoading;
@@ -499,6 +500,7 @@ export default function CategoryPage() {
                                         menuItemId={item.id}
                                         showAddToOrder={true}
                                         categoryId={category.id}
+                                        imageVersion={productsLastUpdate}
                                         animationDelay={itemIndex * 40}
                                         onQuickAdd={() => {
                                           const product = (

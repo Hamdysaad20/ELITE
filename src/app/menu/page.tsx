@@ -49,6 +49,7 @@ export default function MenuPage() {
     error: productsError,
     refetch: refetchProducts,
     isEmpty: productsEmpty,
+    lastUpdate: productsLastUpdate,
   } = useProducts();
 
   const loading = categoriesLoading || productsLoading;
@@ -393,6 +394,7 @@ export default function MenuPage() {
                                               menuItemId={item.id}
                                               showAddToOrder={true}
                                               categoryId={category.id}
+                                              imageVersion={productsLastUpdate}
                                               animationDelay={
                                                 catIndex * 100 + idx * 30
                                               }
@@ -508,6 +510,7 @@ export default function MenuPage() {
                                                   menuItemId={item.id}
                                                   showAddToOrder={true}
                                                   categoryId={category.id}
+                                                  imageVersion={productsLastUpdate}
                                                   animationDelay={idx * 30}
                                                   onQuickAdd={() => {
                                                     const product =
