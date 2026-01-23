@@ -207,24 +207,24 @@ export default function Footer() {
               © 2025 Elite Coffee. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <a
-                href="#"
+              <Link
+                href="/privacy-policy"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
                 Privacy Policy
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/terms-of-service"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
                 Terms of Service
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/cookie-policy"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
                 Cookie Policy
-              </a>
+              </Link>
             </div>
           </div>
         </div>
