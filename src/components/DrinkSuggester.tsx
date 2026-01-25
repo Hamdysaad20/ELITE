@@ -9,6 +9,7 @@ import { Button, Input, LoadingOverlay } from "@/components/ui";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ShoppingCart } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
+import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
 
 const FormField = ({
   label,
@@ -27,6 +28,7 @@ export default function DrinkSuggester() {
   const { loading, error, result, suggest } = useDrinkSuggestion();
   const { addToCart } = useCart();
   const { orderingEnabled } = useOrdering();
+  const { addItem: addLocalItem } = useLocalCart();
   const [prefs, setPrefs] = useState<DrinkPreferences>({
     temperature: "either",
     caffeine: "medium",
@@ -49,19 +51,50 @@ export default function DrinkSuggester() {
 
   const handleAddToCart = useCallback(
     async (
-      item: { id: string; flavors?: { name: string }[] },
+      item: {
+        id: string;
+        name?: string;
+        price?: number;
+        images?: string[];
+        flavors?: { name: string }[];
+      },
       size: string | undefined,
       suggestedFlavor: string | undefined,
     ) => {
-      if (!orderingEnabled) return;
       const flavor = item.flavors?.some(
         (f: { name: string }) => f.name === suggestedFlavor,
       )
         ? suggestedFlavor
         : undefined;
+
+      if (!orderingEnabled) {
+        const attributes: LocalCartItem["attributes"] = {};
+        if (size) {
+          attributes.Size = [
+            { valueId: 0, valueName: size, priceExtra: 0 },
+          ];
+        }
+        if (flavor) {
+          attributes.Flavor = [
+            { valueId: 0, valueName: flavor, priceExtra: 0 },
+          ];
+        }
+        const basePrice = typeof item.price === "number" ? item.price : 0;
+        addLocalItem({
+          productId: item.id,
+          name: item.name || "Saved item",
+          basePrice,
+          quantity: 1,
+          attributes,
+          totalPrice: basePrice,
+          image: item.images?.[0],
+        });
+        return;
+      }
+
       await addToCart(item.id, 1, { size, flavor });
     },
-    [addToCart, orderingEnabled],
+    [addToCart, addLocalItem, orderingEnabled],
   );
 
   return (
@@ -222,12 +255,7 @@ export default function DrinkSuggester() {
                   <Button
                     variant="primary"
                     size="sm"
-                    leftIcon={
-                      orderingEnabled ? (
-                        <ShoppingCart className="w-3 h-3" />
-                      ) : undefined
-                    }
-                    disabled={!orderingEnabled}
+                    leftIcon={<ShoppingCart className="w-3 h-3" />}
                     onClick={() =>
                       handleAddToCart(
                         result.recommendation.item,
@@ -236,7 +264,7 @@ export default function DrinkSuggester() {
                       )
                     }
                   >
-                    {orderingEnabled ? "Add to Cart" : "Ordering Paused"}
+                    {orderingEnabled ? "Add to Cart" : "Save for later"}
                   </Button>
                 </div>
               </div>
@@ -269,7 +297,6 @@ export default function DrinkSuggester() {
                         <Button
                           variant="secondary"
                           size="sm"
-                          disabled={!orderingEnabled}
                           onClick={() =>
                             handleAddToCart(
                               alt.item,
@@ -278,7 +305,7 @@ export default function DrinkSuggester() {
                             )
                           }
                         >
-                          {orderingEnabled ? "Add" : "Ordering Paused"}
+                          {orderingEnabled ? "Add" : "Save"}
                         </Button>
                       </div>
                     </li>

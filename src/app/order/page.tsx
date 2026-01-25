@@ -35,6 +35,7 @@ import {
   Coffee,
 } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import { SUPPORT_MESSENGER_URL } from "@/lib/support";
 
 function OrderPageContent() {
   const { data: session } = useSession();
@@ -151,6 +152,10 @@ function OrderPageContent() {
     "Online ordering is temporarily unavailable. Please try again later.";
   const isCheckoutEnabled =
     orderingEnabled && checkoutConfig.enabledPaymentMethods.length > 0;
+  const pageTitle = orderingEnabled ? "Your Order" : "Saved Items";
+  const pageSubtitle = orderingEnabled
+    ? "Review your items and complete checkout"
+    : "Save your favorites while online ordering is paused";
 
   const isOnlinePayment =
     paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET;
@@ -494,7 +499,7 @@ function OrderPageContent() {
                 Menu
               </Link>
               <ChevronRight className="w-4 h-4" />
-              <span className="font-semibold font-cabin">Your Order</span>
+              <span className="font-semibold font-cabin">{pageTitle}</span>
             </div>
 
             {/* Page Header - Big text, fully rounded icon */}
@@ -504,10 +509,10 @@ function OrderPageContent() {
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="font-calistoga text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 sm:mb-3">
-                  Your Order
+                  {pageTitle}
                 </h1>
                 <p className="font-cabin text-elite-cream/90 text-base sm:text-lg md:text-xl hidden sm:block">
-                  Review your items and complete checkout
+                  {pageSubtitle}
                 </p>
               </div>
             </div>
@@ -517,106 +522,128 @@ function OrderPageContent() {
         {/* Main Content - Menu page spacing, prevent overflow on mobile */}
         <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12 lg:pt-32 overflow-x-hidden">
           {/* Checkout progress */}
-          <div className="mb-4 sm:mb-6">
-            <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
-                      stepCartDone
-                        ? "bg-emerald-600 text-white"
-                        : "bg-elite-cream text-elite-burgundy"
-                    }`}
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
-                      Cart
+          {orderingEnabled ? (
+            <div className="mb-4 sm:mb-6">
+              <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                        stepCartDone
+                          ? "bg-emerald-600 text-white"
+                          : "bg-elite-cream text-elite-burgundy"
+                      }`}
+                    >
+                      <ShoppingBag className="w-5 h-5" />
                     </div>
-                    <div className="font-cabin text-elite-black/60 text-xs truncate">
-                      {itemCount} items
+                    <div className="min-w-0">
+                      <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                        Cart
+                      </div>
+                      <div className="font-cabin text-elite-black/60 text-xs truncate">
+                        {itemCount} items
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        stepDetailsDone
+                          ? "w-2/3 bg-elite-burgundy"
+                          : "w-1/3 bg-elite-burgundy"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                        stepDetailsDone
+                          ? "bg-emerald-600 text-white"
+                          : "bg-elite-cream text-elite-burgundy"
+                      }`}
+                    >
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 hidden sm:block">
+                      <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                        Details
+                      </div>
+                      <div className="font-cabin text-elite-black/60 text-xs truncate">
+                        {orderType === "DELIVERY" ? "Delivery" : "Pickup"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden hidden sm:block">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        stepPaymentReady
+                          ? "w-full bg-elite-burgundy"
+                          : "w-1/2 bg-elite-burgundy"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
+                        stepPaymentReady
+                          ? "bg-emerald-600 text-white"
+                          : "bg-elite-cream text-elite-burgundy"
+                      }`}
+                    >
+                      <CreditCard className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 hidden sm:block">
+                      <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
+                        Payment
+                      </div>
+                      <div className="font-cabin text-elite-black/60 text-xs truncate">
+                        {paymentMethod}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      stepDetailsDone ? "w-2/3 bg-elite-burgundy" : "w-1/3 bg-elite-burgundy"
-                    }`}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
-                      stepDetailsDone
-                        ? "bg-emerald-600 text-white"
-                        : "bg-elite-cream text-elite-burgundy"
-                    }`}
-                  >
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 hidden sm:block">
-                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
-                      Details
+                {isOnlinePayment &&
+                  (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
+                    <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                      <p className="font-cabin text-amber-900 text-sm">
+                        Online payment needs sign-in + an address with a valid phone
+                        number.
+                      </p>
                     </div>
-                    <div className="font-cabin text-elite-black/60 text-xs truncate">
-                      {orderType === "DELIVERY" ? "Delivery" : "Pickup"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden hidden sm:block">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      stepPaymentReady ? "w-full bg-elite-burgundy" : "w-1/2 bg-elite-burgundy"
-                    }`}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow ${
-                      stepPaymentReady
-                        ? "bg-emerald-600 text-white"
-                        : "bg-elite-cream text-elite-burgundy"
-                    }`}
-                  >
-                    <CreditCard className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 hidden sm:block">
-                    <div className="font-calistoga text-elite-black text-sm sm:text-base truncate">
-                      Payment
-                    </div>
-                    <div className="font-cabin text-elite-black/60 text-xs truncate">
-                      {paymentMethod}
-                    </div>
-                  </div>
-                </div>
+                  )}
               </div>
-
-              {!orderingEnabled && (
-                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
-                  <p className="font-cabin text-amber-900 text-sm">
-                    {checkoutDisabledMessage}
-                  </p>
-                </div>
-              )}
-              {orderingEnabled &&
-                isOnlinePayment &&
-                (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
-                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
-                  <p className="font-cabin text-amber-900 text-sm">
-                    Online payment needs sign-in + an address with a valid phone number.
-                  </p>
-                </div>
-              )}
             </div>
-          </div>
+          ) : (
+            <div className="mb-4 sm:mb-6">
+              <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-amber-700 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-calistoga text-amber-900 text-lg">
+                      Ordering paused
+                    </p>
+                    <p className="font-cabin text-amber-900/80 text-sm">
+                      {checkoutDisabledMessage} Your items are saved here.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={SUPPORT_MESSENGER_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-amber-100 text-amber-900 text-sm font-cabin font-semibold hover:bg-amber-200 transition-colors"
+                >
+                  Get updates
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Pending payment callout (order created but payment not started) */}
           {pendingPaymentOrder && (
@@ -749,8 +776,12 @@ function OrderPageContent() {
           {!cart || cart.items.length === 0 ? (
             <EmptyState
               variant="no-products"
-              title="Your cart is empty"
-              description="Explore our menu and add some delicious drinks!"
+              title={orderingEnabled ? "Your cart is empty" : "No saved items yet"}
+              description={
+                orderingEnabled
+                  ? "Explore our menu and add some delicious drinks!"
+                  : "Save favorites from the menu while ordering is paused."
+              }
               actionLabel="Browse Menu"
               actionHref="/menu"
             />
@@ -764,7 +795,7 @@ function OrderPageContent() {
                       <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold flex items-center gap-1.5 sm:gap-2 md:gap-3 min-w-0">
                         <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" />
                         <span className="tabular-nums truncate">
-                          Cart ({itemCount})
+                          {orderingEnabled ? "Cart" : "Saved Items"} ({itemCount})
                         </span>
                       </h2>
                       {/* Reserved space for loading indicator to prevent layout shift */}
@@ -886,270 +917,275 @@ function OrderPageContent() {
                 </div>
 
                 {/* Order Type Selection - Menu page style: fully rounded, big text, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
-                  <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
-                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
-                    <span className="truncate">Order Type</span>
-                  </h2>
-                  <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
-                    <label
-                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
-                        orderType === "PICKUP"
-                          ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
-                          : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        value="PICKUP"
-                        checked={orderType === "PICKUP"}
-                        onChange={() => setOrderType("PICKUP" as OrderType)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                {orderingEnabled && (
+                  <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
+                    <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                      <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
+                      <span className="truncate">Order Type</span>
+                    </h2>
+                    <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
+                      <label
+                        className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
                           orderType === "PICKUP"
-                            ? "bg-elite-burgundy text-elite-cream"
-                            : "bg-elite-cream text-elite-burgundy"
+                            ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
+                            : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
                         }`}
                       >
-                        <Store className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
-                      </div>
-                      <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
-                          Pickup
+                        <input
+                          type="radio"
+                          value="PICKUP"
+                          checked={orderType === "PICKUP"}
+                          onChange={() => setOrderType("PICKUP" as OrderType)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                            orderType === "PICKUP"
+                              ? "bg-elite-burgundy text-elite-cream"
+                              : "bg-elite-cream text-elite-burgundy"
+                          }`}
+                        >
+                          <Store className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                         </div>
-                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
-                          Free
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                            Pickup
+                          </div>
+                          <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
+                            Free
+                          </div>
                         </div>
-                      </div>
-                      <Check
-                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
-                          orderType === "PICKUP"
-                            ? "text-elite-burgundy opacity-100"
-                            : "text-elite-burgundy opacity-0"
-                        }`}
-                        aria-hidden={orderType !== "PICKUP"}
-                      />
-                    </label>
+                        <Check
+                          className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
+                            orderType === "PICKUP"
+                              ? "text-elite-burgundy opacity-100"
+                              : "text-elite-burgundy opacity-0"
+                          }`}
+                          aria-hidden={orderType !== "PICKUP"}
+                        />
+                      </label>
 
-                    <label
-                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
-                        orderType === "DELIVERY"
-                          ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
-                          : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        value="DELIVERY"
-                        checked={orderType === "DELIVERY"}
-                        onChange={() => setOrderType("DELIVERY" as OrderType)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                      <label
+                        className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
                           orderType === "DELIVERY"
-                            ? "bg-elite-burgundy text-elite-cream"
-                            : "bg-elite-cream text-elite-burgundy"
+                            ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
+                            : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
                         }`}
                       >
-                        <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
-                      </div>
-                      <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
-                          Delivery
+                        <input
+                          type="radio"
+                          value="DELIVERY"
+                          checked={orderType === "DELIVERY"}
+                          onChange={() => setOrderType("DELIVERY" as OrderType)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                            orderType === "DELIVERY"
+                              ? "bg-elite-burgundy text-elite-cream"
+                              : "bg-elite-cream text-elite-burgundy"
+                          }`}
+                        >
+                          <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                         </div>
-                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
-                          {checkoutConfig.deliveryFee.toFixed(2)} EGP
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                            Delivery
+                          </div>
+                          <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
+                            {checkoutConfig.deliveryFee.toFixed(2)} EGP
+                          </div>
                         </div>
-                      </div>
-                      <Check
-                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
-                          orderType === "DELIVERY"
-                            ? "text-elite-burgundy opacity-100"
-                            : "text-elite-burgundy opacity-0"
-                        }`}
-                        aria-hidden={orderType !== "DELIVERY"}
-                      />
-                    </label>
+                        <Check
+                          className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
+                            orderType === "DELIVERY"
+                              ? "text-elite-burgundy opacity-100"
+                              : "text-elite-burgundy opacity-0"
+                          }`}
+                          aria-hidden={orderType !== "DELIVERY"}
+                        />
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Payment Method - Menu page style: fully rounded, big text, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
-                  <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
-                    <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
-                    <span className="truncate">Payment</span>
-                  </h2>
+                {orderingEnabled && (
+                  <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
+                    <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
+                      <span className="truncate">Payment</span>
+                    </h2>
 
-                  {!isCheckoutEnabled ? (
-                    <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 flex items-start gap-3">
-                      <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-calistoga text-amber-900 text-lg">
-                          {orderingEnabled
-                            ? "Online ordering unavailable"
-                            : "Ordering paused"}
-                        </p>
-                        <p className="font-cabin text-amber-800">
-                          {checkoutDisabledMessage}
-                        </p>
+                    {!isCheckoutEnabled ? (
+                      <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+                        <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-calistoga text-amber-900 text-lg">
+                            Online ordering unavailable
+                          </p>
+                          <p className="font-cabin text-amber-800">
+                            {checkoutDisabledMessage}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
-                      {/* Online-only payment methods */}
-                      {checkoutConfig.enabledPaymentMethods.map((m) => {
-                        const isSelected = paymentMethod === m;
-                        const icon =
-                          m === PaymentMethod.WALLET ? (
-                            <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />
-                          ) : (
-                            <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
-                          );
-                        const label = m === PaymentMethod.WALLET ? "Wallet" : "Card";
-                        const desc =
-                          m === PaymentMethod.WALLET
-                            ? "Mobile wallet"
-                            : "Credit/Debit";
+                    ) : (
+                      <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
+                        {/* Online-only payment methods */}
+                        {checkoutConfig.enabledPaymentMethods.map((m) => {
+                          const isSelected = paymentMethod === m;
+                          const icon =
+                            m === PaymentMethod.WALLET ? (
+                              <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />
+                            ) : (
+                              <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
+                            );
+                          const label =
+                            m === PaymentMethod.WALLET ? "Wallet" : "Card";
+                          const desc =
+                            m === PaymentMethod.WALLET
+                              ? "Mobile wallet"
+                              : "Credit/Debit";
 
-                        return (
-                          <label
-                            key={m}
-                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation ${
-                              isSelected
-                                ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
-                                : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              className="sr-only"
-                              checked={isSelected}
-                              onChange={() => setPaymentMethod(m)}
-                              disabled={submitting}
-                            />
-                            <div
-                              className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                          return (
+                            <label
+                              key={m}
+                              className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation ${
                                 isSelected
-                                  ? "bg-elite-burgundy text-elite-cream"
-                                  : "bg-elite-cream text-elite-burgundy"
+                                  ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
+                                  : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
                               }`}
                             >
-                              {icon}
-                            </div>
-                            <div className="flex-1 min-w-0 overflow-hidden">
-                              <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
-                                {label}
+                              <input
+                                type="radio"
+                                className="sr-only"
+                                checked={isSelected}
+                                onChange={() => setPaymentMethod(m)}
+                                disabled={submitting}
+                              />
+                              <div
+                                className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                                  isSelected
+                                    ? "bg-elite-burgundy text-elite-cream"
+                                    : "bg-elite-cream text-elite-burgundy"
+                                }`}
+                              >
+                                {icon}
                               </div>
-                              <div className="font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 text-elite-black/60">
-                                {desc}
+                              <div className="flex-1 min-w-0 overflow-hidden">
+                                <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
+                                  {label}
+                                </div>
+                                <div className="font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 text-elite-black/60">
+                                  {desc}
+                                </div>
                               </div>
-                            </div>
-                            <Check
-                              className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
-                                isSelected
-                                  ? "text-elite-burgundy opacity-100"
-                                  : "text-elite-burgundy opacity-0"
-                              }`}
-                              aria-hidden={!isSelected}
-                            />
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                              <Check
+                                className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
+                                  isSelected
+                                    ? "text-elite-burgundy opacity-100"
+                                    : "text-elite-burgundy opacity-0"
+                                }`}
+                                aria-hidden={!isSelected}
+                              />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Delivery Address Selection - Menu page style, reserved space to prevent layout shift, prevent overflow */}
-                <div
-                  className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 transition-all duration-300 min-h-[120px] md:min-h-[200px] overflow-hidden ${
-                    orderType === "DELIVERY" || needsAddressForPayment
-                      ? "opacity-100"
-                      : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  {(orderType === "DELIVERY" || needsAddressForPayment) && (
-                    <>
-                      <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
-                        <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
-                        <span className="truncate">
-                          {orderType === "DELIVERY"
-                            ? "Delivery Address"
-                            : "Billing Address"}
-                        </span>
-                      </h2>
+                {orderingEnabled && (
+                  <div
+                    className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 transition-all duration-300 min-h-[120px] md:min-h-[200px] overflow-hidden ${
+                      orderType === "DELIVERY" || needsAddressForPayment
+                        ? "opacity-100"
+                        : "opacity-0 pointer-events-none"
+                    }`}
+                  >
+                    {(orderType === "DELIVERY" || needsAddressForPayment) && (
+                      <>
+                        <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
+                          <span className="truncate">
+                            {orderType === "DELIVERY"
+                              ? "Delivery Address"
+                              : "Billing Address"}
+                          </span>
+                        </h2>
 
-                      {/* Reserved space for empty state to prevent layout shift */}
-                      <div className="min-h-[60px]">
-                        {addresses.length === 0 ? (
-                          <div className="bg-elite-cream/50 border-2 border-dashed border-elite-burgundy/30 rounded-3xl p-4 sm:p-5 text-center">
-                            <p className="font-cabin text-elite-black/70 text-sm sm:text-base">
-                              No addresses saved. Add one to continue.
-                            </p>
-                          </div>
-                        ) : (
-                          <AddressManager
-                            onSelectAddress={setSelectedAddress}
-                            selectedAddressId={selectedAddress?.id}
-                            compact
-                            allowAddInSelectMode
-                          />
-                        )}
-                      </div>
-
-                      {addresses.length === 0 && (
-                        <div className="mt-4">
-                          <AddressManager
-                            onSelectAddress={setSelectedAddress}
-                            selectedAddressId={selectedAddress?.id}
-                            compact
-                            allowAddInSelectMode
-                          />
+                        {/* Reserved space for empty state to prevent layout shift */}
+                        <div className="min-h-[60px]">
+                          {addresses.length === 0 ? (
+                            <div className="bg-elite-cream/50 border-2 border-dashed border-elite-burgundy/30 rounded-3xl p-4 sm:p-5 text-center">
+                              <p className="font-cabin text-elite-black/70 text-sm sm:text-base">
+                                No addresses saved. Add one to continue.
+                              </p>
+                            </div>
+                          ) : (
+                            <AddressManager
+                              onSelectAddress={setSelectedAddress}
+                              selectedAddressId={selectedAddress?.id}
+                              compact
+                              allowAddInSelectMode
+                            />
+                          )}
                         </div>
-                      )}
 
-                      {/* Reserved space for warning message */}
-                      <div className="min-h-[50px] mt-4">
-                        {!selectedAddress && addresses.length > 0 && (
-                          <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <p className="font-cabin text-amber-900 text-sm sm:text-base">
-                              Please select an address
-                            </p>
+                        {addresses.length === 0 && (
+                          <div className="mt-4">
+                            <AddressManager
+                              onSelectAddress={setSelectedAddress}
+                              selectedAddressId={selectedAddress?.id}
+                              compact
+                              allowAddInSelectMode
+                            />
                           </div>
                         )}
-                        {isOnlinePayment &&
-                          selectedAddress &&
-                          !hasPhoneForOnlinePayment && (
+
+                        {/* Reserved space for warning message */}
+                        <div className="min-h-[50px] mt-4">
+                          {!selectedAddress && addresses.length > 0 && (
                             <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
                               <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
                               <p className="font-cabin text-amber-900 text-sm sm:text-base">
-                                Add a valid phone number to this address to pay
-                                online.
+                                Please select an address
                               </p>
                             </div>
                           )}
-                        {isOnlinePayment && !hasAuthForOnlinePayment && (
-                          <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <p className="font-cabin text-amber-900 text-sm sm:text-base">
-                              Please{" "}
-                              <Link
-                                href="/auth/signin?callbackUrl=%2Forder"
-                                className="underline font-semibold"
-                              >
-                                sign in
-                              </Link>{" "}
-                              to pay online.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
+                          {isOnlinePayment &&
+                            selectedAddress &&
+                            !hasPhoneForOnlinePayment && (
+                              <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                                <p className="font-cabin text-amber-900 text-sm sm:text-base">
+                                  Add a valid phone number to this address to pay
+                                  online.
+                                </p>
+                              </div>
+                            )}
+                          {isOnlinePayment && !hasAuthForOnlinePayment && (
+                            <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
+                              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                              <p className="font-cabin text-amber-900 text-sm sm:text-base">
+                                Please{" "}
+                                <Link
+                                  href="/auth/signin?callbackUrl=%2Forder"
+                                  className="underline font-semibold"
+                                >
+                                  sign in
+                                </Link>{" "}
+                                to pay online.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Order Summary & Actions - Menu page style: fully rounded, big text, adjusted sticky position */}
@@ -1158,7 +1194,9 @@ function OrderPageContent() {
                 <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
                   <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     <Receipt className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
-                    <span className="truncate">Summary</span>
+                    <span className="truncate">
+                      {orderingEnabled ? "Summary" : "Saved Summary"}
+                    </span>
                   </h2>
 
                   {/* Cart items preview (sidebar) */}
@@ -1247,30 +1285,41 @@ function OrderPageContent() {
                     onClick={clearCart}
                     disabled={isUpdating || submitting}
                   >
-                    Clear Cart
+                    {orderingEnabled ? "Clear Cart" : "Clear Saved Items"}
                   </button>
-                  <button
-                    className="w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-elite-burgundy text-elite-cream rounded-full font-calistoga font-bold text-base sm:text-lg md:text-xl lg:text-2xl shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation"
-                    onClick={placeOrder}
-                    disabled={
-                      !isCheckoutEnabled ||
-                      submitting ||
-                      isUpdating ||
-                      (orderType === "DELIVERY" && !selectedAddress) ||
-                      (needsAddressForPayment && !selectedAddress) ||
-                      (isOnlinePayment && !hasAuthForOnlinePayment) ||
-                      (isOnlinePayment && !hasPhoneForOnlinePayment)
-                    }
-                  >
-                    <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0" />
-                    <span className="truncate">
-                      {submitting
-                        ? "Placing Order…"
-                        : isOnlinePayment
-                          ? "Proceed to Payment"
-                          : "Place Order"}
-                    </span>
-                  </button>
+                  {orderingEnabled ? (
+                    <button
+                      className="w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-elite-burgundy text-elite-cream rounded-full font-calistoga font-bold text-base sm:text-lg md:text-xl lg:text-2xl shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation"
+                      onClick={placeOrder}
+                      disabled={
+                        !isCheckoutEnabled ||
+                        submitting ||
+                        isUpdating ||
+                        (orderType === "DELIVERY" && !selectedAddress) ||
+                        (needsAddressForPayment && !selectedAddress) ||
+                        (isOnlinePayment && !hasAuthForOnlinePayment) ||
+                        (isOnlinePayment && !hasPhoneForOnlinePayment)
+                      }
+                    >
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0" />
+                      <span className="truncate">
+                        {submitting
+                          ? "Placing Order…"
+                          : isOnlinePayment
+                            ? "Proceed to Payment"
+                            : "Place Order"}
+                      </span>
+                    </button>
+                  ) : (
+                    <a
+                      href={SUPPORT_MESSENGER_URL}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-elite-burgundy text-elite-cream rounded-full font-calistoga font-bold text-base sm:text-lg md:text-xl lg:text-2xl shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-2xl active:scale-[0.98] touch-manipulation"
+                    >
+                      Get updates
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -1278,7 +1327,7 @@ function OrderPageContent() {
         </div>
       </div>
       <Footer />
-      {cartItems.length > 0 && (
+      {orderingEnabled && cartItems.length > 0 && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 p-4 bg-transparent">
           <div className="flex gap-4">
             <button

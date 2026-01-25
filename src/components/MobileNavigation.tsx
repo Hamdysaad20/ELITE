@@ -7,6 +7,7 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useState, useTransition, useEffect } from "react";
 import CartDrawer from "@/components/Cart/CartDrawer";
 import { Home, Compass, Tag, ShoppingBag, User } from "lucide-react";
+import { useOrdering } from "@/context/OrderingContext";
 
 const navItems = [
   {
@@ -43,6 +44,7 @@ export default function MobileNavigation() {
   const router = useRouter();
   const { status } = useSession();
   const { itemCount } = useLocalCart();
+  const { orderingEnabled } = useOrdering();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticPath, setOptimisticPath] = useState<string | null>(null);
@@ -119,6 +121,8 @@ export default function MobileNavigation() {
               const { Icon } = item;
               const active = isActive(item.href);
               const isOptimistic = optimisticPath === item.href;
+              const label =
+                item.isCart && !orderingEnabled ? "Saved" : item.name;
 
               return (
                 <button
@@ -195,7 +199,7 @@ export default function MobileNavigation() {
                         : "font-medium text-elite-burgundy/50",
                     )}
                   >
-                    {item.name}
+                    {label}
                   </span>
                 </button>
               );
