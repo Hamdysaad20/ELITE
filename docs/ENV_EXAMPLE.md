@@ -1,6 +1,9 @@
 # ---- Core runtime ----
 NODE_ENV=development
 
+# ---- Ordering feature flag ----
+ORDERING_ENABLED=false # set true to enable ordering
+
 # ---- Database (Postgres via Prisma) ----
 DATABASE_URL=postgresql://user:password@localhost:5432/elite
 
