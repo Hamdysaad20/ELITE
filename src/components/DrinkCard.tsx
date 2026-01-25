@@ -145,12 +145,14 @@ export default function DrinkCard({
       }
 
       if (!orderingEnabled) {
+        setAddToOrderState({ adding: true, added: false });
         openSupportMessenger();
-        setAddToOrderState({ adding: false, added: true });
-        setTimeout(
-          () => setAddToOrderState({ adding: false, added: false }),
-          2000,
-        );
+        setTimeout(() => {
+          setAddToOrderState({ adding: false, added: true });
+        }, 300);
+        setTimeout(() => {
+          setAddToOrderState({ adding: false, added: false });
+        }, 2300);
         return;
       }
 

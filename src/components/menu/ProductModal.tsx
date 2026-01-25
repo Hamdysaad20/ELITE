@@ -81,8 +81,12 @@ export default function ProductModal({
     if (!product) return;
 
     if (!orderingEnabled) {
+      setIsAdding(true);
       openSupportMessenger();
-      setJustAdded(true);
+      setTimeout(() => {
+        setIsAdding(false);
+        setJustAdded(true);
+      }, 300);
       setTimeout(() => {
         onClose();
         setJustAdded(false);

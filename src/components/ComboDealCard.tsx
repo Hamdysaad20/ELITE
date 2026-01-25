@@ -76,12 +76,15 @@ export default function ComboDealCard({
     if (adding || !combo.dealActive) return;
 
     if (!orderingEnabled) {
+      setAdding(true);
       openSupportMessenger();
-      setAdded(true);
+      setTimeout(() => {
+        setAdding(false);
+        setAdded(true);
+      }, 300);
       setTimeout(() => {
         setAdded(false);
-        setAdding(false);
-      }, 2000);
+      }, 2300);
       return;
     }
 
