@@ -32,7 +32,6 @@ export function RecommendationCard({
 
   const handleAdd = async () => {
     if (adding) return;
-    if (!orderingEnabled) return;
     setAdding(true);
     try {
       await onAdd(item, suggestedSize, flavor);
@@ -116,29 +115,27 @@ export function RecommendationCard({
       {/* Add Button */}
       <button
         onClick={handleAdd}
-        disabled={adding || !orderingEnabled}
+        disabled={adding}
         className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${
           added
             ? "bg-emerald-600 text-white font-calistoga"
-            : orderingEnabled
-              ? "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
-              : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed font-calistoga"
+            : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
         } disabled:opacity-50 disabled:cursor-not-allowed`}
         title={orderingEnabled ? undefined : orderingMessage}
       >
         {added ? (
           <>
             <Check className="w-5 h-5" />
-            <span>Added to Cart!</span>
+            <span>{orderingEnabled ? "Added to Cart!" : "Saved!"}</span>
           </>
         ) : adding ? (
-          <span className="font-cabin">Adding...</span>
-        ) : !orderingEnabled ? (
-          <span>Ordering Paused</span>
+          <span className="font-cabin">
+            {orderingEnabled ? "Adding..." : "Saving..."}
+          </span>
         ) : (
           <>
             <ShoppingCart className="w-5 h-5" />
-            <span>Add to Order</span>
+            <span>{orderingEnabled ? "Add to Order" : "Save for later"}</span>
           </>
         )}
       </button>

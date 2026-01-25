@@ -28,6 +28,7 @@ import { useToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
 import { ReorderConfirmModal } from "./ReorderConfirmModal";
 import { useOrdering } from "@/context/OrderingContext";
+import { SUPPORT_MESSENGER_URL } from "@/lib/support";
 
 interface OrderDetailCardProps {
   orderId: string;
@@ -178,7 +179,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
   // Handle contact support - opens Facebook Messenger
   const handleContactSupport = () => {
-    window.open("https://m.me/61577901386334", "_blank");
+    window.open(SUPPORT_MESSENGER_URL, "_blank", "noopener,noreferrer");
   };
 
   if (loading) {

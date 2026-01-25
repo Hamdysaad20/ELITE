@@ -76,7 +76,6 @@ export default function ProductModal({
 
   const handleAddToCart = async () => {
     if (!product) return;
-    if (!orderingEnabled) return;
 
     setIsAdding(true);
     try {
@@ -249,38 +248,38 @@ export default function ProductModal({
               <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
               <p className="font-cabin text-amber-900 text-sm">
                 {orderingMessage ||
-                  "Online ordering is temporarily unavailable. Please try again later."}
+                  "Online ordering is temporarily unavailable. Please try again later."}{" "}
+                Save it for later and we&apos;ll keep it here.
               </p>
             </div>
           )}
           <button
             onClick={handleAddToCart}
-            disabled={isAdding || justAdded || !orderingEnabled}
+            disabled={isAdding || justAdded}
             className={cn(
               "mt-3 w-full py-4 rounded-2xl font-cabin font-bold text-base shadow-lg transition-all flex items-center justify-center gap-3 touch-manipulation min-h-[56px] active:scale-[0.98]",
               justAdded
                 ? "bg-emerald-500 text-white shadow-emerald-500/25"
-                : orderingEnabled
-                  ? "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70"
-                  : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed",
+                : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70",
             )}
           >
             {justAdded ? (
               <>
                 <Check className="w-5 h-5" />
-                <span>Added!</span>
+                <span>{orderingEnabled ? "Added!" : "Saved!"}</span>
               </>
             ) : isAdding ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
-                <span>Adding...</span>
+                <span>{orderingEnabled ? "Adding..." : "Saving..."}</span>
               </div>
-            ) : !orderingEnabled ? (
-              <span>Ordering Paused</span>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />
-                <span>Add to Order • EGP {totalPrice.toFixed(2)}</span>
+                <span>
+                  {orderingEnabled ? "Add to Order" : "Save for later"} • EGP{" "}
+                  {totalPrice.toFixed(2)}
+                </span>
               </>
             )}
           </button>

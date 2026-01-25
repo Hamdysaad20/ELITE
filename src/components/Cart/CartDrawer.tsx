@@ -8,6 +8,7 @@ import { useEffect, useState, useTransition, useOptimistic } from "react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 import { useOrdering } from "@/context/OrderingContext";
+import { SUPPORT_MESSENGER_URL } from "@/lib/support";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -27,7 +28,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     orderingMessage ||
     "Online ordering is temporarily unavailable. Please try again later.";
 
-  const itemCountLabel = `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
+  const itemCountLabel = `${itemCount} ${
+    itemCount === 1
+      ? orderingEnabled
+        ? "item"
+        : "saved item"
+      : orderingEnabled
+        ? "items"
+        : "saved items"
+  }`;
+  const cartTitle = orderingEnabled ? "Shopping Cart" : "Saved Items";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -137,6 +147,13 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }, 300);
   };
 
+  const handleNotify = () => {
+    window.open(SUPPORT_MESSENGER_URL, "_blank", "noopener,noreferrer");
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -151,7 +168,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Shopping cart"
+        aria-label={orderingEnabled ? "Shopping cart" : "Saved items"}
         className={`fixed right-0 top-0 h-full w-full sm:w-[min(480px,calc(100vw-2rem))] md:w-[min(540px,calc(100vw-2rem))] lg:w-[600px] xl:w-[640px] bg-elite-cream shadow-2xl z-[70] transform transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -166,7 +183,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="font-calistoga text-xl sm:text-2xl lg:text-3xl leading-tight truncate">
-                    Shopping Cart
+                    {cartTitle}
                   </h2>
                   <p className="font-cabin text-elite-cream/80 text-sm sm:text-base mt-0.5 truncate tabular-nums min-h-[1.25rem] sm:min-h-[1.5rem]">
                     <span
@@ -194,10 +211,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <ShoppingCart className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-elite-burgundy/30" />
                 </div>
                 <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl lg:text-2xl mb-2 lg:mb-3">
-                  Your cart is empty
+                  {orderingEnabled ? "Your cart is empty" : "No saved items yet"}
                 </h3>
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base lg:text-lg mb-6 lg:mb-8 max-w-sm">
-                  Start adding some delicious items to your order!
+                  {orderingEnabled
+                    ? "Start adding some delicious items to your order!"
+                    : "Save your favorites to revisit when ordering resumes."}
                 </p>
                 <button
                   onClick={onClose}
@@ -373,8 +392,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               })()}
 
               <button
-                onClick={handleCheckout}
-                disabled={isCheckingOut || !orderingEnabled}
+                onClick={orderingEnabled ? handleCheckout : handleNotify}
+                disabled={orderingEnabled ? isCheckingOut : false}
                 className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
               >
                 {isCheckingOut ? (
@@ -383,7 +402,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     <span>Processing...</span>
                   </>
                 ) : !orderingEnabled ? (
-                  <span>Ordering Paused</span>
+                  <span>Get updates</span>
                 ) : (
                   <>
                     <span>Proceed to Checkout</span>
@@ -394,7 +413,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
               {!orderingEnabled && (
                 <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                  {checkoutDisabledMessage}
+                  {checkoutDisabledMessage} Your saved items will be ready here
+                  when ordering resumes.
                 </p>
               )}
               {orderingEnabled && status === "unauthenticated" && (
