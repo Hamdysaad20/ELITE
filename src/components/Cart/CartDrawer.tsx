@@ -147,11 +147,30 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }, 300);
   };
 
-  const handleNotify = () => {
-    openSupportMessenger();
-    setTimeout(() => {
-      onClose();
-    }, 300);
+  const handleNotify = async () => {
+    if (status !== "authenticated") return;
+
+    try {
+      // Get productIds from cart items
+      const productIds = items.map((item) => item.productId);
+
+      const response = await fetch("/api/notify/item-availability", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productIds }),
+      });
+
+      if (response.ok) {
+        // Success - close drawer
+        onClose();
+      } else {
+        console.error("Failed to register for notifications");
+      }
+    } catch (error) {
+      console.error("Error registering for notifications:", error);
+    }
   };
 
   return (
@@ -391,35 +410,55 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 );
               })()}
 
-              <button
-                onClick={orderingEnabled ? handleCheckout : handleNotify}
-                disabled={orderingEnabled ? isCheckingOut : false}
-                className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
-              >
-                {isCheckingOut ? (
-                  <>
-                    <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
-                    <span>Processing...</span>
-                  </>
-                ) : !orderingEnabled ? (
-                  <span>Get updates</span>
-                ) : (
-                  <>
-                    <span>Proceed to Checkout</span>
-                    <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform duration-300" />
-                  </>
-                )}
-              </button>
-
-              {!orderingEnabled && (
-                <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                  {checkoutDisabledMessage}
-                </p>
+              {orderingEnabled ? (
+                <>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={isCheckingOut}
+                    className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
+                  >
+                    {isCheckingOut ? (
+                      <>
+                        <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Proceed to Checkout</span>
+                        <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform duration-300" />
+                      </>
+                    )}
+                  </button>
+                  {status === "unauthenticated" && (
+                    <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
+                      You'll need to sign in to complete your order
+                    </p>
+                  )}
+                </>
+              ) : status === "authenticated" ? (
+                <>
+                  <button
+                    onClick={handleNotify}
+                    className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group"
+                  >
+                    <span>Notify me when available</span>
+                  </button>
+                  <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
+                    Ordering is temporarily paused. We'll notify you as soon as
+                    your saved items are available again.
+                  </p>
+                </>
+              ) : (
+                <div className="text-center">
+                  <p className="font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg mb-2">
+                    Online ordering is currently paused
+                  </p>
+                  <p className="font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base">
+                    We're putting the final touches on the experience. Ordering
+                    will be available very soon.
+                  </p>
+                </div>
               )}
-              {orderingEnabled && status === "unauthenticated" && (
-                <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                  You'll need to sign in to complete your order
-                </p>
               )}
             </div>
           )}
