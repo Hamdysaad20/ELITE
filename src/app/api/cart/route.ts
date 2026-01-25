@@ -19,6 +19,7 @@ import type { CartItem } from "@/types";
 import { redisGet } from "@/server/cache/redis";
 import { getAuthUser } from "@/server/auth/session";
 import { getOrderingStatus } from "@/server/config/ordering";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 /**
  * Calculates cart totals including subtotal, tax, and delivery fee
@@ -133,8 +134,7 @@ export async function POST(request: NextRequest) {
     const { orderingEnabled, orderingMessage } = getOrderingStatus();
     if (!orderingEnabled) {
       throw new ServiceUnavailableError(
-        orderingMessage ||
-          "Online ordering is temporarily unavailable. Please try again later.",
+        orderingMessage || ORDERING_DISABLED_MESSAGE,
       );
     }
     const raw = await parseRequestBody(request);

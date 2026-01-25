@@ -1,5 +1,4 @@
-export const ORDERING_DISABLED_MESSAGE =
-  "Online ordering is temporarily unavailable. Please try again later.";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 const DISABLED_VALUES = new Set(["0", "false", "no", "off"]);
 

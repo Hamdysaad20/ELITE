@@ -9,7 +9,7 @@ import { Button, Input, LoadingOverlay } from "@/components/ui";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ShoppingCart } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
-import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
+import { openSupportMessenger } from "@/lib/support";
 
 const FormField = ({
   label,
@@ -28,7 +28,6 @@ export default function DrinkSuggester() {
   const { loading, error, result, suggest } = useDrinkSuggestion();
   const { addToCart } = useCart();
   const { orderingEnabled } = useOrdering();
-  const { addItem: addLocalItem } = useLocalCart();
   const [prefs, setPrefs] = useState<DrinkPreferences>({
     temperature: "either",
     caffeine: "medium",
@@ -68,33 +67,13 @@ export default function DrinkSuggester() {
         : undefined;
 
       if (!orderingEnabled) {
-        const attributes: LocalCartItem["attributes"] = {};
-        if (size) {
-          attributes.Size = [
-            { valueId: 0, valueName: size, priceExtra: 0 },
-          ];
-        }
-        if (flavor) {
-          attributes.Flavor = [
-            { valueId: 0, valueName: flavor, priceExtra: 0 },
-          ];
-        }
-        const basePrice = typeof item.price === "number" ? item.price : 0;
-        addLocalItem({
-          productId: item.id,
-          name: item.name || "Saved item",
-          basePrice,
-          quantity: 1,
-          attributes,
-          totalPrice: basePrice,
-          image: item.images?.[0],
-        });
+        openSupportMessenger();
         return;
       }
 
       await addToCart(item.id, 1, { size, flavor });
     },
-    [addToCart, addLocalItem, orderingEnabled],
+    [addToCart, orderingEnabled],
   );
 
   return (
@@ -264,7 +243,7 @@ export default function DrinkSuggester() {
                       )
                     }
                   >
-                    {orderingEnabled ? "Add to Cart" : "Save for later"}
+                    {orderingEnabled ? "Add to Cart" : "Notify me"}
                   </Button>
                 </div>
               </div>
@@ -305,7 +284,7 @@ export default function DrinkSuggester() {
                             )
                           }
                         >
-                          {orderingEnabled ? "Add" : "Save"}
+                          {orderingEnabled ? "Add" : "Notify"}
                         </Button>
                       </div>
                     </li>

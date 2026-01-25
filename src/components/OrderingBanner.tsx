@@ -3,6 +3,7 @@
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { SUPPORT_MESSENGER_URL } from "@/lib/support";
 
 export default function OrderingBanner() {
@@ -10,14 +11,15 @@ export default function OrderingBanner() {
 
   if (loading || orderingEnabled) return null;
 
+  const message = orderingMessage || ORDERING_DISABLED_MESSAGE;
+
   return (
     <div className="bg-amber-50 border-b border-amber-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-start gap-2 text-amber-900">
           <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
           <p className="font-cabin text-sm sm:text-base">
-            {orderingMessage ||
-              "Online ordering is temporarily unavailable. Please try again later."}
+            {message}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">

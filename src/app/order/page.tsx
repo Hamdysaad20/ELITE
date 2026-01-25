@@ -16,6 +16,7 @@ import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import { mapPaymentMethodToPaymob } from "@/types/payments";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import {
   ShoppingBag,
   ChevronRight,
@@ -148,14 +149,13 @@ function OrderPageContent() {
 
   const orderingEnabled = checkoutConfig.orderingEnabled;
   const checkoutDisabledMessage =
-    checkoutConfig.orderingMessage ||
-    "Online ordering is temporarily unavailable. Please try again later.";
+    checkoutConfig.orderingMessage || ORDERING_DISABLED_MESSAGE;
   const isCheckoutEnabled =
     orderingEnabled && checkoutConfig.enabledPaymentMethods.length > 0;
-  const pageTitle = orderingEnabled ? "Your Order" : "Saved Items";
+  const pageTitle = orderingEnabled ? "Your Order" : "Ordering Paused";
   const pageSubtitle = orderingEnabled
     ? "Review your items and complete checkout"
-    : "Save your favorites while online ordering is paused";
+    : checkoutDisabledMessage;
 
   const isOnlinePayment =
     paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET;
@@ -629,7 +629,7 @@ function OrderPageContent() {
                       Ordering paused
                     </p>
                     <p className="font-cabin text-amber-900/80 text-sm">
-                      {checkoutDisabledMessage} Your items are saved here.
+                      {checkoutDisabledMessage}
                     </p>
                   </div>
                 </div>
@@ -776,11 +776,11 @@ function OrderPageContent() {
           {!cart || cart.items.length === 0 ? (
             <EmptyState
               variant="no-products"
-              title={orderingEnabled ? "Your cart is empty" : "No saved items yet"}
+              title={orderingEnabled ? "Your cart is empty" : "Ordering is paused"}
               description={
                 orderingEnabled
                   ? "Explore our menu and add some delicious drinks!"
-                  : "Save favorites from the menu while ordering is paused."
+                  : checkoutDisabledMessage
               }
               actionLabel="Browse Menu"
               actionHref="/menu"

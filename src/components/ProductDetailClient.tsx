@@ -23,6 +23,8 @@ import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface AttributeValue {
   id: number;
@@ -62,8 +64,13 @@ export default function ProductDetailClient({
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
-  const { error: toastError, success: toastSuccess } = useToast();
+  const {
+    error: toastError,
+    success: toastSuccess,
+    info: toastInfo,
+  } = useToast();
   const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   // Fetch reviews for this product
   const {
@@ -142,6 +149,14 @@ export default function ProductDetailClient({
 
     if (!validation.valid) {
       toastError(validation.message || "Please select all required options");
+      return;
+    }
+
+    if (!orderingEnabled) {
+      openSupportMessenger();
+      toastInfo(disabledMessage);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
       return;
     }
 
@@ -450,9 +465,7 @@ export default function ProductDetailClient({
                     <div className="mb-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
                       <p className="font-cabin text-amber-900 text-sm">
-                        {orderingMessage ||
-                          "Online ordering is temporarily unavailable. Please try again later."}{" "}
-                        Save items for later and we&apos;ll keep them here.
+                        {disabledMessage} Tap notify to get updates.
                       </p>
                     </div>
                   )}
@@ -473,12 +486,12 @@ export default function ProductDetailClient({
                     ) : addedToCart ? (
                       <>
                         <Check className="w-5 h-5 animate-bounce" />
-                        {orderingEnabled ? "Added to Cart!" : "Saved!"}
+                        {orderingEnabled ? "Added to Cart!" : "Notified!"}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="w-5 h-5" />
-                        {orderingEnabled ? "Add to Cart" : "Save for later"}
+                        {orderingEnabled ? "Add to Cart" : "Notify me"}
                       </>
                     )}
                   </button>

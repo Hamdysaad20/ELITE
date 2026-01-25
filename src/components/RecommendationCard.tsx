@@ -3,6 +3,7 @@ import React from "react";
 import type { MenuItem } from "@/types";
 import { ShoppingCart, Check, Sparkles, Tag } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 interface BaseRec {
   item: MenuItem;
@@ -29,6 +30,7 @@ export function RecommendationCard({
   const [adding, setAdding] = React.useState(false);
   const [added, setAdded] = React.useState(false);
   const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const handleAdd = async () => {
     if (adding) return;
@@ -121,21 +123,21 @@ export function RecommendationCard({
             ? "bg-emerald-600 text-white font-calistoga"
             : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
         } disabled:opacity-50 disabled:cursor-not-allowed`}
-        title={orderingEnabled ? undefined : orderingMessage}
+        title={orderingEnabled ? undefined : disabledMessage}
       >
         {added ? (
           <>
             <Check className="w-5 h-5" />
-            <span>{orderingEnabled ? "Added to Cart!" : "Saved!"}</span>
+            <span>{orderingEnabled ? "Added to Cart!" : "Notified!"}</span>
           </>
         ) : adding ? (
           <span className="font-cabin">
-            {orderingEnabled ? "Adding..." : "Saving..."}
+            {orderingEnabled ? "Adding..." : "Opening..."}
           </span>
         ) : (
           <>
             <ShoppingCart className="w-5 h-5" />
-            <span>{orderingEnabled ? "Add to Order" : "Save for later"}</span>
+            <span>{orderingEnabled ? "Add to Order" : "Notify me"}</span>
           </>
         )}
       </button>

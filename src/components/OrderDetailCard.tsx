@@ -28,7 +28,8 @@ import { useToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
 import { ReorderConfirmModal } from "./ReorderConfirmModal";
 import { useOrdering } from "@/context/OrderingContext";
-import { SUPPORT_MESSENGER_URL } from "@/lib/support";
+import { SUPPORT_MESSENGER_URL, openSupportMessenger } from "@/lib/support";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 interface OrderDetailCardProps {
   orderId: string;
@@ -353,9 +354,10 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   const handleReorderClick = () => {
     if (!order || isReordering) return;
     if (!orderingEnabled) {
+      openSupportMessenger();
       info(
         orderingMessage ||
-          "Online ordering is temporarily unavailable. Please try again later.",
+          ORDERING_DISABLED_MESSAGE,
       );
       return;
     }
@@ -952,8 +954,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                 disabled={
                   isReordering ||
                   !order ||
-                  order.items.length === 0 ||
-                  !orderingEnabled
+                  order.items.length === 0
                 }
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[48px]"
                 aria-busy={isReordering}
@@ -967,7 +968,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     <span>Adding to Cart...</span>
                   </>
                 ) : !orderingEnabled ? (
-                  <span>Ordering Paused</span>
+                  <span>Get updates</span>
                 ) : (
                   <>
                     <ShoppingBag className="w-5 h-5" />
