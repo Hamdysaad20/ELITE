@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface ProductModalProps {
   product: Product | null;
@@ -23,6 +25,7 @@ export default function ProductModal({
 }: ProductModalProps) {
   const { addItem } = useLocalCart();
   const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
@@ -76,6 +79,16 @@ export default function ProductModal({
 
   const handleAddToCart = async () => {
     if (!product) return;
+
+    if (!orderingEnabled) {
+      openSupportMessenger();
+      setJustAdded(true);
+      setTimeout(() => {
+        onClose();
+        setJustAdded(false);
+      }, 600);
+      return;
+    }
 
     setIsAdding(true);
     try {
@@ -247,9 +260,7 @@ export default function ProductModal({
             <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
               <p className="font-cabin text-amber-900 text-sm">
-                {orderingMessage ||
-                  "Online ordering is temporarily unavailable. Please try again later."}{" "}
-                Save it for later and we&apos;ll keep it here.
+                {disabledMessage} Tap notify to get updates.
               </p>
             </div>
           )}
@@ -266,18 +277,18 @@ export default function ProductModal({
             {justAdded ? (
               <>
                 <Check className="w-5 h-5" />
-                <span>{orderingEnabled ? "Added!" : "Saved!"}</span>
+                <span>{orderingEnabled ? "Added!" : "Notified!"}</span>
               </>
             ) : isAdding ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
-                <span>{orderingEnabled ? "Adding..." : "Saving..."}</span>
+                <span>{orderingEnabled ? "Adding..." : "Opening..."}</span>
               </div>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />
                 <span>
-                  {orderingEnabled ? "Add to Order" : "Save for later"} • EGP{" "}
+                  {orderingEnabled ? "Add to Order" : "Notify me"} • EGP{" "}
                   {totalPrice.toFixed(2)}
                 </span>
               </>

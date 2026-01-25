@@ -8,7 +8,8 @@ import { useEffect, useState, useTransition, useOptimistic } from "react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 import { useOrdering } from "@/context/OrderingContext";
-import { SUPPORT_MESSENGER_URL } from "@/lib/support";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -25,8 +26,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const checkoutDisabledMessage =
-    orderingMessage ||
-    "Online ordering is temporarily unavailable. Please try again later.";
+    orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const itemCountLabel = `${itemCount} ${
     itemCount === 1
@@ -148,7 +148,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   };
 
   const handleNotify = () => {
-    window.open(SUPPORT_MESSENGER_URL, "_blank", "noopener,noreferrer");
+    openSupportMessenger();
     setTimeout(() => {
       onClose();
     }, 300);
@@ -216,7 +216,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base lg:text-lg mb-6 lg:mb-8 max-w-sm">
                   {orderingEnabled
                     ? "Start adding some delicious items to your order!"
-                    : "Save your favorites to revisit when ordering resumes."}
+                    : "Ordering is paused. Tap Get updates to stay in the loop."}
                 </p>
                 <button
                   onClick={onClose}
@@ -413,8 +413,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
               {!orderingEnabled && (
                 <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                  {checkoutDisabledMessage} Your saved items will be ready here
-                  when ordering resumes.
+                  {checkoutDisabledMessage}
                 </p>
               )}
               {orderingEnabled && status === "unauthenticated" && (

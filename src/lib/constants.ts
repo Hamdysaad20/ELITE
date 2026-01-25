@@ -43,6 +43,9 @@ export const ERROR_MESSAGES = {
   SESSION_EXPIRED: "Your session expired. Please sign in again.",
 } as const;
 
+export const ORDERING_DISABLED_MESSAGE =
+  "Demo mode: online ordering is paused. We'll share updates when ordering resumes.";
+
 // Success Messages
 export const SUCCESS_MESSAGES = {
   ITEM_ADDED: "Item added to cart successfully",

@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useState, useTransition, useEffect } from "react";
 import CartDrawer from "@/components/Cart/CartDrawer";
-import { Home, Compass, Tag, ShoppingBag, User } from "lucide-react";
+import { Bell, Home, Compass, Tag, ShoppingBag, User } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
+import { openSupportMessenger } from "@/lib/support";
 
 const navItems = [
   {
@@ -76,6 +77,10 @@ export default function MobileNavigation() {
     isCart?: boolean,
   ) => {
     if (isCart) {
+      if (!orderingEnabled) {
+        openSupportMessenger();
+        return;
+      }
       setIsCartOpen(true);
       return;
     }
@@ -118,11 +123,12 @@ export default function MobileNavigation() {
         >
           <div className="flex items-stretch justify-around h-[72px] max-w-lg mx-auto">
             {navItems.map((item) => {
-              const { Icon } = item;
+              const Icon =
+                item.isCart && !orderingEnabled ? Bell : item.Icon;
               const active = isActive(item.href);
               const isOptimistic = optimisticPath === item.href;
               const label =
-                item.isCart && !orderingEnabled ? "Saved" : item.name;
+                item.isCart && !orderingEnabled ? "Updates" : item.name;
 
               return (
                 <button

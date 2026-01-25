@@ -13,57 +13,15 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Sparkles, Coffee, ChevronRight } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
-import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
-import type { MenuItem } from "@/types";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 export default function SuggestPage() {
   const { suggest, loading, error, result } = useDrinkSuggestion();
   const { addToCart } = useCart();
-  const { addItem: addLocalItem } = useLocalCart();
   const { push } = useToast();
-  const { orderingEnabled } = useOrdering();
-
-  const saveForLater = (item: MenuItem, size?: string, flavor?: string) => {
-    const sizeOption = size
-      ? item.sizes?.find((s) => s.name === size)
-      : undefined;
-    const flavorOption = flavor
-      ? item.flavors?.find((f) => f.name === flavor)
-      : undefined;
-    const attributes: LocalCartItem["attributes"] = {};
-    if (size) {
-      attributes.Size = [
-        {
-          valueId: 0,
-          valueName: size,
-          priceExtra: sizeOption?.priceModifier || 0,
-        },
-      ];
-    }
-    if (flavor) {
-      attributes.Flavor = [
-        {
-          valueId: 0,
-          valueName: flavor,
-          priceExtra: flavorOption?.price || 0,
-        },
-      ];
-    }
-    const basePrice = item.price || 0;
-    const unitPrice =
-      basePrice +
-      (sizeOption?.priceModifier || 0) +
-      (flavorOption?.price || 0);
-    addLocalItem({
-      productId: item.id,
-      name: item.name,
-      basePrice,
-      quantity: 1,
-      attributes,
-      totalPrice: unitPrice,
-      image: item.images?.[0],
-    });
-  };
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const handleSuggest = (prefs: DrinkPreferences) => {
     suggest(prefs);
@@ -165,10 +123,10 @@ export default function SuggestPage() {
                   onAdd={async (item, size, flavor) => {
                     try {
                       if (!orderingEnabled) {
-                        saveForLater(item, size, flavor);
+                        openSupportMessenger();
                         push({
                           type: "info",
-                          message: `${item.name} saved for later`,
+                          message: disabledMessage,
                         });
                         return;
                       }
@@ -197,10 +155,10 @@ export default function SuggestPage() {
                           onAdd={async (item, size, flavor) => {
                             try {
                               if (!orderingEnabled) {
-                                saveForLater(item, size, flavor);
+                                openSupportMessenger();
                                 push({
                                   type: "info",
-                                  message: `${item.name} saved for later`,
+                                  message: disabledMessage,
                                 });
                                 return;
                               }
