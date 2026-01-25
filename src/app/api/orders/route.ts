@@ -146,6 +146,12 @@ export async function POST(request: NextRequest) {
     const body = createOrderSchema.parse(raw);
 
     const checkoutConfig = await getCheckoutConfig();
+    if (!checkoutConfig.orderingEnabled) {
+      throw new ServiceUnavailableError(
+        checkoutConfig.orderingMessage ||
+          "Online ordering is temporarily unavailable. Please try again later.",
+      );
+    }
 
     // Online payments require an authenticated user (Paymob requires email and identity)
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];

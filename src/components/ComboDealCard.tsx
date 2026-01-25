@@ -12,6 +12,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useOrdering } from "@/context/OrderingContext";
 import type { ComboDeal } from "@/types/deals";
 
 export interface ComboItem {
@@ -36,6 +37,7 @@ export default function ComboDealCard({
   animationDelay = 0,
 }: ComboDealCardProps) {
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -68,7 +70,7 @@ export default function ComboDealCard({
   };
 
   const handleAddToCart = useCallback(async () => {
-    if (adding || !combo.dealActive) return;
+    if (adding || !combo.dealActive || !orderingEnabled) return;
 
     setAdding(true);
     try {
@@ -99,7 +101,7 @@ export default function ComboDealCard({
       console.error("Failed to add combo to cart:", err);
       setAdding(false);
     }
-  }, [combo, adding, onAddToCart, addItem]);
+  }, [combo, adding, onAddToCart, addItem, orderingEnabled]);
 
   // Adaptive text sizing
   const titleLength = combo.name.length;
@@ -291,16 +293,19 @@ export default function ComboDealCard({
         {combo.dealActive && (
           <button
             onClick={handleAddToCart}
-            disabled={adding}
+            disabled={adding || !orderingEnabled}
             className={cn(
               "w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-xl sm:rounded-2xl text-sm font-cabin font-bold",
               "transition-all touch-manipulation active:scale-[0.97]",
               "min-h-[48px]",
               added
                 ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
-                : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
+                : orderingEnabled
+                  ? "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
+                  : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed",
             )}
             aria-live="polite"
+            title={orderingEnabled ? undefined : orderingMessage}
           >
             {added ? (
               <>
@@ -309,6 +314,8 @@ export default function ComboDealCard({
               </>
             ) : adding ? (
               <div className="w-4 h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
+            ) : !orderingEnabled ? (
+              <span>Ordering Paused</span>
             ) : (
               <>
                 <Plus className="w-4 h-4" strokeWidth={2.5} />

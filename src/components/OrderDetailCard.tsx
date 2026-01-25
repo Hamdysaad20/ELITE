@@ -27,6 +27,7 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
 import { ReorderConfirmModal } from "./ReorderConfirmModal";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface OrderDetailCardProps {
   orderId: string;
@@ -173,6 +174,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   const { addItem, clearCart, items: cartItems, itemCount } = useLocalCart();
   const { success, error: showError, info } = useToast();
   const router = useRouter();
+  const { orderingEnabled, orderingMessage } = useOrdering();
 
   // Handle contact support - opens Facebook Messenger
   const handleContactSupport = () => {
@@ -349,6 +351,13 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   // Handle reorder click - check if cart has items
   const handleReorderClick = () => {
     if (!order || isReordering) return;
+    if (!orderingEnabled) {
+      info(
+        orderingMessage ||
+          "Online ordering is temporarily unavailable. Please try again later.",
+      );
+      return;
+    }
 
     // Check if cart has items
     if (itemCount > 0) {
@@ -939,7 +948,12 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               </p>
               <button
                 onClick={handleReorderClick}
-                disabled={isReordering || !order || order.items.length === 0}
+                disabled={
+                  isReordering ||
+                  !order ||
+                  order.items.length === 0 ||
+                  !orderingEnabled
+                }
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[48px]"
                 aria-busy={isReordering}
                 aria-label={
@@ -951,6 +965,8 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>Adding to Cart...</span>
                   </>
+                ) : !orderingEnabled ? (
+                  <span>Ordering Paused</span>
                 ) : (
                   <>
                     <ShoppingBag className="w-5 h-5" />

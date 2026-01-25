@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Minus, Plus, ShoppingBag, Check } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
 import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface ProductModalProps {
   product: Product | null;
@@ -21,6 +22,7 @@ export default function ProductModal({
   onClose,
 }: ProductModalProps) {
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
@@ -74,6 +76,7 @@ export default function ProductModal({
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (!orderingEnabled) return;
 
     setIsAdding(true);
     try {
@@ -241,14 +244,25 @@ export default function ProductModal({
             </div>
           </div>
 
+          {!orderingEnabled && (
+            <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+              <p className="font-cabin text-amber-900 text-sm">
+                {orderingMessage ||
+                  "Online ordering is temporarily unavailable. Please try again later."}
+              </p>
+            </div>
+          )}
           <button
             onClick={handleAddToCart}
-            disabled={isAdding || justAdded}
+            disabled={isAdding || justAdded || !orderingEnabled}
             className={cn(
               "mt-3 w-full py-4 rounded-2xl font-cabin font-bold text-base shadow-lg transition-all flex items-center justify-center gap-3 touch-manipulation min-h-[56px] active:scale-[0.98]",
               justAdded
                 ? "bg-emerald-500 text-white shadow-emerald-500/25"
-                : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70",
+                : orderingEnabled
+                  ? "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70"
+                  : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed",
             )}
           >
             {justAdded ? (
@@ -261,6 +275,8 @@ export default function ProductModal({
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
                 <span>Adding...</span>
               </div>
+            ) : !orderingEnabled ? (
+              <span>Ordering Paused</span>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />

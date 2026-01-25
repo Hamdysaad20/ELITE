@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import { Button, Input, LoadingOverlay } from "@/components/ui";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ShoppingCart } from "lucide-react";
+import { useOrdering } from "@/context/OrderingContext";
 
 const FormField = ({
   label,
@@ -25,6 +26,7 @@ const FormField = ({
 export default function DrinkSuggester() {
   const { loading, error, result, suggest } = useDrinkSuggestion();
   const { addToCart } = useCart();
+  const { orderingEnabled } = useOrdering();
   const [prefs, setPrefs] = useState<DrinkPreferences>({
     temperature: "either",
     caffeine: "medium",
@@ -51,6 +53,7 @@ export default function DrinkSuggester() {
       size: string | undefined,
       suggestedFlavor: string | undefined,
     ) => {
+      if (!orderingEnabled) return;
       const flavor = item.flavors?.some(
         (f: { name: string }) => f.name === suggestedFlavor,
       )
@@ -58,7 +61,7 @@ export default function DrinkSuggester() {
         : undefined;
       await addToCart(item.id, 1, { size, flavor });
     },
-    [addToCart],
+    [addToCart, orderingEnabled],
   );
 
   return (
@@ -219,7 +222,12 @@ export default function DrinkSuggester() {
                   <Button
                     variant="primary"
                     size="sm"
-                    leftIcon={<ShoppingCart className="w-3 h-3" />}
+                    leftIcon={
+                      orderingEnabled ? (
+                        <ShoppingCart className="w-3 h-3" />
+                      ) : undefined
+                    }
+                    disabled={!orderingEnabled}
                     onClick={() =>
                       handleAddToCart(
                         result.recommendation.item,
@@ -228,7 +236,7 @@ export default function DrinkSuggester() {
                       )
                     }
                   >
-                    Add to Cart
+                    {orderingEnabled ? "Add to Cart" : "Ordering Paused"}
                   </Button>
                 </div>
               </div>
@@ -261,6 +269,7 @@ export default function DrinkSuggester() {
                         <Button
                           variant="secondary"
                           size="sm"
+                          disabled={!orderingEnabled}
                           onClick={() =>
                             handleAddToCart(
                               alt.item,
@@ -269,7 +278,7 @@ export default function DrinkSuggester() {
                             )
                           }
                         >
-                          Add
+                          {orderingEnabled ? "Add" : "Ordering Paused"}
                         </Button>
                       </div>
                     </li>

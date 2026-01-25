@@ -6,6 +6,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface DealInfo {
   originalPrice: number;
@@ -73,6 +74,7 @@ export default function DealCard({
   size = "small",
 }: DealCardProps) {
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
     added: false,
@@ -98,7 +100,7 @@ export default function DealCard({
     dealPrice.toString().length > 4 ? "text-base sm:text-lg" : sizes.price;
 
   const handleAddToOrder = async () => {
-    if (!isAvailable || addToOrderState.adding) return;
+    if (!isAvailable || addToOrderState.adding || !orderingEnabled) return;
 
     setAddToOrderState({ adding: true, added: false });
 
@@ -253,7 +255,7 @@ export default function DealCard({
           <div className="mt-3 sm:mt-4">
             <button
               onClick={onQuickAdd || handleAddToOrder}
-              disabled={addToOrderState.adding}
+              disabled={addToOrderState.adding || !orderingEnabled}
               className={cn(
                 "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-cabin font-bold",
                 "transition-all touch-manipulation active:scale-[0.97]",
@@ -261,9 +263,12 @@ export default function DealCard({
                 animDuration,
                 addToOrderState.added
                   ? "bg-elite-burgundy/80 text-elite-cream"
-                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 hover:shadow-lg hover:shadow-elite-burgundy/30 hover:scale-[1.02]",
+                  : orderingEnabled
+                    ? "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 hover:shadow-lg hover:shadow-elite-burgundy/30 hover:scale-[1.02]"
+                    : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed",
               )}
               aria-live="polite"
+              title={orderingEnabled ? undefined : orderingMessage}
             >
               {addToOrderState.added ? (
                 <>
@@ -272,6 +277,8 @@ export default function DealCard({
                 </>
               ) : addToOrderState.adding ? (
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
+              ) : !orderingEnabled ? (
+                <span>Ordering Paused</span>
               ) : (
                 <>
                   <Plus
