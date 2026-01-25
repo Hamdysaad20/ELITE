@@ -1,9 +1,11 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { User, Sparkles, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 
 interface UserActivationCTAProps {
   className?: string;
@@ -13,7 +15,10 @@ export default function UserActivationCTA({
   className,
 }: UserActivationCTAProps) {
   const { data: session } = useSession();
-  const router = useRouter();
+  const localizedRouter = useLocalizedRouter();
+  const locale = useLocale();
+  const t = useTranslations("userActivation");
+  const isRTL = locale === "ar";
 
   // Check if user is logged in
   if (!session?.user) {
@@ -30,7 +35,9 @@ export default function UserActivationCTA({
   }
 
   const handleClick = () => {
-    router.push(`/profile?redirect=/deals`);
+    const dealsPath = addLocaleToPathname("/deals", locale);
+    const profilePath = addLocaleToPathname("/profile", locale);
+    localizedRouter.push(`${profilePath}?redirect=${encodeURIComponent(dealsPath)}`);
   };
 
   return (
@@ -48,25 +55,24 @@ export default function UserActivationCTA({
 
         <div className="flex-1">
           <h3 className="font-calistoga text-xl md:text-2xl mb-2">
-            🎁 Unlock Exclusive Deals
+            {t("title")}
           </h3>
           <p className="font-cabin text-elite-cream/90 mb-4 text-sm md:text-base">
-            Complete your profile to get personalized deals, early access to new
-            offers, and special discounts.
+            {t("description")}
           </p>
 
           <ul className="space-y-2 mb-4 text-sm md:text-base">
             <li className="flex items-center gap-2 font-cabin text-elite-cream/90">
               <span className="text-emerald-300">✓</span>
-              Personalized deals based on your preferences
+              {t("benefits.0")}
             </li>
             <li className="flex items-center gap-2 font-cabin text-elite-cream/90">
               <span className="text-emerald-300">✓</span>
-              Early access to new offers
+              {t("benefits.1")}
             </li>
             <li className="flex items-center gap-2 font-cabin text-elite-cream/90">
               <span className="text-emerald-300">✓</span>
-              Special discounts and promotions
+              {t("benefits.2")}
             </li>
           </ul>
 
@@ -75,8 +81,8 @@ export default function UserActivationCTA({
             className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-6 py-3 rounded-xl font-cabin font-bold text-sm md:text-base hover:bg-elite-cream/90 transition-all flex items-center justify-center gap-2 shadow-md"
           >
             <User className="w-4 h-4" />
-            Complete Profile
-            <ArrowRight className="w-4 h-4" />
+            {t("cta")}
+            <ArrowRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
           </button>
         </div>
       </div>

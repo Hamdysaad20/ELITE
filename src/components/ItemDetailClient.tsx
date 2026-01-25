@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,6 +16,9 @@ import {
   MenuCategory,
   SubCategory,
 } from "@/lib/menuData";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { cn } from "@/lib/utils";
 
 interface ItemDetailClientProps {
   item: MenuItem;
@@ -44,6 +46,17 @@ export default function ItemDetailClient({
     subCategory.id,
   );
   const [isClient, setIsClient] = useState(false);
+  const t = useTranslations("itemDetail");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   // Ensure client-side rendering to prevent hydration mismatches
   useEffect(() => {
@@ -136,7 +149,7 @@ export default function ItemDetailClient({
   if (!isClient) {
     return (
       <div className="min-h-screen bg-elite-cream flex items-center justify-center">
-        <div className="text-elite-burgundy">Loading...</div>
+        <div className="text-elite-burgundy">{t("loading")}</div>
       </div>
     );
   }
@@ -149,13 +162,13 @@ export default function ItemDetailClient({
       <div className="bg-elite-burgundy text-elite-cream py-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
-            <Link
+            <LocalizedLink
               href={`/menu/${category.id}/${subCategory.id}`}
               className="inline-flex items-center gap-2 bg-elite-cream/20 text-elite-cream px-4 py-2 rounded-full font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30 hover:scale-105"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Back to {subCategory.name}
-            </Link>
+              <ChevronLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
+              {t("actions.backToSubcategory", { name: subCategory.name })}
+            </LocalizedLink>
             <div className="text-center">
               <h1 className="font-calistoga text-3xl font-bold">{item.name}</h1>
               <p className="font-cabin text-elite-cream/80 text-sm mt-1">
@@ -189,7 +202,7 @@ export default function ItemDetailClient({
               {item.featured && (
                 <div className="absolute top-6 right-6 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-full text-sm font-cabin font-bold shadow-lg z-30 flex items-center gap-1">
                   <Star className="w-4 h-4" />
-                  Featured
+                  {t("badges.featured")}
                 </div>
               )}
 
@@ -200,13 +213,17 @@ export default function ItemDetailClient({
                     onClick={prevImage}
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-30"
                   >
-                    <ChevronLeft className="w-6 h-6" />
+                    <ChevronLeft
+                      className={cn("w-6 h-6", isRTL && "rotate-180")}
+                    />
                   </button>
                   <button
                     onClick={nextImage}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg z-30"
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronRight
+                      className={cn("w-6 h-6", isRTL && "rotate-180")}
+                    />
                   </button>
                 </>
               )}
@@ -246,11 +263,11 @@ export default function ItemDetailClient({
               <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
                 <div className="text-center">
                   <div className="font-calistoga text-elite-burgundy text-3xl font-bold mb-2">
-                    {totalPrice} EGP
+                    {formatPrice(totalPrice)}
                   </div>
                   {hasMultipleSizes() && (
                     <p className="font-cabin text-elite-black/60 text-sm">
-                      Medium size shown
+                      {t("price.mediumShown")}
                     </p>
                   )}
                 </div>
@@ -261,7 +278,7 @@ export default function ItemDetailClient({
             {hasMultipleSizes() && (
               <div className="bg-white rounded-2xl p-6 shadow-lg">
                 <h3 className="font-calistoga text-elite-burgundy text-xl mb-4">
-                  Choose Your Size
+                  {t("size.title")}
                 </h3>
 
                 <div className="grid grid-cols-3 gap-3">
@@ -296,7 +313,7 @@ export default function ItemDetailClient({
                               : "opacity-50 text-elite-burgundy/50"
                           }`}
                         >
-                          {sizePrice} EGP
+                          {formatPrice(sizePrice)}
                         </div>
                       </button>
                     );
@@ -309,7 +326,7 @@ export default function ItemDetailClient({
             {item.flavors && item.flavors.length > 0 && (
               <div className="bg-white rounded-2xl p-6 shadow-lg">
                 <h3 className="font-calistoga text-elite-burgundy text-xl mb-4">
-                  Choose Your Flavor
+                  {t("flavors.title")}
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -329,7 +346,9 @@ export default function ItemDetailClient({
                       <div className="font-bold">{flavor.name}</div>
                       {flavor.price > 0 && (
                         <div className="text-sm opacity-75 mt-1">
-                          +{flavor.price} EGP
+                          {t("price.addOn", {
+                            price: formatPrice(flavor.price),
+                          })}
                         </div>
                       )}
                     </button>
@@ -342,7 +361,7 @@ export default function ItemDetailClient({
             {item.toppings && item.toppings.length > 0 && (
               <div className="bg-white rounded-2xl p-6 shadow-lg">
                 <h3 className="font-calistoga text-elite-burgundy text-xl mb-4">
-                  Add Toppings
+                  {t("toppings.title")}
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -362,7 +381,9 @@ export default function ItemDetailClient({
                       <div className="font-bold">{topping.name}</div>
                       {topping.price > 0 && (
                         <div className="text-sm opacity-75 mt-1">
-                          +{topping.price} EGP
+                          {t("price.addOn", {
+                            price: formatPrice(topping.price),
+                          })}
                         </div>
                       )}
                     </button>
@@ -375,10 +396,12 @@ export default function ItemDetailClient({
             {item.allergens.length > 0 && (
               <div className="bg-elite-cream/50 border border-elite-burgundy/20 rounded-2xl p-4">
                 <p className="font-cabin font-medium text-elite-burgundy mb-1">
-                  Contains: {item.allergens.join(", ")}
+                  {t("allergens.contains", {
+                    items: item.allergens.join(", "),
+                  })}
                 </p>
                 <p className="font-cabin text-elite-black/70 text-sm">
-                  Let us know if you have any dietary preferences.
+                  {t("allergens.note")}
                 </p>
               </div>
             )}
@@ -410,16 +433,16 @@ export default function ItemDetailClient({
           <div className="mt-16">
             <div className="text-center mb-8">
               <h2 className="font-calistoga text-elite-burgundy text-3xl font-bold mb-2">
-                You Might Also Like
+                {t("recommended.title")}
               </h2>
               <p className="font-cabin text-elite-black/60">
-                Discover more delicious options
+                {t("recommended.subtitle")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedItemsData.slice(0, 3).map((recommendedItem) => (
-                <Link
+                <LocalizedLink
                   key={recommendedItem.id}
                   href={`/menu/${recommendedItem.category}/${recommendedItem.subCategory}/${recommendedItem.id}`}
                   className="block"
@@ -445,7 +468,7 @@ export default function ItemDetailClient({
                         {recommendedItem.name}
                       </h4>
                       <p className="font-cabin text-elite-burgundy font-bold text-xl sm:text-2xl lg:text-3xl pt-2">
-                        {recommendedItem.price} EGP
+                        {formatPrice(recommendedItem.price)}
                       </p>
                       {recommendedItem.description && (
                         <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
@@ -454,7 +477,7 @@ export default function ItemDetailClient({
                       )}
                     </div>
                   </div>
-                </Link>
+                </LocalizedLink>
               ))}
             </div>
           </div>

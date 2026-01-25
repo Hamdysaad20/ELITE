@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Link from "next/link";
+import LocalizedLink from "@/components/LocalizedLink";
 import {
   FileText,
   CreditCard,
@@ -12,9 +12,11 @@ import {
   MapPin,
   Mail,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function TermsOfServicePage() {
   const updatedAt = "2026-01-23";
+  const t = useTranslations("termsOfService");
 
   return (
     <main className="page-transition loaded overflow-x-hidden">
@@ -27,10 +29,10 @@ export default function TermsOfServicePage() {
               </div>
               <div className="min-w-0">
                 <h1 className="font-calistoga text-3xl sm:text-4xl md:text-5xl">
-                  Terms of Service
+                  {t("title")}
                 </h1>
                 <p className="font-cabin text-elite-cream/90 mt-2">
-                  Last updated: {updatedAt}
+                  {t("updatedAt", { date: updatedAt })}
                 </p>
               </div>
             </div>
@@ -40,28 +42,25 @@ export default function TermsOfServicePage() {
         <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12">
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 space-y-8">
             <p className="font-cabin text-elite-black/80 text-lg sm:text-xl leading-relaxed">
-              These Terms apply to using our website and ordering service in
-              Egypt. By using the site, you agree to these Terms.
+              {t("intro")}
             </p>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Business details
+                {t("business.title")}
               </h2>
               <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5 space-y-2">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-5 h-5 text-elite-burgundy flex-shrink-0 mt-0.5" />
                   <p className="font-cabin text-elite-black/80">
-                    Faiyum, Governorate Club, next to the Governor&apos;s Villa
+                    {t("business.address")}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-elite-burgundy" />
                   <p className="font-cabin text-elite-black/80">
-                    Contact:{" "}
-                    <span className="font-semibold">
-                      contact@officieleliteeg.com
-                    </span>
+                    {t("business.contactLabel")}{" "}
+                    <span className="font-semibold">contact@officieleliteeg.com</span>
                   </p>
                 </div>
               </div>
@@ -69,47 +68,42 @@ export default function TermsOfServicePage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Our service
+                {t("service.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                We are a café that sells coffee, desserts, and breakfast items.
-                Availability and prices may change without notice.
+                {t("service.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Eligibility & accounts
+                {t("eligibility.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                You are responsible for the accuracy of information you provide
-                (especially phone number and delivery address) and for keeping
-                access to your account secure.
+                {t("eligibility.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Orders & payment (online only)
+                {t("orders.title")}
               </h2>
               <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <CreditCard className="w-5 h-5 text-elite-burgundy" />
                   <p className="font-calistoga text-elite-black">
-                    Payment required to place an order
+                    {t("orders.cardTitle")}
                   </p>
                 </div>
                 <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2">
                   <li>
-                    Orders are considered <strong>placed</strong> only after
-                    successful online payment confirmation.
+                    {t("orders.items.placed")}
                   </li>
                   <li>
-                    Payments are processed by our payment provider (e.g. Paymob).
+                    {t("orders.items.provider")}
                   </li>
                   <li>
-                    If payment fails or is cancelled, the order won’t be
-                    confirmed.
+                    {t("orders.items.failed")}
                   </li>
                 </ul>
               </div>
@@ -117,125 +111,106 @@ export default function TermsOfServicePage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Menu details & allergens
+                {t("menu.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <UtensilsCrossed className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  Ingredient and allergen information can vary. If you have
-                  allergies, please contact us before ordering and add notes at
-                  checkout where available.
+                  {t("menu.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Delivery
+                {t("delivery.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Truck className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  Delivery may be fulfilled by third‑party delivery partners.
-                  Delivery times are estimates and can vary due to traffic,
-                  weather, and partner capacity.
+                  {t("delivery.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Returns, refunds, and issues
+                {t("returns.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                If there’s an issue with your order, please contact us as soon
-                as possible. Refunds (if applicable) may be handled through the
-                original payment method and subject to provider processing
-                timelines.
+                {t("returns.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Cancellations
+                {t("cancellations.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                Because we prepare food and drinks quickly, cancellation may not
-                be possible after an order is confirmed/accepted for
-                preparation. If you need help, contact us immediately.
+                {t("cancellations.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Limitation of liability
+                {t("liability.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <BadgeInfo className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  To the extent allowed by applicable law, we are not liable for
-                  indirect or consequential damages. Our responsibility for any
-                  claim related to an order is limited to the amount paid for
-                  that order.
+                  {t("liability.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Acceptable use
+                {t("acceptable.title")}
               </h2>
               <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5">
                 <AlertTriangle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-amber-900 leading-relaxed">
-                  Don’t misuse the site (fraud, abuse, automated scraping, or
-                  interfering with normal operation). We may suspend access if
-                  needed for security.
+                  {t("acceptable.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Intellectual property
+                {t("intellectual.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                Our brand, logos, and site content are owned by Elite Coffee or
-                licensed to us. You may not copy or reuse them without
-                permission.
+                {t("intellectual.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Governing law (Egypt)
+                {t("governing.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                These Terms are intended to be interpreted under the laws and
-                regulations applicable in Egypt. If a dispute arises, we prefer
-                to resolve it amicably first—please contact us.
+                {t("governing.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Changes to these terms
+                {t("changes.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                We may update these Terms from time to time. We will update the
-                “Last updated” date on this page.
+                {t("changes.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Contact
+                {t("contact.title")}
               </h2>
               <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-elite-burgundy" />
                   <p className="font-cabin text-elite-black/80 text-base sm:text-lg">
-                    contact@officieleliteeg.com
+                    {t("contact.email")}
                   </p>
                 </div>
               </div>
@@ -243,23 +218,23 @@ export default function TermsOfServicePage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Privacy & cookies
+                {t("privacy.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed">
-                See our{" "}
-                <Link
+                {t("privacy.description")}{" "}
+                <LocalizedLink
                   href="/privacy-policy"
                   className="text-elite-burgundy underline font-semibold"
                 >
-                  Privacy Policy
-                </Link>{" "}
-                and{" "}
-                <Link
+                  {t("privacy.links.privacy")}
+                </LocalizedLink>{" "}
+                {t("privacy.and")}{" "}
+                <LocalizedLink
                   href="/cookie-policy"
                   className="text-elite-burgundy underline font-semibold"
                 >
-                  Cookie Policy
-                </Link>
+                  {t("privacy.links.cookie")}
+                </LocalizedLink>
                 .
               </p>
             </section>

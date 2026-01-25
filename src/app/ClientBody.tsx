@@ -15,6 +15,7 @@ import {
   resetPageState,
 } from "@/lib/utils";
 import { setupOfflineSupport } from "@/lib/errorRecovery";
+import { stripLocaleFromPathname } from "@/i18n/routing";
 
 export default function ClientBody({
   children,
@@ -22,11 +23,12 @@ export default function ClientBody({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const normalizedPath = stripLocaleFromPathname(pathname || "/");
 
   // Hide cart and mobile nav on auth pages and order page
   const isAuthPage =
-    pathname?.startsWith("/auth") || pathname?.includes("verify");
-  const isOrderPage = pathname === "/order";
+    normalizedPath.startsWith("/auth") || normalizedPath.includes("verify");
+  const isOrderPage = normalizedPath === "/order";
 
   // Handle initialization after hydration is complete
   useEffect(() => {

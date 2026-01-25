@@ -8,6 +8,7 @@ import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
 import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface ProductModalProps {
   product: Product | null;
@@ -20,6 +21,8 @@ export default function ProductModal({
   isOpen,
   onClose,
 }: ProductModalProps) {
+  const t = useTranslations("productModal");
+  const format = useFormatter();
   const { addItem } = useLocalCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<
@@ -64,6 +67,13 @@ export default function ProductModal({
 
     return price * quantity;
   }, [product, selectedOptions, quantity]);
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   const handleOptionSelect = (attrName: string, optionId: number) => {
     setSelectedOptions((prev) => ({
@@ -130,7 +140,7 @@ export default function ProductModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Customize Your Order"
+      title={t("title")}
       className="max-w-2xl md:max-w-4xl lg:max-w-5xl"
     >
       <div className="flex flex-col">
@@ -165,7 +175,7 @@ export default function ProductModal({
                   {product.name}
                 </h2>
                 <p className="font-cabin text-elite-black/70 text-sm sm:text-base leading-relaxed">
-                  {product.description || "No description available."}
+                  {product.description || t("noDescription")}
                 </p>
               </div>
 
@@ -212,10 +222,10 @@ export default function ProductModal({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="font-cabin text-xs sm:text-sm text-elite-black/60">
-                Total
+                {t("total")}
               </p>
               <p className="font-calistoga text-elite-burgundy text-lg sm:text-xl tabular-nums truncate">
-                {totalPrice.toFixed(2)} EGP
+                {formatPrice(totalPrice)}
               </p>
             </div>
 
@@ -224,7 +234,7 @@ export default function ProductModal({
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30 flex items-center justify-center"
                 disabled={quantity <= 1}
-                aria-label="Decrease quantity"
+                aria-label={t("decreaseQuantity")}
               >
                 <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -234,7 +244,7 @@ export default function ProductModal({
               <button
                 onClick={() => setQuantity(quantity + 1)}
                 className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 flex items-center justify-center"
-                aria-label="Increase quantity"
+                aria-label={t("increaseQuantity")}
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -254,17 +264,19 @@ export default function ProductModal({
             {justAdded ? (
               <>
                 <Check className="w-5 h-5" />
-                <span>Added!</span>
+                <span>{t("added")}</span>
               </>
             ) : isAdding ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
-                <span>Adding...</span>
+                <span>{t("adding")}</span>
               </div>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />
-                <span>Add to Order • EGP {totalPrice.toFixed(2)}</span>
+                <span>
+                  {t("addToOrder", { total: formatPrice(totalPrice) })}
+                </span>
               </>
             )}
           </button>

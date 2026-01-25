@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -21,6 +20,8 @@ import { ReviewCard } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 interface AttributeValue {
   id: number;
@@ -61,6 +62,17 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
+  const t = useTranslations("productDetail");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   // Fetch reviews for this product
   const {
@@ -127,7 +139,7 @@ export default function ProductDetailClient({
     // Size is typically required if present
     const hasSize = product.attributes["Size"];
     if (hasSize && !selectedAttributes["Size"]) {
-      return { valid: false, message: "Please select a size" };
+      return { valid: false, message: t("validation.selectSize") };
     }
 
     return { valid: true };
@@ -138,7 +150,7 @@ export default function ProductDetailClient({
     const validation = validateSelections();
 
     if (!validation.valid) {
-      toastError(validation.message || "Please select all required options");
+      toastError(validation.message || t("validation.selectAllRequired"));
       return;
     }
 
@@ -196,7 +208,7 @@ export default function ProductDetailClient({
 
     // Show success feedback
     setAddedToCart(true);
-    toastSuccess(`${product.name} added to cart!`);
+    toastSuccess(t("toast.addedToCart", { name: product.name }));
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -231,13 +243,13 @@ export default function ProductDetailClient({
       {/* Header - Hidden on mobile (using MobileHeader) */}
       <div className="hidden md:block bg-elite-burgundy text-elite-cream py-6 pb-14">
         <div className="max-w-7xl mx-auto px-6">
-          <Link
+          <LocalizedLink
             href="/menu"
             className="inline-flex items-center gap-2 bg-elite-cream/20 text-elite-cream px-4 py-2 rounded-full font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30"
           >
-            <ChevronLeft className="w-4 h-4" />
-            Back to Menu
-          </Link>
+            <ChevronLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
+            {t("actions.backToMenu")}
+          </LocalizedLink>
         </div>
       </div>
 
@@ -264,7 +276,7 @@ export default function ProductDetailClient({
                     <div className="flex flex-col items-center justify-center text-elite-burgundy/40">
                       <Package className="w-16 h-16 md:w-24 md:h-24 mb-3" />
                       <p className="font-cabin text-xs md:text-sm">
-                        No image available
+                        {t("images.noImage")}
                       </p>
                     </div>
                   )}
@@ -275,11 +287,11 @@ export default function ProductDetailClient({
                   {product.available ? (
                     <div className="bg-elite-burgundy text-elite-cream px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-elite-cream rounded-full animate-pulse" />
-                      In Stock
+                      {t("stock.inStock")}
                     </div>
                   ) : (
                     <div className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-cabin font-bold shadow-md">
-                      Sold Out
+                      {t("stock.soldOut")}
                     </div>
                   )}
                 </div>
@@ -290,16 +302,26 @@ export default function ProductDetailClient({
                     <button
                       onClick={prevImage}
                       className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
-                      aria-label="Previous image"
+                      aria-label={t("images.previous")}
                     >
-                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                      <ChevronLeft
+                        className={cn(
+                          "w-5 h-5 md:w-6 md:h-6",
+                          isRTL && "rotate-180",
+                        )}
+                      />
                     </button>
                     <button
                       onClick={nextImage}
                       className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-elite-burgundy rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-lg z-20 touch-manipulation"
-                      aria-label="Next image"
+                      aria-label={t("images.next")}
                     >
-                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                      <ChevronRight
+                        className={cn(
+                          "w-5 h-5 md:w-6 md:h-6",
+                          isRTL && "rotate-180",
+                        )}
+                      />
                     </button>
                   </>
                 )}
@@ -316,7 +338,7 @@ export default function ProductDetailClient({
                             ? "bg-elite-burgundy scale-125"
                             : "bg-elite-burgundy/40"
                         }`}
-                        aria-label={`View image ${index + 1}`}
+                        aria-label={t("images.viewImage", { number: index + 1 })}
                       />
                     ))}
                   </div>
@@ -338,7 +360,10 @@ export default function ProductDetailClient({
                     >
                       <Image
                         src={image}
-                        alt={`${product.name} thumbnail ${index + 1}`}
+                        alt={t("images.thumbnailAlt", {
+                          name: product.name,
+                          number: index + 1,
+                        })}
                         width={100}
                         height={100}
                         className="w-full h-full object-cover"
@@ -354,12 +379,12 @@ export default function ProductDetailClient({
               {/* Header Section */}
               <div className="space-y-2 md:space-y-4">
                 {product.category && (
-                  <Link
+                  <LocalizedLink
                     href={`/menu?category=${product.category.id}`}
                     className="inline-flex items-center gap-1 text-elite-burgundy/60 active:text-elite-burgundy font-cabin text-xs md:text-sm font-semibold uppercase tracking-wider transition-colors touch-manipulation"
                   >
                     {product.category.name}
-                  </Link>
+                  </LocalizedLink>
                 )}
 
                 <h1 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
@@ -376,12 +401,12 @@ export default function ProductDetailClient({
                 {/* Base Price */}
                 <div className="flex items-baseline gap-2 pt-1">
                   <span className="font-calistoga text-elite-burgundy text-2xl md:text-3xl">
-                    EGP {product.price}
+                    {formatPrice(product.price)}
                   </span>
                   {product.attributes &&
                     Object.keys(product.attributes).length > 0 && (
                       <span className="font-cabin text-elite-black/40 text-xs md:text-sm">
-                        starting price
+                        {t("price.starting")}
                       </span>
                     )}
                 </div>
@@ -430,10 +455,10 @@ export default function ProductDetailClient({
 
                     <div className="text-right">
                       <p className="font-cabin text-xs md:text-sm text-elite-black/50">
-                        Total
+                        {t("price.total")}
                       </p>
                       <p className="font-calistoga text-xl md:text-3xl text-elite-burgundy">
-                        EGP {calculateTotalPrice()}
+                        {formatPrice(calculateTotalPrice())}
                       </p>
                     </div>
                   </div>
@@ -452,16 +477,16 @@ export default function ProductDetailClient({
                     )}
                   >
                     {!product.available ? (
-                      "Sold Out"
+                      t("stock.soldOut")
                     ) : addedToCart ? (
                       <>
                         <Check className="w-5 h-5 animate-bounce" />
-                        Added to Cart!
+                        {t("actions.added")}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="w-5 h-5" />
-                        Add to Cart
+                        {t("actions.addToCart")}
                       </>
                     )}
                   </button>
@@ -475,7 +500,7 @@ export default function ProductDetailClient({
             <div className="mb-6 sm:mb-8">
               <div className="flex items-start sm:items-center justify-between mb-6 sm:mb-8 flex-col sm:flex-row gap-4">
                 <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold">
-                  Customer Reviews
+                  {t("reviews.title")}
                 </h2>
                 {stats && stats.total > 0 && (
                   <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 rounded-full border-2 border-elite-burgundy/20 shadow-md">
@@ -495,7 +520,7 @@ export default function ProductDetailClient({
                       {stats.averageRating.toFixed(1)}
                     </span>
                     <span className="font-cabin text-elite-black/60 text-xs sm:text-sm font-medium">
-                      ({stats.total} {stats.total === 1 ? "review" : "reviews"})
+                      {t("reviews.count", { count: stats.total })}
                     </span>
                   </div>
                 )}
@@ -505,14 +530,14 @@ export default function ProductDetailClient({
               <div className="space-y-3 sm:space-y-4 lg:space-y-5">
                 <h3 className="font-calistoga text-elite-black text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
                   {reviews.length > 0
-                    ? `All Reviews (${reviews.length})`
-                    : "Reviews"}
+                    ? t("reviews.all", { count: reviews.length })
+                    : t("reviews.header")}
                 </h3>
                 {reviewsLoading ? (
                   <div className="text-center py-16 bg-white rounded-3xl border-2 border-elite-burgundy/10">
                     <div className="animate-spin rounded-full h-16 w-16 border-4 border-elite-burgundy border-t-transparent mx-auto"></div>
                     <p className="mt-6 font-cabin text-elite-burgundy font-semibold text-lg">
-                      Loading reviews...
+                      {t("reviews.loading")}
                     </p>
                   </div>
                 ) : reviews.length === 0 ? (
@@ -521,10 +546,10 @@ export default function ProductDetailClient({
                       <Star className="w-10 h-10 text-elite-burgundy" />
                     </div>
                     <h4 className="font-calistoga text-elite-black text-2xl mb-3">
-                      No Reviews Yet
+                      {t("reviews.empty.title")}
                     </h4>
                     <p className="font-cabin text-elite-black/60 text-base">
-                      Be the first to share your experience with this product!
+                      {t("reviews.empty.description")}
                     </p>
                   </div>
                 ) : (
@@ -541,10 +566,12 @@ export default function ProductDetailClient({
             <div className="mt-8 sm:mt-12 lg:mt-16">
               <div className="text-center mb-6 sm:mb-8">
                 <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold mb-2">
-                  You Might Also Like
+                  {t("related.title")}
                 </h2>
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
-                  More products from {product.category?.name || "this category"}
+                  {t("related.subtitle", {
+                    category: product.category?.name || t("related.thisCategory"),
+                  })}
                 </p>
               </div>
 

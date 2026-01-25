@@ -1,11 +1,13 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Link from "next/link";
 import { Cookie, Settings, Shield, Globe, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 export default function CookiePolicyPage() {
   const updatedAt = "2026-01-23";
+  const t = useTranslations("cookiePolicy");
 
   return (
     <main className="page-transition loaded overflow-x-hidden">
@@ -18,10 +20,10 @@ export default function CookiePolicyPage() {
               </div>
               <div className="min-w-0">
                 <h1 className="font-calistoga text-3xl sm:text-4xl md:text-5xl">
-                  Cookie Policy
+                  {t("title")}
                 </h1>
                 <p className="font-cabin text-elite-cream/90 mt-2">
-                  Last updated: {updatedAt}
+                  {t("updatedAt", { date: updatedAt })}
                 </p>
               </div>
             </div>
@@ -31,36 +33,34 @@ export default function CookiePolicyPage() {
         <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12">
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 space-y-8">
             <p className="font-cabin text-elite-black/80 text-lg sm:text-xl leading-relaxed">
-              Cookies are small files stored on your device. We use them to keep
-              the website working, improve performance, and support marketing
-              and recommendations.
+              {t("intro")}
             </p>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Types of cookies we use
+                {t("types.title")}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-elite-burgundy" />
-                    <p className="font-calistoga text-elite-black">Essential</p>
+                    <p className="font-calistoga text-elite-black">
+                      {t("types.essential.title")}
+                    </p>
                   </div>
                   <p className="font-cabin text-elite-black/75 text-sm leading-relaxed">
-                    Needed for core features like sign-in, security, and keeping
-                    the site stable.
+                    {t("types.essential.description")}
                   </p>
                 </div>
                 <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <Settings className="w-5 h-5 text-elite-burgundy" />
                     <p className="font-calistoga text-elite-black">
-                      Analytics & preferences
+                      {t("types.analytics.title")}
                     </p>
                   </div>
                   <p className="font-cabin text-elite-black/75 text-sm leading-relaxed">
-                    Help us understand what’s working, fix issues, and remember
-                    preferences (where available).
+                    {t("types.analytics.description")}
                   </p>
                 </div>
               </div>
@@ -68,88 +68,77 @@ export default function CookiePolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Session vs persistent cookies
+                {t("session.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Clock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  Some cookies expire when you close your browser (session
-                  cookies). Others remain for a longer period (persistent
-                  cookies) to remember preferences or support analytics.
+                  {t("session.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Third‑party cookies
+                {t("thirdParty.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Globe className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  Some third parties (for example, payment providers or embedded
-                  services) may set cookies through our site. Those cookies are
-                  controlled by the third party.
+                  {t("thirdParty.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Managing cookies
+                {t("managing.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed">
-                You can control cookies in your browser settings (block, delete,
-                or limit). Blocking essential cookies may prevent sign-in or
-                checkout from working correctly.
+                {t("managing.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Marketing & recommendations
+                {t("marketing.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                Some cookies may be used to measure which pages are popular, how
-                users navigate the site, and to support better recommendations
-                (for example, showing items similar to what you viewed).
+                {t("marketing.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Do Not Track
+                {t("doNotTrack.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                Some browsers offer a “Do Not Track” setting. There is no single
-                industry standard for how sites respond, so our response may
-                vary depending on the tools in use.
+                {t("doNotTrack.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Related policies
+                {t("related.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed">
-                For more details on how we use information, see our{" "}
-                <Link
+                {t("related.description")}{" "}
+                <LocalizedLink
                   href="/privacy-policy"
                   className="text-elite-burgundy underline font-semibold"
                 >
-                  Privacy Policy
-                </Link>
+                  {t("related.privacyLink")}
+                </LocalizedLink>
                 .
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Changes to this policy
+                {t("changes.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                We may update this Cookie Policy from time to time. We will
-                update the “Last updated” date at the top of this page.
+                {t("changes.description")}
               </p>
             </section>
           </div>

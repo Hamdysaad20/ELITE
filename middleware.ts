@@ -1,3 +1,71 @@
+import { NextRequest, NextResponse } from "next/server";
+import {
+  defaultLocale,
+  isLocale,
+  localeCookieName,
+  locales,
+  type Locale,
+} from "./src/i18n/config";
+import { getLocaleFromPathname } from "./src/i18n/routing";
+
+const PUBLIC_FILE = /\.(.*)$/;
+
+function getPreferredLocale(request: NextRequest): Locale {
+  const cookieLocale = request.cookies.get(localeCookieName)?.value;
+  if (isLocale(cookieLocale)) return cookieLocale;
+
+  const acceptLanguage = request.headers.get("accept-language");
+  if (!acceptLanguage) return defaultLocale;
+
+  const candidates = acceptLanguage
+    .split(",")
+    .map((part) => part.trim().split(";")[0])
+    .filter(Boolean);
+
+  for (const candidate of candidates) {
+    const lower = candidate.toLowerCase();
+    if (lower.startsWith("ar")) return "ar";
+    if (lower.startsWith("en")) return "en";
+  }
+
+  return defaultLocale;
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    PUBLIC_FILE.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  const pathnameLocale = getLocaleFromPathname(pathname);
+  if (!pathnameLocale) {
+    const locale = getPreferredLocale(request);
+    const url = request.nextUrl.clone();
+    url.pathname = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-locale", pathnameLocale);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.cookies.set(localeCookieName, pathnameLocale, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
+};
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";

@@ -1,7 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import {
   Mail,
@@ -13,16 +12,41 @@ import {
   Sparkles,
 } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
+import { useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
+import { cn } from "@/lib/utils";
 
 function VerifyRequestContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const email = searchParams?.get("email");
   const [mounted, setMounted] = useState(false);
+  const localizedRouter = useLocalizedRouter();
+  const t = useTranslations("authVerify");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const steps = [
+    { num: 1, text: t("steps.one") },
+    { num: 2, text: t("steps.two") },
+    { num: 3, text: t("steps.three") },
+  ];
+
+  const securityItems = [
+    t("security.items.expiry"),
+    t("security.items.singleUse"),
+    t("security.items.noPassword"),
+  ];
+
+  const helpItems = [
+    t("help.items.checkSpam"),
+    t("help.items.verifyEmail"),
+    t("help.items.wait"),
+  ];
 
   return (
     <main className="min-h-screen bg-elite-cream pb-24 md:pb-0">
@@ -30,7 +54,7 @@ function VerifyRequestContent() {
       <MobileHeader
         title=""
         showBack={true}
-        onBack={() => router.push("/auth/signin")}
+        onBack={() => localizedRouter.push("/auth/signin")}
       />
 
       {/* Compact Hero Section for Mobile */}
@@ -52,13 +76,13 @@ function VerifyRequestContent() {
           <h1
             className={`font-calistoga text-elite-cream text-2xl sm:text-3xl md:text-4xl font-bold mb-3 transition-all duration-500 delay-100 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
           >
-            Check Your Email
+            {t("hero.title")}
           </h1>
 
           <p
             className={`font-cabin text-elite-cream/85 text-sm sm:text-base mb-4 transition-all duration-500 delay-150 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
           >
-            We've sent a magic link to
+            {t("hero.subtitle")}
           </p>
 
           {email && (
@@ -68,7 +92,12 @@ function VerifyRequestContent() {
               <div className="w-8 h-8 rounded-full bg-elite-cream/15 flex items-center justify-center flex-shrink-0">
                 <Mail className="w-4 h-4 text-elite-cream" />
               </div>
-              <p className="font-cabin font-semibold text-elite-cream text-sm break-all text-left">
+              <p
+                className={cn(
+                  "font-cabin font-semibold text-elite-cream text-sm break-all",
+                  isRTL ? "text-right" : "text-left",
+                )}
+              >
                 {email}
               </p>
             </div>
@@ -87,16 +116,12 @@ function VerifyRequestContent() {
               <Sparkles className="w-5 h-5 text-elite-burgundy" />
             </div>
             <h2 className="font-calistoga text-elite-burgundy text-xl font-bold">
-              Next Steps
+              {t("steps.title")}
             </h2>
           </div>
 
           <div className="space-y-4">
-            {[
-              { num: 1, text: "Check your inbox for the email" },
-              { num: 2, text: "Click the magic link inside" },
-              { num: 3, text: "You're all set! ✨" },
-            ].map((step, i) => (
+            {steps.map((step, i) => (
               <div
                 key={step.num}
                 className={`flex items-center gap-3 transition-all duration-300`}
@@ -122,15 +147,11 @@ function VerifyRequestContent() {
                 <Shield className="w-4.5 h-4.5 text-elite-burgundy" />
               </div>
               <h3 className="font-calistoga text-elite-burgundy text-base font-bold">
-                Safe & Secure
+                {t("security.title")}
               </h3>
             </div>
             <ul className="space-y-2.5">
-              {[
-                "Link expires in 24 hours",
-                "Single-use only",
-                "No password needed",
-              ].map((item, i) => (
+              {securityItems.map((item, i) => (
                 <li
                   key={i}
                   className="font-cabin text-elite-black/70 text-xs flex items-center gap-2.5"
@@ -149,15 +170,11 @@ function VerifyRequestContent() {
                 <Clock className="w-4.5 h-4.5 text-elite-burgundy" />
               </div>
               <h3 className="font-calistoga text-elite-burgundy text-base font-bold">
-                No Email?
+                {t("help.title")}
               </h3>
             </div>
             <ul className="space-y-2.5">
-              {[
-                "Check your spam folder",
-                "Verify the email address",
-                "Wait 1-2 minutes",
-              ].map((item, i) => (
+              {helpItems.map((item, i) => (
                 <li
                   key={i}
                   className="font-cabin text-elite-black/70 text-xs flex items-center gap-2.5"
@@ -174,21 +191,21 @@ function VerifyRequestContent() {
 
         {/* Action Buttons - Rounded pill style */}
         <div className="space-y-3">
-          <Link
+          <LocalizedLink
             href="/auth/signin"
             className="w-full bg-elite-burgundy text-elite-cream font-cabin font-bold text-sm py-4.5 px-6 rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-elite-burgundy/25 active:scale-[0.97] transition-all touch-manipulation"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Try Different Email</span>
-          </Link>
+            <span>{t("actions.tryDifferentEmail")}</span>
+          </LocalizedLink>
 
-          <Link
+          <LocalizedLink
             href="/"
             className="w-full bg-white border-2 border-elite-burgundy/15 text-elite-burgundy font-cabin font-bold text-sm py-4.5 px-6 rounded-full flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.97] transition-all touch-manipulation"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Shop</span>
-          </Link>
+            <ArrowLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
+            <span>{t("actions.backToShop")}</span>
+          </LocalizedLink>
         </div>
       </div>
     </main>

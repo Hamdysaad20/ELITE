@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   User,
   Mail,
@@ -22,17 +22,24 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useOrders } from "@/hooks/useOrderStatus";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import Image from "next/image";
-import Link from "next/link";
 import { OrdersAnalytics } from "@/components/orders/OrdersAnalytics";
 import { OrdersList } from "@/components/orders/OrdersList";
+import { useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 
 type TabType = "orders" | "addresses" | "rewards" | "settings";
 
 function ProfileContent() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { data: session } = useSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const localizedRouter = useLocalizedRouter();
+  const t = useTranslations("profilePage");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const signOutRedirect = addLocaleToPathname("/", locale);
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
 
@@ -73,22 +80,26 @@ function ProfileContent() {
   }
 
   const tabs = [
-    { id: "orders" as TabType, label: "Orders", icon: ShoppingBag },
-    { id: "addresses" as TabType, label: "Addresses", icon: MapPin },
+    { id: "orders" as TabType, label: t("tabs.orders"), icon: ShoppingBag },
+    {
+      id: "addresses" as TabType,
+      label: t("tabs.addresses"),
+      icon: MapPin,
+    },
     {
       id: "rewards" as TabType,
-      label: "Rewards",
+      label: t("tabs.rewards"),
       icon: Award,
       comingSoon: true,
     },
-    { id: "settings" as TabType, label: "Settings", icon: Settings },
+    { id: "settings" as TabType, label: t("tabs.settings"), icon: Settings },
   ];
 
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block"></div>
-      <MobileHeader title="Profile" showBack={true} />
+      <MobileHeader title={t("title")} showBack={true} />
 
       <main className="min-h-screen bg-elite-cream pb-28 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-12 space-y-3 md:space-y-6">
@@ -102,7 +113,7 @@ function ProfileContent() {
                     {session.user?.image ? (
                       <Image
                         src={session.user.image}
-                        alt={session.user.name || "Profile"}
+                        alt={session.user.name || t("avatar.alt")}
                         width={80}
                         height={80}
                         className="object-cover w-full h-full"
@@ -111,14 +122,14 @@ function ProfileContent() {
                       <span className="font-calistoga text-xl sm:text-2xl md:text-3xl text-elite-burgundy">
                         {session.user?.name?.charAt(0).toUpperCase() ||
                           session.user?.email?.charAt(0).toUpperCase() ||
-                          "U"}
+                          t("userInitial")}
                       </span>
                     )}
                   </div>
                   <button
                     onClick={() => setShowAvatarUpload(true)}
                     className="absolute inset-0 rounded-full bg-black/0 active:bg-black/40 md:hover:bg-black/40 transition-all flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100 touch-manipulation"
-                    title="Change profile picture"
+                    title={t("avatar.change")}
                   >
                     <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-lg" />
                   </button>
@@ -128,7 +139,7 @@ function ProfileContent() {
                   <h1 className="font-calistoga text-lg sm:text-xl md:text-2xl text-elite-cream truncate leading-tight">
                     {session.user?.name ||
                       session.user?.email?.split("@")[0] ||
-                      "User"}
+                      t("user")}
                   </h1>
                   <div className="flex items-center gap-1.5 text-elite-cream/70 mt-0.5">
                     <Mail className="w-3.5 h-3.5 flex-shrink-0" />
@@ -147,7 +158,7 @@ function ProfileContent() {
                   {orders.length}
                 </p>
                 <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">
-                  Orders
+                  {t("stats.orders")}
                 </p>
               </div>
               <div className="w-px h-8 bg-elite-burgundy/15" />
@@ -156,7 +167,7 @@ function ProfileContent() {
                   0
                 </p>
                 <p className="font-cabin text-[11px] sm:text-xs text-elite-black/50 uppercase tracking-wide">
-                  Points
+                  {t("stats.points")}
                 </p>
               </div>
             </div>
@@ -199,24 +210,24 @@ function ProfileContent() {
               <div className="space-y-4">
                 {/* Quick Links Row */}
                 <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                  <Link
+                  <LocalizedLink
                     href="/orders"
                     className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 transition-all whitespace-nowrap"
                   >
                     <ShoppingBag className="w-4 h-4 text-elite-burgundy" />
                     <span className="font-cabin text-sm font-semibold text-elite-black">
-                      View All
+                      {t("orders.viewAll")}
                     </span>
-                  </Link>
-                  <Link
+                  </LocalizedLink>
+                  <LocalizedLink
                     href="/analytics"
                     className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-elite-burgundy text-elite-cream hover:bg-elite-burgundy/90 transition-all whitespace-nowrap"
                   >
                     <Package className="w-4 h-4" />
                     <span className="font-cabin text-sm font-semibold">
-                      Analytics
+                      {t("orders.analytics")}
                     </span>
-                  </Link>
+                  </LocalizedLink>
                 </div>
 
                 {/* Orders Analytics */}
@@ -241,7 +252,7 @@ function ProfileContent() {
             {activeTab === "addresses" && (
               <div className="bg-white rounded-3xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-elite-burgundy/10">
                 <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-5">
-                  Delivery Addresses
+                  {t("addresses.title")}
                 </h2>
                 <AddressManager />
               </div>
@@ -255,11 +266,10 @@ function ProfileContent() {
                     <Award className="w-10 h-10 sm:w-12 sm:h-12 text-elite-burgundy" />
                   </div>
                   <h2 className="font-calistoga text-2xl text-elite-black mb-3">
-                    Rewards Program
+                    {t("rewards.title")}
                   </h2>
                   <p className="font-cabin text-elite-black/60 max-w-md mx-auto">
-                    Earn points with every purchase and unlock exclusive
-                    benefits
+                    {t("rewards.description")}
                   </p>
                 </div>
               </div>
@@ -273,16 +283,16 @@ function ProfileContent() {
                     <Settings className="w-10 h-10 sm:w-12 sm:h-12 text-elite-burgundy" />
                   </div>
                   <h2 className="font-calistoga text-2xl text-elite-black mb-3">
-                    Account Settings
+                    {t("settings.title")}
                   </h2>
                   <p className="font-cabin text-elite-black/60 max-w-md mx-auto mb-6">
-                    Manage your preferences and account details
+                    {t("settings.description")}
                   </p>
                   <button
-                    onClick={() => router.push("/settings")}
+                    onClick={() => localizedRouter.push("/settings")}
                     className="bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
-                    Go to Settings
+                    {t("settings.cta")}
                   </button>
                 </div>
               </div>
@@ -291,11 +301,11 @@ function ProfileContent() {
 
           {/* Sign Out Button */}
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={() => signOut({ callbackUrl: signOutRedirect })}
             className="w-full mt-4 bg-white text-red-600 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-red-100 hover:border-red-200 active:scale-[0.98] flex items-center justify-center gap-3 group"
           >
             <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span className="font-cabin font-semibold">Sign Out</span>
+          <span className="font-cabin font-semibold">{t("signOut")}</span>
           </button>
         </div>
       </main>

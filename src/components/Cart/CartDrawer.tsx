@@ -2,11 +2,14 @@
 
 import { X, ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useTransition, useOptimistic } from "react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
+import { cn } from "@/lib/utils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -14,15 +17,26 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+  const t = useTranslations("cartDrawer");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const localizedRouter = useLocalizedRouter();
   const { items, removeItem, updateQuantity, subtotal, tax, total, itemCount } =
     useLocalCart();
-  const router = useRouter();
   const { status } = useSession();
   const [isPending, startTransition] = useTransition();
   const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const itemCountLabel = `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
+  const itemCountLabel = t("items", { count: itemCount });
+
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -118,12 +132,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
+    const orderPath = addLocaleToPathname("/order", locale);
+    const signInPath = addLocaleToPathname("/auth/signin", locale);
     if (status === "unauthenticated") {
       // Redirect to login with callback to checkout
-      router.push("/auth/signin?callbackUrl=/order");
+      localizedRouter.push(
+        `${signInPath}?callbackUrl=${encodeURIComponent(orderPath)}`,
+      );
     } else {
       // Proceed to checkout
-      router.push("/order");
+      localizedRouter.push(orderPath);
     }
     setTimeout(() => {
       onClose();
@@ -145,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Shopping cart"
+        aria-label={t("aria.cart")}
         className={`fixed right-0 top-0 h-full w-full sm:w-[min(480px,calc(100vw-2rem))] md:w-[min(540px,calc(100vw-2rem))] lg:w-[600px] xl:w-[640px] bg-elite-cream shadow-2xl z-[70] transform transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -160,7 +178,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="font-calistoga text-xl sm:text-2xl lg:text-3xl leading-tight truncate">
-                    Shopping Cart
+                    {t("title")}
                   </h2>
                   <p className="font-cabin text-elite-cream/80 text-sm sm:text-base mt-0.5 truncate tabular-nums min-h-[1.25rem] sm:min-h-[1.5rem]">
                     <span
@@ -174,7 +192,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <button
                 onClick={onClose}
                 className="hover:bg-elite-cream/20 active:bg-elite-cream/30 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group flex-shrink-0 ml-2 w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 flex items-center justify-center"
-                aria-label="Close cart"
+                aria-label={t("aria.close")}
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:rotate-90 transition-transform duration-300" />
               </button>
@@ -188,16 +206,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <ShoppingCart className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-elite-burgundy/30" />
                 </div>
                 <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl lg:text-2xl mb-2 lg:mb-3">
-                  Your cart is empty
+                  {t("empty.title")}
                 </h3>
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base lg:text-lg mb-6 lg:mb-8 max-w-sm">
-                  Start adding some delicious items to your order!
+                  {t("empty.description")}
                 </p>
                 <button
                   onClick={onClose}
                   className="bg-elite-burgundy text-elite-cream px-10 sm:px-12 lg:px-14 py-4 sm:py-4.5 lg:py-5 rounded-full font-cabin font-bold text-base lg:text-lg hover:shadow-xl hover:scale-105 active:scale-[0.97] transition-all duration-300 shadow-lg shadow-elite-burgundy/25 touch-manipulation min-h-[52px] lg:min-h-[60px]"
                 >
-                  Continue Shopping
+                  {t("empty.cta")}
                 </button>
               </div>
             ) : (
@@ -246,7 +264,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               onClick={() => handleRemoveItem(item.id)}
                               disabled={isItemPending}
                               className="flex-shrink-0 p-2 lg:p-2.5 text-red-500 hover:text-white hover:bg-red-500 active:bg-red-600 rounded-full transition-all duration-300 active:scale-90 touch-manipulation group shadow-sm hover:shadow-lg w-11 h-11 lg:w-11 lg:h-11 flex items-center justify-center"
-                              aria-label="Remove item"
+                              aria-label={t("aria.removeItem")}
                             >
                               <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
@@ -268,12 +286,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     {values.some((v) => v.priceExtra > 0) && (
                                       <span className="text-elite-burgundy font-medium">
                                         {" "}
-                                        (+
-                                        {values.reduce(
-                                          (sum, v) => sum + v.priceExtra,
-                                          0,
-                                        )}{" "}
-                                        EGP)
+                                        {t("priceExtra", {
+                                          amount: formatCurrency(
+                                            values.reduce(
+                                              (sum, v) => sum + v.priceExtra,
+                                              0,
+                                            ),
+                                          ),
+                                        })}
                                       </span>
                                     )}
                                   </p>
@@ -295,7 +315,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                   }
                                   className="text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20 rounded-full transition-all duration-300 active:scale-90 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed w-11 h-11 flex items-center justify-center"
                                   disabled={item.quantity <= 1 || isItemPending}
-                                  aria-label="Decrease quantity"
+                                  aria-label={t("aria.decrease")}
                                 >
                                   <Minus className="w-4 h-4" />
                                 </button>
@@ -313,7 +333,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                   disabled={
                                     item.quantity >= 50 || isItemPending
                                   }
-                                  aria-label="Increase quantity"
+                                  aria-label={t("aria.increase")}
                                 >
                                   <Plus className="w-4 h-4" />
                                 </button>
@@ -322,12 +342,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                             <div className="text-right flex-shrink-0">
                               <p className="font-cabin font-bold text-elite-burgundy text-base sm:text-lg lg:text-xl">
-                                {item.totalPrice.toFixed(2)} EGP
+                                {formatCurrency(item.totalPrice)}
                               </p>
                               {item.quantity > 1 && (
                                 <p className="font-cabin text-elite-black/50 text-xs sm:text-sm">
-                                  {(item.totalPrice / item.quantity).toFixed(2)}{" "}
-                                  each
+                                  {formatCurrency(item.totalPrice / item.quantity)}{" "}
+                                  {t("each")}
                                 </p>
                               )}
                             </div>
@@ -352,15 +372,15 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <div className="space-y-2 sm:space-y-2.5 mb-5 sm:mb-6 lg:mb-8">
                     {showBreakdown && (
                       <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
-                        <span>Subtotal</span>
+                        <span>{t("summary.subtotal")}</span>
                         <span className="font-semibold">
-                          {subtotal.toFixed(2)} EGP
+                          {formatCurrency(subtotal)}
                         </span>
                       </div>
                     )}
                 <div className="border-t-2 border-elite-burgundy/20 pt-2 sm:pt-2.5 flex justify-between font-calistoga text-elite-burgundy text-xl sm:text-2xl lg:text-3xl">
-                  <span>Total</span>
-                  <span>{total.toFixed(2)} EGP</span>
+                  <span>{t("summary.total")}</span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
                   </div>
                 );
@@ -374,19 +394,26 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 {isCheckingOut ? (
                   <>
                     <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
-                    <span>Processing...</span>
+                    <span>{t("actions.processing")}</span>
                   </>
                 ) : (
                   <>
-                    <span>Proceed to Checkout</span>
-                    <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform duration-300" />
+                    <span>{t("actions.checkout")}</span>
+                    <ArrowRight
+                      className={cn(
+                        "w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300",
+                        isRTL
+                          ? "group-hover:-translate-x-1 rotate-180"
+                          : "group-hover:translate-x-1",
+                      )}
+                    />
                   </>
                 )}
               </button>
 
               {status === "unauthenticated" && (
                 <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                  You'll need to sign in to complete your order
+                  {t("actions.signInNotice")}
                 </p>
               )}
             </div>

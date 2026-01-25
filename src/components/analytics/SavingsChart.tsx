@@ -10,20 +10,31 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface SavingsChartProps {
   data: { month: string; savings: number; spending: number }[];
 }
 
 export function SavingsChart({ data }: SavingsChartProps) {
+  const t = useTranslations("analyticsCharts");
+  const format = useFormatter();
+
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
         <h3 className="font-calistoga text-xl mb-6 text-elite-black">
-          Savings Over Time
+          {t("savings.title")}
         </h3>
         <div className="h-[300px] flex items-center justify-center text-elite-black/50 font-cabin">
-          No data available
+          {t("empty")}
         </div>
       </div>
     );
@@ -32,7 +43,7 @@ export function SavingsChart({ data }: SavingsChartProps) {
   return (
     <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
       <h3 className="font-calistoga text-xl mb-6 text-elite-black">
-        Savings Over Time
+        {t("savings.title")}
       </h3>
 
       <ResponsiveContainer width="100%" height={300}>
@@ -59,7 +70,7 @@ export function SavingsChart({ data }: SavingsChartProps) {
               fontFamily: "Cabin",
               padding: "12px",
             }}
-            formatter={(value: number) => [`EGP ${value.toFixed(2)}`, ""]}
+            formatter={(value: number) => [formatCurrency(value), ""]}
             labelStyle={{
               color: "#F5F5DC",
               fontWeight: "bold",
@@ -76,7 +87,7 @@ export function SavingsChart({ data }: SavingsChartProps) {
             stroke="#800020"
             strokeWidth={3}
             dot={{ fill: "#800020", r: 5 }}
-            name="Savings (EGP)"
+            name={t("savings.lineLabel")}
             activeDot={{ r: 7 }}
           />
         </LineChart>

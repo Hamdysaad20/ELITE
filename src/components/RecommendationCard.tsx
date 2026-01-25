@@ -2,6 +2,7 @@
 import React from "react";
 import type { MenuItem } from "@/types";
 import { ShoppingCart, Check, Sparkles, Tag } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface BaseRec {
   item: MenuItem;
@@ -27,6 +28,15 @@ export function RecommendationCard({
   const flavor = suggestedFlavors?.[0];
   const [adding, setAdding] = React.useState(false);
   const [added, setAdded] = React.useState(false);
+  const t = useTranslations("recommendationCard");
+  const format = useFormatter();
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   const handleAdd = async () => {
     if (adding) return;
@@ -68,7 +78,7 @@ export function RecommendationCard({
         </div>
         <div className="text-right flex-shrink-0">
           <div className="font-calistoga text-elite-burgundy text-2xl">
-            {item.price} EGP
+            {formatPrice(item.price)}
           </div>
         </div>
       </div>
@@ -94,7 +104,7 @@ export function RecommendationCard({
       {reasons?.length ? (
         <div className="space-y-2">
           <p className="font-cabin text-xs font-semibold text-elite-black/60 uppercase tracking-wide">
-            Why we recommend this
+            {t("reasonsTitle")}
           </p>
           <ul className="space-y-1.5">
             {reasons.slice(0, 4).map((r, i) => (
@@ -123,14 +133,14 @@ export function RecommendationCard({
         {added ? (
           <>
             <Check className="w-5 h-5" />
-            <span>Added to Cart!</span>
+            <span>{t("actions.added")}</span>
           </>
         ) : adding ? (
-          <span className="font-cabin">Adding...</span>
+          <span className="font-cabin">{t("actions.adding")}</span>
         ) : (
           <>
             <ShoppingCart className="w-5 h-5" />
-            <span>Add to Order</span>
+            <span>{t("actions.add")}</span>
           </>
         )}
       </button>

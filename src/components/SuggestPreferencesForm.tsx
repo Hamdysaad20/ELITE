@@ -13,6 +13,7 @@ import {
   Clock,
   Star,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface SuggestPreferencesFormProps {
   onSuggest: (prefs: DrinkPreferences) => void;
@@ -23,6 +24,7 @@ export function SuggestPreferencesForm({
   onSuggest,
   loading,
 }: SuggestPreferencesFormProps) {
+  const t = useTranslations("suggestForm");
   const [temperature, setTemperature] = React.useState<
     "hot" | "iced" | "either"
   >("either");
@@ -76,7 +78,7 @@ export function SuggestPreferencesForm({
       <div className="flex items-center gap-2 pb-2 border-b border-elite-burgundy/20">
         <Sparkles className="w-5 h-5 text-elite-burgundy" />
         <h3 className="font-calistoga text-elite-burgundy text-xl">
-          Your Preferences
+          {t("title")}
         </h3>
       </div>
 
@@ -85,7 +87,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Thermometer className="w-4 h-4 text-elite-burgundy" />
-            Temperature
+            {t("temperature.label")}
           </span>
           <select
             className={selectClass}
@@ -94,9 +96,9 @@ export function SuggestPreferencesForm({
               setTemperature(e.target.value as "hot" | "iced" | "either")
             }
           >
-            <option value="either">Either</option>
-            <option value="hot">Hot</option>
-            <option value="iced">Iced</option>
+            <option value="either">{t("temperature.options.either")}</option>
+            <option value="hot">{t("temperature.options.hot")}</option>
+            <option value="iced">{t("temperature.options.iced")}</option>
           </select>
         </label>
 
@@ -104,7 +106,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-elite-burgundy" />
-            Caffeine Level
+            {t("caffeine.label")}
           </span>
           <select
             className={selectClass}
@@ -113,10 +115,10 @@ export function SuggestPreferencesForm({
               setCaffeine(e.target.value as "none" | "low" | "medium" | "high")
             }
           >
-            <option value="none">None</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="none">{t("caffeine.options.none")}</option>
+            <option value="low">{t("caffeine.options.low")}</option>
+            <option value="medium">{t("caffeine.options.medium")}</option>
+            <option value="high">{t("caffeine.options.high")}</option>
           </select>
         </label>
 
@@ -124,7 +126,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Candy className="w-4 h-4 text-elite-burgundy" />
-            Sweetness
+            {t("sweetness.label")}
           </span>
           <select
             className={selectClass}
@@ -133,9 +135,9 @@ export function SuggestPreferencesForm({
               setSweetness(e.target.value as "low" | "medium" | "high")
             }
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="low">{t("sweetness.options.low")}</option>
+            <option value="medium">{t("sweetness.options.medium")}</option>
+            <option value="high">{t("sweetness.options.high")}</option>
           </select>
         </label>
 
@@ -143,7 +145,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Milk className="w-4 h-4 text-elite-burgundy" />
-            Milk Preference
+            {t("milk.label")}
           </span>
           <select
             className={selectClass}
@@ -152,9 +154,9 @@ export function SuggestPreferencesForm({
               setMilk(e.target.value as "no-milk" | "dairy" | "non-dairy")
             }
           >
-            <option value="dairy">Dairy</option>
-            <option value="non-dairy">Non-dairy</option>
-            <option value="no-milk">No milk</option>
+            <option value="dairy">{t("milk.options.dairy")}</option>
+            <option value="non-dairy">{t("milk.options.nonDairy")}</option>
+            <option value="no-milk">{t("milk.options.none")}</option>
           </select>
         </label>
 
@@ -162,13 +164,13 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Palette className="w-4 h-4 text-elite-burgundy" />
-            Flavor Notes
+            {t("flavors.label")}
           </span>
           <input
             className={inputClass}
             value={flavors}
             onChange={(e) => setFlavors(e.target.value)}
-            placeholder="caramel, chocolate, vanilla"
+            placeholder={t("flavors.placeholder")}
           />
         </label>
 
@@ -176,13 +178,13 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Wallet className="w-4 h-4 text-elite-burgundy" />
-            Max Budget (EGP)
+            {t("budget.label")}
           </span>
           <input
             className={inputClass}
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            placeholder="e.g. 80"
+            placeholder={t("budget.placeholder")}
             inputMode="decimal"
           />
         </label>
@@ -191,7 +193,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Ruler className="w-4 h-4 text-elite-burgundy" />
-            Size Preference
+            {t("size.label")}
           </span>
           <select
             className={selectClass}
@@ -202,10 +204,10 @@ export function SuggestPreferencesForm({
               )
             }
           >
-            <option value="">Auto (Best match)</option>
-            <option value="Small">Small</option>
-            <option value="Medium">Medium</option>
-            <option value="Large">Large</option>
+            <option value="">{t("size.options.auto")}</option>
+            <option value="Small">{t("size.options.small")}</option>
+            <option value="Medium">{t("size.options.medium")}</option>
+            <option value="Large">{t("size.options.large")}</option>
           </select>
         </label>
 
@@ -213,7 +215,7 @@ export function SuggestPreferencesForm({
         <label className={labelClass}>
           <span className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-elite-burgundy" />
-            Time of Day
+            {t("timeOfDay.label")}
           </span>
           <select
             className={selectClass}
@@ -224,10 +226,10 @@ export function SuggestPreferencesForm({
               )
             }
           >
-            <option value="any">Any time</option>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="evening">Evening</option>
+            <option value="any">{t("timeOfDay.options.any")}</option>
+            <option value="morning">{t("timeOfDay.options.morning")}</option>
+            <option value="afternoon">{t("timeOfDay.options.afternoon")}</option>
+            <option value="evening">{t("timeOfDay.options.evening")}</option>
           </select>
         </label>
 
@@ -241,7 +243,7 @@ export function SuggestPreferencesForm({
           />
           <span className="flex items-center gap-2 font-cabin font-medium text-elite-black/80">
             <Star className="w-4 h-4 text-elite-burgundy" />
-            Prioritize featured drinks
+            {t("featuredBoost")}
           </span>
         </label>
       </div>
@@ -252,7 +254,7 @@ export function SuggestPreferencesForm({
         className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-full font-calistoga text-lg tracking-wide shadow-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <Sparkles className="w-5 h-5" />
-        {loading ? "Finding your perfect drink..." : "Get My Suggestion"}
+        {loading ? t("submit.loading") : t("submit.default")}
       </button>
     </form>
   );

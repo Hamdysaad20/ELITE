@@ -15,22 +15,25 @@ import {
   Clock,
   Gift,
 } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 export default function PointsHistoryPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { transactions, loading, error } = usePointsHistory(50);
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
+  const t = useTranslations("pointsHistory");
+  const format = useFormatter();
 
   if (authLoading || loading) {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title="Points History" showBack={true} />
+        <MobileHeader title={t("title")} showBack={true} />
         <main className="min-h-screen bg-elite-cream flex items-center justify-center pt-16 md:pt-0">
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
             <p className="text-elite-black/70 font-cabin text-lg">
-              Loading history...
+              {t("loading")}
             </p>
           </div>
         </main>
@@ -43,12 +46,12 @@ export default function PointsHistoryPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title="Points History" showBack={true} />
+        <MobileHeader title={t("title")} showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-32">
           <div className="max-w-3xl mx-auto px-4 pt-8">
             <div className="bg-white rounded-3xl p-8 text-center">
               <p className="text-elite-black/70 font-cabin">
-                Failed to load history
+                {t("error")}
               </p>
             </div>
           </div>
@@ -73,30 +76,33 @@ export default function PointsHistoryPage() {
     }
   };
 
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  const formatDate = (date: string | Date) =>
+    format.dateTime(new Date(date), {
+      dateStyle: "medium",
+      timeStyle: "short",
     });
+
+  const typeLabels: Record<string, string> = {
+    earn: t("types.earn"),
+    redeem: t("types.redeem"),
+    expire: t("types.expire"),
+    adjust: t("types.adjust"),
   };
 
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <MobileHeader title="Points History" showBack={true} />
+      <MobileHeader title={t("title")} showBack={true} />
 
       <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-3xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4">
           {/* Header */}
           <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
             <h1 className="font-calistoga text-2xl text-elite-black mb-2">
-              Points History
+              {t("title")}
             </h1>
             <p className="font-cabin text-elite-black/60">
-              Your complete transaction history
+              {t("subtitle")}
             </p>
           </div>
 
@@ -105,10 +111,10 @@ export default function PointsHistoryPage() {
             <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-8 text-center">
               <Award className="w-16 h-16 text-elite-burgundy/30 mx-auto mb-4" />
               <h3 className="font-calistoga text-xl text-elite-black mb-2">
-                No History Yet
+                {t("empty.title")}
               </h3>
               <p className="font-cabin text-elite-black/60">
-                Start earning points by placing orders!
+                {t("empty.description")}
               </p>
             </div>
           ) : (
@@ -146,12 +152,14 @@ export default function PointsHistoryPage() {
                             }`}
                           >
                             {transaction.amount > 0 ? "+" : ""}
-                            {transaction.amount.toLocaleString()}
+                            {format.number(Math.abs(transaction.amount))}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-3 text-sm text-elite-black/60 font-cabin">
-                          <span className="capitalize">{transaction.type}</span>
+                          <span className="capitalize">
+                            {typeLabels[transaction.type] || transaction.type}
+                          </span>
                           <span>•</span>
                           <span>{formatDate(transaction.createdAt)}</span>
                         </div>
@@ -159,7 +167,9 @@ export default function PointsHistoryPage() {
                         {/* Balance after transaction */}
                         <div className="mt-2 pt-2 border-t border-elite-burgundy/10">
                           <span className="text-xs text-elite-black/50 font-cabin">
-                            Balance: {transaction.balance.toLocaleString()} pts
+                            {t("balance", {
+                              count: format.number(transaction.balance),
+                            })}
                           </span>
                         </div>
                       </div>

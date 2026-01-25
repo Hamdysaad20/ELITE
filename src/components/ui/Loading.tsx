@@ -5,6 +5,7 @@
 
 import React from "react";
 import { cn, loadingStates } from "@/lib/componentUtils";
+import { useTranslations } from "next-intl";
 
 interface SkeletonProps {
   className?: string;
@@ -83,13 +84,15 @@ export const Spinner: React.FC<{
  * Full page loading component
  */
 export const PageLoader: React.FC<{ message?: string }> = ({
-  message = "Loading...",
+  message,
 }) => {
+  const t = useTranslations("loadingState");
+  const resolvedMessage = message ?? t("loading");
   return (
     <div className="min-h-screen flex items-center justify-center bg-elite-cream">
       <div className="text-center">
         <Spinner size="lg" className="mx-auto mb-4" />
-        <p className="text-elite-gray font-medium">{message}</p>
+        <p className="text-elite-gray font-medium">{resolvedMessage}</p>
       </div>
     </div>
   );
@@ -102,7 +105,9 @@ export const LoadingOverlay: React.FC<{
   loading: boolean;
   children: React.ReactNode;
   message?: string;
-}> = ({ loading, children, message = "Loading..." }) => {
+}> = ({ loading, children, message }) => {
+  const t = useTranslations("loadingState");
+  const resolvedMessage = message ?? t("loading");
   if (!loading) return <>{children}</>;
 
   return (
@@ -111,7 +116,7 @@ export const LoadingOverlay: React.FC<{
       <div className="absolute inset-0 flex items-center justify-center bg-white/80">
         <div className="text-center">
           <Spinner className="mx-auto mb-2" />
-          <p className="text-sm text-elite-gray">{message}</p>
+          <p className="text-sm text-elite-gray">{resolvedMessage}</p>
         </div>
       </div>
     </div>

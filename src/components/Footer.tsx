@@ -1,9 +1,15 @@
 "use client";
 
 import { Instagram, Facebook, Globe, MapPin } from "lucide-react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { cn } from "@/lib/utils";
 
 export default function Footer() {
+  const locale = useLocale();
+  const t = useTranslations("footer");
+  const isRTL = locale === "ar";
+
   return (
     <footer className="bg-elite-burgundy text-elite-white relative">
       <div className="relative max-w-7xl mx-auto px-6 py-16">
@@ -14,13 +20,12 @@ export default function Footer() {
             {/* Tagline */}
             <div className="space-y-4">
               <h3 className="font-calistoga text-elite-white text-3xl md:text-4xl leading-tight">
-                Life Begins
+                {t("tagline.line1")}
                 <br />
-                After Coffee
+                {t("tagline.line2")}
               </h3>
               <p className="text-elite-cream font-cabin text-base leading-relaxed">
-                Experience the perfect blend of tradition and innovation in
-                every cup.
+                {t("tagline.description")}
               </p>
             </div>
           </div>
@@ -29,37 +34,56 @@ export default function Footer() {
           <div className="space-y-6">
             <div className="space-y-3">
               <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-                Navigation
+                {t("navigation.title")}
               </h4>
               <p className="text-elite-cream font-cabin text-sm">
-                Explore our world
+                {t("navigation.subtitle")}
               </p>
             </div>
             <nav className="space-y-4">
-              <Link
+              <LocalizedLink
                 href="/menu"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Menu
-              </Link>
-              <Link
+                {t("navigation.menu")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/rewards"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Rewards
-                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">
-                  Soon
+                {t("navigation.rewards")}
+                <span
+                  className={cn(
+                    "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
+                    isRTL ? "mr-1" : "ml-1",
+                  )}
+                >
+                  {t("soon")}
                 </span>
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href="/shop"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Shop{" "}
-                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">
-                  Soon
+                {t("navigation.shop")}{" "}
+                <span
+                  className={cn(
+                    "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
+                    isRTL ? "mr-1" : "ml-1",
+                  )}
+                >
+                  {t("soon")}
                 </span>
-              </Link>
+              </LocalizedLink>
             </nav>
           </div>
 
@@ -67,49 +91,74 @@ export default function Footer() {
           <div className="space-y-6">
             <div className="space-y-3">
               <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-                Menu Categories
+                {t("menuCategories.title")}
               </h4>
               <p className="text-elite-cream font-cabin text-sm">
-                Our offerings
+                {t("menuCategories.subtitle")}
               </p>
             </div>
             <nav className="space-y-4">
-              <Link
+              <LocalizedLink
                 href="/menu/classic-drinks"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Classic Drinks
-              </Link>
-              <Link
+                {t("menuCategories.classic")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/menu/special-drinks"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Special Drinks
-              </Link>
-              <Link
+                {t("menuCategories.special")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/menu/kids-corner"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Kids' Corner
-              </Link>
-              <Link
+                {t("menuCategories.kids")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/menu/food"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                Food & Treats
-                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">
-                  Soon
+                {t("menuCategories.food")}
+                <span
+                  className={cn(
+                    "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
+                    isRTL ? "mr-1" : "ml-1",
+                  )}
+                >
+                  {t("soon")}
                 </span>
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href="/menu/at-home-coffee"
-                className="block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide hover:translate-x-2 transform relative"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
               >
-                At Home Coffee
-                <span className="text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full ml-1">
-                  Soon
+                {t("menuCategories.home")}
+                <span
+                  className={cn(
+                    "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
+                    isRTL ? "mr-1" : "ml-1",
+                  )}
+                >
+                  {t("soon")}
                 </span>
-              </Link>
+              </LocalizedLink>
             </nav>
           </div>
 
@@ -117,19 +166,21 @@ export default function Footer() {
           <div className="space-y-6">
             <div className="space-y-3">
               <h4 className="font-calistoga text-elite-white text-xl font-semibold">
-                Location
+                {t("location.title")}
               </h4>
-              <p className="text-elite-cream font-cabin text-sm">Visit us</p>
+              <p className="text-elite-cream font-cabin text-sm">
+                {t("location.subtitle")}
+              </p>
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3 font-cabin text-elite-white text-base font-semibold tracking-wide">
                 <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
                 <div className="space-y-2">
                   <div className="text-elite-white">
-                    Faiyum, Governorate Club, next to the Governor's Villa
+                    {t("location.addressEn")}
                   </div>
                   <div className="text-elite-cream/80 text-sm" dir="rtl">
-                    الفيوم، نادي المحافظة، بجوار فيلا المحافظ
+                    {t("location.addressAr")}
                   </div>
                 </div>
               </div>
@@ -140,7 +191,7 @@ export default function Footer() {
         {/* Social Media Section */}
         <div className="text-center mb-12">
           <h4 className="font-calistoga text-elite-white text-2xl font-semibold mb-6">
-            Follow Us
+            {t("social.title")}
           </h4>
           <div className="flex justify-center space-x-6">
             {/* Instagram */}
@@ -204,27 +255,27 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
             <p className="font-cabin text-elite-white text-base font-medium">
-              © {new Date().getFullYear()} Elite Coffee. All rights reserved.
+              {t("copyright", { year: new Date().getFullYear() })}
             </p>
             <div className="flex space-x-6">
-              <Link
+              <LocalizedLink
                 href="/privacy-policy"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
-                Privacy Policy
-              </Link>
-              <Link
+                {t("links.privacy")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/terms-of-service"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
-                Terms of Service
-              </Link>
-              <Link
+                {t("links.terms")}
+              </LocalizedLink>
+              <LocalizedLink
                 href="/cookie-policy"
                 className="font-cabin text-elite-white hover:text-elite-cream transition-colors duration-300 text-sm"
               >
-                Cookie Policy
-              </Link>
+                {t("links.cookie")}
+              </LocalizedLink>
             </div>
           </div>
         </div>

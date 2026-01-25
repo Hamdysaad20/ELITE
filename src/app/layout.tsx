@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Cabin_Condensed, Calistoga } from "next/font/google";
+import { Cabin_Condensed, Calistoga, Cairo } from "next/font/google";
 import "./globals.css";
-import ClientBody from "./ClientBody";
-import { ErrorBoundary } from "@/components/ui";
+import { getDirection } from "@/i18n/config";
+import { getRequestLocale } from "@/i18n/server";
 
 const cabinCondensed = Cabin_Condensed({
   subsets: ["latin"],
@@ -16,10 +16,13 @@ const calistoga = Calistoga({
   variable: "--font-calistoga",
 });
 
+const cairo = Cairo({
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
+  variable: "--font-cairo",
+});
+
 export const metadata: Metadata = {
-  title: "Elite Coffee - Premium Coffee Experience",
-  description:
-    "Experience the finest coffee at Elite Coffee. Located in Faiyum, Governorate Club.",
   icons: {
     icon: [
       {
@@ -51,16 +54,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = getRequestLocale();
+  const direction = getDirection(locale);
+
   return (
     <html
-      lang="en"
-      className={`${cabinCondensed.variable} ${calistoga.variable}`}
+      lang={locale}
+      dir={direction}
+      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>
-        <ErrorBoundary>
-          <ClientBody>{children}</ClientBody>
-        </ErrorBoundary>
+        {children}
       </body>
     </html>
   );

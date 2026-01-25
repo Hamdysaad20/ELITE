@@ -13,6 +13,7 @@ import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import type { ComboDeal } from "@/types/deals";
+import { useFormatter, useTranslations } from "next-intl";
 
 export interface ComboItem {
   id: string;
@@ -35,6 +36,8 @@ export default function ComboDealCard({
   className = "",
   animationDelay = 0,
 }: ComboDealCardProps) {
+  const t = useTranslations("comboDeal");
+  const format = useFormatter();
   const { addItem } = useLocalCart();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -109,6 +112,13 @@ export default function ComboDealCard({
     return "text-base sm:text-xl";
   };
 
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
+
   return (
     <div
       className={cn(
@@ -156,7 +166,7 @@ export default function ComboDealCard({
                     prevItem();
                   }}
                   className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white rounded-full p-2 shadow-lg border border-elite-burgundy/10 hover:border-elite-burgundy/20 transition-all hover:scale-110 z-10"
-                  aria-label="Previous item"
+                  aria-label={t("controls.previous")}
                 >
                   <ChevronLeft className="w-5 h-5 text-elite-burgundy" />
                 </button>
@@ -166,7 +176,7 @@ export default function ComboDealCard({
                     nextItem();
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white rounded-full p-2 shadow-lg border border-elite-burgundy/10 hover:border-elite-burgundy/20 transition-all hover:scale-110 z-10"
-                  aria-label="Next item"
+                  aria-label={t("controls.next")}
                 >
                   <ChevronRight className="w-5 h-5 text-elite-burgundy" />
                 </button>
@@ -186,7 +196,7 @@ export default function ComboDealCard({
                           ? "bg-elite-burgundy w-6 h-2 shadow-sm"
                           : "bg-elite-burgundy/30 hover:bg-elite-burgundy/50 w-2 h-2",
                       )}
-                      aria-label={`Go to item ${idx + 1}`}
+                      aria-label={t("controls.goTo", { index: idx + 1 })}
                     />
                   ))}
                 </div>
@@ -233,7 +243,7 @@ export default function ComboDealCard({
                   </span>
                 </div>
                 <span className="font-cabin text-elite-burgundy font-semibold text-sm ml-3 flex-shrink-0">
-                  {item.price.toFixed(0)} EGP
+                  {formatPrice(item.price)}
                 </span>
               </div>
             ))}
@@ -245,24 +255,21 @@ export default function ComboDealCard({
           {/* Original Total */}
           <div className="flex items-center justify-between pb-2 border-b border-elite-burgundy/10">
             <span className="font-cabin text-elite-black/60 text-sm font-medium">
-              Original Total:
+              {t("pricing.originalTotal")}
             </span>
             <span className="font-cabin text-elite-black/40 text-sm line-through decoration-elite-black/40">
-              {combo.originalTotal.toFixed(0)} EGP
+              {formatPrice(combo.originalTotal)}
             </span>
           </div>
 
           {/* Deal Price - Enhanced */}
           <div className="flex items-center justify-between py-2">
             <span className="font-cabin text-elite-black/80 text-sm font-bold">
-              Combo Price:
+              {t("pricing.comboPrice")}
             </span>
             <div className="flex items-baseline gap-1">
               <span className="font-calistoga text-elite-burgundy font-bold text-2xl sm:text-3xl bg-gradient-to-br from-elite-burgundy to-elite-dark-burgundy bg-clip-text text-transparent">
-                {combo.dealPrice.toFixed(0)}
-              </span>
-              <span className="font-cabin text-elite-burgundy font-semibold text-sm">
-                EGP
+                {formatPrice(combo.dealPrice)}
               </span>
             </div>
           </div>
@@ -272,14 +279,16 @@ export default function ComboDealCard({
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-3.5 border-2 border-emerald-200/50 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="font-cabin text-emerald-800 font-bold text-sm uppercase tracking-wide">
-                  You Save:
+                  {t("pricing.youSave")}
                 </span>
                 <div className="flex items-center gap-2.5">
                   <span className="font-calistoga text-emerald-700 font-bold text-lg">
-                    {combo.savings.toFixed(0)} EGP
+                    {formatPrice(combo.savings)}
                   </span>
                   <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-md">
-                    {combo.savingsPercent.toFixed(0)}% OFF
+                    {t("pricing.percentOff", {
+                      percent: combo.savingsPercent.toFixed(0),
+                    })}
                   </span>
                 </div>
               </div>
@@ -305,14 +314,14 @@ export default function ComboDealCard({
             {added ? (
               <>
                 <Check className="w-4 h-4" />
-                <span>Added!</span>
+                <span>{t("actions.added")}</span>
               </>
             ) : adding ? (
               <div className="w-4 h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <Plus className="w-4 h-4" strokeWidth={2.5} />
-                <span>Add Combo</span>
+                <span>{t("actions.addCombo")}</span>
               </>
             )}
           </button>

@@ -1,22 +1,29 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   CheckCircle,
   XCircle,
   Loader2,
   AlertCircle,
-  ArrowRight,
   Home,
   Receipt,
   RefreshCw,
 } from "lucide-react";
-import Link from "next/link";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 
 function PaymentCallbackContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const t = useTranslations("paymentCallback");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const orderPath = addLocaleToPathname("/order", locale);
+  const homePath = addLocaleToPathname("/", locale);
 
   const orderId = searchParams.get("orderId");
   const status = searchParams.get("status"); // 'success', 'failed', 'cancelled'
@@ -32,6 +39,13 @@ function PaymentCallbackContent() {
   } | null>(null);
   const [pollCount, setPollCount] = useState(0);
   const maxPollAttempts = 15; // 30 seconds max (15 * 2s)
+
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   useEffect(() => {
     if (!orderId) {
@@ -102,10 +116,10 @@ function PaymentCallbackContent() {
             <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-elite-burgundy animate-spin" />
           </div>
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-            Checking Payment Status
+            {t("loading.title")}
           </h2>
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl">
-            Please wait while we verify your payment...
+            {t("loading.description")}
           </p>
         </div>
       </div>
@@ -119,6 +133,10 @@ function PaymentCallbackContent() {
     paymentStatus === "error";
   const isPending = paymentStatus === "pending";
   const isUnknown = !paymentStatus || paymentStatus === "unknown";
+  const failedStatusLabel =
+    paymentStatus === "cancelled"
+      ? t("failed.cancelled")
+      : t("failed.failed");
 
   // Success state - matches design system
   if (isSuccess) {
@@ -130,22 +148,21 @@ function PaymentCallbackContent() {
           </div>
 
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
-            Payment Successful!
+            {t("success.title")}
           </h2>
 
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
-            Your order has been confirmed and payment has been processed
-            successfully.
+            {t("success.description")}
           </p>
 
           {orderData?.amount && (
             <div className="bg-elite-cream/50 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8">
               <div className="flex justify-between items-center">
                 <span className="font-cabin text-elite-black/70 text-base sm:text-lg">
-                  Amount Paid
+                  {t("success.amountPaid")}
                 </span>
                 <span className="font-calistoga text-elite-burgundy text-xl sm:text-2xl md:text-3xl font-bold">
-                  {orderData.amount.toFixed(2)} EGP
+                  {formatCurrency(orderData.amount)}
                 </span>
               </div>
             </div>
@@ -153,21 +170,21 @@ function PaymentCallbackContent() {
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {orderId && (
-              <Link
+              <LocalizedLink
                 href={`/orders/${orderId}`}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
               >
                 <Receipt className="w-5 h-5" />
-                View Order
-              </Link>
+                {t("actions.viewOrder")}
+              </LocalizedLink>
             )}
-            <Link
-              href="/"
+            <LocalizedLink
+              href={homePath}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
             >
               <Home className="w-5 h-5" />
-              Continue Shopping
-            </Link>
+              {t("actions.continueShopping")}
+            </LocalizedLink>
           </div>
         </div>
       </div>
@@ -184,32 +201,32 @@ function PaymentCallbackContent() {
           </div>
 
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
-            Payment {paymentStatus === "cancelled" ? "Cancelled" : "Failed"}
+            {t("failed.title", { status: failedStatusLabel })}
           </h2>
 
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
             {paymentStatus === "cancelled"
-              ? "Payment was cancelled. Your order is still pending and you can try again."
-              : "Payment could not be processed. Please check your payment details and try again."}
+              ? t("failed.cancelledDescription")
+              : t("failed.failedDescription")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {orderId && (
-              <Link
-                href={`/order?retry=${orderId}`}
+              <LocalizedLink
+                href={`${orderPath}?retry=${orderId}`}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
               >
                 <RefreshCw className="w-5 h-5" />
-                Retry Payment
-              </Link>
+                {t("failed.retry")}
+              </LocalizedLink>
             )}
-            <Link
-              href="/"
+            <LocalizedLink
+              href={homePath}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
             >
               <Home className="w-5 h-5" />
-              Return Home
-            </Link>
+              {t("actions.returnHome")}
+            </LocalizedLink>
           </div>
         </div>
       </div>
@@ -226,25 +243,24 @@ function PaymentCallbackContent() {
           </div>
 
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
-            Payment Pending
+            {t("pending.title")}
           </h2>
 
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
-            Your payment is being processed. This may take a few moments. Please
-            do not close this page.
+            {t("pending.description")}
           </p>
 
           <div className="flex justify-center mb-6 sm:mb-8">
             <Loader2 className="w-8 h-8 text-elite-burgundy animate-spin" />
           </div>
 
-          <Link
-            href="/"
+          <LocalizedLink
+            href={homePath}
             className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
           >
             <Home className="w-5 h-5" />
-            Return Home
-          </Link>
+            {t("actions.returnHome")}
+          </LocalizedLink>
         </div>
       </div>
     );
@@ -259,31 +275,30 @@ function PaymentCallbackContent() {
         </div>
 
         <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
-          Payment Status Unknown
+          {t("unknown.title")}
         </h2>
 
         <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
-          We couldn't determine your payment status. Please check your order
-          history or contact support.
+          {t("unknown.description")}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           {orderId && (
-            <Link
+            <LocalizedLink
               href={`/orders/${orderId}`}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
             >
               <Receipt className="w-5 h-5" />
-              Check Order
-            </Link>
+              {t("unknown.checkOrder")}
+            </LocalizedLink>
           )}
-          <Link
-            href="/"
+          <LocalizedLink
+            href={homePath}
             className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
           >
             <Home className="w-5 h-5" />
-            Return Home
-          </Link>
+            {t("actions.returnHome")}
+          </LocalizedLink>
         </div>
       </div>
     </div>
@@ -291,6 +306,7 @@ function PaymentCallbackContent() {
 }
 
 export default function PaymentCallbackPage() {
+  const t = useTranslations("paymentCallback");
   return (
     <Suspense
       fallback={
@@ -300,7 +316,7 @@ export default function PaymentCallbackPage() {
               <Loader2 className="w-10 h-10 text-elite-burgundy animate-spin" />
             </div>
             <p className="font-calistoga text-elite-burgundy text-2xl font-bold">
-              Loading...
+              {t("loading.fallback")}
             </p>
           </div>
         </div>

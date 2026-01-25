@@ -1,32 +1,34 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 function ErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams?.get("error");
+  const t = useTranslations("authError");
 
   const getErrorMessage = (errorCode: string | null) => {
     switch (errorCode) {
       case "Configuration":
         return {
-          title: "Configuration Error",
-          message: "There is a problem with the server configuration.",
-          hint: "Please contact support if this continues.",
+          title: t("errors.configuration.title"),
+          message: t("errors.configuration.message"),
+          hint: t("errors.configuration.hint"),
         };
       case "AccessDenied":
         return {
-          title: "Access Denied",
-          message: "You do not have permission to access this resource.",
-          hint: "Please sign in with an authorized account.",
+          title: t("errors.accessDenied.title"),
+          message: t("errors.accessDenied.message"),
+          hint: t("errors.accessDenied.hint"),
         };
       case "Verification":
         return {
-          title: "Verification Failed",
-          message: "The sign-in link is invalid or has expired.",
-          hint: "Please request a new sign-in link.",
+          title: t("errors.verification.title"),
+          message: t("errors.verification.message"),
+          hint: t("errors.verification.hint"),
         };
       case "OAuthSignin":
       case "OAuthCallback":
@@ -34,39 +36,39 @@ function ErrorContent() {
       case "EmailCreateAccount":
       case "Callback":
         return {
-          title: "Sign In Error",
-          message: "There was a problem signing you in.",
-          hint: "Please try again or contact support.",
+          title: t("errors.signIn.title"),
+          message: t("errors.signIn.message"),
+          hint: t("errors.signIn.hint"),
         };
       case "OAuthAccountNotLinked":
         return {
-          title: "Account Linking Required",
-          message: "This email is already associated with another account.",
-          hint: "Please sign in using your original method.",
+          title: t("errors.accountNotLinked.title"),
+          message: t("errors.accountNotLinked.message"),
+          hint: t("errors.accountNotLinked.hint"),
         };
       case "EmailSignin":
         return {
-          title: "Email Error",
-          message: "Unable to send sign-in email.",
-          hint: "Please check your email address and try again.",
+          title: t("errors.emailSignin.title"),
+          message: t("errors.emailSignin.message"),
+          hint: t("errors.emailSignin.hint"),
         };
       case "CredentialsSignin":
         return {
-          title: "Invalid Credentials",
-          message: "The credentials you provided are incorrect.",
-          hint: "Please check your information and try again.",
+          title: t("errors.credentials.title"),
+          message: t("errors.credentials.message"),
+          hint: t("errors.credentials.hint"),
         };
       case "SessionRequired":
         return {
-          title: "Sign In Required",
-          message: "You must be signed in to access this page.",
-          hint: "Please sign in to continue.",
+          title: t("errors.sessionRequired.title"),
+          message: t("errors.sessionRequired.message"),
+          hint: t("errors.sessionRequired.hint"),
         };
       default:
         return {
-          title: "Authentication Error",
-          message: "An unexpected error occurred during authentication.",
-          hint: "Please try again or contact support if the problem persists.",
+          title: t("errors.default.title"),
+          message: t("errors.default.message"),
+          hint: t("errors.default.hint"),
         };
     }
   };
@@ -113,7 +115,7 @@ function ErrorContent() {
           {error && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <p className="text-xs text-gray-500 font-mono">
-                Error code: {error}
+                {t("errorCode", { code: error })}
               </p>
             </div>
           )}
@@ -121,31 +123,31 @@ function ErrorContent() {
           {/* What to do */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="text-sm font-medium text-gray-900 mb-2">
-              What can you do?
+              {t("nextSteps.title")}
             </h3>
             <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-              <li>Try signing in again</li>
-              <li>Clear your browser cache and cookies</li>
-              <li>Use a different browser or device</li>
-              <li>Contact support if the issue persists</li>
+              <li>{t("nextSteps.items.retry")}</li>
+              <li>{t("nextSteps.items.clearCache")}</li>
+              <li>{t("nextSteps.items.useDifferentBrowser")}</li>
+              <li>{t("nextSteps.items.contactSupport")}</li>
             </ul>
           </div>
         </div>
 
         {/* Actions */}
         <div className="mt-6 space-y-3">
-          <Link
+          <LocalizedLink
             href="/auth/signin"
             className="block w-full py-3 px-4 text-center text-sm font-medium rounded-lg text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:scale-[1.02]"
           >
-            Try Again
-          </Link>
-          <Link
+            {t("actions.tryAgain")}
+          </LocalizedLink>
+          <LocalizedLink
             href="/"
             className="block w-full py-3 px-4 text-center text-sm font-medium rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all"
           >
-            Back to Home
-          </Link>
+            {t("actions.backToHome")}
+          </LocalizedLink>
         </div>
       </div>
     </div>
@@ -153,8 +155,9 @@ function ErrorContent() {
 }
 
 export default function ErrorPage() {
+  const t = useTranslations("authError");
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>{t("loading")}</div>}>
       <ErrorContent />
     </Suspense>
   );

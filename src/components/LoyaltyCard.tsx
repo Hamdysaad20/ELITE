@@ -1,6 +1,7 @@
 "use client";
 
 import { Award, TrendingUp, Gift, Star, Crown, Gem } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface LoyaltyCardProps {
   points: number;
@@ -51,9 +52,28 @@ export function LoyaltyCard({
   progress,
   nextTier,
 }: LoyaltyCardProps) {
+  const t = useTranslations("loyalty");
+  const format = useFormatter();
   const Icon = TIER_ICONS[level as keyof typeof TIER_ICONS] || Award;
   const colors =
     TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
+  const levelLabels: Record<string, string> = {
+    bronze: t("levels.bronze"),
+    silver: t("levels.silver"),
+    gold: t("levels.gold"),
+    platinum: t("levels.platinum"),
+  };
+  const levelLabel = levelLabels[level] || level;
+  const nextLevelLabel = nextTier
+    ? levelLabels[nextTier.level] || nextTier.level
+    : "";
+
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   return (
     <div
@@ -74,21 +94,21 @@ export function LoyaltyCard({
             </div>
             <div>
               <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
-                Your Status
+                {t("card.statusLabel")}
               </p>
               <h2
                 className={`text-2xl font-calistoga ${colors.text} capitalize`}
               >
-                {level} Member
+                {t("card.memberLabel", { level: levelLabel })}
               </h2>
             </div>
           </div>
           <div className="text-right">
             <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
-              Total Spent
+              {t("card.totalSpent")}
             </p>
             <p className={`text-xl font-bold ${colors.text} font-cabin`}>
-              {Number(totalSpent).toFixed(0)} EGP
+              {formatCurrency(Number(totalSpent))}
             </p>
           </div>
         </div>
@@ -100,7 +120,7 @@ export function LoyaltyCard({
               {points}
             </h3>
             <span className={`text-xl ${colors.text} opacity-80 font-cabin`}>
-              Points
+              {t("card.pointsLabel")}
             </span>
           </div>
         </div>
@@ -110,7 +130,7 @@ export function LoyaltyCard({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
-                Progress to {nextTier.level}
+                {t("card.progressTo", { level: nextLevelLabel })}
               </p>
               <p className={`text-sm font-bold ${colors.text} font-cabin`}>
                 {Math.round(progress)}%
@@ -123,7 +143,10 @@ export function LoyaltyCard({
               ></div>
             </div>
             <p className={`text-xs ${colors.text} opacity-70 mt-2 font-cabin`}>
-              {nextTier.minPoints - points} more points to {nextTier.level}
+              {t("card.pointsToNext", {
+                count: nextTier.minPoints - points,
+                level: nextLevelLabel,
+              })}
             </p>
           </div>
         )}
@@ -133,10 +156,10 @@ export function LoyaltyCard({
           <div className={`text-center py-4 ${colors.text}`}>
             <Crown className="w-12 h-12 mx-auto mb-2 opacity-80" />
             <p className="font-cabin font-semibold">
-              You've reached the highest tier!
+              {t("card.maxTier.title")}
             </p>
             <p className="text-sm opacity-80 mt-1">
-              Enjoy all exclusive benefits
+              {t("card.maxTier.subtitle")}
             </p>
           </div>
         )}
@@ -151,6 +174,7 @@ interface LoyaltyBenefitsProps {
 }
 
 export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
+  const t = useTranslations("loyalty");
   const colors =
     TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
 
@@ -160,7 +184,9 @@ export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
         <div className={`p-2 rounded-xl bg-gradient-to-br ${colors.bg}`}>
           <Gift className="w-5 h-5 text-white" />
         </div>
-        <h3 className="text-xl font-calistoga text-gray-900">Your Benefits</h3>
+        <h3 className="text-xl font-calistoga text-gray-900">
+          {t("benefits.title")}
+        </h3>
       </div>
 
       <ul className="space-y-3">
@@ -209,13 +235,23 @@ interface LoyaltyTier {
 }
 
 export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
+  const t = useTranslations("loyalty");
+  const format = useFormatter();
+
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
+
   if (activity.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200 text-center">
         <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-gray-600 font-cabin">No activity yet</p>
+        <p className="text-gray-600 font-cabin">{t("activity.empty.title")}</p>
         <p className="text-sm text-gray-500 font-cabin mt-1">
-          Start ordering to earn points!
+          {t("activity.empty.description")}
         </p>
       </div>
     );
@@ -226,7 +262,7 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
       <div className="flex items-center gap-3 mb-6">
         <TrendingUp className="w-5 h-5 text-elite-burgundy" />
         <h3 className="text-xl font-calistoga text-gray-900">
-          Recent Activity
+          {t("activity.title")}
         </h3>
       </div>
 
@@ -246,23 +282,25 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
                   }`}
                 >
                   {item.deltaPoints > 0 ? "+" : ""}
-                  {item.deltaPoints} pts
+                  {t("activity.points", {
+                    count: Math.abs(item.deltaPoints),
+                  })}
                 </span>
                 <span className="text-sm text-gray-600 font-cabin">
-                  {item.reason || "Points adjustment"}
+                  {item.reason || t("activity.reasonFallback")}
                 </span>
               </div>
               {item.orderTotal && (
                 <p className="text-xs text-gray-500 mt-1 font-cabin">
-                  Order total: {Number(item.orderTotal).toFixed(0)} EGP
+                  {t("activity.orderTotal", {
+                    amount: formatCurrency(Number(item.orderTotal)),
+                  })}
                 </p>
               )}
               <p className="text-xs text-gray-400 mt-1 font-cabin">
-                {new Date(item.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
+                {format.dateTime(new Date(item.createdAt), {
+                  dateStyle: "medium",
+                  timeStyle: "short",
                 })}
               </p>
             </div>
@@ -279,9 +317,20 @@ interface LoyaltyTiersProps {
 }
 
 export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
+  const t = useTranslations("loyalty");
+  const format = useFormatter();
+  const levelLabels: Record<string, string> = {
+    bronze: t("levels.bronze"),
+    silver: t("levels.silver"),
+    gold: t("levels.gold"),
+    platinum: t("levels.platinum"),
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-      <h3 className="text-xl font-calistoga text-gray-900 mb-6">All Tiers</h3>
+      <h3 className="text-xl font-calistoga text-gray-900 mb-6">
+        {t("tiers.title")}
+      </h3>
 
       <div className="space-y-4">
         {tiers.map((tier, index) => {
@@ -304,7 +353,7 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
               {isCurrent && (
                 <div className="absolute top-2 right-2">
                   <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded-full">
-                    Current
+                    {t("tiers.current")}
                   </span>
                 </div>
               )}
@@ -329,7 +378,7 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
                         isCurrent ? "text-white" : "text-gray-900"
                       }`}
                     >
-                      {tier.level}
+                      {levelLabels[tier.level] || tier.level}
                     </h4>
                   </div>
 
@@ -339,8 +388,10 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
                     }`}
                   >
                     {tier.minPoints === 0
-                      ? "Starting tier"
-                      : `${tier.minPoints}+ points`}
+                      ? t("tiers.starting")
+                      : t("tiers.pointsThreshold", {
+                          count: format.number(tier.minPoints),
+                        })}
                   </p>
 
                   <ul className="space-y-1">

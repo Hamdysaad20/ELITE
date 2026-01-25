@@ -20,13 +20,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import ImageWithFallback from "./ui/ImageWithFallback";
-import { getFirstValidImage, getLocalProductImageCandidates } from "@/lib/imageUtils";
+import {
+  getFirstValidImage,
+  getLocalProductImageCandidates,
+} from "@/lib/imageUtils";
 import { apiClient } from "@/lib/auth/apiClient";
-import Link from "next/link";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useToast } from "@/components/ToastProvider";
-import { useRouter } from "next/navigation";
 import { ReorderConfirmModal } from "./ReorderConfirmModal";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
+import { cn } from "@/lib/utils";
 
 interface OrderDetailCardProps {
   orderId: string;
@@ -59,7 +64,10 @@ function getEstimatedDeliveryDate(
  * Get status badge color and text
  * Simplified status labels for better UX - using only branded colors
  */
-function getStatusInfo(status: string): {
+function getStatusInfo(
+  status: string,
+  t: ReturnType<typeof useTranslations>,
+): {
   text: string;
   color: string;
   bgColor: string;
@@ -81,65 +89,65 @@ function getStatusInfo(status: string): {
     }
   > = {
     [OrderStatus.PENDING]: {
-      text: "Pending",
+      text: t("status.pending.title"),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
       icon: <Clock className="w-5 h-5" />,
-      description: "We've received your order",
+      description: t("status.pending.description"),
       progressBarBg: "bg-elite-black/10",
       progressBarFill: "bg-elite-burgundy",
     },
     [OrderStatus.CONFIRMED]: {
-      text: "Confirmed",
+      text: t("status.confirmed.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
       icon: <CheckCircle2 className="w-5 h-5" />,
-      description: "Your order is confirmed",
+      description: t("status.confirmed.description"),
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
     [OrderStatus.PREPARING]: {
-      text: "Preparing",
+      text: t("status.preparing.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
       icon: <Package className="w-5 h-5" />,
-      description: "We're preparing your order",
+      description: t("status.preparing.description"),
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
     [OrderStatus.READY]: {
-      text: "Ready",
+      text: t("status.ready.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
       icon: <CheckCircle2 className="w-5 h-5" />,
-      description: "Your order is ready",
+      description: t("status.ready.description"),
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
     [OrderStatus.OUT_FOR_DELIVERY]: {
-      text: "On the way",
+      text: t("status.outForDelivery.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
       icon: <Truck className="w-5 h-5" />,
-      description: "Your order is being delivered",
+      description: t("status.outForDelivery.description"),
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
     [OrderStatus.DELIVERED]: {
-      text: "Delivered",
+      text: t("status.delivered.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
       icon: <CheckCircle2 className="w-5 h-5" />,
-      description: "Your order has been delivered",
+      description: t("status.delivered.description"),
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
     [OrderStatus.CANCELLED]: {
-      text: "Cancelled",
+      text: t("status.cancelled.title"),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
       icon: <Package className="w-5 h-5" />,
-      description: "This order was cancelled",
+      description: t("status.cancelled.description"),
       progressBarBg: "bg-elite-black/10",
       progressBarFill: "bg-elite-black/30",
     },
@@ -147,11 +155,11 @@ function getStatusInfo(status: string): {
 
   return (
     statusMap[status] || {
-      text: status,
+      text: t("status.unknown.title", { status }),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
       icon: <Package className="w-5 h-5" />,
-      description: "Order status unknown",
+      description: t("status.unknown.description"),
       progressBarBg: "bg-elite-black/10",
       progressBarFill: "bg-elite-burgundy",
     }
@@ -167,12 +175,20 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   const [copiedTracking, setCopiedTracking] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [reorderAction, setReorderAction] = useState<
-    "replace" | "merge" | null
-  >(null);
-  const { addItem, clearCart, items: cartItems, itemCount } = useLocalCart();
+  const { addItem, clearCart, itemCount } = useLocalCart();
   const { success, error: showError, info } = useToast();
-  const router = useRouter();
+  const t = useTranslations("orderDetail");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const localizedRouter = useLocalizedRouter();
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   // Handle contact support - opens Facebook Messenger
   const handleContactSupport = () => {
@@ -188,7 +204,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
             <div className="flex flex-col items-center justify-center space-y-4">
               <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin" />
               <p className="font-cabin text-sm text-elite-black/60 font-medium">
-                Loading your order details...
+                {t("loading")}
               </p>
             </div>
           </div>
@@ -220,10 +236,10 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
             </div>
             <div className="flex-1">
               <h3 className="font-calistoga text-xl text-white mb-1">
-                Order Not Found
+                {t("error.title")}
               </h3>
               <p className="font-cabin text-sm text-white/90 leading-relaxed">
-                We couldn't load this order
+                {t("error.subtitle")}
               </p>
             </div>
           </div>
@@ -237,20 +253,20 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
           <div className="bg-elite-cream/40 rounded-2xl p-4 border-2 border-elite-burgundy/5">
             <p className="font-cabin text-sm text-elite-black/60 mb-3">
-              This might have happened because:
+                {t("error.causesTitle")}
             </p>
             <ul className="space-y-2 font-cabin text-sm text-elite-black/60">
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                <span>The order ID is incorrect or doesn't exist</span>
+                  <span>{t("error.causes.invalidId")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                <span>You don't have permission to view this order</span>
+                  <span>{t("error.causes.permission")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                <span>There was a temporary connection issue</span>
+                  <span>{t("error.causes.connection")}</span>
               </li>
             </ul>
           </div>
@@ -262,16 +278,16 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               className="w-full px-6 py-3 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 min-h-[48px]"
             >
               <Package className="w-5 h-5" />
-              <span>Try Again</span>
+              <span>{t("error.retry")}</span>
             </button>
 
-            <Link
+            <LocalizedLink
               href="/orders"
               className="w-full px-6 py-3 bg-white border-2 border-elite-burgundy/20 text-elite-burgundy rounded-2xl font-cabin font-bold text-base hover:bg-elite-cream/50 hover:border-elite-burgundy/40 hover:shadow-md transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 min-h-[48px]"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>View All Orders</span>
-            </Link>
+              <ArrowLeft className={cn("w-5 h-5", isRTL && "rotate-180")} />
+              <span>{t("error.viewAllOrders")}</span>
+            </LocalizedLink>
           </div>
 
           {/* Help Link */}
@@ -280,7 +296,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               onClick={handleContactSupport}
               className="font-cabin text-sm text-elite-burgundy hover:text-elite-burgundy/80 underline transition-colors"
             >
-              Need help? Contact Support
+              {t("error.contactSupport")}
             </button>
           </div>
         </div>
@@ -293,18 +309,18 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       <div className="bg-white border-2 border-elite-burgundy/10 rounded-3xl shadow-lg p-12 text-center">
         <Package className="w-16 h-16 text-elite-burgundy/30 mx-auto mb-4" />
         <h3 className="font-calistoga text-xl text-elite-black mb-2">
-          Order Not Available
+          {t("notAvailable.title")}
         </h3>
         <p className="font-cabin text-sm text-elite-black/60 mb-6">
-          This order couldn't be loaded. Please try again.
+          {t("notAvailable.description")}
         </p>
-        <Link
+        <LocalizedLink
           href="/orders"
           className="inline-flex items-center gap-2 px-6 py-3 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 transition-all active:scale-95"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Orders</span>
-        </Link>
+          <ArrowLeft className={cn("w-5 h-5", isRTL && "rotate-180")} />
+          <span>{t("notAvailable.backToOrders")}</span>
+        </LocalizedLink>
       </div>
     );
   }
@@ -319,7 +335,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       ? order.updatedAt
       : new Date(order.updatedAt);
 
-  const statusInfo = getStatusInfo(order.status);
+  const statusInfo = getStatusInfo(order.status, t);
   const estimatedDelivery = getEstimatedDeliveryDate(createdAt, order.status);
   const isInProgress =
     order.status !== OrderStatus.DELIVERED &&
@@ -362,7 +378,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
   // Handle confirmation from modal
   const handleConfirmReorder = (action: "replace" | "merge") => {
-    setReorderAction(action);
     setShowConfirmModal(false);
     executeReorder(action);
   };
@@ -373,7 +388,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
     // Prevent multiple simultaneous reorders
     if (isReordering) {
-      info("Reorder already in progress. Please wait...");
+      info(t("reorder.inProgress"));
       return;
     }
 
@@ -382,7 +397,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
     try {
       // Validate order has items
       if (!order.items || order.items.length === 0) {
-        showError("This order has no items to reorder.");
+        showError(t("reorder.noItems"));
         setIsReordering(false);
         return;
       }
@@ -390,9 +405,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       // If replace, clear cart first
       if (action === "replace") {
         clearCart();
-        info(
-          `Cart cleared. Adding ${order.items.length} ${order.items.length === 1 ? "item" : "items"}...`,
-        );
+        info(t("reorder.cartCleared", { count: order.items.length }));
       }
 
       let itemsAdded = 0;
@@ -405,7 +418,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
           if (!item.menuItemId || !item.menuItem?.name) {
             console.warn("Skipping item with missing data:", item);
             itemsFailed++;
-            failedItems.push(item.menuItem?.name || "Unknown item");
+            failedItems.push(item.menuItem?.name || t("reorder.unknownItem"));
             continue;
           }
 
@@ -459,7 +472,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
         } catch (itemErr) {
           console.error("Error adding item to cart:", itemErr);
           itemsFailed++;
-          failedItems.push(item.menuItem?.name || "Unknown item");
+          failedItems.push(item.menuItem?.name || t("reorder.unknownItem"));
         }
       }
 
@@ -467,37 +480,41 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       if (itemsAdded > 0 && itemsFailed === 0) {
         // All items added successfully
         success(
-          `Perfect! ${itemsAdded} ${itemsAdded === 1 ? "item" : "items"} ${action === "replace" ? "added" : "added to your cart"}. Redirecting...`,
+          t("reorder.addedAll", {
+            count: itemsAdded,
+            action:
+              action === "replace"
+                ? t("reorder.actions.added")
+                : t("reorder.actions.addedToCart"),
+          }),
         );
 
         // Navigate to cart after a short delay
         setTimeout(() => {
-          router.push("/order");
+          localizedRouter.push("/order");
         }, 1500);
       } else if (itemsAdded > 0 && itemsFailed > 0) {
         // Some items added, some failed
         showError(
-          `Added ${itemsAdded} ${itemsAdded === 1 ? "item" : "items"}, but ${itemsFailed} ${itemsFailed === 1 ? "item" : "items"} couldn't be added. Please check your cart.`,
+          t("reorder.addedSome", {
+            added: itemsAdded,
+            failed: itemsFailed,
+          }),
         );
 
         // Still navigate to cart
         setTimeout(() => {
-          router.push("/order");
+          localizedRouter.push("/order");
         }, 2000);
       } else {
         // All items failed
-        showError(
-          "Sorry, we couldn't add any items to your cart. The products may no longer be available. Please browse our menu to order.",
-        );
+        showError(t("reorder.addedNone"));
       }
     } catch (err) {
       console.error("Error reordering:", err);
-      showError(
-        "Oops! Something went wrong while adding items to your cart. Please try again or contact support if the problem persists.",
-      );
+      showError(t("reorder.error"));
     } finally {
       setIsReordering(false);
-      setReorderAction(null);
     }
   };
 
@@ -519,33 +536,38 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       <div className="space-y-4 md:space-y-6">
         {/* Navigation Breadcrumb - Enhanced Mobile Responsive */}
         <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 snap-x snap-mandatory">
-          <Link
+          <LocalizedLink
             href="/orders"
             className="flex items-center gap-2 px-4 py-2.5 sm:py-3 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:shadow-md transition-all whitespace-nowrap touch-manipulation active:scale-95 min-h-[44px] snap-start flex-shrink-0"
           >
-            <ArrowLeft className="w-4 h-4 text-elite-burgundy" />
+            <ArrowLeft
+              className={cn(
+                "w-4 h-4 text-elite-burgundy",
+                isRTL && "rotate-180",
+              )}
+            />
             <span className="font-cabin text-sm font-bold text-elite-black">
-              All Orders
+              {t("breadcrumbs.allOrders")}
             </span>
-          </Link>
-          <Link
+          </LocalizedLink>
+          <LocalizedLink
             href="/profile"
             className="flex items-center gap-2 px-4 py-2.5 sm:py-3 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:shadow-md transition-all whitespace-nowrap touch-manipulation active:scale-95 min-h-[44px] snap-start flex-shrink-0"
           >
             <Home className="w-4 h-4 text-elite-burgundy" />
             <span className="font-cabin text-sm font-bold text-elite-black">
-              Profile
+              {t("breadcrumbs.profile")}
             </span>
-          </Link>
-          <Link
+          </LocalizedLink>
+          <LocalizedLink
             href="/menu"
             className="flex items-center gap-2 px-4 py-2.5 sm:py-3 rounded-2xl bg-white border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:shadow-md transition-all whitespace-nowrap touch-manipulation active:scale-95 min-h-[44px] snap-start flex-shrink-0"
           >
             <ShoppingBag className="w-4 h-4 text-elite-burgundy" />
             <span className="font-cabin text-sm font-bold text-elite-black">
-              Shop Menu
+              {t("breadcrumbs.shopMenu")}
             </span>
-          </Link>
+          </LocalizedLink>
         </div>
 
         {/* Status Hero Card - Improved Mobile Responsive Design */}
@@ -558,9 +580,20 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                 <div className={`${statusInfo.color}`}>{statusInfo.icon}</div>
               </div>
               <span
-                className={`px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${statusInfo.color === "text-elite-cream" ? "text-elite-burgundy" : "text-elite-black"} border-2 ${statusInfo.color === "text-elite-cream" ? "border-elite-cream/30" : "border-elite-burgundy"} ml-auto shadow-md`}
+                className={cn(
+                  `px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${
+                    statusInfo.color === "text-elite-cream"
+                      ? "text-elite-burgundy"
+                      : "text-elite-black"
+                  } border-2 ${
+                    statusInfo.color === "text-elite-cream"
+                      ? "border-elite-cream/30"
+                      : "border-elite-burgundy"
+                  } shadow-md`,
+                  isRTL ? "mr-auto" : "ml-auto",
+                )}
               >
-                Order #{displayOrderId}
+                {t("orderId", { id: displayOrderId })}
               </span>
             </div>
 
@@ -592,7 +625,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   <span
                     className={`font-cabin text-xs sm:text-sm font-bold uppercase tracking-wider ${statusInfo.color}`}
                   >
-                    Order Progress
+                    {t("progress.label")}
                   </span>
                   <span
                     className={`font-calistoga text-base sm:text-lg ${statusInfo.color}`}
@@ -617,14 +650,11 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-elite-burgundy/60" />
               <p className="font-cabin text-xs sm:text-sm text-elite-black/70 font-medium">
-                Placed on{" "}
-                {createdAt.toLocaleDateString("en-US", {
-                  weekday: "short",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
+                {t("placedOn", {
+                  date: format.dateTime(createdAt, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }),
                 })}
               </p>
             </div>
@@ -644,12 +674,11 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-                        Est. Arrival
+                        {t("delivery.estimatedArrival")}
                       </p>
                       <p className="font-calistoga text-lg sm:text-xl text-elite-black truncate">
-                        {estimatedDelivery.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
+                        {format.dateTime(estimatedDelivery, {
+                          dateStyle: "medium",
                         })}
                       </p>
                     </div>
@@ -665,20 +694,21 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-                      Delivery In
+                      {t("delivery.deliveryIn")}
                     </p>
                     <p className="font-calistoga text-lg sm:text-xl text-elite-black truncate">
-                      {estimatedDelivery
-                        ? Math.max(
-                            1,
-                            Math.ceil(
-                              (estimatedDelivery.getTime() -
-                                new Date().getTime()) /
-                                (1000 * 60 * 60 * 24),
-                            ),
-                          )
-                        : 3}{" "}
-                      Days
+                      {t("delivery.days", {
+                        count: estimatedDelivery
+                          ? Math.max(
+                              1,
+                              Math.ceil(
+                                (estimatedDelivery.getTime() -
+                                  new Date().getTime()) /
+                                  (1000 * 60 * 60 * 24),
+                              ),
+                            )
+                          : 3,
+                      })}
                     </p>
                   </div>
                 </div>
@@ -693,7 +723,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-                        Destination
+                      {t("delivery.destination")}
                       </p>
                       <p className="font-calistoga text-lg sm:text-xl text-elite-black truncate">
                         {order.address.city}
@@ -711,17 +741,17 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
           <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-5 sm:p-6 space-y-5">
             <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black flex items-center gap-2">
               <MapPin className="w-6 h-6 text-elite-burgundy" />
-              Delivery Details
+              {t("delivery.detailsTitle")}
             </h2>
 
             <div className="space-y-4">
               {/* Address */}
               <div className="bg-elite-cream/30 rounded-2xl p-4">
                 <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide mb-2">
-                  Delivering To
+                  {t("delivery.deliveringTo")}
                 </p>
                 <p className="font-cabin text-base text-elite-black font-semibold">
-                  {order.address.label || "Home"}
+                  {order.address.label || t("delivery.defaultLabel")}
                 </p>
                 <p className="font-cabin text-sm text-elite-black/70 mt-1 leading-relaxed">
                   {order.address.street}
@@ -736,7 +766,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               {/* Tracking Number */}
               <div className="bg-elite-cream/30 rounded-2xl p-4">
                 <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide mb-2">
-                  Tracking Number
+                  {t("delivery.trackingNumber")}
                 </p>
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-cabin font-mono text-sm sm:text-base text-elite-black font-bold">
@@ -745,14 +775,14 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   <button
                     onClick={copyTrackingNumber}
                     className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-elite-burgundy text-elite-cream hover:bg-elite-burgundy/90 transition-all active:scale-95 touch-manipulation"
-                    title="Copy tracking number"
+                    title={t("delivery.copyTracking")}
                   >
                     <Copy className="w-5 h-5" />
                   </button>
                 </div>
                 {copiedTracking && (
                   <p className="text-xs text-elite-burgundy font-cabin font-semibold mt-2 animate-pulse">
-                    ✓ Copied to clipboard!
+                    {t("delivery.copied")}
                   </p>
                 )}
               </div>
@@ -764,12 +794,12 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
         <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-4 sm:p-6">
           <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-5 flex items-center gap-2">
             <Package className="w-6 h-6 text-elite-burgundy" />
-            Your Items ({order.items.length})
+            {t("items.title", { count: order.items.length })}
           </h2>
 
           <div className="space-y-4">
             {order.items.map((item) => {
-              const itemName = item.menuItem?.name || "Unknown Item";
+              const itemName = item.menuItem?.name || t("items.unknown");
               const itemImage =
                 item.menuItem?.images && item.menuItem.images.length > 0
                   ? getFirstValidImage(item.menuItem.images)
@@ -828,13 +858,13 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     <div className="flex items-end justify-between gap-2 mt-1">
                       <div className="font-cabin text-xs sm:text-sm text-elite-black/60">
                         <span className="font-semibold">
-                          EGP {item.unitPrice.toFixed(2)}
+                          {formatPrice(item.unitPrice)}
                         </span>
                         <span className="mx-1 sm:mx-2">×</span>
                         <span className="font-semibold">{item.quantity}</span>
                       </div>
                       <p className="font-calistoga text-base sm:text-lg text-elite-burgundy whitespace-nowrap">
-                        EGP {item.totalPrice.toFixed(2)}
+                        {formatPrice(item.totalPrice)}
                       </p>
                     </div>
                   </div>
@@ -846,21 +876,19 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
           {/* Order Summary */}
           <div className="mt-6 pt-6 border-t-2 border-elite-burgundy/10 space-y-3">
             <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
-              <span>Subtotal</span>
-              <span className="font-semibold">
-                EGP {order.subtotal.toFixed(2)}
-              </span>
+            <span>{t("summary.subtotal")}</span>
+            <span className="font-semibold">{formatPrice(order.subtotal)}</span>
             </div>
 
             {order.deliveryFee > 0 && (
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
                 <span className="flex items-center gap-2">
                   <Truck className="w-4 h-4" />
-                  Delivery Fee
+                {t("summary.deliveryFee")}
                 </span>
-                <span className="font-semibold">
-                  EGP {order.deliveryFee.toFixed(2)}
-                </span>
+              <span className="font-semibold">
+                {formatPrice(order.deliveryFee)}
+              </span>
               </div>
             )}
 
@@ -868,27 +896,25 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
                 <span className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4" />
-                  COD Fee
+                {t("summary.codFee")}
                 </span>
-                <span className="font-semibold">
-                  EGP {order.codFee.toFixed(2)}
-                </span>
+              <span className="font-semibold">{formatPrice(order.codFee)}</span>
               </div>
             )}
 
             {order.discount > 0 && (
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-burgundy">
-                <span>Discount</span>
-                <span className="font-bold">
-                  -EGP {order.discount.toFixed(2)}
-                </span>
+              <span>{t("summary.discount")}</span>
+              <span className="font-bold">
+                -{formatPrice(order.discount)}
+              </span>
               </div>
             )}
 
             <div className="flex justify-between items-center font-cabin text-lg sm:text-xl font-bold text-elite-black pt-3 border-t-2 border-elite-burgundy/10">
-              <span>Total</span>
+            <span>{t("summary.total")}</span>
               <span className="text-elite-burgundy">
-                EGP {order.total.toFixed(2)}
+              {formatPrice(order.total)}
               </span>
             </div>
           </div>
@@ -905,19 +931,18 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               <div className="flex items-center gap-2 mb-2">
                 <Phone className="w-6 h-6" />
                 <h3 className="font-calistoga text-lg sm:text-xl">
-                  Need Help?
+                  {t("support.title")}
                 </h3>
               </div>
               <p className="font-cabin text-sm text-elite-cream/90 mb-4 leading-relaxed">
-                Questions about your order? We're here to help via Facebook
-                Messenger.
+                {t("support.description")}
               </p>
               <button
                 onClick={handleContactSupport}
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-cream text-elite-burgundy rounded-2xl font-cabin font-bold text-base hover:bg-white hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 min-h-[48px]"
               >
                 <Phone className="w-5 h-5" />
-                <span>Contact Support</span>
+                <span>{t("support.cta")}</span>
               </button>
             </div>
           </div>
@@ -931,11 +956,11 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               <div className="flex items-center gap-2 mb-2">
                 <ShoppingBag className="w-6 h-6 text-elite-burgundy" />
                 <h3 className="font-calistoga text-lg sm:text-xl text-elite-black">
-                  Loved It?
+                  {t("reorderCard.title")}
                 </h3>
               </div>
               <p className="font-cabin text-sm text-elite-black/70 mb-4 leading-relaxed">
-                Order the same items again with one click.
+                {t("reorderCard.description")}
               </p>
               <button
                 onClick={handleReorderClick}
@@ -943,18 +968,20 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[48px]"
                 aria-busy={isReordering}
                 aria-label={
-                  isReordering ? "Adding items to cart" : "Reorder this order"
+                  isReordering
+                    ? t("reorderCard.ariaAdding")
+                    : t("reorderCard.ariaReorder")
                 }
               >
                 {isReordering ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Adding to Cart...</span>
+                    <span>{t("reorderCard.adding")}</span>
                   </>
                 ) : (
                   <>
                     <ShoppingBag className="w-5 h-5" />
-                    <span>Reorder Now</span>
+                    <span>{t("reorderCard.cta")}</span>
                   </>
                 )}
               </button>

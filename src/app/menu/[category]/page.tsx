@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts, Product } from "@/hooks/useProducts";
 import { sanitizeImages } from "@/lib/imageUtils";
@@ -28,6 +27,9 @@ import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import CategoryPageSkeleton from "@/components/skeletons/CategoryPageSkeleton";
 import ProductModal from "@/components/menu/ProductModal";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useLocale, useTranslations } from "next-intl";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 
 type MenuCategory = {
   id: string;
@@ -51,8 +53,10 @@ type MenuCategory = {
 
 export default function CategoryPage() {
   const params = useParams();
-  const router = useRouter();
+  const localizedRouter = useLocalizedRouter();
   const categoryId = params?.category as string;
+  const locale = useLocale();
+  const t = useTranslations("categoryPage");
 
   const [animationPlayed, setAnimationPlayed] = useState(false);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
@@ -152,17 +156,17 @@ export default function CategoryPage() {
 
           acc.push({
             id: String(cat.id),
-            name: cat.name || "Unknown Category",
-            description: cat.description || "Explore our selection",
+            name: cat.name || t("fallback.unknownCategory"),
+            description: cat.description || t("fallback.categoryDescription"),
             icon: cat.icon || "coffee",
             comingSoon: false,
             subCategories: [
               {
                 id: String(cat.id),
-                name: cat.name || "Unknown Category",
+                name: cat.name || t("fallback.unknownCategory"),
                 items: items.map((p) => ({
                   id: String(p.id),
-                  name: p.name || "Unnamed Product",
+                  name: p.name || t("fallback.unknownProduct"),
                   description: p.description || "",
                   price: typeof p.price === "number" ? p.price : 0,
                   images:
@@ -205,7 +209,7 @@ export default function CategoryPage() {
           return [
             {
               id: p.id,
-              name: p.name || "Unnamed Product",
+              name: p.name || t("fallback.unknownProduct"),
               description: p.description || "",
               price: typeof p.price === "number" ? p.price : 0,
               images: sanitizeImages(p.images),
@@ -218,14 +222,14 @@ export default function CategoryPage() {
 
         acc.push({
           id: cat.id,
-          name: cat.name || "Unknown Category",
-          description: cat.description || "Explore our selection",
+          name: cat.name || t("fallback.unknownCategory"),
+          description: cat.description || t("fallback.categoryDescription"),
           icon: "coffee",
           comingSoon: false,
           subCategories: [
             {
               id: cat.id,
-              name: cat.name || "Unknown Category",
+              name: cat.name || t("fallback.unknownCategory"),
               items,
             },
           ],
@@ -244,11 +248,14 @@ export default function CategoryPage() {
     return [selectedCategory];
   }, [selectedCategory]);
 
+  const heroTitle = selectedCategory?.name || t("menuTitle");
+  const heroTitleDisplay = locale === "ar" ? heroTitle : heroTitle.toUpperCase();
+
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block"></div>
-      <MobileHeader title="Menu" showBack={true} transparent={true} />
+      <MobileHeader title={t("menuTitle")} showBack={true} transparent={true} />
 
       {/* Full-height background */}
       <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
@@ -258,7 +265,7 @@ export default function CategoryPage() {
             {/* Background text */}
             <div className="absolute inset-0 z-[1] flex items-center justify-center">
               <h1 className="text-[5rem] sm:text-[8rem] md:text-[12rem] lg:text-[18rem] xl:text-[22rem] font-cabin font-bold text-elite-cream/90 select-none pointer-events-none tracking-tight leading-none">
-                {selectedCategory?.name?.toUpperCase() || "MENU"}
+                {heroTitleDisplay}
               </h1>
             </div>
 
@@ -303,7 +310,7 @@ export default function CategoryPage() {
                   WebkitTextStroke: "2px rgba(248, 240, 210, 0.6)",
                 }}
               >
-                {selectedCategory?.name?.toUpperCase() || "MENU"}
+                {heroTitleDisplay}
               </h1>
             </div>
           </div>
@@ -326,9 +333,9 @@ export default function CategoryPage() {
                 (categoriesEmpty || categories.length === 0) && (
                   <EmptyState
                     variant="no-products"
-                    title="Catalog Not Synced"
-                    description="The product catalog needs to be synchronized from Odoo. Please contact an administrator or try refreshing."
-                    actionLabel="Refresh"
+                    title={t("catalogNotSynced.title")}
+                    description={t("catalogNotSynced.description")}
+                    actionLabel={t("actions.refresh")}
                     onAction={handleRetry}
                   />
                 )}
@@ -345,7 +352,9 @@ export default function CategoryPage() {
                           return (
                             <button
                               key={cat.id}
-                              onClick={() => router.push(`/menu/${cat.id}`)}
+                              onClick={() =>
+                                localizedRouter.push(`/menu/${cat.id}`)
+                              }
                               className={`group flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
                                 isActive
                                   ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
@@ -376,17 +385,17 @@ export default function CategoryPage() {
                       <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto sidebar-scroll">
                         <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                           <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
-                            Categories
+                            {t("sidebar.title")}
                           </h2>
                           <p className="font-cabin text-elite-black/70 text-sm">
-                            Explore our menu
+                            {t("sidebar.subtitle")}
                           </p>
                         </div>
 
                         <div className="space-y-1">
                           {categories.map((cat, index) => (
                             <div key={cat.id}>
-                              <Link
+                              <LocalizedLink
                                 href={`/menu/${cat.id}`}
                                 className={`group sidebar-item flex items-center justify-between p-4 rounded-xl transition-all duration-300 border ${
                                   String(cat.id) === String(categoryId)
@@ -406,7 +415,7 @@ export default function CategoryPage() {
                                     {cat.name}
                                   </span>
                                 </div>
-                              </Link>
+                              </LocalizedLink>
                               {index < categories.length - 1 && (
                                 <div className="h-px bg-elite-burgundy/10 my-3"></div>
                               )}
@@ -417,7 +426,7 @@ export default function CategoryPage() {
                         <div className="mt-6 pt-4 border-t border-elite-burgundy/20">
                           <div className="text-center">
                             <p className="font-cabin text-elite-black/40 text-xs">
-                              Fresh ingredients daily
+                              {t("sidebar.footer")}
                             </p>
                           </div>
                         </div>
@@ -429,10 +438,10 @@ export default function CategoryPage() {
                       {!selectedCategory && (
                         <EmptyState
                           variant="no-products"
-                          title="Category Not Found"
-                          description="We couldn't find the category you're looking for."
-                          actionLabel="Back to Menu"
-                          onAction={() => router.push("/menu")}
+                          title={t("categoryNotFound.title")}
+                          description={t("categoryNotFound.description")}
+                          actionLabel={t("actions.backToMenu")}
+                          onAction={() => localizedRouter.push("/menu")}
                         />
                       )}
 
@@ -451,9 +460,11 @@ export default function CategoryPage() {
                                       {category.name}
                                     </h2>
                                     <p className="font-cabin text-elite-black/50 text-xs">
-                                      {category.subCategories[0]?.items
-                                        .length || 0}{" "}
-                                      items available
+                                      {t("itemsAvailable", {
+                                        count:
+                                          category.subCategories[0]?.items
+                                            .length || 0,
+                                      })}
                                     </p>
                                   </div>
                                 </div>

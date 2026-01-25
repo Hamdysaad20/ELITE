@@ -6,6 +6,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface DealInfo {
   originalPrice: number;
@@ -72,6 +73,8 @@ export default function DealCard({
   animationDelay = 0,
   size = "small",
 }: DealCardProps) {
+  const t = useTranslations("dealCard");
+  const format = useFormatter();
   const { addItem } = useLocalCart();
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
@@ -85,7 +88,7 @@ export default function DealCard({
   }, [animationDelay]);
 
   const validImages = sanitizeImages(images);
-  const displayName = name || "Unnamed Product";
+  const displayName = name || t("unnamed");
   const isAvailable = available !== false && dealActive;
   const sizes = sizeClasses[size];
   const animDuration = "duration-300";
@@ -96,6 +99,13 @@ export default function DealCard({
 
   const adaptivePriceSize =
     dealPrice.toString().length > 4 ? "text-base sm:text-lg" : sizes.price;
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   const handleAddToOrder = async () => {
     if (!isAvailable || addToOrderState.adding) return;
@@ -185,7 +195,7 @@ export default function DealCard({
           {!isAvailable && (
             <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
               <span className="bg-elite-black/80 text-white px-2 py-1 rounded-full text-[10px] sm:text-xs font-cabin font-semibold">
-                Sold out
+                {t("soldOut")}
               </span>
             </div>
           )}
@@ -209,7 +219,7 @@ export default function DealCard({
           {/* Original Price (strikethrough) */}
           {originalPrice !== dealPrice && originalPrice > 0 && (
             <p className="text-xs sm:text-sm font-cabin text-elite-black/40 line-through decoration-elite-black/30">
-              {originalPrice.toFixed(0)} EGP
+              {formatPrice(originalPrice)}
             </p>
           )}
 
@@ -224,8 +234,7 @@ export default function DealCard({
                   : adaptivePriceSize,
               )}
             >
-              {dealPrice.toFixed(0)}{" "}
-              <span className="text-base sm:text-lg">EGP</span>
+              {formatPrice(dealPrice)}
             </p>
 
             {/* Savings Badge (Only for deals < 20% - subtle) */}
@@ -234,7 +243,7 @@ export default function DealCard({
               savingsPercent < 20 &&
               dealActive && (
                 <span className="inline-flex items-center bg-elite-cream/80 text-elite-burgundy px-2 py-1 rounded-md text-xs font-cabin font-semibold border border-elite-burgundy/20">
-                  Save {savingsPercent.toFixed(0)}%
+                  {t("savePercent", { percent: savingsPercent.toFixed(0) })}
                 </span>
               )}
           </div>
@@ -243,7 +252,7 @@ export default function DealCard({
           {!dealActive && (
             <p className="text-xs font-cabin text-elite-black/60 mt-1.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-elite-burgundy/60 rounded-full" />
-              Not currently active
+              {t("dealInactive")}
             </p>
           )}
         </div>
@@ -268,7 +277,7 @@ export default function DealCard({
               {addToOrderState.added ? (
                 <>
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span>Added!</span>
+                  <span>{t("added")}</span>
                 </>
               ) : addToOrderState.adding ? (
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
@@ -278,7 +287,7 @@ export default function DealCard({
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                     strokeWidth={2.5}
                   />
-                  <span>Add</span>
+                  <span>{t("add")}</span>
                 </>
               )}
             </button>

@@ -22,11 +22,13 @@ import UserActivationCTA from "@/components/deals/UserActivationCTA";
 import DealSortFilter, {
   type DealSortOption,
 } from "@/components/deals/DealSortFilter";
+import { useTranslations } from "next-intl";
 
 export default function DealsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<DealSortOption>("discount-desc"); // Default: biggest discount first
+  const t = useTranslations("dealsPage");
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -104,7 +106,7 @@ export default function DealsPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block"></div>
-      <MobileHeader title="Deals" showBack={true} transparent={true} />
+      <MobileHeader title={t("title")} showBack={true} transparent={true} />
 
       {/* Full-height background */}
       <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
@@ -119,10 +121,10 @@ export default function DealsPage() {
 
           <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
             <h1 className="font-calistoga text-6xl md:text-7xl font-bold mb-6">
-              Deals
+              {t("title")}
             </h1>
             <p className="font-cabin text-xl md:text-2xl text-elite-cream/90 max-w-3xl mx-auto leading-relaxed">
-              Special prices and exclusive offers on selected items
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -152,10 +154,15 @@ export default function DealsPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-calistoga text-xl md:text-2xl mb-2 text-emerald-900">
-                        {`🎉 ${activeDeals.length} Active Deal${activeDeals.length !== 1 ? "s" : ""}!`}
+                        {t("status.activeDeals", {
+                          count: activeDeals.length,
+                        })}
                       </h3>
                       <p className="font-cabin text-sm md:text-base text-emerald-800/90 leading-relaxed">
-                        {`Enjoy special prices on ${totalProducts} item${totalProducts !== 1 ? "s" : ""} across ${activeDeals.length} deal${activeDeals.length !== 1 ? "s" : ""}`}
+                        {t("status.description", {
+                          products: totalProducts,
+                          deals: activeDeals.length,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -192,9 +199,9 @@ export default function DealsPage() {
                 (!activeDeals || activeDeals.length === 0) && (
                   <EmptyState
                     variant="no-products"
-                    title="No Active Deals"
-                    description="There are no active deals at the moment. Check back soon for new offers!"
-                    actionLabel="Refresh"
+                    title={t("empty.title")}
+                    description={t("empty.description")}
+                    actionLabel={t("actions.refresh")}
                     onAction={handleRetry}
                   />
                 )}
@@ -216,20 +223,18 @@ export default function DealsPage() {
                                   {deal.name}
                                 </h2>
                                 <p className="font-cabin text-elite-black/50 text-xs mt-0.5">
-                                  {deal.products.length +
-                                    (deal.combos?.length || 0)}{" "}
-                                  {deal.products.length +
-                                    (deal.combos?.length || 0) ===
-                                  1
-                                    ? "item"
-                                    : "items"}
+                                  {t("deal.itemCount", {
+                                    count:
+                                      deal.products.length +
+                                      (deal.combos?.length || 0),
+                                  })}
                                 </p>
                               </div>
                             </div>
                             {deal.active && (
                               <span className="inline-flex items-center gap-1.5 bg-elite-burgundy text-elite-cream px-3 py-1.5 rounded-full text-xs font-cabin font-bold shadow-sm">
                                 <span className="w-1.5 h-1.5 bg-elite-cream rounded-full animate-pulse" />
-                                Active
+                                {t("deal.active")}
                               </span>
                             )}
                           </div>
@@ -246,7 +251,7 @@ export default function DealsPage() {
                             <div className="flex items-center gap-3 mb-6">
                               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
                               <h3 className="font-calistoga text-elite-black text-xl md:text-2xl font-bold">
-                                Combo Deals
+                                {t("combo.title")}
                               </h3>
                               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-elite-burgundy/20 to-transparent" />
                             </div>
@@ -302,7 +307,7 @@ export default function DealsPage() {
                         ) : (
                           <div className="bg-elite-cream/50 rounded-2xl p-6 text-center">
                             <p className="font-cabin text-elite-black/60 text-sm">
-                              No products available in this deal
+                              {t("deal.noProducts")}
                             </p>
                           </div>
                         )}
@@ -324,39 +329,34 @@ export default function DealsPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-calistoga text-elite-black text-lg md:text-xl mb-3 font-bold">
-                        How Deals Work
+                        {t("info.title")}
                       </h3>
                       <ul className="font-cabin text-elite-black/75 text-sm md:text-base space-y-2.5">
                         <li className="flex items-start gap-2">
                           <span className="text-elite-burgundy font-bold mt-0.5">
                             •
                           </span>
-                          <span>Deals are managed through Odoo pricelists</span>
+                          <span>{t("info.items.0")}</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-elite-burgundy font-bold mt-0.5">
                             •
                           </span>
                           <span>
-                            Prices shown are final prices from Odoo (our
-                            inventory system)
+                            {t("info.items.1")}
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-elite-burgundy font-bold mt-0.5">
                             •
                           </span>
-                          <span>
-                            All prices are validated by Odoo at checkout
-                          </span>
+                          <span>{t("info.items.2")}</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-elite-burgundy font-bold mt-0.5">
                             •
                           </span>
-                          <span>
-                            Deals may have time restrictions or other conditions
-                          </span>
+                          <span>{t("info.items.3")}</span>
                         </li>
                       </ul>
                     </div>

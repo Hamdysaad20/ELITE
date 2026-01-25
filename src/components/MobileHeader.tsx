@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface MobileHeaderProps {
   title?: string;
@@ -27,6 +28,9 @@ export default function MobileHeader({
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const locale = useLocale();
+  const t = useTranslations("mobileHeader");
+  const isRTL = locale === "ar";
 
   useEffect(() => {
     // Detect reduced motion preference
@@ -89,10 +93,13 @@ export default function MobileHeader({
                 "transition-all",
                 animDuration,
               )}
-              aria-label="Go back"
+              aria-label={t("goBack")}
             >
               <ArrowLeft
-                className="w-[18px] h-[18px] text-elite-burgundy"
+                className={cn(
+                  "w-[18px] h-[18px] text-elite-burgundy",
+                  isRTL && "rotate-180",
+                )}
                 strokeWidth={2.5}
               />
             </button>
@@ -127,7 +134,7 @@ export default function MobileHeader({
                 "transition-all",
                 animDuration,
               )}
-              aria-label="Open menu"
+              aria-label={t("openMenu")}
             >
               <Menu
                 className="w-[18px] h-[18px] text-elite-burgundy"

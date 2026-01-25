@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface LoadingStateProps {
   message?: string;
@@ -12,12 +13,14 @@ interface LoadingStateProps {
 }
 
 export default function LoadingState({
-  message = "Loading...",
+  message,
   variant = "spinner",
   size = "medium",
   fullScreen = false,
   className,
 }: LoadingStateProps) {
+  const t = useTranslations("loadingState");
+  const resolvedMessage = message ?? t("loading");
   const sizeClasses = {
     small: "w-4 h-4",
     medium: "w-8 h-8",
@@ -36,9 +39,9 @@ export default function LoadingState({
         <Loader2
           className={cn("animate-spin text-elite-burgundy", sizeClasses[size])}
         />
-        {message && (
+        {resolvedMessage && (
           <p className="text-elite-black/70 font-cabin text-sm md:text-base">
-            {message}
+            {resolvedMessage}
           </p>
         )}
       </div>
@@ -64,9 +67,9 @@ export default function LoadingState({
             />
           ))}
         </div>
-        {message && (
+        {resolvedMessage && (
           <p className="text-elite-black/70 font-cabin text-sm md:text-base">
-            {message}
+            {resolvedMessage}
           </p>
         )}
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { apiClient } from "@/lib/auth/apiClient";
+import { useTranslations } from "next-intl";
 
 export interface Category {
   id: string;
@@ -46,6 +47,7 @@ interface UseCategoriesReturn {
  * ```
  */
 export function useCategories(): UseCategoriesReturn {
+  const t = useTranslations("errors");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export function useCategories(): UseCategoriesReturn {
       });
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to load categories";
+        err instanceof Error ? err.message : t("categories.default");
       setError(errorMessage);
       console.error("Failed to fetch categories:", err);
 
@@ -75,21 +77,19 @@ export function useCategories(): UseCategoriesReturn {
         errorMessage.includes("503") ||
         errorMessage.includes("cache is empty")
       ) {
-        setError(
-          "Category list is being synchronized. Please try again in a moment.",
-        );
+        setError(t("categories.syncing"));
       } else if (
         errorMessage.includes("Network") ||
         errorMessage.includes("Failed to fetch")
       ) {
-        setError("Unable to connect. Please check your internet connection.");
+        setError(t("network"));
       } else if (errorMessage.includes("timeout")) {
-        setError("Request timed out. Please try again.");
+        setError(t("timeout"));
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Fetch on mount
   useEffect(() => {
