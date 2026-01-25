@@ -79,10 +79,14 @@ function OrderPageContent() {
     enabledPaymentMethods: PaymentMethod[];
     deliveryFee: number;
     codFee: number;
+    orderingEnabled: boolean;
+    orderingMessage?: string;
   }>({
     enabledPaymentMethods: [PaymentMethod.CARD, PaymentMethod.WALLET],
     deliveryFee: 15,
     codFee: 0,
+    orderingEnabled: true,
+    orderingMessage: undefined,
   });
 
   React.useEffect(() => {
@@ -98,19 +102,29 @@ function OrderPageContent() {
           enabledPaymentMethods?: PaymentMethod[];
           deliveryFee?: number;
           codFee?: number;
+          orderingEnabled?: boolean;
+          orderingMessage?: string;
         };
         if (cancelled) return;
-        if (
-          Array.isArray(data.enabledPaymentMethods) &&
-          data.enabledPaymentMethods.length > 0
-        ) {
-          setCheckoutConfig({
-            enabledPaymentMethods: data.enabledPaymentMethods,
-            deliveryFee:
-              typeof data.deliveryFee === "number" ? data.deliveryFee : 15,
-            codFee: typeof data.codFee === "number" ? data.codFee : 0,
-          });
-        }
+        setCheckoutConfig((prev) => ({
+          enabledPaymentMethods: Array.isArray(data.enabledPaymentMethods)
+            ? data.enabledPaymentMethods
+            : prev.enabledPaymentMethods,
+          deliveryFee:
+            typeof data.deliveryFee === "number"
+              ? data.deliveryFee
+              : prev.deliveryFee,
+          codFee:
+            typeof data.codFee === "number" ? data.codFee : prev.codFee,
+          orderingEnabled:
+            typeof data.orderingEnabled === "boolean"
+              ? data.orderingEnabled
+              : prev.orderingEnabled,
+          orderingMessage:
+            typeof data.orderingMessage === "string"
+              ? data.orderingMessage
+              : prev.orderingMessage,
+        }));
       } catch {
         // Keep defaults
       }
@@ -131,7 +145,12 @@ function OrderPageContent() {
     }
   }, [checkoutConfig.enabledPaymentMethods, paymentMethod]);
 
-  const isCheckoutEnabled = checkoutConfig.enabledPaymentMethods.length > 0;
+  const orderingEnabled = checkoutConfig.orderingEnabled;
+  const checkoutDisabledMessage =
+    checkoutConfig.orderingMessage ||
+    "Online ordering is temporarily unavailable. Please try again later.";
+  const isCheckoutEnabled =
+    orderingEnabled && checkoutConfig.enabledPaymentMethods.length > 0;
 
   const isOnlinePayment =
     paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET;
@@ -215,14 +234,11 @@ function OrderPageContent() {
     setPendingPaymentOrder(null);
 
     if (!isCheckoutEnabled) {
-      setSubmitError(
-        "Online ordering is temporarily unavailable. Please try again later.",
-      );
+      setSubmitError(checkoutDisabledMessage);
       setSubmitting(false);
       push({
         type: "error",
-        message:
-          "Online ordering is temporarily unavailable. Please try again later.",
+        message: checkoutDisabledMessage,
       });
       return;
     }
@@ -581,7 +597,17 @@ function OrderPageContent() {
                 </div>
               </div>
 
-              {isOnlinePayment && (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
+              {!orderingEnabled && (
+                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                  <p className="font-cabin text-amber-900 text-sm">
+                    {checkoutDisabledMessage}
+                  </p>
+                </div>
+              )}
+              {orderingEnabled &&
+                isOnlinePayment &&
+                (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
                 <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
                   <p className="font-cabin text-amber-900 text-sm">
@@ -962,10 +988,12 @@ function OrderPageContent() {
                       <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-calistoga text-amber-900 text-lg">
-                          Online ordering unavailable
+                          {orderingEnabled
+                            ? "Online ordering unavailable"
+                            : "Ordering paused"}
                         </p>
                         <p className="font-cabin text-amber-800">
-                          Please try again later.
+                          {checkoutDisabledMessage}
                         </p>
                       </div>
                     </div>
@@ -1225,6 +1253,7 @@ function OrderPageContent() {
                     className="w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-elite-burgundy text-elite-cream rounded-full font-calistoga font-bold text-base sm:text-lg md:text-xl lg:text-2xl shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation"
                     onClick={placeOrder}
                     disabled={
+                      !isCheckoutEnabled ||
                       submitting ||
                       isUpdating ||
                       (orderType === "DELIVERY" && !selectedAddress) ||
@@ -1264,6 +1293,7 @@ function OrderPageContent() {
               onClick={placeOrder}
               disabled={
                 submitting ||
+                !isCheckoutEnabled ||
                 isUpdating ||
                 (orderType === "DELIVERY" && !selectedAddress) ||
                 (needsAddressForPayment && !selectedAddress) ||

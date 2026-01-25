@@ -6,6 +6,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages } from "@/lib/imageUtils";
 import { cn, slugify, extractBaseName } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface DealInfo {
   originalPrice: number;
@@ -84,6 +85,7 @@ export default function DrinkCard({
   isDealsPage = false,
 }: DrinkCardProps) {
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
     added: false,
@@ -133,6 +135,8 @@ export default function DrinkCard({
       e.preventDefault();
       e.stopPropagation();
 
+      if (!orderingEnabled) return;
+
       const productId = menuItemId || id;
       if (!productId) {
         console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
@@ -172,6 +176,7 @@ export default function DrinkCard({
       name,
       onQuickAdd,
       addItem,
+      orderingEnabled,
       displayName,
       displayPrice,
       displayImages,
@@ -368,7 +373,7 @@ export default function DrinkCard({
           <div className="mt-auto pt-3 sm:pt-4">
             <button
               onClick={handleAddToOrder}
-              disabled={addToOrderState.adding}
+              disabled={addToOrderState.adding || !orderingEnabled}
               className={cn(
                 "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-cabin font-bold",
                 "transition-all touch-manipulation active:scale-[0.97]",
@@ -376,9 +381,12 @@ export default function DrinkCard({
                 animDuration,
                 addToOrderState.added
                   ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
-                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
+                  : orderingEnabled
+                    ? "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]"
+                    : "bg-elite-black/10 text-elite-black/40 cursor-not-allowed",
               )}
               aria-live="polite"
+              title={orderingEnabled ? undefined : orderingMessage}
             >
               {addToOrderState.added ? (
                 <>
@@ -387,6 +395,8 @@ export default function DrinkCard({
                 </>
               ) : addToOrderState.adding ? (
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
+              ) : !orderingEnabled ? (
+                <span>Ordering Paused</span>
               ) : (
                 <>
                   <Plus

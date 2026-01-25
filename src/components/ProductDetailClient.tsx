@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ShoppingCart,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import AttributeSelector from "./AttributeSelector";
@@ -21,6 +22,7 @@ import { ReviewCard } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface AttributeValue {
   id: number;
@@ -61,6 +63,7 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
   const { error: toastError, success: toastSuccess } = useToast();
+  const { orderingEnabled, orderingMessage } = useOrdering();
 
   // Fetch reviews for this product
   const {
@@ -135,6 +138,13 @@ export default function ProductDetailClient({
 
   // Handle add to cart
   const handleAddToCart = () => {
+    if (!orderingEnabled) {
+      toastError(
+        orderingMessage ||
+          "Online ordering is temporarily unavailable. Please try again later.",
+      );
+      return;
+    }
     const validation = validateSelections();
 
     if (!validation.valid) {
@@ -439,12 +449,21 @@ export default function ProductDetailClient({
                   </div>
 
                   {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
+                  {!orderingEnabled && (
+                    <div className="mb-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                      <p className="font-cabin text-amber-900 text-sm">
+                        {orderingMessage ||
+                          "Online ordering is temporarily unavailable. Please try again later."}
+                      </p>
+                    </div>
+                  )}
                   <button
                     onClick={handleAddToCart}
-                    disabled={!product.available || addedToCart}
+                    disabled={!orderingEnabled || !product.available || addedToCart}
                     className={cn(
                       "w-full py-4 md:py-5 rounded-2xl md:rounded-3xl font-cabin font-bold text-base md:text-lg transition-all duration-300 flex items-center justify-center gap-2.5 shadow-xl active:scale-[0.97] touch-manipulation",
-                      !product.available
+                      !orderingEnabled || !product.available
                         ? "bg-elite-black/10 text-elite-black/40 cursor-not-allowed"
                         : addedToCart
                           ? "bg-emerald-500 text-white shadow-emerald-500/30"
@@ -453,6 +472,8 @@ export default function ProductDetailClient({
                   >
                     {!product.available ? (
                       "Sold Out"
+                    ) : !orderingEnabled ? (
+                      "Ordering Paused"
                     ) : addedToCart ? (
                       <>
                         <Check className="w-5 h-5 animate-bounce" />

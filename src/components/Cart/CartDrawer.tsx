@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState, useTransition, useOptimistic } from "react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import { useOrdering } from "@/context/OrderingContext";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -18,9 +19,13 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     useLocalCart();
   const router = useRouter();
   const { status } = useSession();
+  const { orderingEnabled, orderingMessage } = useOrdering();
   const [isPending, startTransition] = useTransition();
   const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const checkoutDisabledMessage =
+    orderingMessage ||
+    "Online ordering is temporarily unavailable. Please try again later.";
 
   const itemCountLabel = `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
 
@@ -117,6 +122,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   };
 
   const handleCheckout = () => {
+    if (!orderingEnabled) return;
     setIsCheckingOut(true);
     if (status === "unauthenticated") {
       // Redirect to login with callback to checkout
@@ -368,7 +374,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
               <button
                 onClick={handleCheckout}
-                disabled={isCheckingOut}
+                disabled={isCheckingOut || !orderingEnabled}
                 className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
               >
                 {isCheckingOut ? (
@@ -376,6 +382,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
                     <span>Processing...</span>
                   </>
+                ) : !orderingEnabled ? (
+                  <span>Ordering Paused</span>
                 ) : (
                   <>
                     <span>Proceed to Checkout</span>
@@ -384,7 +392,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 )}
               </button>
 
-              {status === "unauthenticated" && (
+              {!orderingEnabled && (
+                <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
+                  {checkoutDisabledMessage}
+                </p>
+              )}
+              {orderingEnabled && status === "unauthenticated" && (
                 <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
                   You'll need to sign in to complete your order
                 </p>

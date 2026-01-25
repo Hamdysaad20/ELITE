@@ -8,6 +8,8 @@ import NetworkStatus from "@/components/NetworkStatus";
 import CartButton from "@/components/Cart/CartButton";
 import Navigation from "@/components/Navigation";
 import MobileNavigation from "@/components/MobileNavigation";
+import OrderingBanner from "@/components/OrderingBanner";
+import { OrderingProvider } from "@/context/OrderingContext";
 import {
   createNavigationState,
   cleanupNavigationState,
@@ -100,15 +102,20 @@ export default function ClientBody({
 
   return (
     <AuthProvider>
-      <NetworkStatus />
-      {!isAuthPage && (
-        <>
-          <Navigation />
-          {!isOrderPage && <CartButton />}
-        </>
-      )}
-      <ToastProvider>{children}</ToastProvider>
-      {!isAuthPage && <MobileNavigation />}
+      <OrderingProvider>
+        <NetworkStatus />
+        {!isAuthPage && (
+          <>
+            <Navigation />
+            {!isOrderPage && <CartButton />}
+          </>
+        )}
+        <ToastProvider>
+          {!isAuthPage && <OrderingBanner />}
+          {children}
+        </ToastProvider>
+        {!isAuthPage && <MobileNavigation />}
+      </OrderingProvider>
     </AuthProvider>
   );
 }
