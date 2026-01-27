@@ -21,11 +21,12 @@ const navItems = [
     href: "/menu",
     Icon: Compass,
   },
-  {
-    name: "Deals",
-    href: "/deals",
-    Icon: Tag,
-  },
+  // Deals disabled - coming soon
+  // {
+  //   name: "Deals",
+  //   href: "/deals",
+  //   Icon: Tag,
+  // },
   {
     name: "Cart",
     href: "#cart",
