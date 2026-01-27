@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 import {
   User,
   Mail,
@@ -24,7 +24,7 @@ import AvatarUpload from "@/components/AvatarUpload";
 export default function SettingsPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { data: session, update } = useSession();
-  const router = useRouter();
+  const localizedRouter = useLocalizedRouter();
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -303,7 +303,7 @@ export default function SettingsPage() {
               <div className="p-4 bg-elite-cream/30">
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => router.push("/profile?tab=addresses")}
+                    onClick={() => localizedRouter.push("/profile?tab=addresses")}
                     className="flex items-center gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-all border border-elite-burgundy/10"
                   >
                     <MapPinIcon className="w-5 h-5 text-elite-burgundy" />
@@ -312,7 +312,7 @@ export default function SettingsPage() {
                     </span>
                   </button>
                   <button
-                    onClick={() => router.push("/profile?tab=orders")}
+                    onClick={() => localizedRouter.push("/profile?tab=orders")}
                     className="flex items-center gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-all border border-elite-burgundy/10"
                   >
                     <CreditCard className="w-5 h-5 text-elite-burgundy" />
@@ -557,7 +557,7 @@ export default function SettingsPage() {
                       "⚠️ Are you sure you want to delete your account?\n\nThis will permanently remove:\n• Your profile and order history\n• Saved addresses\n• All preferences\n\nThis action cannot be undone.",
                     )
                   ) {
-                    router.push("/auth/delete-account");
+                    localizedRouter.push("/auth/delete-account");
                   }
                 }}
                 className="w-full p-6 hover:bg-red-50 transition-colors text-left"

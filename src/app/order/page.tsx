@@ -9,7 +9,7 @@ import { useAddresses } from "@/hooks/useAddresses";
 import Footer from "@/components/Footer";
 import AddressManager from "@/components/AddressManager";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
@@ -37,6 +37,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import LocalizedLink from "@/components/LocalizedLink";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { addLocaleToPathname } from "@/i18n/routing";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 import { cn } from "@/lib/utils";
 
 function OrderPageContent() {
@@ -45,7 +46,7 @@ function OrderPageContent() {
   const locale = useLocale();
   const isRTL = locale === "ar";
   const { data: session } = useSession();
-  const router = useRouter();
+  const localizedRouter = useLocalizedRouter();
   const searchParams = useSearchParams();
   const {
     items: cartItems,
@@ -215,7 +216,7 @@ function OrderPageContent() {
         }
 
         clearCart();
-        window.location.href = `/payment/process?orderId=${orderId}&paymentKey=${json.data.paymentKey}`;
+        localizedRouter.push(`/payment/process?orderId=${orderId}&paymentKey=${json.data.paymentKey}`);
       } catch (e) {
         const msg =
           e instanceof Error && e.message ? e.message : t("errors.paymentInit");
@@ -225,7 +226,7 @@ function OrderPageContent() {
         setSubmitting(false);
       }
     },
-    [clearCart, push, t],
+    [clearCart, push, t, localizedRouter],
   );
 
   // Handle retry flow from /payment/callback "Retry Payment" link.
@@ -362,7 +363,7 @@ function OrderPageContent() {
       ) {
         clearCart(); // Order is created; cart should not remain after redirecting to payment
         // Redirect to payment page
-        window.location.href = `/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`;
+        localizedRouter.push(`/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`);
         return;
       }
 
