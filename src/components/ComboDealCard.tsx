@@ -12,6 +12,9 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 import type { ComboDeal } from "@/types/deals";
 import { useFormatter, useTranslations } from "next-intl";
 
@@ -39,6 +42,8 @@ export default function ComboDealCard({
   const t = useTranslations("comboDeal");
   const format = useFormatter();
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -73,6 +78,19 @@ export default function ComboDealCard({
   const handleAddToCart = useCallback(async () => {
     if (adding || !combo.dealActive) return;
 
+    if (!orderingEnabled) {
+      setAdding(true);
+      openSupportMessenger();
+      setTimeout(() => {
+        setAdding(false);
+        setAdded(true);
+      }, 300);
+      setTimeout(() => {
+        setAdded(false);
+      }, 2300);
+      return;
+    }
+
     setAdding(true);
     try {
       if (onAddToCart) {
@@ -102,7 +120,7 @@ export default function ComboDealCard({
       console.error("Failed to add combo to cart:", err);
       setAdding(false);
     }
-  }, [combo, adding, onAddToCart, addItem]);
+  }, [combo, adding, onAddToCart, addItem, orderingEnabled]);
 
   // Adaptive text sizing
   const titleLength = combo.name.length;
@@ -310,18 +328,19 @@ export default function ComboDealCard({
                 : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
             )}
             aria-live="polite"
+            title={orderingEnabled ? undefined : disabledMessage}
           >
             {added ? (
               <>
                 <Check className="w-4 h-4" />
-                <span>{t("actions.added")}</span>
+                <span>{orderingEnabled ? "Added!" : "Notified!"}</span>
               </>
             ) : adding ? (
               <div className="w-4 h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <Plus className="w-4 h-4" strokeWidth={2.5} />
-                <span>{t("actions.addCombo")}</span>
+                <span>{orderingEnabled ? "Add Combo" : "Notify me"}</span>
               </>
             )}
           </button>

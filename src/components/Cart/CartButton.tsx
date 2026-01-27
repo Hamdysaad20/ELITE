@@ -1,13 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { Bell, ShoppingCart } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import CartDrawer from "./CartDrawer";
+import { useOrdering } from "@/context/OrderingContext";
+import { openSupportMessenger } from "@/lib/support";
 
 export default function CartButton() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { itemCount } = useLocalCart();
+  const { orderingEnabled } = useOrdering();
+
+  if (!orderingEnabled) {
+    return (
+      <button
+        onClick={openSupportMessenger}
+        className="hidden md:flex fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
+        aria-label="Get updates about ordering"
+      >
+        <div className="relative">
+          <span className="absolute -inset-2 rounded-full bg-elite-burgundy/20 animate-ping duration-1000" />
+          <div className="relative bg-elite-burgundy text-elite-cream p-4 sm:p-5 rounded-full shadow-2xl border-[3px] border-elite-cream transition-all duration-300 group-hover:scale-110 group-hover:shadow-elite-burgundy/40 group-active:scale-95 flex items-center justify-center">
+            <Bell className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
+          </div>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <>
@@ -15,7 +35,7 @@ export default function CartButton() {
       <button
         onClick={() => setIsDrawerOpen(true)}
         className="hidden md:flex fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
-        aria-label="Open cart"
+        aria-label={orderingEnabled ? "Open cart" : "Open saved items"}
       >
         <div className="relative">
           {/* Ping animation for active state */}

@@ -6,7 +6,7 @@ Use this when the user asks for **promotions**, **bundles**, **upsells**, **rete
 
 - Prefer **value-add** over % off:
   - free add-on (size upgrade, extra shot, syrup) where operationally safe
-  - bundle pricing with controlled COGS (drink + pastry)
+  - bundle pricing with controlled COGS (drink + do it )
   - priority pickup window / packaging upgrade (if real)
 - Use **thresholds** carefully:
   - cart threshold that nudges AOV (only if fees/pricing are known and stable)

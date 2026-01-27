@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useDeals, DealProduct, Deal } from "@/hooks/useDeals";
-import { sanitizeImages } from "@/lib/imageUtils";
-import { Tag, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import MobileHeader from "@/components/MobileHeader";
-import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
@@ -24,84 +21,22 @@ import DealSortFilter, {
 } from "@/components/deals/DealSortFilter";
 import { useTranslations } from "next-intl";
 
+/**
+ * Deals page - Currently disabled
+ * This page will be enabled in the future when deals feature is ready
+ */
 export default function DealsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<DealSortOption>("discount-desc"); // Default: biggest discount first
   const t = useTranslations("dealsPage");
 
-  // Enable swipe-back gesture
-  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
+  // Redirect to home page
+  useEffect(() => {
+    router.replace("/");
+  }, [router]);
 
-  // Fetch all deals from API
-  const { deals, loading, error, refetch, isEmpty, totalProducts } =
-    useDeals(true);
-
-  const handleRetry = () => {
-    refetch();
-  };
-
-  // Convert DealProduct to Product for modal
-  const convertToProduct = (dealProduct: DealProduct): Product => {
-    return {
-      id: dealProduct.id,
-      name: dealProduct.name,
-      description: dealProduct.description,
-      price: dealProduct.dealActive
-        ? dealProduct.dealPrice
-        : dealProduct.originalPrice,
-      categoryId: dealProduct.categoryId,
-      images: dealProduct.images,
-      available: dealProduct.available !== false && dealProduct.dealActive,
-      sku: dealProduct.sku,
-      stock: undefined,
-      sequence: undefined,
-    };
-  };
-
-  // Filter to only show active deals
-  const activeDeals = (deals || []).filter(
-    (deal) =>
-      deal.active &&
-      (deal.products.length > 0 || (deal.combos && deal.combos.length > 0)),
-  );
-
-  // Check if any deal is active
-  const hasActiveDeals = activeDeals.length > 0;
-
-  // Sort products within each deal by discount (biggest first by default)
-  const sortedDeals = useMemo(() => {
-    return activeDeals.map((deal) => {
-      const sortedProducts = [...deal.products].sort((a, b) => {
-        switch (sortBy) {
-          case "discount-desc":
-            return (b.savingsPercent || 0) - (a.savingsPercent || 0);
-          case "discount-asc":
-            return (a.savingsPercent || 0) - (b.savingsPercent || 0);
-          case "savings-desc":
-            return (b.savings || 0) - (a.savings || 0);
-          case "savings-asc":
-            return (a.savings || 0) - (b.savings || 0);
-          case "price-desc":
-            return (b.dealPrice || 0) - (a.dealPrice || 0);
-          case "price-asc":
-            return (a.dealPrice || 0) - (b.dealPrice || 0);
-          case "name-asc":
-            return (a.name || "").localeCompare(b.name || "");
-          case "name-desc":
-            return (b.name || "").localeCompare(a.name || "");
-          default:
-            return (b.savingsPercent || 0) - (a.savingsPercent || 0);
-        }
-      });
-
-      return {
-        ...deal,
-        products: sortedProducts,
-      };
-    });
-  }, [activeDeals, sortBy]);
-
+  // Show coming soon message while redirecting
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
@@ -371,19 +306,12 @@ export default function DealsPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+            </div>
+            </div>
+            </div>
 
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
 
-      <div className="hidden md:block">
-        <Footer />
-      </div>
-    </>
-  );
+            <Footer />
+          </>
+          );
 }

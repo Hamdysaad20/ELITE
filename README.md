@@ -98,6 +98,9 @@ ODOO_HOST=https://your-odoo.odoo.com
 ODOO_DB=your_db
 ODOO_USERNAME=your_user@example.com
 ODOO_API_KEY=your_api_key
+
+# Ordering
+ORDERING_ENABLED=false
 ```
 
 See [ENV_EXAMPLE.md](./docs/ENV_EXAMPLE.md) for complete list.
@@ -297,6 +300,9 @@ ODOO_API_KEY=your_api_key
 
 # Node
 NODE_ENV=production
+
+# Ordering
+ORDERING_ENABLED=false
 ```
 
 ### Post-Deployment

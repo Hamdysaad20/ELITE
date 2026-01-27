@@ -1,12 +1,15 @@
 import { prisma } from "@/server/db/client";
 import { PaymentMethod } from "@/types";
 import { isPaymobConfigured } from "./paymob/paymobClient";
+import { getOrderingStatus } from "@/server/config/ordering";
 
 export type CheckoutConfig = {
   enabledPaymentMethods: PaymentMethod[];
   deliveryFee: number;
   codFee: number;
   paymobEnabled: boolean;
+  orderingEnabled: boolean;
+  orderingMessage?: string;
 };
 
 const DEFAULT_CONFIG: CheckoutConfig = {
@@ -15,6 +18,7 @@ const DEFAULT_CONFIG: CheckoutConfig = {
   deliveryFee: 15,
   codFee: 0,
   paymobEnabled: false,
+  orderingEnabled: true,
 };
 
 function parsePaymentMethods(value: unknown): PaymentMethod[] | null {
@@ -31,6 +35,7 @@ function parsePaymentMethods(value: unknown): PaymentMethod[] | null {
 
 export async function getCheckoutConfig(): Promise<CheckoutConfig> {
   try {
+    const { orderingEnabled, orderingMessage } = getOrderingStatus();
     const row = await prisma.checkoutConfig.findUnique({
       where: { id: "checkout" },
       select: {
@@ -57,6 +62,8 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
         ...DEFAULT_CONFIG,
         enabledPaymentMethods: finalPaymentMethods,
         paymobEnabled,
+        orderingEnabled,
+        orderingMessage,
       };
     }
 
@@ -65,14 +72,19 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
       deliveryFee: Number(row.deliveryFee),
       codFee: Number(row.codFee),
       paymobEnabled,
+      orderingEnabled,
+      orderingMessage,
     };
   } catch {
+    const { orderingEnabled, orderingMessage } = getOrderingStatus();
     return {
       ...DEFAULT_CONFIG,
       enabledPaymentMethods: isPaymobConfigured()
         ? [PaymentMethod.CARD, PaymentMethod.WALLET]
         : [],
       paymobEnabled: isPaymobConfigured(),
+      orderingEnabled,
+      orderingMessage,
     };
   }
 }

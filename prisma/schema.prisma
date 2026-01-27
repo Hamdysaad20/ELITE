@@ -37,6 +37,9 @@ model User {
   badges       UserBadge[]
   rewardEvents RewardEvent[]
 
+  // Ordering notifications
+  itemAvailabilityNotifications ItemAvailabilityNotification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -747,4 +750,18 @@ model PaymentTransaction {
   @@index([paymobTransactionId])
   @@index([status])
   @@index([createdAt])
+}
+
+// Item Availability Notifications
+model ItemAvailabilityNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  createdAt DateTime @default(now())
+  notified  Boolean  @default(false)
+
+  @@unique([userId, productId])
+  @@index([notified])
+  @@index([userId])
 }

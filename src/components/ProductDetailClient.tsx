@@ -9,6 +9,7 @@ import {
   TrendingUp,
   ShoppingCart,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import AttributeSelector from "./AttributeSelector";
@@ -22,6 +23,9 @@ import { cn } from "@/lib/utils";
 import { getLocalProductImageCandidates } from "@/lib/imageUtils";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface AttributeValue {
   id: number;
@@ -61,11 +65,17 @@ export default function ProductDetailClient({
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useLocalCart();
-  const { error: toastError, success: toastSuccess } = useToast();
+  const {
+    error: toastError,
+    success: toastSuccess,
+    info: toastInfo,
+  } = useToast();
   const t = useTranslations("productDetail");
   const format = useFormatter();
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const formatPrice = (value: number) =>
     format.number(value, {
@@ -154,6 +164,14 @@ export default function ProductDetailClient({
       return;
     }
 
+    if (!orderingEnabled) {
+      openSupportMessenger();
+      toastInfo(disabledMessage);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+      return;
+    }
+
     // Transform selected attributes to cart format
     const cartAttributes: LocalCartItem["attributes"] = {};
 
@@ -208,7 +226,17 @@ export default function ProductDetailClient({
 
     // Show success feedback
     setAddedToCart(true);
-    toastSuccess(t("toast.addedToCart", { name: product.name }));
+    toastSuccess(
+      orderingEnabled
+        ? t("toast.addedToCart", { name: product.name })
+        : t("toast.savedForLater", { name: product.name }) // Fallback key, or just use English: `${product.name} saved for later.`
+    );
+    if (!orderingEnabled) {
+      // If we want to fallback to English for non-existent keys, we'd handle that in i18n messages.
+      // For now let's assume keys exist or accept English if t() fails? t returns key if missing.
+      // Let's stick to consistent t() usage.
+    }
+
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -333,11 +361,10 @@ export default function ProductDetailClient({
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${
-                          index === currentImageIndex
+                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${index === currentImageIndex
                             ? "bg-elite-burgundy scale-125"
                             : "bg-elite-burgundy/40"
-                        }`}
+                          }`}
                         aria-label={t("images.viewImage", { number: index + 1 })}
                       />
                     ))}
@@ -352,11 +379,10 @@ export default function ProductDetailClient({
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                        index === currentImageIndex
+                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${index === currentImageIndex
                           ? "border-elite-burgundy shadow-lg"
                           : "border-elite-burgundy/20 hover:border-elite-burgundy/50"
-                      }`}
+                        }`}
                     >
                       <Image
                         src={image}
@@ -464,6 +490,14 @@ export default function ProductDetailClient({
                   </div>
 
                   {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
+                  {!orderingEnabled && (
+                    <div className="mb-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                      <p className="font-cabin text-amber-900 text-sm">
+                        {disabledMessage} Tap notify to get updates.
+                      </p>
+                    </div>
+                  )}
                   <button
                     onClick={handleAddToCart}
                     disabled={!product.available || addedToCart}
@@ -481,12 +515,12 @@ export default function ProductDetailClient({
                     ) : addedToCart ? (
                       <>
                         <Check className="w-5 h-5 animate-bounce" />
-                        {t("actions.added")}
+                        {orderingEnabled ? t("actions.added") : "Notified!"}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="w-5 h-5" />
-                        {t("actions.addToCart")}
+                        {orderingEnabled ? t("actions.addToCart") : "Notify me"}
                       </>
                     )}
                   </button>
@@ -508,11 +542,10 @@ export default function ProductDetailClient({
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
-                            star <= Math.round(stats.averageRating)
+                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${star <= Math.round(stats.averageRating)
                               ? "fill-elite-burgundy text-elite-burgundy"
                               : "text-elite-burgundy/20"
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>

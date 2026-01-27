@@ -8,6 +8,8 @@ import { useCart } from "@/hooks/useCart";
 import { Button, Input, LoadingOverlay } from "@/components/ui";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ShoppingCart } from "lucide-react";
+import { useOrdering } from "@/context/OrderingContext";
+import { openSupportMessenger } from "@/lib/support";
 
 const FormField = ({
   label,
@@ -25,6 +27,7 @@ const FormField = ({
 export default function DrinkSuggester() {
   const { loading, error, result, suggest } = useDrinkSuggestion();
   const { addToCart } = useCart();
+  const { orderingEnabled } = useOrdering();
   const [prefs, setPrefs] = useState<DrinkPreferences>({
     temperature: "either",
     caffeine: "medium",
@@ -47,7 +50,13 @@ export default function DrinkSuggester() {
 
   const handleAddToCart = useCallback(
     async (
-      item: { id: string; flavors?: { name: string }[] },
+      item: {
+        id: string;
+        name?: string;
+        price?: number;
+        images?: string[];
+        flavors?: { name: string }[];
+      },
       size: string | undefined,
       suggestedFlavor: string | undefined,
     ) => {
@@ -56,9 +65,15 @@ export default function DrinkSuggester() {
       )
         ? suggestedFlavor
         : undefined;
+
+      if (!orderingEnabled) {
+        openSupportMessenger();
+        return;
+      }
+
       await addToCart(item.id, 1, { size, flavor });
     },
-    [addToCart],
+    [addToCart, orderingEnabled],
   );
 
   return (
@@ -228,7 +243,7 @@ export default function DrinkSuggester() {
                       )
                     }
                   >
-                    Add to Cart
+                    {orderingEnabled ? "Add to Cart" : "Notify me"}
                   </Button>
                 </div>
               </div>
@@ -269,7 +284,7 @@ export default function DrinkSuggester() {
                             )
                           }
                         >
-                          Add
+                          {orderingEnabled ? "Add" : "Notify"}
                         </Button>
                       </div>
                     </li>

@@ -9,11 +9,17 @@ import {
   getUserId,
 } from "@/server/utils/apiHelpers";
 import { addToCartSchema } from "@/server/validators/cartSchemas";
-import { BadRequestError, NotFoundError } from "@/server/utils/errors";
+import {
+  BadRequestError,
+  NotFoundError,
+  ServiceUnavailableError,
+} from "@/server/utils/errors";
 import { CART_CONFIG, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants";
 import type { CartItem } from "@/types";
 import { redisGet } from "@/server/cache/redis";
 import { getAuthUser } from "@/server/auth/session";
+import { getOrderingStatus } from "@/server/config/ordering";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 /**
  * Calculates cart totals including subtotal, tax, and delivery fee
@@ -125,6 +131,12 @@ export async function POST(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
+    const { orderingEnabled, orderingMessage } = getOrderingStatus();
+    if (!orderingEnabled) {
+      throw new ServiceUnavailableError(
+        orderingMessage || ORDERING_DISABLED_MESSAGE,
+      );
+    }
     const raw = await parseRequestBody(request);
     const body = addToCartSchema.parse(raw);
     const { menuItemId, quantity, size, flavor, toppings, attributes } = body;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Minus, Plus, ShoppingBag, Check } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { useFormatter, useTranslations } from "next-intl";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface ProductModalProps {
   product: Product | null;
@@ -24,6 +27,8 @@ export default function ProductModal({
   const t = useTranslations("productModal");
   const format = useFormatter();
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
@@ -84,6 +89,20 @@ export default function ProductModal({
 
   const handleAddToCart = async () => {
     if (!product) return;
+
+    if (!orderingEnabled) {
+      setIsAdding(true);
+      openSupportMessenger();
+      setTimeout(() => {
+        setIsAdding(false);
+        setJustAdded(true);
+      }, 300);
+      setTimeout(() => {
+        onClose();
+        setJustAdded(false);
+      }, 600);
+      return;
+    }
 
     setIsAdding(true);
     try {
@@ -251,6 +270,14 @@ export default function ProductModal({
             </div>
           </div>
 
+          {!orderingEnabled && (
+            <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+              <p className="font-cabin text-amber-900 text-sm">
+                {disabledMessage} Tap notify to get updates.
+              </p>
+            </div>
+          )}
           <button
             onClick={handleAddToCart}
             disabled={isAdding || justAdded}
@@ -264,18 +291,18 @@ export default function ProductModal({
             {justAdded ? (
               <>
                 <Check className="w-5 h-5" />
-                <span>{t("added")}</span>
+                <span>{orderingEnabled ? "Added!" : "Notified!"}</span>
               </>
             ) : isAdding ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
-                <span>{t("adding")}</span>
+                <span>{orderingEnabled ? "Adding..." : "Opening..."}</span>
               </div>
             ) : (
               <>
                 <ShoppingBag className="w-5 h-5" />
                 <span>
-                  {t("addToOrder", { total: formatPrice(totalPrice) })}
+                  {orderingEnabled ? "Add to Order" : "Notify me"} • {formatPrice(totalPrice)}
                 </span>
               </>
             )}

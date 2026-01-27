@@ -7,6 +7,9 @@ import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useFormatter, useTranslations } from "next-intl";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 interface DealInfo {
   originalPrice: number;
@@ -76,6 +79,8 @@ export default function DealCard({
   const t = useTranslations("dealCard");
   const format = useFormatter();
   const { addItem } = useLocalCart();
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
     added: false,
@@ -109,6 +114,18 @@ export default function DealCard({
 
   const handleAddToOrder = async () => {
     if (!isAvailable || addToOrderState.adding) return;
+
+    if (!orderingEnabled) {
+      setAddToOrderState({ adding: true, added: false });
+      openSupportMessenger();
+      setTimeout(() => {
+        setAddToOrderState({ adding: false, added: true });
+      }, 300);
+      setTimeout(() => {
+        setAddToOrderState({ adding: false, added: false });
+      }, 2300);
+      return;
+    }
 
     setAddToOrderState({ adding: true, added: false });
 
@@ -273,11 +290,12 @@ export default function DealCard({
                   : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 hover:shadow-lg hover:shadow-elite-burgundy/30 hover:scale-[1.02]",
               )}
               aria-live="polite"
+              title={orderingEnabled ? undefined : disabledMessage}
             >
               {addToOrderState.added ? (
                 <>
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span>{t("added")}</span>
+                  <span>{orderingEnabled ? "Added!" : "Notified!"}</span>
                 </>
               ) : addToOrderState.adding ? (
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
@@ -287,7 +305,7 @@ export default function DealCard({
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                     strokeWidth={2.5}
                   />
-                  <span>{t("add")}</span>
+                  <span>{orderingEnabled ? "Add" : "Notify"}</span>
                 </>
               )}
             </button>

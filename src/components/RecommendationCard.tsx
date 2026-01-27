@@ -3,6 +3,8 @@ import React from "react";
 import type { MenuItem } from "@/types";
 import { ShoppingCart, Check, Sparkles, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 interface BaseRec {
   item: MenuItem;
@@ -37,6 +39,8 @@ export function RecommendationCard({
       currency: "EGP",
       maximumFractionDigits: 0,
     });
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const handleAdd = async () => {
     if (adding) return;
@@ -52,11 +56,10 @@ export function RecommendationCard({
 
   return (
     <div
-      className={`rounded-2xl border-2 p-6 space-y-4 transition-all duration-300 hover:shadow-lg ${
-        primary
+      className={`rounded-2xl border-2 p-6 space-y-4 transition-all duration-300 hover:shadow-lg ${primary
           ? "bg-gradient-to-br from-elite-burgundy/5 to-elite-cream border-elite-burgundy/30 shadow-md"
           : "bg-white border-elite-burgundy/10 hover:border-elite-burgundy/20"
-      }`}
+        }`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -124,23 +127,25 @@ export function RecommendationCard({
       <button
         onClick={handleAdd}
         disabled={adding}
-        className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${
-          added
+        className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${added
             ? "bg-emerald-600 text-white font-calistoga"
             : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        title={orderingEnabled ? undefined : disabledMessage}
       >
         {added ? (
           <>
             <Check className="w-5 h-5" />
-            <span>{t("actions.added")}</span>
+            <span>{orderingEnabled ? "Added to Cart!" : "Notified!"}</span>
           </>
         ) : adding ? (
-          <span className="font-cabin">{t("actions.adding")}</span>
+          <span className="font-cabin">
+            {orderingEnabled ? "Adding..." : "Opening..."}
+          </span>
         ) : (
           <>
             <ShoppingCart className="w-5 h-5" />
-            <span>{t("actions.add")}</span>
+            <span>{orderingEnabled ? "Add to Order" : "Notify me"}</span>
           </>
         )}
       </button>

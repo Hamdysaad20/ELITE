@@ -33,6 +33,7 @@ import { cartDB } from "@/server/utils/jsonDatabase";
 import { checkOrderRateLimit } from "@/server/utils/rateLimit";
 import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
 import { trackOrderEvent, trackApiPerformance } from "@/server/utils/analytics";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
 // Auto-start Points Retry worker when orders API is first accessed
@@ -146,6 +147,11 @@ export async function POST(request: NextRequest) {
     const body = createOrderSchema.parse(raw);
 
     const checkoutConfig = await getCheckoutConfig();
+    if (!checkoutConfig.orderingEnabled) {
+      throw new ServiceUnavailableError(
+        checkoutConfig.orderingMessage || ORDERING_DISABLED_MESSAGE,
+      );
+    }
 
     // Online payments require an authenticated user (Paymob requires email and identity)
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];

@@ -324,3 +324,258 @@ export function generateVerificationSubject(brandName?: string): string {
   const brand = brandName || "Elite Coffee Shop";
   return `Verify your ${brand} account`;
 }
+
+/**
+ * Escape HTML to prevent XSS attacks
+ */
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m] || m);
+}
+
+/**
+ * Generate HTML email for ordering resumed notification
+ */
+export function orderingResumedEmail({
+  userName,
+  items,
+  siteUrl,
+}: {
+  userName?: string;
+  items: string[];
+  siteUrl?: string;
+}): { subject: string; html: string; text: string } {
+  const brandName = "Elite Coffee Shop";
+  const site = siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://officieleliteeg.com";
+  const name = userName || "Valued Customer";
+
+  const subject = "Online ordering is back 🎉";
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Cabin+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Cabin Condensed', sans-serif;
+      line-height: 1.5;
+      color: #3C3C3C;
+      background-color: #FAFAF8;
+      padding: 20px;
+    }
+    
+    .email-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    
+    .email-container {
+      background-color: #FFFFFF;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #F5F3F0 0%, #F9F7F4 100%);
+      padding: 40px 30px;
+      text-align: center;
+      border-bottom: 1px solid rgba(139, 0, 0, 0.06);
+    }
+    
+    .header h1 {
+      font-family: 'Calistoga', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: #6B0000;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    
+    .content {
+      padding: 40px 30px;
+      background-color: #FFFFFF;
+    }
+    
+    .content p {
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: #3C3C3C;
+      line-height: 1.6;
+    }
+    
+    .greeting {
+      font-family: 'Calistoga', serif;
+      font-size: 18px;
+      color: #6B0000;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+    
+    .items-list {
+      margin: 24px 0;
+      padding: 20px;
+      background-color: #FDF5E6;
+      border-radius: 8px;
+      border-left: 3px solid #8B0000;
+    }
+    
+    .items-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .items-list li {
+      padding: 8px 0;
+      font-size: 15px;
+      color: #3C3C3C;
+      border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+    }
+    
+    .items-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .button-container {
+      text-align: center;
+      margin: 36px 0;
+    }
+    
+    .button {
+      display: inline-block;
+      width: 100%;
+      max-width: 100%;
+      padding: 18px 30px;
+      background: linear-gradient(135deg, #8B0000 0%, #6B0000 100%);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 12px rgba(139, 0, 0, 0.15);
+    }
+    
+    .button:hover {
+      background: linear-gradient(135deg, #6B0000 0%, #8B0000 100%);
+      box-shadow: 0 6px 16px rgba(139, 0, 0, 0.25);
+    }
+    
+    .footer {
+      padding: 24px 30px;
+      background: #FAFAF8;
+      text-align: center;
+      font-size: 12px;
+      color: #8B6F6F;
+      border-top: 1px solid #EFEFEF;
+    }
+    
+    .footer p {
+      margin: 4px 0;
+    }
+    
+    .footer-brand {
+      font-family: 'Calistoga', serif;
+      font-size: 13px;
+      color: #6B0000;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        padding: 30px 20px;
+      }
+      
+      .content {
+        padding: 30px 20px;
+      }
+      
+      .button {
+        padding: 16px 24px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="header">
+        <h1>${brandName}</h1>
+      </div>
+      
+      <div class="content">
+        <p class="greeting">Good news${userName ? `, ${escapeHtml(name)}` : ""}! 🎉</p>
+        
+        <p>Online ordering is now available again. The items you were waiting for can be ordered today.</p>
+        
+        <div class="items-list">
+          <ul>
+            ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </div>
+        
+        <div class="button-container">
+          <a href="${site}/menu" class="button">Order Now</a>
+        </div>
+        
+        <p style="color:#666;font-size:13px;margin-top:24px;">
+          You're receiving this email because you asked to be notified when ordering resumes.
+        </p>
+      </div>
+      
+      <div class="footer">
+        <div class="footer-brand">${brandName}</div>
+        <p>Faiyum, Egypt • Premium Coffee Experience</p>
+        <p style="margin-top: 8px; font-size: 11px; color: #AAAAAA;">© ${new Date().getFullYear()} ${brandName}. This is an automated message.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+${brandName}
+${subject}
+
+Good news${userName ? `, ${name}` : ""}!
+
+Online ordering is now available again. The items you were waiting for can be ordered today.
+
+Items:
+${items.map((item) => `- ${item}`).join("\n")}
+
+Order now: ${site}/menu
+
+---
+
+You're receiving this email because you asked to be notified when ordering resumes.
+
+${brandName}
+Faiyum, Egypt • Premium Coffee Experience
+
+© ${new Date().getFullYear()} ${brandName}
+This is an automated message. Please do not reply to this email.
+  `.trim();
+
+  return { subject, html, text };
+}

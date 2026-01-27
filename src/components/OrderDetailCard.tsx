@@ -32,6 +32,9 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 import { cn } from "@/lib/utils";
+import { useOrdering } from "@/context/OrderingContext";
+import { SUPPORT_MESSENGER_URL, openSupportMessenger } from "@/lib/support";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
 interface OrderDetailCardProps {
   orderId: string;
@@ -189,10 +192,12 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
       currency: "EGP",
       maximumFractionDigits: 2,
     });
+  // Removed unused router since we have localizedRouter
+  const { orderingEnabled, orderingMessage } = useOrdering();
 
   // Handle contact support - opens Facebook Messenger
   const handleContactSupport = () => {
-    window.open("https://m.me/61577901386334", "_blank");
+    window.open(SUPPORT_MESSENGER_URL, "_blank", "noopener,noreferrer");
   };
 
   if (loading) {
@@ -253,20 +258,20 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
           <div className="bg-elite-cream/40 rounded-2xl p-4 border-2 border-elite-burgundy/5">
             <p className="font-cabin text-sm text-elite-black/60 mb-3">
-                {t("error.causesTitle")}
+              {t("error.causesTitle")}
             </p>
             <ul className="space-y-2 font-cabin text-sm text-elite-black/60">
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                  <span>{t("error.causes.invalidId")}</span>
+                <span>{t("error.causes.invalidId")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                  <span>{t("error.causes.permission")}</span>
+                <span>{t("error.causes.permission")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-elite-burgundy mt-0.5">•</span>
-                  <span>{t("error.causes.connection")}</span>
+                <span>{t("error.causes.connection")}</span>
               </li>
             </ul>
           </div>
@@ -365,6 +370,14 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
   // Handle reorder click - check if cart has items
   const handleReorderClick = () => {
     if (!order || isReordering) return;
+    if (!orderingEnabled) {
+      openSupportMessenger();
+      info(
+        orderingMessage ||
+        ORDERING_DISABLED_MESSAGE,
+      );
+      return;
+    }
 
     // Check if cart has items
     if (itemCount > 0) {
@@ -581,14 +594,12 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               </div>
               <span
                 className={cn(
-                  `px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${
-                    statusInfo.color === "text-elite-cream"
-                      ? "text-elite-burgundy"
-                      : "text-elite-black"
-                  } border-2 ${
-                    statusInfo.color === "text-elite-cream"
-                      ? "border-elite-cream/30"
-                      : "border-elite-burgundy"
+                  `px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${statusInfo.color === "text-elite-cream"
+                    ? "text-elite-burgundy"
+                    : "text-elite-black"
+                  } border-2 ${statusInfo.color === "text-elite-cream"
+                    ? "border-elite-cream/30"
+                    : "border-elite-burgundy"
                   } shadow-md`,
                   isRTL ? "mr-auto" : "ml-auto",
                 )}
@@ -700,13 +711,13 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                       {t("delivery.days", {
                         count: estimatedDelivery
                           ? Math.max(
-                              1,
-                              Math.ceil(
-                                (estimatedDelivery.getTime() -
-                                  new Date().getTime()) /
-                                  (1000 * 60 * 60 * 24),
-                              ),
-                            )
+                            1,
+                            Math.ceil(
+                              (estimatedDelivery.getTime() -
+                                new Date().getTime()) /
+                              (1000 * 60 * 60 * 24),
+                            ),
+                          )
                           : 3,
                       })}
                     </p>
@@ -723,7 +734,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-                      {t("delivery.destination")}
+                        {t("delivery.destination")}
                       </p>
                       <p className="font-calistoga text-lg sm:text-xl text-elite-black truncate">
                         {order.address.city}
@@ -876,19 +887,19 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
           {/* Order Summary */}
           <div className="mt-6 pt-6 border-t-2 border-elite-burgundy/10 space-y-3">
             <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
-            <span>{t("summary.subtotal")}</span>
-            <span className="font-semibold">{formatPrice(order.subtotal)}</span>
+              <span>{t("summary.subtotal")}</span>
+              <span className="font-semibold">{formatPrice(order.subtotal)}</span>
             </div>
 
             {order.deliveryFee > 0 && (
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
                 <span className="flex items-center gap-2">
                   <Truck className="w-4 h-4" />
-                {t("summary.deliveryFee")}
+                  {t("summary.deliveryFee")}
                 </span>
-              <span className="font-semibold">
-                {formatPrice(order.deliveryFee)}
-              </span>
+                <span className="font-semibold">
+                  {formatPrice(order.deliveryFee)}
+                </span>
               </div>
             )}
 
@@ -896,25 +907,25 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
                 <span className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4" />
-                {t("summary.codFee")}
+                  {t("summary.codFee")}
                 </span>
-              <span className="font-semibold">{formatPrice(order.codFee)}</span>
+                <span className="font-semibold">{formatPrice(order.codFee)}</span>
               </div>
             )}
 
             {order.discount > 0 && (
               <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-burgundy">
-              <span>{t("summary.discount")}</span>
-              <span className="font-bold">
-                -{formatPrice(order.discount)}
-              </span>
+                <span>{t("summary.discount")}</span>
+                <span className="font-bold">
+                  -{formatPrice(order.discount)}
+                </span>
               </div>
             )}
 
             <div className="flex justify-between items-center font-cabin text-lg sm:text-xl font-bold text-elite-black pt-3 border-t-2 border-elite-burgundy/10">
-            <span>{t("summary.total")}</span>
+              <span>{t("summary.total")}</span>
               <span className="text-elite-burgundy">
-              {formatPrice(order.total)}
+                {formatPrice(order.total)}
               </span>
             </div>
           </div>
@@ -964,7 +975,11 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               </p>
               <button
                 onClick={handleReorderClick}
-                disabled={isReordering || !order || order.items.length === 0}
+                disabled={
+                  isReordering ||
+                  !order ||
+                  order.items.length === 0
+                }
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[48px]"
                 aria-busy={isReordering}
                 aria-label={
@@ -978,6 +993,8 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>{t("reorderCard.adding")}</span>
                   </>
+                ) : !orderingEnabled ? (
+                  <span>Get updates</span>
                 ) : (
                   <>
                     <ShoppingBag className="w-5 h-5" />

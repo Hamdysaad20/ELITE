@@ -14,14 +14,20 @@ import { Sparkles, Coffee, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { cn } from "@/lib/utils";
+import { useOrdering } from "@/context/OrderingContext";
+import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { openSupportMessenger } from "@/lib/support";
 
 export default function SuggestPage() {
   const { suggest, loading, error, result } = useDrinkSuggestion();
   const { addToCart } = useCart();
   const { push } = useToast();
+
   const t = useTranslations("suggestPage");
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const { orderingEnabled, orderingMessage } = useOrdering();
+  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
   const handleSuggest = (prefs: DrinkPreferences) => {
     suggest(prefs);
@@ -119,6 +125,14 @@ export default function SuggestPage() {
                   primary
                   onAdd={async (item, size, flavor) => {
                     try {
+                      if (!orderingEnabled) {
+                        openSupportMessenger();
+                        push({
+                          type: "info",
+                          message: disabledMessage,
+                        });
+                        return;
+                      }
                       await addToCart(item.id, 1, { size, flavor });
                       push({
                         type: "success",
@@ -143,6 +157,14 @@ export default function SuggestPage() {
                           recommendation={alt}
                           onAdd={async (item, size, flavor) => {
                             try {
+                              if (!orderingEnabled) {
+                                openSupportMessenger();
+                                push({
+                                  type: "info",
+                                  message: disabledMessage,
+                                });
+                                return;
+                              }
                               await addToCart(item.id, 1, { size, flavor });
                               push({
                                 type: "success",
@@ -179,13 +201,13 @@ export default function SuggestPage() {
 
           {/* CTA */}
           <div className="mt-8 text-center">
-          <LocalizedLink
+            <LocalizedLink
               href="/menu"
               className="inline-flex items-center gap-2 font-cabin text-elite-burgundy hover:text-elite-burgundy transition-colors"
             >
-            <span>{t("actions.browseMenu")}</span>
-            <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
-          </LocalizedLink>
+              <span>{t("actions.browseMenu")}</span>
+              <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
+            </LocalizedLink>
           </div>
         </div>
       </div>
