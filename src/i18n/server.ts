@@ -7,16 +7,18 @@ import {
   type Locale,
 } from "./config";
 
-export function getRequestLocale(): Locale {
-  const headerLocale = headers().get("x-locale");
+export async function getRequestLocale(): Promise<Locale> {
+  const headersList = await headers();
+  const headerLocale = headersList.get("x-locale");
   if (isLocale(headerLocale)) return headerLocale;
 
-  const cookieLocale = cookies().get(localeCookieName)?.value;
+  const cookiesList = await cookies();
+  const cookieLocale = cookiesList.get(localeCookieName)?.value;
   if (isLocale(cookieLocale)) return cookieLocale;
 
   return defaultLocale;
 }
 
-export function getRequestDirection() {
-  return getDirection(getRequestLocale());
+export async function getRequestDirection() {
+  return getDirection(await getRequestLocale());
 }

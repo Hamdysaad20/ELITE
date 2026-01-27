@@ -261,7 +261,7 @@ export function OrderFilters({
         <div className="flex gap-2">
           {orderTypes.map((type) => (
             <button
-              key={type}
+              key={type.value}
               onClick={() =>
                 handleOrderTypeChange(type.value as typeof filters.orderType)
               }

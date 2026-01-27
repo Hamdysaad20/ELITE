@@ -225,7 +225,7 @@ function OrderPageContent() {
         setSubmitting(false);
       }
     },
-    [clearCart, push],
+    [clearCart, push, t],
   );
 
   // Handle retry flow from /payment/callback "Retry Payment" link.

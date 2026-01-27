@@ -4,19 +4,24 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import ClientBody from "@/app/ClientBody";
 import { ErrorBoundary } from "@/components/ui";
-import { locales, type Locale } from "@/i18n/config";
+import { locales, type Locale, isLocale } from "@/i18n/config";
 
 type LayoutProps = {
   children: React.ReactNode;
-  params: { locale: Locale };
+  params: Promise<{ locale: string }>;
 };
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: Locale };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const locale = params.locale;
+  const { locale: localeParam } = await params;
+  const locale = isLocale(localeParam) ? localeParam : "en";
   if (!locales.includes(locale)) notFound();
   const t = await getTranslations({ locale, namespace: "metadata" });
 
@@ -37,7 +42,8 @@ export default async function LocaleLayout({
   children,
   params,
 }: LayoutProps) {
-  const locale = params.locale;
+  const { locale: localeParam } = await params;
+  const locale: Locale = isLocale(localeParam) ? localeParam : "en";
   if (!locales.includes(locale)) notFound();
 
   const messages = await getMessages({ locale });

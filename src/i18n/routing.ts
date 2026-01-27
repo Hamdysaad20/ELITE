@@ -12,15 +12,21 @@ export function stripLocaleFromPathname(pathname: string): string {
   return stripped.length > 0 ? stripped : "/";
 }
 
-export function addLocaleToPathname(pathname: string, locale: Locale): string {
+export function addLocaleToPathname(
+  pathname: string,
+  locale: Locale | string,
+): string {
+  // Ensure locale is valid
+  const safeLocale: Locale = isLocale(locale) ? locale : defaultLocale;
+
   if (!pathname.startsWith("/")) return pathname;
   const currentLocale = getLocaleFromPathname(pathname);
-  if (currentLocale === locale) return pathname;
+  if (currentLocale === safeLocale) return pathname;
   if (currentLocale) {
-    return `/${locale}${stripLocaleFromPathname(pathname)}`;
+    return `/${safeLocale}${stripLocaleFromPathname(pathname)}`;
   }
-  if (pathname === "/") return `/${locale}`;
-  return `/${locale}${pathname}`;
+  if (pathname === "/") return `/${safeLocale}`;
+  return `/${safeLocale}${pathname}`;
 }
 
 export function switchLocale(

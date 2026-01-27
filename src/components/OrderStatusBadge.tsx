@@ -163,9 +163,10 @@ export interface OrderIntegrationStatusProps {
 export function OrderIntegrationStatus({
   integrationStatus,
 }: OrderIntegrationStatusProps) {
+  const t = useTranslations("orderStatus");
+
   if (!integrationStatus) return null;
 
-  const t = useTranslations("orderStatus");
   const { sale, pos } = integrationStatus;
 
   return (
