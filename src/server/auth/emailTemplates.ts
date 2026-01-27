@@ -326,6 +326,20 @@ export function generateVerificationSubject(brandName?: string): string {
 }
 
 /**
+ * Escape HTML to prevent XSS attacks
+ */
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m] || m);
+}
+
+/**
  * Generate HTML email for ordering resumed notification
  */
 export function orderingResumedEmail({
@@ -509,13 +523,13 @@ export function orderingResumedEmail({
       </div>
       
       <div class="content">
-        <p class="greeting">Good news${userName ? `, ${name}` : ""}! 🎉</p>
+        <p class="greeting">Good news${userName ? `, ${escapeHtml(name)}` : ""}! 🎉</p>
         
         <p>Online ordering is now available again. The items you were waiting for can be ordered today.</p>
         
         <div class="items-list">
           <ul>
-            ${items.map((item) => `<li>${item}</li>`).join("")}
+            ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
           </ul>
         </div>
         
