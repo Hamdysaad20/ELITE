@@ -237,7 +237,7 @@ export default function CategoryPage() {
 
         return acc;
       }, []);
-  }, [USE_FALLBACK, apiCategories, apiProducts]);
+  }, [USE_FALLBACK, apiCategories, apiProducts, t]);
 
   const selectedCategory = useMemo(() => {
     return categories.find((c) => String(c.id) === String(categoryId)) || null;
@@ -275,20 +275,18 @@ export default function CategoryPage() {
                 {heroImages.map((imageSrc, index) => (
                   <div
                     key={imageSrc}
-                    className={`absolute inset-0 flex items-end justify-center transition-opacity duration-700 ease-in-out ${
-                      index === currentHeroImage
+                    className={`absolute inset-0 flex items-end justify-center transition-opacity duration-700 ease-in-out ${index === currentHeroImage
                         ? "opacity-100 z-10"
                         : "opacity-0 z-0 pointer-events-none"
-                    }`}
+                      }`}
                   >
                     <img
                       src={imageSrc}
                       alt={`Hero Image ${index + 1}`}
-                      className={`w-[20rem] h-[20rem] sm:w-[28rem] sm:h-[28rem] md:w-[38rem] md:h-[38rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] object-contain pointer-events-none ${
-                        animationPlayed
+                      className={`w-[20rem] h-[20rem] sm:w-[28rem] sm:h-[28rem] md:w-[38rem] md:h-[38rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] object-contain pointer-events-none ${animationPlayed
                           ? "drink-overlay-animation animated"
                           : ""
-                      }`}
+                        }`}
                       style={{
                         objectPosition: "bottom center",
                         maxHeight: "90%",
@@ -355,18 +353,16 @@ export default function CategoryPage() {
                               onClick={() =>
                                 localizedRouter.push(`/menu/${cat.id}`)
                               }
-                              className={`group flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
-                                isActive
+                              className={`group flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${isActive
                                   ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
                                   : "bg-white text-elite-black/80 border border-elite-burgundy/15 active:bg-elite-burgundy/5"
-                              }`}
+                                }`}
                             >
                               <div
-                                className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
-                                  isActive
+                                className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${isActive
                                     ? "bg-elite-cream"
                                     : "bg-elite-burgundy/60"
-                                }`}
+                                  }`}
                               />
                               <span
                                 className={`font-cabin text-sm ${isActive ? "font-bold" : "font-medium"}`}
@@ -397,19 +393,17 @@ export default function CategoryPage() {
                             <div key={cat.id}>
                               <LocalizedLink
                                 href={`/menu/${cat.id}`}
-                                className={`group sidebar-item flex items-center justify-between p-4 rounded-xl transition-all duration-300 border ${
-                                  String(cat.id) === String(categoryId)
+                                className={`group sidebar-item flex items-center justify-between p-4 rounded-xl transition-all duration-300 border ${String(cat.id) === String(categoryId)
                                     ? "bg-elite-burgundy text-elite-cream shadow-lg border-elite-burgundy"
                                     : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <div
-                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                      String(cat.id) === String(categoryId)
+                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${String(cat.id) === String(categoryId)
                                         ? "bg-elite-cream"
                                         : "bg-elite-burgundy group-hover:bg-elite-cream"
-                                    }`}
+                                      }`}
                                   ></div>
                                   <span className="font-cabin font-semibold text-base">
                                     {cat.name}

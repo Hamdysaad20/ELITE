@@ -8,28 +8,112 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import DrinkCard from "@/components/DrinkCard";
 import ComboDealCard from "@/components/ComboDealCard";
 import DealCard from "@/components/deals/DealCard";
-import type { ComboDeal } from "@/types/deals";
+import type { ComboDeal, DealProduct, Deal } from "@/types/deals";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
 import { cn } from "@/lib/utils";
+import { sanitizeImages } from "@/lib/imageUtils";
 import UserActivationCTA from "@/components/deals/UserActivationCTA";
 import DealSortFilter, {
   type DealSortOption,
 } from "@/components/deals/DealSortFilter";
+import { useDeals } from "@/hooks/useDeals";
 import { useTranslations } from "next-intl";
+import SwipeIndicator from "@/components/SwipeIndicator";
+import { Sparkles, AlertCircle } from "lucide-react";
+import { useState, useMemo } from "react";
 
 /**
  * Deals page - Currently disabled
  * This page will be enabled in the future when deals feature is ready
  */
 export default function DealsPage() {
+  const router = useRouter();
+  const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<DealSortOption>("discount-desc"); // Default: biggest discount first
   const t = useTranslations("dealsPage");
+
+  const {
+    deals,
+    loading,
+    error,
+    totalProducts
+  } = useDeals(true);
+
+  const activeDeals = useMemo(() => {
+    if (!deals) return [];
+    return deals.filter(d => d.active);
+  }, [deals]);
+
+  const sortedDeals = useMemo(() => {
+    if (!activeDeals) return [];
+
+    const getDealMetrics = (deal: Deal | undefined) => {
+      if (!deal || !deal.products || deal.products.length === 0) {
+        return { savings: 0, savingsPercent: 0, price: 0, name: deal?.name || "" };
+      }
+      const maxSavingsPercent = Math.max(...deal.products.map(p => p.savingsPercent || 0));
+      const maxSavings = Math.max(...deal.products.map(p => p.savings || 0));
+      const minPrice = Math.min(...deal.products.map(p => p.dealPrice || 0));
+
+      return {
+        savings: maxSavings,
+        savingsPercent: maxSavingsPercent,
+        price: minPrice,
+        name: deal.name
+      };
+    };
+
+    return [...activeDeals].sort((a, b) => {
+      const metricsA = getDealMetrics(a);
+      const metricsB = getDealMetrics(b);
+
+      switch (sortBy) {
+        case "discount-desc":
+          return metricsB.savingsPercent - metricsA.savingsPercent;
+        case "discount-asc":
+          return metricsA.savingsPercent - metricsB.savingsPercent;
+        case "savings-desc":
+          return metricsB.savings - metricsA.savings;
+        case "savings-asc":
+          return metricsA.savings - metricsB.savings;
+        case "price-desc":
+          return metricsB.price - metricsA.price;
+        case "price-asc":
+          return metricsA.price - metricsB.price;
+        case "name-asc":
+          return metricsA.name.localeCompare(metricsB.name);
+        case "name-desc":
+          return metricsB.name.localeCompare(metricsA.name);
+        default:
+          return 0;
+      }
+    });
+  }, [activeDeals, sortBy]);
+
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
+  const convertToProduct = (dealProduct: DealProduct): Product => {
+    // Basic conversion logic - enhance as needed based on Product type
+    return {
+      id: dealProduct.id,
+      name: dealProduct.name,
+      description: dealProduct.description,
+      price: dealProduct.dealPrice,
+      originalPrice: dealProduct.originalPrice,
+      images: dealProduct.images,
+      available: dealProduct.available,
+      categoryId: dealProduct.categoryId,
+      // Add other required fields with defaults
+    } as Product;
+  };
 
   // Redirect to home page
   useEffect(() => {
@@ -306,12 +390,12 @@ export default function DealsPage() {
                 </div>
               )}
             </div>
-            </div>
-            </div>
-            </div>
+          </div>
+        </div>
+      </div>
 
 
-            <Footer />
-          </>
-          );
+      <Footer />
+    </>
+  );
 }
