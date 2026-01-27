@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 export default function Hero() {
   const leftCupRef = useRef(null);
   const centerCupRef = useRef(null);
   const rightCupRef = useRef(null);
-  const router = useRouter();
+  const t = useTranslations("hero");
 
   // Handle location navigation
   const handleLocationClick = (e: React.MouseEvent) => {
@@ -71,29 +71,29 @@ export default function Hero() {
       <div className="relative flex flex-col items-center justify-center text-center px-5 pt-16 md:pt-20 flex-1 z-20">
         {/* Title with refined typography */}
         <h1 className="font-calistoga text-elite-white text-[2.75rem] sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] max-w-4xl mb-4 md:mb-6">
-          Life Begins
+          {t("titleLine1")}
           <br />
-          <span className="text-elite-cream/90">After Coffee</span>
+          <span className="text-elite-cream/90">{t("titleLine2")}</span>
         </h1>
 
         {/* Subtitle - Compact on mobile */}
         <p className="text-elite-white/80 font-cabin text-base sm:text-lg md:text-xl mb-8 md:mb-10 max-w-sm sm:max-w-md md:max-w-2xl leading-relaxed">
-          Because great coffee is the start of something even greater.
+          {t("subtitle")}
         </p>
 
         {/* CTA Buttons - Full width on mobile, side by side on larger */}
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none sm:w-auto px-2 sm:px-0 relative z-30">
-          <Link
+          <LocalizedLink
             href="/menu"
             className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-3.5 sm:py-3 rounded-full font-cabin text-base font-bold shadow-lg shadow-black/10 active:scale-95 hover:bg-elite-white hover:shadow-xl transition-all duration-200 touch-manipulation inline-flex items-center justify-center relative z-30"
           >
-            Explore Menu
-          </Link>
+            {t("ctaExplore")}
+          </LocalizedLink>
           <button
             onClick={handleLocationClick}
             className="w-full sm:w-auto border-2 border-elite-cream/80 text-elite-cream px-8 py-3.5 sm:py-3 rounded-full font-cabin text-base font-semibold active:scale-95 hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-200 touch-manipulation relative z-30"
           >
-            Our Locations
+            {t("ctaLocation")}
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function Hero() {
               <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none">
                 <img
                   src="https://ext.same-assets.com/1022434225/3040081048.avif"
-                  alt="Just Coffee Cup"
+                  alt={t("alts.justCoffee")}
                   className="w-full h-full object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
                   loading="eager"
                 />
@@ -125,7 +125,7 @@ export default function Hero() {
               <div className="w-52 sm:w-56 md:w-64 lg:w-72 aspect-[4/5] pointer-events-none">
                 <img
                   src="https://ext.same-assets.com/1022434225/3705697434.avif"
-                  alt="Espresso Cup"
+                  alt={t("alts.espresso")}
                   className="w-full h-full object-contain drop-shadow-2xl translate-y-6 sm:translate-y-4 pointer-events-none"
                   loading="eager"
                 />
@@ -140,7 +140,7 @@ export default function Hero() {
               <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none">
                 <img
                   src="https://ext.same-assets.com/1022434225/515548484.avif"
-                  alt="Cold Brew Cup"
+                  alt={t("alts.coldBrew")}
                   className="w-full h-full object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
                   loading="eager"
                 />
@@ -154,137 +154,24 @@ export default function Hero() {
       <div className="bg-elite-cream py-4 md:py-6 overflow-hidden w-full flex-shrink-0 relative z-10">
         <div className="marquee-container w-full">
           <div className="marquee-content text-sm md:text-base">
-            {/* Original Content */}
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🌎</span>
-                <span>Global Flavor</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>☕</span>
-                <span>Friendly Baristas</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⭐</span>
-                <span>Great Coffee</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⚡</span>
-                <span>Fast Service</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏠</span>
-                <span>Cozy Space</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>📸</span>
-                <span>Handcrafted Drinks</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏆</span>
-                <span>Local Roasts</span>
-              </span>
-            </div>
-
-            {/* First Duplicate */}
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🌎</span>
-                <span>Global Flavor</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>☕</span>
-                <span>Friendly Baristas</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⭐</span>
-                <span>Great Coffee</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⚡</span>
-                <span>Fast Service</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏠</span>
-                <span>Cozy Space</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>📸</span>
-                <span>Handcrafted Drinks</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏆</span>
-                <span>Local Roasts</span>
-              </span>
-            </div>
-
-            {/* Second Duplicate */}
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🌎</span>
-                <span>Global Flavor</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>☕</span>
-                <span>Friendly Baristas</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⭐</span>
-                <span>Great Coffee</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>⚡</span>
-                <span>Fast Service</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏠</span>
-                <span>Cozy Space</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>📸</span>
-                <span>Handcrafted Drinks</span>
-              </span>
-            </div>
-            <div className="marquee-item">
-              <span className="flex items-center space-x-2">
-                <span>🏆</span>
-                <span>Local Roasts</span>
-              </span>
-            </div>
+            {[
+              { icon: "🌎", text: t("marquee.globalFlavor") },
+              { icon: "☕", text: t("marquee.friendlyBaristas") },
+              { icon: "⭐", text: t("marquee.greatCoffee") },
+              { icon: "⚡", text: t("marquee.fastService") },
+              { icon: "🏠", text: t("marquee.cozySpace") },
+              { icon: "📸", text: t("marquee.handcraftedDrinks") },
+              { icon: "🏆", text: t("marquee.localRoasts") },
+            ]
+              .flatMap((item) => [item, item, item])
+              .map((item, index) => (
+                <div className="marquee-item" key={`${item.text}-${index}`}>
+                  <span className="flex items-center space-x-2">
+                    <span>{item.icon}</span>
+                    <span>{item.text}</span>
+                  </span>
+                </div>
+              ))}
           </div>
         </div>
       </div>

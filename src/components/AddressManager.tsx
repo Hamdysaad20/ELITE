@@ -20,6 +20,50 @@ import {
   Briefcase,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+
+type Translator = (key: string, values?: Record<string, string | number>) => string;
+
+const extractNumber = (message: string) => {
+  const match = message.match(/\d+/);
+  return match ? Number(match[0]) : undefined;
+};
+
+const resolveAddressError = (
+  t: Translator,
+  field: string,
+  message: string,
+) => {
+  if (!message) return message;
+  const maxValue = extractNumber(message);
+
+  if (message.includes("required")) {
+    return t(`validation.${field}.required`);
+  }
+  if (message.includes("must be at least")) {
+    return t(`validation.${field}.min`, { min: maxValue || 1 });
+  }
+  if (message.includes("must be less than")) {
+    return t(`validation.${field}.max`, { max: maxValue || 0 });
+  }
+  if (message.includes("invalid characters")) {
+    return t(`validation.${field}.invalid`);
+  }
+  if (message.includes("cannot contain numbers")) {
+    return t("validation.city.invalid");
+  }
+  if (message.includes("valid phone number")) {
+    return t("validation.phone.invalid");
+  }
+  if (message.includes("valid Egyptian mobile number")) {
+    return t("validation.phone.egypt");
+  }
+  if (message.includes("valid zip/postal code")) {
+    return t("validation.zipCode.invalid");
+  }
+
+  return message;
+};
 
 interface AddressManagerProps {
   onSelectAddress?: (address: Address) => void;
@@ -36,6 +80,7 @@ export default function AddressManager({
   allowAddInSelectMode = false,
   onAddressCreated,
 }: AddressManagerProps) {
+  const t = useTranslations("addressManager");
   const {
     addresses,
     loading,
@@ -62,6 +107,15 @@ export default function AddressManager({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const labelTranslations: Record<string, string> = {
+    Home: t("labels.home"),
+    Work: t("labels.work"),
+    Office: t("labels.office"),
+    Other: t("labels.other"),
+  };
+
+  const resolveLabel = (label: string) => labelTranslations[label] || label;
+
   const getLabelIcon = (label: string) => {
     const lower = label.toLowerCase();
     if (lower.includes("home")) return <Home className="w-4 h-4" />;
@@ -79,7 +133,7 @@ export default function AddressManager({
       // Set errors from validation
       const errorMap: Record<string, string> = {};
       validation.errors.forEach((err: { field: string; message: string }) => {
-        errorMap[err.field] = err.message;
+        errorMap[err.field] = resolveAddressError(t, err.field, err.message);
       });
       setErrors(errorMap);
       return;
@@ -126,7 +180,7 @@ export default function AddressManager({
       console.error("Error saving address:", err);
       // Show error message if it's a duplicate address error
       if (err instanceof Error && err.message.includes("already exists")) {
-        alert(err.message);
+        alert(t("errors.duplicate"));
       }
     } finally {
       setSubmitting(false);
@@ -150,7 +204,7 @@ export default function AddressManager({
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this address?")) {
+    if (confirm(t("confirmDelete"))) {
       try {
         await deleteAddress(id);
       } catch (err) {
@@ -194,7 +248,7 @@ export default function AddressManager({
   if (error) {
     return (
       <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-red-700">
-        <p className="font-cabin">Error loading addresses: {error}</p>
+        <p className="font-cabin">{t("errors.load", { error })}</p>
       </div>
     );
   }
@@ -219,6 +273,7 @@ export default function AddressManager({
                   setFormData={setFormData}
                   submitting={submitting}
                   onCancel={cancelForm}
+                  isEditing={true}
                 />
               </form>
             );
@@ -242,11 +297,11 @@ export default function AddressManager({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-calistoga text-elite-black text-lg">
-                        {address.label}
+                        {resolveLabel(address.label)}
                       </h4>
                       {address.isDefault && (
                         <span className="bg-elite-burgundy text-elite-cream px-3 py-1 rounded-full text-xs font-cabin font-bold shadow-sm">
-                          Default
+                          {t("default")}
                         </span>
                       )}
                       {onSelectAddress && (
@@ -290,7 +345,7 @@ export default function AddressManager({
                         type="button"
                         onClick={() => handleSetDefault(address.id)}
                         className="p-2.5 rounded-xl hover:bg-elite-burgundy/10 text-elite-burgundy transition-all hover:shadow-md"
-                        title="Set as default"
+                        title={t("actions.setDefault")}
                       >
                         <Check className="w-4 h-4" />
                       </button>
@@ -299,7 +354,7 @@ export default function AddressManager({
                       type="button"
                       onClick={() => handleEdit(address)}
                       className="p-2.5 rounded-xl hover:bg-elite-burgundy/10 text-elite-burgundy transition-all hover:shadow-md"
-                      title="Edit address"
+                      title={t("actions.edit")}
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
@@ -307,7 +362,7 @@ export default function AddressManager({
                       type="button"
                       onClick={() => handleDelete(address.id)}
                       className="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all hover:shadow-md"
-                      title="Delete address"
+                      title={t("actions.delete")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -330,6 +385,7 @@ export default function AddressManager({
             setFormData={setFormData}
             submitting={submitting}
             onCancel={cancelForm}
+            isEditing={false}
           />
         </form>
       ) : (
@@ -342,7 +398,7 @@ export default function AddressManager({
             <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors">
               <Plus className="w-6 h-6" />
             </div>
-            Add New Address
+            {t("actions.addNew")}
           </button>
         )
       )}
@@ -355,6 +411,7 @@ interface AddressFormProps {
   setFormData: React.Dispatch<React.SetStateAction<Partial<Address>>>;
   submitting: boolean;
   onCancel: () => void;
+  isEditing: boolean;
 }
 
 function AddressForm({
@@ -362,8 +419,17 @@ function AddressForm({
   setFormData,
   submitting,
   onCancel,
+  isEditing,
 }: AddressFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const t = useTranslations("addressManager");
+
+  const labelOptions = [
+    { value: "Home", label: t("labels.home") },
+    { value: "Work", label: t("labels.work") },
+    { value: "Office", label: t("labels.office") },
+    { value: "Other", label: t("labels.other") },
+  ];
 
   // Use shared validation function
   const validateField = (name: string, value: string | null | undefined) => {
@@ -371,7 +437,7 @@ function AddressForm({
     const newErrors = { ...errors };
 
     if (!validation.isValid && validation.message) {
-      newErrors[name] = validation.message;
+      newErrors[name] = resolveAddressError(t, name, validation.message);
     } else {
       delete newErrors[name];
     }
@@ -399,27 +465,27 @@ function AddressForm({
   return (
     <div className="space-y-5">
       <h4 className="font-calistoga text-elite-black text-lg mb-4">
-        {formData.label ? "Edit Address" : "New Address"}
+        {isEditing ? t("form.editTitle") : t("form.newTitle")}
       </h4>
 
       {/* Label Selection */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Address Label
+          {t("form.label")}
         </label>
         <div className="flex flex-wrap gap-2">
-          {["Home", "Work", "Office", "Other"].map((label) => (
+          {labelOptions.map((option) => (
             <button
-              key={label}
+              key={option.value}
               type="button"
-              onClick={() => setFormData({ ...formData, label })}
+              onClick={() => setFormData({ ...formData, label: option.value })}
               className={`px-5 py-2.5 rounded-full font-cabin font-bold transition-all text-sm ${
-                formData.label === label
+                formData.label === option.value
                   ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/30"
                   : "bg-white text-elite-black border-2 border-elite-burgundy/30 hover:border-elite-burgundy hover:shadow-md"
               }`}
             >
-              {label}
+              {option.label}
             </button>
           ))}
         </div>
@@ -428,7 +494,7 @@ function AddressForm({
       {/* Street Address */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Street Address <span className="text-red-500">*</span>
+          {t("form.street.label")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -437,7 +503,7 @@ function AddressForm({
           value={formData.street}
           onChange={(e) => handleFieldChange("street", e.target.value)}
           onBlur={(e) => validateField("street", e.target.value)}
-          placeholder="123 Main Street"
+          placeholder={t("form.street.placeholder")}
           className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
             errors.street
               ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -454,8 +520,10 @@ function AddressForm({
       {/* Apartment/Unit */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Apartment, Suite, Unit{" "}
-          <span className="text-elite-black/40">(Optional)</span>
+          {t("form.apartment.label")}{" "}
+          <span className="text-elite-black/40">
+            ({t("form.optional")})
+          </span>
         </label>
         <input
           type="text"
@@ -463,7 +531,7 @@ function AddressForm({
           value={formData.apartment}
           onChange={(e) => handleFieldChange("apartment", e.target.value)}
           onBlur={(e) => validateField("apartment", e.target.value)}
-          placeholder="Apt 4B"
+          placeholder={t("form.apartment.placeholder")}
           className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
             errors.apartment
               ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -481,7 +549,7 @@ function AddressForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            City <span className="text-red-500">*</span>
+            {t("form.city.label")} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -490,7 +558,7 @@ function AddressForm({
             value={formData.city}
             onChange={(e) => handleFieldChange("city", e.target.value)}
             onBlur={(e) => validateField("city", e.target.value)}
-            placeholder="Cairo"
+            placeholder={t("form.city.placeholder")}
             className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
               errors.city
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -505,7 +573,7 @@ function AddressForm({
         </div>
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            State/Province
+            {t("form.state.label")}
           </label>
           <input
             type="text"
@@ -513,7 +581,7 @@ function AddressForm({
             value={formData.state}
             onChange={(e) => handleFieldChange("state", e.target.value)}
             onBlur={(e) => validateField("state", e.target.value)}
-            placeholder="Cairo Governorate"
+            placeholder={t("form.state.placeholder")}
             className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
               errors.state
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -532,7 +600,7 @@ function AddressForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            Zip/Postal Code
+            {t("form.zipCode.label")}
           </label>
           <input
             type="text"
@@ -540,7 +608,7 @@ function AddressForm({
             value={formData.zipCode}
             onChange={(e) => handleFieldChange("zipCode", e.target.value)}
             onBlur={(e) => validateField("zipCode", e.target.value)}
-            placeholder="12345"
+            placeholder={t("form.zipCode.placeholder")}
             className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
               errors.zipCode
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -555,7 +623,7 @@ function AddressForm({
         </div>
         <div>
           <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            Phone Number
+            {t("form.phone.label")}
           </label>
           <input
             type="tel"
@@ -563,7 +631,7 @@ function AddressForm({
             value={formData.phone}
             onChange={(e) => handleFieldChange("phone", e.target.value)}
             onBlur={(e) => validateField("phone", e.target.value)}
-            placeholder="+20 123 456 7890"
+            placeholder={t("form.phone.placeholder")}
             className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
               errors.phone
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -581,15 +649,17 @@ function AddressForm({
       {/* Delivery Notes */}
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-          Delivery Instructions{" "}
-          <span className="text-elite-black/40">(Optional)</span>
+          {t("form.notes.label")}{" "}
+          <span className="text-elite-black/40">
+            ({t("form.optional")})
+          </span>
         </label>
         <textarea
           maxLength={ADDRESS_VALIDATION.NOTES_MAX_LENGTH}
           value={formData.notes}
           onChange={(e) => handleFieldChange("notes", e.target.value)}
           onBlur={(e) => validateField("notes", e.target.value)}
-          placeholder="e.g., Ring doorbell, leave at door, etc."
+          placeholder={t("form.notes.placeholder")}
           rows={3}
           className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin resize-none transition-all ${
             errors.notes
@@ -602,8 +672,10 @@ function AddressForm({
             <p className="text-sm text-red-600 font-cabin">{errors.notes}</p>
           )}
           <p className="text-xs text-elite-black/40 font-cabin ml-auto">
-            {formData.notes?.length || 0}/{ADDRESS_VALIDATION.NOTES_MAX_LENGTH}{" "}
-            characters
+            {t("form.notes.counter", {
+              count: formData.notes?.length || 0,
+              max: ADDRESS_VALIDATION.NOTES_MAX_LENGTH,
+            })}
           </p>
         </div>
       </div>
@@ -618,12 +690,12 @@ function AddressForm({
           {submitting ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Saving...
+              {t("actions.saving")}
             </>
           ) : (
             <>
               <Check className="w-5 h-5" />
-              Save Address
+              {t("actions.save")}
             </>
           )}
         </button>
@@ -634,7 +706,7 @@ function AddressForm({
           className="px-6 py-4 rounded-2xl border-2 border-elite-burgundy text-elite-burgundy font-cabin font-bold text-lg hover:bg-elite-burgundy/10 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <X className="w-5 h-5" />
-          Cancel
+          {t("actions.cancel")}
         </button>
       </div>
     </div>

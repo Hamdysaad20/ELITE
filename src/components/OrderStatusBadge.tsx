@@ -7,6 +7,7 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface OrderStatusBadgeProps {
   status: string;
@@ -22,6 +23,8 @@ export function OrderStatusBadge({
   label,
   size = "md",
 }: OrderStatusBadgeProps) {
+  const t = useTranslations("orderStatus");
+
   const getStatusConfig = (status: string) => {
     switch (status.toLowerCase()) {
       case "confirmed":
@@ -34,7 +37,7 @@ export function OrderStatusBadge({
           color: "text-elite-cream",
           bg: "bg-elite-burgundy",
           border: "border-elite-burgundy",
-          label: label || "Active",
+          label: label || t("active"),
         };
 
       case "pending":
@@ -44,7 +47,7 @@ export function OrderStatusBadge({
           color: "text-elite-black",
           bg: "bg-elite-cream",
           border: "border-elite-burgundy/20",
-          label: label || "Pending",
+          label: label || t("pending"),
         };
 
       case "queued":
@@ -54,7 +57,7 @@ export function OrderStatusBadge({
           color: "text-elite-burgundy",
           bg: "bg-elite-cream",
           border: "border-elite-burgundy/20",
-          label: label || "Syncing",
+          label: label || t("syncing"),
           animate: true,
         };
 
@@ -65,7 +68,7 @@ export function OrderStatusBadge({
           color: "text-elite-cream",
           bg: "bg-elite-burgundy",
           border: "border-elite-burgundy",
-          label: label || "Delivered",
+          label: label || t("delivered"),
         };
 
       case "failed":
@@ -76,7 +79,7 @@ export function OrderStatusBadge({
           color: "text-elite-black",
           bg: "bg-elite-cream",
           border: "border-elite-burgundy/20",
-          label: label || "Cancelled",
+          label: label || t("cancelled"),
         };
 
       case "retry":
@@ -86,7 +89,7 @@ export function OrderStatusBadge({
           color: "text-elite-burgundy",
           bg: "bg-elite-cream",
           border: "border-elite-burgundy/20",
-          label: label || "Retrying",
+          label: label || t("retrying"),
         };
 
       default:
@@ -160,6 +163,8 @@ export interface OrderIntegrationStatusProps {
 export function OrderIntegrationStatus({
   integrationStatus,
 }: OrderIntegrationStatusProps) {
+  const t = useTranslations("orderStatus");
+
   if (!integrationStatus) return null;
 
   const { sale, pos } = integrationStatus;
@@ -171,7 +176,7 @@ export function OrderIntegrationStatus({
         <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-700">
-              Sale Order:
+              {t("integration.saleOrder")}
             </span>
             <OrderStatusBadge status={sale.status} size="sm" />
           </div>
@@ -182,7 +187,7 @@ export function OrderIntegrationStatus({
               rel="noopener noreferrer"
               className="text-xs text-blue-600 hover:text-blue-800 font-medium"
             >
-              View in Odoo →
+              {t("integration.viewInOdoo")}
             </a>
           )}
         </div>
@@ -193,13 +198,13 @@ export function OrderIntegrationStatus({
         <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-700">
-              Kitchen Display:
+              {t("integration.kitchenDisplay")}
             </span>
             <OrderStatusBadge status={pos.status} size="sm" />
           </div>
           {pos.synced && pos.orderId && (
             <span className="text-xs text-gray-500 font-mono">
-              POS #{pos.orderId}
+              {t("integration.posNumber", { id: pos.orderId })}
             </span>
           )}
         </div>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getCategoryById, getSubCategoryById } from "@/lib/menuData";
 import {
   ChevronLeft,
@@ -12,6 +11,9 @@ import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import { getAllCategories } from "@/lib/menuData";
 import DrinkCard from "@/components/DrinkCard";
+import LocalizedLink from "@/components/LocalizedLink";
+import { getLocale, getTranslations } from "next-intl/server";
+import { cn } from "@/lib/utils";
 
 /**
  * Generate static params for all menu subcategories
@@ -42,6 +44,10 @@ export default async function SubCategoryPage({
   params: Promise<{ category: string; subcategory: string }>;
 }) {
   const { category: categoryId, subcategory: subCategoryId } = await params;
+  const t = await getTranslations("subcategoryPage");
+  const locale = await getLocale();
+  const isRTL = locale === "ar";
+  const badgeAlignClass = isRTL ? "mr-auto" : "ml-auto";
 
   const category = getCategoryById(categoryId);
   const subCategory = getSubCategoryById(categoryId, subCategoryId);
@@ -72,22 +78,26 @@ export default async function SubCategoryPage({
           <div className="max-w-7xl mx-auto px-6">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm mb-4">
-              <Link
+              <LocalizedLink
                 href="/menu"
                 className="hover:text-elite-light-cream transition-colors duration-200"
                 prefetch={true}
               >
-                Menu
-              </Link>
-              <ChevronRight className="w-4 h-4" />
-              <Link
+                {t("menu")}
+              </LocalizedLink>
+              <ChevronRight
+                className={cn("w-4 h-4", isRTL && "rotate-180")}
+              />
+              <LocalizedLink
                 href={`/menu/${category.id}`}
                 className="hover:text-elite-light-cream transition-colors duration-200"
                 prefetch={true}
               >
                 {category.name}
-              </Link>
-              <ChevronRight className="w-4 h-4" />
+              </LocalizedLink>
+              <ChevronRight
+                className={cn("w-4 h-4", isRTL && "rotate-180")}
+              />
               <span className="font-semibold">{subCategory.name}</span>
             </div>
 
@@ -105,14 +115,16 @@ export default async function SubCategoryPage({
             </div>
 
             {/* Back Button */}
-            <Link
+            <LocalizedLink
               href={`/menu/${category.id}`}
               className="inline-flex items-center gap-2 bg-elite-cream text-elite-burgundy px-6 py-3 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-light-cream hover:scale-105"
               prefetch={true}
             >
-              <ChevronLeft className="w-4 h-4" />
-              Back to {category.name}
-            </Link>
+              <ChevronLeft
+                className={cn("w-4 h-4", isRTL && "rotate-180")}
+              />
+              {t("backToCategory", { category: category.name })}
+            </LocalizedLink>
           </div>
         </div>
 
@@ -125,10 +137,10 @@ export default async function SubCategoryPage({
                 {/* Sidebar Header */}
                 <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                   <h2 className="font-calistoga text-elite-burgundy text-xl font-bold mb-1">
-                    Categories
+                    {t("sidebar.title")}
                   </h2>
                   <p className="font-cabin text-elite-black/70 text-xs">
-                    Navigate through our menu
+                    {t("sidebar.subtitle")}
                   </p>
                 </div>
 
@@ -136,7 +148,7 @@ export default async function SubCategoryPage({
                 <div className="space-y-1 mb-6">
                   {allCategories.map((cat, index) => (
                     <div key={cat.id}>
-                      <Link
+                      <LocalizedLink
                         href={cat.comingSoon ? "#" : `/menu/${cat.id}`}
                         className={`group sidebar-item flex items-center gap-2 p-3 rounded-xl transition-all duration-300 border ${
                           cat.id === categoryId
@@ -152,11 +164,16 @@ export default async function SubCategoryPage({
                           {cat.name}
                         </span>
                         {cat.comingSoon && (
-                          <span className="ml-auto text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
-                            Soon
+                          <span
+                            className={cn(
+                              badgeAlignClass,
+                              "text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium",
+                            )}
+                          >
+                            {t("actions.soon")}
                           </span>
                         )}
-                      </Link>
+                      </LocalizedLink>
                       {index < allCategories.length - 1 && (
                         <div className="h-px bg-elite-burgundy/10 my-3"></div>
                       )}
@@ -169,17 +186,17 @@ export default async function SubCategoryPage({
                   <div className="mb-6">
                     <div className="mb-4 pb-3 border-b border-elite-burgundy/20">
                       <h3 className="font-calistoga text-elite-burgundy text-lg font-bold mb-1">
-                        {category.name} Types
+                        {t("subcategories.title", { category: category.name })}
                       </h3>
                       <p className="font-cabin text-elite-black/70 text-xs">
-                        Choose your preference
+                        {t("subcategories.subtitle")}
                       </p>
                     </div>
 
                     <div className="space-y-1">
                       {category.subCategories.map((sub, index) => (
                         <div key={sub.id}>
-                          <Link
+                          <LocalizedLink
                             href={`/menu/${category.id}/${sub.id}`}
                             className={`group sidebar-item block p-3 rounded-xl transition-all duration-300 border ${
                               subCategoryId === sub.id
@@ -202,13 +219,15 @@ export default async function SubCategoryPage({
                                 </span>
                               </div>
                               <span className="text-xs opacity-75 bg-white/20 px-2 py-0.5 rounded-full">
-                                {sub.items.length} items
+                                {t("subcategories.itemCount", {
+                                  count: sub.items.length,
+                                })}
                               </span>
                             </div>
                             <p className="text-xs opacity-75 ml-3.5">
                               {sub.description}
                             </p>
-                          </Link>
+                          </LocalizedLink>
                           {index < category.subCategories.length - 1 && (
                             <div className="h-px bg-elite-burgundy/10 my-3"></div>
                           )}
@@ -222,7 +241,7 @@ export default async function SubCategoryPage({
                 <div className="pt-4 border-t border-elite-burgundy/20">
                   <div className="text-center">
                     <p className="font-cabin text-elite-black/40 text-xs">
-                      Fresh ingredients daily
+                      {t("sidebar.footer")}
                     </p>
                   </div>
                 </div>
@@ -254,21 +273,23 @@ export default async function SubCategoryPage({
                   <div className="bg-white rounded-2xl shadow-xl p-12">
                     <div className="text-6xl mb-6">☕</div>
                     <h3 className="font-calistoga text-elite-burgundy text-2xl mb-4">
-                      No Items Available
+                        {t("empty.title")}
                     </h3>
                     <p className="font-cabin text-elite-black text-lg mb-8">
-                      We're currently updating our{" "}
-                      {subCategory.name.toLowerCase()} selection. Please check
-                      back soon!
+                        {t("empty.description", {
+                          subcategory: subCategory.name.toLowerCase(),
+                        })}
                     </p>
-                    <Link
+                      <LocalizedLink
                       href={`/menu/${category.id}`}
                       className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-semibold transition-all duration-300 hover:opacity-90 hover:scale-105"
                       prefetch={true}
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                      Back to {category.name}
-                    </Link>
+                        <ChevronLeft
+                          className={cn("w-4 h-4", isRTL && "rotate-180")}
+                        />
+                        {t("backToCategory", { category: category.name })}
+                      </LocalizedLink>
                   </div>
                 </div>
               )}

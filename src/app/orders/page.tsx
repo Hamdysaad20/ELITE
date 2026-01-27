@@ -6,7 +6,6 @@ import { useOrders } from "@/hooks/useOrderStatus";
 import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { OrdersAnalytics } from "@/components/orders/OrdersAnalytics";
@@ -15,10 +14,13 @@ import {
   OrderFilters,
   type OrderFilters as OrderFiltersType,
 } from "@/components/orders/OrderFilters";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { orders, loading, error, refetch } = useOrders();
+  const t = useTranslations("ordersPage");
 
   // Filter state
   const [filters, setFilters] = useState<OrderFiltersType>({
@@ -95,12 +97,12 @@ export default function OrdersPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title="My Orders" showBack={true} />
+        <MobileHeader title={t("title")} showBack={true} />
         <main className="min-h-screen bg-elite-cream flex items-center justify-center pt-16 md:pt-0">
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
             <p className="text-elite-black/70 font-cabin text-lg">
-              Loading your orders...
+              {t("loading")}
             </p>
           </div>
         </main>
@@ -112,14 +114,14 @@ export default function OrdersPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <MobileHeader title="My Orders" showBack={true} />
+      <MobileHeader title={t("title")} showBack={true} />
 
       <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4 md:space-y-6">
           {/* Page Header with Breadcrumbs */}
           <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-3xl p-4 sm:p-6 space-y-3">
             {/* Back Button - Hidden on mobile */}
-            <Link
+            <LocalizedLink
               href="/profile"
               className="hidden md:inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors group"
             >
@@ -137,35 +139,37 @@ export default function OrdersPage() {
                 />
               </svg>
               <span className="font-cabin text-sm font-semibold">
-                Back to Profile
+                {t("backToProfile")}
               </span>
-            </Link>
+            </LocalizedLink>
 
             {/* Breadcrumbs */}
             <div className="flex items-center gap-2 text-sm font-cabin">
-              <Link
+              <LocalizedLink
                 href="/"
                 className="text-elite-cream/60 hover:text-elite-cream transition-colors"
               >
-                Home
-              </Link>
+                {t("breadcrumbs.home")}
+              </LocalizedLink>
               <span className="text-elite-cream/40">/</span>
-              <Link
+              <LocalizedLink
                 href="/profile"
                 className="text-elite-cream/60 hover:text-elite-cream transition-colors"
               >
-                Profile
-              </Link>
+                {t("breadcrumbs.profile")}
+              </LocalizedLink>
               <span className="text-elite-cream/40">/</span>
-              <span className="text-elite-cream font-semibold">My Orders</span>
+              <span className="text-elite-cream font-semibold">
+                {t("title")}
+              </span>
             </div>
 
             {/* Page Title */}
             <h1 className="font-calistoga text-3xl sm:text-4xl text-elite-cream">
-              My Orders
+              {t("title")}
             </h1>
             <p className="font-cabin text-elite-cream/80">
-              Track your orders, view savings, and earn rewards
+              {t("subtitle")}
             </p>
           </div>
 

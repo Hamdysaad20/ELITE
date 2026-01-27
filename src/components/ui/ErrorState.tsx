@@ -10,6 +10,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface ErrorStateProps {
   error: string | Error;
@@ -28,6 +29,7 @@ export default function ErrorState({
 }: ErrorStateProps) {
   const [isRetrying, setIsRetrying] = useState(false);
   const [showDetailsExpanded, setShowDetailsExpanded] = useState(false);
+  const t = useTranslations("errorState");
 
   const errorMessage = error instanceof Error ? error.message : error;
   const errorStack = error instanceof Error ? error.stack : undefined;
@@ -42,28 +44,28 @@ export default function ErrorState({
     ) {
       return {
         icon: WifiOff,
-        title: "Connection Error",
-        suggestion: "Please check your internet connection and try again.",
+        title: t("types.connection.title"),
+        suggestion: t("types.connection.suggestion"),
       };
     }
     if (msg.includes("timeout")) {
       return {
         icon: Clock,
-        title: "Request Timeout",
-        suggestion: "The request took too long. Please try again.",
+        title: t("types.timeout.title"),
+        suggestion: t("types.timeout.suggestion"),
       };
     }
     if (msg.includes("503") || msg.includes("synchroniz")) {
       return {
         icon: ServerCrash,
-        title: "Service Temporarily Unavailable",
-        suggestion: "Our system is updating. Please try again in a moment.",
+        title: t("types.serviceUnavailable.title"),
+        suggestion: t("types.serviceUnavailable.suggestion"),
       };
     }
     return {
       icon: AlertCircle,
-      title: "Something Went Wrong",
-      suggestion: "An unexpected error occurred. Please try again.",
+      title: t("types.generic.title"),
+      suggestion: t("types.generic.suggestion"),
     };
   };
 
@@ -161,7 +163,7 @@ export default function ErrorState({
                   size === "large" && "w-5 h-5",
                 )}
               />
-              {isRetrying ? "Retrying..." : "Try Again"}
+              {isRetrying ? t("retrying") : t("tryAgain")}
             </button>
           )}
 
@@ -179,7 +181,7 @@ export default function ErrorState({
                   showDetailsExpanded && "rotate-180",
                 )}
               />
-              {showDetailsExpanded ? "Hide Details" : "Show Details"}
+              {showDetailsExpanded ? t("hideDetails") : t("showDetails")}
             </button>
           )}
         </div>

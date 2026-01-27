@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useTranslations } from "next-intl";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -10,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function TestimonialsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("testimonials");
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -72,24 +74,21 @@ export default function TestimonialsSection() {
 
   const testimonials = [
     {
-      quote:
-        "The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.",
+      quote: t("items.0.quote"),
       author: "Sarah Chen",
-      descriptor: "Coffee Enthusiast",
+      descriptor: t("items.0.descriptor"),
       rating: 5,
     },
     {
-      quote:
-        "This place has become my second home. The atmosphere is so welcoming and the pastries are to die for. Perfect spot for working or catching up with friends.",
+      quote: t("items.1.quote"),
       author: "Marcus Rodriguez",
-      descriptor: "Regular Customer",
+      descriptor: t("items.1.descriptor"),
       rating: 5,
     },
     {
-      quote:
-        "I love how they source everything locally. You can taste the difference in quality. Plus, the staff remembers your name and preferences.",
+      quote: t("items.2.quote"),
       author: "Emma Thompson",
-      descriptor: "Local Resident",
+      descriptor: t("items.2.descriptor"),
       rating: 5,
     },
   ];
@@ -120,12 +119,12 @@ export default function TestimonialsSection() {
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-4 sm:mb-6">
-            What People
+            {t("titleLine1")}
             <br />
-            <span className="text-elite-burgundy">Love About Us</span>
+            <span className="text-elite-burgundy">{t("titleLine2")}</span>
           </h2>
           <p className="text-elite-black font-cabin text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto px-4">
-            Real stories from real people who've made Elite their daily ritual
+            {t("subtitle")}
           </p>
         </div>
 
@@ -177,7 +176,7 @@ export default function TestimonialsSection() {
             >
               <img
                 src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=800&fit=crop"
-                alt="Barista crafting a beautiful latte with precision and care"
+                alt={t("imageAlt")}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
@@ -185,7 +184,7 @@ export default function TestimonialsSection() {
               <div className="absolute bottom-4 left-4 z-20">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
                   <p className="text-elite-black font-cabin text-sm font-medium">
-                    Crafted with Love
+                    {t("imageLabel")}
                   </p>
                 </div>
               </div>

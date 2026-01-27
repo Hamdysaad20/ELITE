@@ -2,12 +2,13 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import MobileHeader from "@/components/MobileHeader";
 import Footer from "@/components/Footer";
 import ProductDetailClient from "@/components/ProductDetailClient";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import SwipeIndicator from "@/components/SwipeIndicator";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 interface Product {
   id: string;
@@ -27,6 +28,7 @@ interface Product {
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params?.id as string;
+  const t = useTranslations("productPage");
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -46,13 +48,13 @@ export default function ProductDetailPage() {
 
         // Fetch single product using dedicated endpoint
         const productRes = await fetch(`/api/products/${productId}`);
-        if (!productRes.ok) throw new Error("Failed to fetch product");
+        if (!productRes.ok) throw new Error(t("errors.fetch"));
 
         const productData = await productRes.json();
         const foundProduct = productData.data?.product || null;
 
         if (!foundProduct) {
-          setError("Product not found");
+          setError(t("errors.notFound"));
           setLoading(false);
           return;
         }
@@ -77,26 +79,26 @@ export default function ProductDetailPage() {
         setLoading(false);
       } catch (err) {
         console.error("Error fetching product:", err);
-        setError("Failed to load product");
+        setError(t("errors.loadFailed"));
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, t]);
 
   if (loading) {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
         <div className="hidden md:block"></div>
-        <MobileHeader title="Product" showBack={true} />
+        <MobileHeader title={t("title")} showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
               <p className="mt-4 font-cabin text-elite-burgundy">
-                Loading product...
+                {t("loading")}
               </p>
             </div>
           </div>
@@ -113,22 +115,22 @@ export default function ProductDetailPage() {
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
         <div className="hidden md:block"></div>
-        <MobileHeader title="Product" showBack={true} />
+        <MobileHeader title={t("title")} showBack={true} />
         <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center max-w-md">
               <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
-                Product Not Found
+                {t("notFound.title")}
               </h1>
               <p className="font-cabin text-elite-black/70 mb-6">
-                {error || "The product you're looking for doesn't exist."}
+                {error || t("notFound.description")}
               </p>
-              <Link
+              <LocalizedLink
                 href="/menu"
                 className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:opacity-90 transition-colors"
               >
-                Browse Menu
-              </Link>
+                {t("notFound.browseMenu")}
+              </LocalizedLink>
             </div>
           </div>
         </main>

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   ShoppingBag,
   Clock,
@@ -10,6 +9,9 @@ import {
 } from "lucide-react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { OrderStatus, Order } from "@/types";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { cn } from "@/lib/utils";
 
 interface OrdersListProps {
   orders: Order[];
@@ -30,12 +32,23 @@ export function OrdersList({
   maxItems,
   showViewAll = false,
 }: OrdersListProps) {
+  const t = useTranslations("ordersList");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
   // Loading State
   if (loading) {
     return (
       <div className="text-center py-16">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-elite-burgundy border-t-transparent mx-auto mb-4" />
-        <p className="font-cabin text-elite-black/60">Loading orders...</p>
+        <p className="font-cabin text-elite-black/60">{t("loading")}</p>
       </div>
     );
   }
@@ -46,7 +59,7 @@ export function OrdersList({
       <div className="bg-white border-2 border-elite-burgundy/20 rounded-3xl p-6 sm:p-8 text-center">
         <AlertCircle className="w-12 h-12 text-elite-burgundy mx-auto mb-4" />
         <h3 className="text-elite-black font-calistoga text-xl sm:text-2xl mb-2">
-          Unable to Load Orders
+          {t("error.title")}
         </h3>
         <p className="text-elite-black/70 font-cabin text-sm sm:text-base mb-6">
           {error}
@@ -57,7 +70,7 @@ export function OrdersList({
             className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-3 rounded-2xl font-cabin font-bold hover:bg-elite-burgundy/90 transition-all touch-manipulation active:scale-95"
           >
             <RefreshCw className="w-5 h-5" />
-            Try Again
+            {t("error.retry")}
           </button>
         )}
       </div>
@@ -72,19 +85,18 @@ export function OrdersList({
           <ShoppingBag className="w-10 h-10 text-elite-burgundy" />
         </div>
         <h3 className="text-elite-black font-calistoga text-2xl sm:text-3xl mb-3">
-          No Orders Yet
+          {t("empty.title")}
         </h3>
         <p className="text-elite-black/60 font-cabin text-sm sm:text-base mb-8 max-w-md mx-auto">
-          Start your journey with us! Explore our delicious menu and place your
-          first order.
+          {t("empty.description")}
         </p>
-        <Link
+        <LocalizedLink
           href="/menu"
           className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-2xl font-cabin font-bold hover:bg-elite-burgundy/90 transition-all transform hover:scale-105 active:scale-95 touch-manipulation shadow-lg"
         >
           <ShoppingBag className="w-5 h-5" />
-          Browse Menu
-        </Link>
+          {t("empty.browseMenu")}
+        </LocalizedLink>
       </div>
     );
   }
@@ -97,10 +109,10 @@ export function OrdersList({
       {!compact && (
         <div className="flex items-center justify-between">
           <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black">
-            {showViewAll ? "Recent Orders" : "Your Orders"}
+            {showViewAll ? t("recentOrders") : t("yourOrders")}
           </h2>
           <p className="font-cabin text-sm text-elite-black/50">
-            {orders.length} {orders.length === 1 ? "order" : "orders"}
+            {t("ordersCount", { count: orders.length })}
           </p>
         </div>
       )}
@@ -110,9 +122,11 @@ export function OrdersList({
           const isActive =
             order.status !== OrderStatus.DELIVERED &&
             order.status !== OrderStatus.CANCELLED;
+          const displayId = order.id.slice(0, 8).toUpperCase();
+          const orderDate = new Date(order.createdAt);
 
           return (
-            <Link
+            <LocalizedLink
               key={order.id}
               href={`/orders/${order.id}`}
               className="block bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:shadow-xl transition-all duration-300 overflow-hidden active:scale-[0.99] touch-manipulation group"
@@ -134,14 +148,10 @@ export function OrdersList({
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-calistoga text-base sm:text-lg text-elite-black mb-1 truncate">
-                        Order #{order.id.slice(0, 8).toUpperCase()}
+                        {t("orderId", { id: displayId })}
                       </h3>
                       <p className="text-xs sm:text-sm text-elite-black/60 font-cabin">
-                        {new Date(order.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {format.dateTime(orderDate, { dateStyle: "medium" })}
                       </p>
                     </div>
                   </div>
@@ -154,7 +164,7 @@ export function OrdersList({
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs text-elite-black/50 mb-1 font-cabin font-semibold uppercase tracking-wide">
-                      Order Number
+                      {t("orderNumberLabel")}
                     </p>
                     <p className="font-cabin font-bold text-elite-black text-sm">
                       {order.orderNumber}
@@ -162,10 +172,10 @@ export function OrdersList({
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-elite-black/50 mb-1 font-cabin font-semibold uppercase tracking-wide">
-                      Total
+                      {t("totalLabel")}
                     </p>
                     <p className="font-calistoga text-lg text-elite-burgundy">
-                      {order.total} EGP
+                      {formatPrice(Number(order.total) || 0)}
                     </p>
                   </div>
                 </div>
@@ -174,10 +184,15 @@ export function OrdersList({
                 <div className="pt-3 border-t-2 border-elite-burgundy/5">
                   <div className="flex items-center justify-between text-elite-burgundy group-hover:text-elite-burgundy/80 transition-colors">
                     <span className="font-cabin text-sm font-bold">
-                      View Details
+                      {t("viewDetails")}
                     </span>
                     <svg
-                      className="w-5 h-5 transform group-hover:translate-x-1 transition-transform"
+                      className={cn(
+                        "w-5 h-5 transition-transform",
+                        isRTL
+                          ? "rotate-180 group-hover:-translate-x-1"
+                          : "group-hover:translate-x-1",
+                      )}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -192,19 +207,19 @@ export function OrdersList({
                   </div>
                 </div>
               </div>
-            </Link>
+            </LocalizedLink>
           );
         })}
       </div>
 
       {/* View All Link */}
       {showViewAll && maxItems && orders.length > maxItems && (
-        <Link
+        <LocalizedLink
           href="/orders"
           className="block text-center py-4 text-elite-burgundy font-cabin font-bold hover:text-elite-burgundy/80 transition-colors"
         >
-          View All Orders ({orders.length})
-        </Link>
+          {t("viewAll", { count: orders.length })}
+        </LocalizedLink>
       )}
     </div>
   );

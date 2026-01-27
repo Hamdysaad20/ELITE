@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { MapPin, Clock, Navigation, MessageCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -12,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function NearbyCafesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("nearby");
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -73,10 +75,10 @@ export default function NearbyCafesSection() {
   }, []);
 
   const cafe = {
-    name: "Elite Cafee",
-    address: "Faiyum, Governorate Club, next to the Governor's Villa",
-    addressArabic: "الفيوم، نادي المحافظة، بجوار فيلا المحافظ",
-    hours: "8 AM - 3 PM Daily",
+    name: t("cafe.name"),
+    address: t("cafe.addressEn"),
+    addressArabic: t("cafe.addressAr"),
+    hours: t("cafe.hours"),
   };
 
   const handleGetDirections = () => {
@@ -101,12 +103,12 @@ export default function NearbyCafesSection() {
         {/* Modern Section Header */}
         <div className="text-center mb-16 lg:mb-20">
           <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-tight mb-8">
-            Find Your Way
+            {t("titleLine1")}
             <br />
-            <span className="text-elite-burgundy">to Elite</span>
+            <span className="text-elite-burgundy">{t("titleLine2")}</span>
           </h2>
           <p className="text-elite-black font-cabin text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto">
-            Located in the heart of Faiyum at the Governorate Club
+            {t("subtitle")}
           </p>
         </div>
 
@@ -121,7 +123,7 @@ export default function NearbyCafesSection() {
             {/* Map Image */}
             <Image
               src="/images/location-map.png"
-              alt="Elite Cafee location in Faiyum Governorate Club"
+              alt={t("mapAlt")}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700"
               placeholder="blur"
@@ -142,10 +144,10 @@ export default function NearbyCafesSection() {
                   </div>
                   <div className="flex-1">
                     <p className="text-elite-black font-cabin font-bold text-lg">
-                      Elite Cafee
+                      {cafe.name}
                     </p>
                     <p className="text-elite-black/70 font-cabin text-sm">
-                      Tap to get directions
+                      {t("tapToDirections")}
                     </p>
                   </div>
                   <Navigation className="w-5 h-5 text-elite-black/60 group-hover:text-elite-black transition-colors duration-300" />
@@ -199,7 +201,7 @@ export default function NearbyCafesSection() {
                 <span className="relative z-10 flex items-center justify-center space-x-3">
                   <Navigation className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
                   <span className="group-hover:scale-105 transition-transform duration-300">
-                    Get Directions
+                    {t("getDirections")}
                   </span>
                 </span>
                 <div className="absolute inset-0 bg-elite-burgundy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -212,17 +214,17 @@ export default function NearbyCafesSection() {
         <div className="text-center">
           <div className="bg-elite-cream/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 border border-elite-burgundy/20">
             <h3 className="font-calistoga text-elite-black text-3xl md:text-4xl lg:text-5xl leading-tight mb-6">
-              Need Help Finding Us?
+              {t("helpTitle")}
             </h3>
             <p className="text-elite-black font-cabin text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-              We're here to help you find your way to the perfect cup of coffee
+              {t("helpSubtitle")}
             </p>
             <button
               onClick={handleContact}
               className="group inline-flex items-center space-x-3 bg-elite-burgundy text-elite-white font-cabin font-bold text-lg py-4 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
               <MessageCircle className="w-5 h-5" />
-              <span>Message us on Facebook</span>
+              <span>{t("messageUs")}</span>
             </button>
           </div>
         </div>

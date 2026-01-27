@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { OrderStatus, Order } from "@/types";
 import { useUserSavings, useUserPoints } from "@/hooks/useAnalytics";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface OrdersAnalyticsProps {
   orders: Order[];
@@ -18,6 +19,15 @@ interface OrdersAnalyticsProps {
 export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
   const { savings } = useUserSavings();
   const { points } = useUserPoints();
+  const t = useTranslations("ordersAnalytics");
+  const format = useFormatter();
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   if (!orders || orders.length === 0) {
     return null;
@@ -38,7 +48,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
     <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-5 sm:p-6">
       <h2 className="font-calistoga text-xl sm:text-2xl text-elite-black mb-4 flex items-center gap-2">
         <TrendingUp className="w-6 h-6 text-elite-burgundy" />
-        Order Overview
+        {t("title")}
       </h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -47,7 +57,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <Package className="w-5 h-5 text-elite-burgundy" />
             <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-              Total Orders
+              {t("totalOrders")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-black">
@@ -60,12 +70,11 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-5 h-5 text-elite-burgundy" />
             <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-              Total Spent
+              {t("totalSpent")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-black">
-            {totalSpent.toFixed(0)}
-            <span className="text-sm ml-1">EGP</span>
+            {formatPrice(totalSpent)}
           </p>
         </div>
 
@@ -74,12 +83,11 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-elite-cream" />
             <p className="font-cabin text-xs text-elite-cream/80 font-semibold uppercase tracking-wide">
-              Total Saved
+              {t("totalSaved")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-cream">
-            {savings?.totalSaved?.toFixed(0) || 0}
-            <span className="text-sm ml-1">EGP</span>
+            {formatPrice(savings?.totalSaved || 0)}
           </p>
         </div>
 
@@ -88,11 +96,11 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <Star className="w-5 h-5 text-elite-burgundy" />
             <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-              Points Balance
+              {t("pointsBalance")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-burgundy">
-            {points?.totalPoints?.toLocaleString() || 0}
+            {format.number(points?.totalPoints || 0)}
           </p>
         </div>
 
@@ -101,7 +109,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-5 h-5 text-elite-burgundy" />
             <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-              Active
+              {t("active")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-black">
@@ -114,7 +122,7 @@ export function OrdersAnalytics({ orders }: OrdersAnalyticsProps) {
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-5 h-5 text-elite-burgundy" />
             <p className="font-cabin text-xs text-elite-black/50 font-semibold uppercase tracking-wide">
-              Completed
+              {t("completed")}
             </p>
           </div>
           <p className="font-calistoga text-2xl sm:text-3xl text-elite-black">

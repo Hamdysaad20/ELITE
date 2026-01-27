@@ -2,7 +2,8 @@
 
 import { Coffee, Search, Package, Clock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useTranslations } from "next-intl";
 
 interface EmptyStateProps {
   variant?: "no-data" | "no-results" | "coming-soon" | "no-products";
@@ -29,32 +30,30 @@ export default function EmptyState({
   onSecondaryAction,
   className,
 }: EmptyStateProps) {
+  const t = useTranslations("emptyState");
   const variants = {
     "no-data": {
       icon: Package,
-      defaultTitle: "No Data Available",
-      defaultDescription: "There's nothing here yet. Check back soon!",
+      defaultTitle: t("variants.noData.title"),
+      defaultDescription: t("variants.noData.description"),
       iconColor: "text-elite-burgundy/40",
     },
     "no-results": {
       icon: Search,
-      defaultTitle: "No Results Found",
-      defaultDescription:
-        "Try adjusting your search or filters to find what you're looking for.",
+      defaultTitle: t("variants.noResults.title"),
+      defaultDescription: t("variants.noResults.description"),
       iconColor: "text-elite-burgundy/40",
     },
     "coming-soon": {
       icon: Clock,
-      defaultTitle: "Coming Soon",
-      defaultDescription:
-        "We're working on bringing you something special. Stay tuned!",
+      defaultTitle: t("variants.comingSoon.title"),
+      defaultDescription: t("variants.comingSoon.description"),
       iconColor: "text-amber-500/60",
     },
     "no-products": {
       icon: Coffee,
-      defaultTitle: "No Products Yet",
-      defaultDescription:
-        "Products are being synced from our catalog. Please check back in a moment.",
+      defaultTitle: t("variants.noProducts.title"),
+      defaultDescription: t("variants.noProducts.description"),
       iconColor: "text-elite-burgundy/40",
     },
   };
@@ -100,13 +99,13 @@ export default function EmptyState({
           {actionLabel && (actionHref || onAction) && (
             <>
               {actionHref ? (
-                <Link
+                <LocalizedLink
                   href={actionHref}
                   className="inline-flex items-center justify-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   <Sparkles className="w-5 h-5" />
                   {actionLabel}
-                </Link>
+                </LocalizedLink>
               ) : (
                 <button
                   onClick={onAction}
@@ -124,12 +123,12 @@ export default function EmptyState({
             (secondaryActionHref || onSecondaryAction) && (
               <>
                 {secondaryActionHref ? (
-                  <Link
+                  <LocalizedLink
                     href={secondaryActionHref}
                     className="inline-flex items-center justify-center gap-2 bg-elite-cream text-elite-burgundy border-2 border-elite-burgundy px-8 py-4 rounded-full font-cabin font-bold text-lg hover:bg-elite-burgundy hover:text-elite-cream hover:scale-105 transition-all duration-300"
                   >
                     {secondaryActionLabel}
-                  </Link>
+                  </LocalizedLink>
                 ) : (
                   <button
                     onClick={onSecondaryAction}

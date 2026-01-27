@@ -1,8 +1,9 @@
 "use client";
 
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect } from "react";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 
 /**
  * Hook to get current user session
@@ -50,7 +51,6 @@ export function useAuth() {
  * ```
  */
 export function useAuthActions() {
-  const router = useRouter();
   const { status } = useSession();
 
   const login = useCallback(
@@ -75,8 +75,9 @@ export function useAuthActions() {
 
   const requireAuth = useCallback(() => {
     if (status === "unauthenticated") {
-      const currentUrl = window.location.pathname;
-      signIn(undefined, { callbackUrl: currentUrl });
+      // Use pathname hook for consistency (includes locale)
+      const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+      signIn(undefined, { callbackUrl: pathname });
       return false;
     }
     return status === "authenticated";
@@ -107,14 +108,16 @@ export function useAuthActions() {
  */
 export function useRequireAuth() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
+  const localizedRouter = useLocalizedRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      const currentUrl = window.location.pathname + window.location.search;
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`);
+      const search = typeof window !== "undefined" ? window.location.search : "";
+      const currentUrl = pathname + search;
+      localizedRouter.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`);
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, localizedRouter, pathname]);
 
   return {
     user,

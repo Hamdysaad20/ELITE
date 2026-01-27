@@ -1,0 +1,1779 @@
+{
+  "metadata": {
+    "title": "Elite Coffee - Premium Coffee Experience",
+    "description": "Experience the finest coffee at Elite Coffee. Located in Faiyum, Governorate Club."
+  },
+  "language": {
+    "switchToArabic": "Switch to Arabic",
+    "switchToEnglish": "Switch to English"
+  },
+  "nav": {
+    "promo": "Buy one coffee, get one free - this week only (April 14-20)",
+    "dismissPromo": "Dismiss promotion",
+    "menu": "Menu",
+    "location": "Location",
+    "logoAlt": "Elite Coffee Logo - Navigate to Home",
+    "deals": "Deals",
+    "shop": "Shop",
+    "soon": "Soon",
+    "profileMenu": "Open profile menu",
+    "profile": "Profile",
+    "signIn": "Sign In",
+    "user": "User",
+    "myOrders": "My Orders",
+    "addresses": "Addresses",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "mobileNav": {
+    "home": "Home",
+    "explore": "Explore",
+    "deals": "Deals",
+    "cart": "Cart",
+    "profile": "Profile"
+  },
+  "mobileHeader": {
+    "goBack": "Go back",
+    "openMenu": "Open menu"
+  },
+  "hero": {
+    "titleLine1": "Life Begins",
+    "titleLine2": "After Coffee",
+    "subtitle": "Because great coffee is the start of something even greater.",
+    "ctaExplore": "Explore Menu",
+    "ctaLocation": "Our Locations",
+    "alts": {
+      "justCoffee": "Just Coffee Cup",
+      "espresso": "Espresso Cup",
+      "coldBrew": "Cold Brew Cup"
+    },
+    "marquee": {
+      "globalFlavor": "Global Flavor",
+      "friendlyBaristas": "Friendly Baristas",
+      "greatCoffee": "Great Coffee",
+      "fastService": "Fast Service",
+      "cozySpace": "Cozy Space",
+      "handcraftedDrinks": "Handcrafted Drinks",
+      "localRoasts": "Local Roasts"
+    }
+  },
+  "goodVibes": {
+    "titleLine1": "Good Vibes.",
+    "titleLine2": "Great Coffee.",
+    "description": "At Elite, we serve great coffee and fresh pastries with care and passion, creating a warm, cozy space that feels like home.",
+    "features": {
+      "coffee": {
+        "title": "Great Coffee, Tasty Sips",
+        "description": "Expertly crafted beverages with premium beans"
+      },
+      "cozy": {
+        "title": "Warm, Cozy Atmosphere",
+        "description": "A welcoming space that feels like home"
+      },
+      "service": {
+        "title": "Speedy Service with a Smile",
+        "description": "Quick, friendly service every time"
+      },
+      "local": {
+        "title": "Local & Sustainable",
+        "description": "Supporting local farmers and eco-friendly practices"
+      }
+    },
+    "images": {
+      "baristaAlt": "Barista preparing coffee with care and expertise",
+      "baristaLabel": "Expert Baristas",
+      "interiorAlt": "Cozy cafe interior with warm lighting and comfortable seating",
+      "interiorLabel": "Cozy Space",
+      "cupAlt": "Beautiful handcrafted coffee with latte art",
+      "cupLabel": "Handcrafted"
+    }
+  },
+  "findAndGet": {
+    "titleLine1": "Find and Get",
+    "titleLine2": "What You Love",
+    "categories": {
+      "classic": "Classic Drinks",
+      "special": "Special Drinks",
+      "kids": "Kids' Corner"
+    }
+  },
+  "lovedByLocals": {
+    "title": "Loved by Locals",
+    "subtitle": "Local go-to's everyone loves - handpicked and always fresh.",
+    "products": {
+      "cappuccino": "Cappuccino",
+      "bubbleTea": "Bubble Tea",
+      "icedTea": "Iced Tea",
+      "icedLatte": "Iced Latte"
+    },
+    "cta": "Explore Menu"
+  },
+  "testimonials": {
+    "titleLine1": "What People",
+    "titleLine2": "Love About Us",
+    "subtitle": "Real stories from real people who've made Elite their daily ritual",
+    "items": [
+      {
+        "quote": "The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.",
+        "descriptor": "Coffee Enthusiast"
+      },
+      {
+        "quote": "This place has become my second home. The atmosphere is so welcoming and the pastries are to die for. Perfect spot for working or catching up with friends.",
+        "descriptor": "Regular Customer"
+      },
+      {
+        "quote": "I love how they source everything locally. You can taste the difference in quality. Plus, the staff remembers your name and preferences.",
+        "descriptor": "Local Resident"
+      }
+    ],
+    "imageAlt": "Barista crafting a beautiful latte with precision and care",
+    "imageLabel": "Crafted with Love"
+  },
+  "nearby": {
+    "titleLine1": "Find Your Way",
+    "titleLine2": "to Elite",
+    "subtitle": "Located in the heart of Faiyum at the Governorate Club",
+    "mapAlt": "Elite Cafee location in Faiyum Governorate Club",
+    "tapToDirections": "Tap to get directions",
+    "getDirections": "Get Directions",
+    "helpTitle": "Need Help Finding Us?",
+    "helpSubtitle": "We're here to help you find your way to the perfect cup of coffee",
+    "messageUs": "Message us on Facebook",
+    "cafe": {
+      "name": "Elite Cafee",
+      "addressEn": "Faiyum, Governorate Club, next to the Governor's Villa",
+      "addressAr": "الفيوم، نادي المحافظة، بجوار فيلا المحافظ",
+      "hours": "8 AM - 3 PM Daily"
+    }
+  },
+  "footer": {
+    "tagline": {
+      "line1": "Life Begins",
+      "line2": "After Coffee",
+      "description": "Experience the perfect blend of tradition and innovation in every cup."
+    },
+    "navigation": {
+      "title": "Navigation",
+      "subtitle": "Explore our world",
+      "menu": "Menu",
+      "rewards": "Rewards",
+      "shop": "Shop"
+    },
+    "menuCategories": {
+      "title": "Menu Categories",
+      "subtitle": "Our offerings",
+      "classic": "Classic Drinks",
+      "special": "Special Drinks",
+      "kids": "Kids' Corner",
+      "food": "Food & Treats",
+      "home": "At Home Coffee"
+    },
+    "location": {
+      "title": "Location",
+      "subtitle": "Visit us",
+      "addressEn": "Faiyum, Governorate Club, next to the Governor's Villa",
+      "addressAr": "الفيوم، نادي المحافظة، بجوار فيلا المحافظ"
+    },
+    "social": {
+      "title": "Follow Us"
+    },
+    "soon": "Soon",
+    "copyright": "© {year} Elite Coffee. All rights reserved.",
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookie": "Cookie Policy"
+    }
+  },
+  "emptyState": {
+    "variants": {
+      "noData": {
+        "title": "No Data Available",
+        "description": "There's nothing here yet. Check back soon!"
+      },
+      "noResults": {
+        "title": "No Results Found",
+        "description": "Try adjusting your search or filters to find what you're looking for."
+      },
+      "comingSoon": {
+        "title": "Coming Soon",
+        "description": "We're working on bringing you something special. Stay tuned!"
+      },
+      "noProducts": {
+        "title": "No Products Yet",
+        "description": "Products are being synced from our catalog. Please check back in a moment."
+      }
+    }
+  },
+  "errorState": {
+    "types": {
+      "connection": {
+        "title": "Connection Error",
+        "suggestion": "Please check your internet connection and try again."
+      },
+      "timeout": {
+        "title": "Request Timeout",
+        "suggestion": "The request took too long. Please try again."
+      },
+      "serviceUnavailable": {
+        "title": "Service Temporarily Unavailable",
+        "suggestion": "Our system is updating. Please try again in a moment."
+      },
+      "generic": {
+        "title": "Something Went Wrong",
+        "suggestion": "An unexpected error occurred. Please try again."
+      }
+    },
+    "retrying": "Retrying...",
+    "tryAgain": "Try Again",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details"
+  },
+  "loadingState": {
+    "loading": "Loading..."
+  },
+  "drinkCard": {
+    "unnamed": "Unnamed Product",
+    "soldOut": "Sold out",
+    "savePercent": "Save {percent}%",
+    "dealInactive": "Deal not currently active",
+    "added": "Added!",
+    "add": "Add"
+  },
+  "productModal": {
+    "title": "Customize Your Order",
+    "noDescription": "No description available.",
+    "total": "Total",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "added": "Added!",
+    "adding": "Adding...",
+    "addToOrder": "Add to Order • {total}"
+  },
+  "menuPage": {
+    "title": "Menu",
+    "subtitle": "Explore our selection of premium coffee, beverages, and delicious treats",
+    "catalogNotSynced": {
+      "title": "Catalog Not Synced",
+      "description": "The product catalog needs to be synchronized from Odoo. Please contact an administrator or try refreshing."
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "all": "All",
+      "soon": "Soon",
+      "seeAll": "See all"
+    },
+    "sidebar": {
+      "title": "Categories",
+      "subtitle": "Explore our menu",
+      "footer": "Fresh ingredients daily"
+    },
+    "itemsCount": "{count} items",
+    "empty": {
+      "title": "No Menu Available",
+      "description": "Our menu is being prepared. Please check back soon!"
+    },
+    "fallback": {
+      "unknownCategory": "Unknown Category",
+      "categoryDescription": "Explore our selection",
+      "unknownProduct": "Unnamed Product"
+    }
+  },
+  "categoryPage": {
+    "menuTitle": "Menu",
+    "catalogNotSynced": {
+      "title": "Catalog Not Synced",
+      "description": "The product catalog needs to be synchronized from Odoo. Please contact an administrator or try refreshing."
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "backToMenu": "Back to Menu",
+      "comingSoon": "Coming Soon"
+    },
+    "sidebar": {
+      "title": "Categories",
+      "subtitle": "Explore our menu",
+      "footer": "Fresh ingredients daily"
+    },
+    "categoryNotFound": {
+      "title": "Category Not Found",
+      "description": "We couldn't find the category you're looking for."
+    },
+    "itemsAvailable": "{count} items available",
+    "fallback": {
+      "unknownCategory": "Unknown Category",
+      "categoryDescription": "Explore our selection",
+      "unknownProduct": "Unnamed Product"
+    }
+  },
+  "subcategoryPage": {
+    "menu": "Menu",
+    "backToCategory": "Back to {category}",
+    "sidebar": {
+      "title": "Categories",
+      "subtitle": "Navigate through our menu",
+      "footer": "Fresh ingredients daily"
+    },
+    "actions": {
+      "soon": "Soon"
+    },
+    "subcategories": {
+      "title": "{category} Types",
+      "subtitle": "Choose your preference",
+      "itemCount": "{count} items"
+    },
+    "empty": {
+      "title": "No Items Available",
+      "description": "We're currently updating our {subcategory} selection. Please check back soon!"
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "subtitle": "Oops! It looks like this page has been sipped away.",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "actions": {
+      "home": "Go Home",
+      "menu": "Browse Menu"
+    },
+    "popular": {
+      "title": "Popular Pages",
+      "classic": "Classic Drinks",
+      "special": "Special Drinks",
+      "kids": "Kids' Corner",
+      "shop": "Shop"
+    },
+    "help": "Need help? Visit us at:",
+    "address": "Faiyum, Governorate Club, next to the Governor's Villa"
+  },
+  "errors": {
+    "categories": {
+      "default": "Failed to load categories",
+      "syncing": "Category list is being synchronized. Please try again in a moment."
+    },
+    "products": {
+      "default": "Failed to load products",
+      "syncing": "Product catalog is being synchronized. Please try again in a moment."
+    },
+    "network": "Unable to connect. Please check your internet connection.",
+    "timeout": "Request timed out. Please try again."
+  },
+  "order": {
+    "loadingCart": "Loading your cart...",
+    "success": {
+      "title": "Order Placed Successfully!",
+      "orderNumber": "Order #:",
+      "totalPaid": "Total Paid",
+      "paymentMethod": "Payment Method",
+      "orderType": "Order Type",
+      "syncedToOdoo": "Synced to Odoo: Sale #",
+      "viewInOdoo": "View in Odoo",
+      "posOrder": "POS Order #{id}",
+      "viewOrderDetails": "View Order Details",
+      "allOrders": "All Orders",
+      "continueShopping": "Continue Shopping"
+    },
+    "pendingPayment": {
+      "title": "Payment required",
+      "description": "Your order was created, but payment hasn't started yet. Please continue to payment to confirm your order.",
+      "continue": "Continue to Payment",
+      "viewOrder": "View Order"
+    },
+    "emptyCart": {
+      "title": "Your cart is empty",
+      "description": "Explore our menu and add some delicious drinks!",
+      "action": "Browse Menu"
+    },
+    "steps": {
+      "cart": "Cart",
+      "details": "Details",
+      "payment": "Payment"
+    },
+    "cart": {
+      "items": "{count} items",
+      "title": "Cart ({count})",
+      "updating": "Updating..."
+    },
+    "more": "+{count} more",
+    "warnings": {
+      "onlinePaymentRequirements": "Online payment needs sign-in + an address with a valid phone number."
+    },
+    "orderType": {
+      "title": "Order Type",
+      "pickup": "Pickup",
+      "delivery": "Delivery",
+      "free": "Free"
+    },
+    "payment": {
+      "title": "Payment",
+      "unavailableTitle": "Online ordering unavailable",
+      "unavailableDescription": "Please try again later.",
+      "wallet": "Wallet",
+      "card": "Card",
+      "cash": "Cash on Delivery",
+      "walletDescription": "Mobile wallet",
+      "cardDescription": "Credit/Debit"
+    },
+    "address": {
+      "deliveryTitle": "Delivery Address",
+      "billingTitle": "Billing Address",
+      "noAddresses": "No addresses saved. Add one to continue.",
+      "selectAddress": "Please select an address",
+      "addPhone": "Add a valid phone number to this address to pay online.",
+      "signInPrefix": "Please",
+      "signInLink": "sign in",
+      "signInSuffix": "to pay online."
+    },
+    "summary": {
+      "title": "Summary",
+      "qty": "Qty: {count}",
+      "subtotal": "Subtotal",
+      "delivery": "Delivery",
+      "codFee": "COD Fee",
+      "total": "Total"
+    },
+    "actions": {
+      "clearCart": "Clear Cart",
+      "placingOrder": "Placing Order…",
+      "proceedToPayment": "Proceed to Payment",
+      "placeOrder": "Place Order"
+    },
+    "breadcrumb": {
+      "menu": "Menu",
+      "current": "Your Order"
+    },
+    "errors": {
+      "checkoutUnavailable": "Online ordering is temporarily unavailable. Please try again later.",
+      "cartEmpty": "Your cart is empty. Add items to continue.",
+      "onlineOnly": "Only online payment is available.",
+      "selectDeliveryAddress": "Please select a delivery address.",
+      "signInToPay": "Please sign in to pay online.",
+      "selectBillingAddress": "Please select an address (required for online payment billing details).",
+      "addPhone": "Please add a valid phone number to your selected address before paying online.",
+      "paymentInitOrCash": "Could not initialize payment. Please try again or use cash.",
+      "paymentInit": "Could not initialize payment. Please try again.",
+      "placeOrder": "Could not place order. Please try again.",
+      "requestTimeout": "Request took too long. Please try again.",
+      "tooManyRequests": "Too many requests. Please wait a moment and try again."
+    },
+    "partnerFallback": "Website Customer"
+  },
+  "cartDrawer": {
+    "aria": {
+      "cart": "Shopping cart",
+      "close": "Close cart",
+      "removeItem": "Remove item",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "items": "{count} item{count, plural, one {} other {s}}",
+    "title": "Shopping Cart",
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "Start adding some delicious items to your order!",
+      "cta": "Continue Shopping"
+    },
+    "priceExtra": "(+{amount})",
+    "each": "each",
+    "summary": {
+      "subtotal": "Subtotal",
+      "total": "Total"
+    },
+    "actions": {
+      "checkout": "Proceed to Checkout",
+      "processing": "Processing...",
+      "signInNotice": "You'll need to sign in to complete your order"
+    }
+  },
+  "dealCard": {
+    "unnamed": "Unnamed Product",
+    "soldOut": "Sold out",
+    "savePercent": "Save {percent}%",
+    "dealInactive": "Deal not currently active",
+    "added": "Added!",
+    "add": "Add"
+  },
+  "comboDeal": {
+    "controls": {
+      "previous": "Previous item",
+      "next": "Next item",
+      "goTo": "Go to item {index}"
+    },
+    "pricing": {
+      "originalTotal": "Original Total:",
+      "comboPrice": "Combo Price:",
+      "youSave": "You Save:",
+      "percentOff": "{percent}% OFF"
+    },
+    "actions": {
+      "added": "Added!",
+      "addCombo": "Add Combo"
+    }
+  },
+  "dealsPage": {
+    "title": "Deals",
+    "subtitle": "Special prices and exclusive offers on selected items",
+    "status": {
+      "activeDeals": "🎉 {count} Active Deal{count, plural, one {} other {s}}!",
+      "description": "Enjoy special prices on {products} item{products, plural, one {} other {s}} across {deals} deal{deals, plural, one {} other {s}}"
+    },
+    "empty": {
+      "title": "No Active Deals",
+      "description": "There are no active deals at the moment. Check back soon for new offers!"
+    },
+    "actions": {
+      "refresh": "Refresh"
+    },
+    "deal": {
+      "itemCount": "{count} item{count, plural, one {} other {s}}",
+      "active": "Active",
+      "noProducts": "No products available in this deal"
+    },
+    "combo": {
+      "title": "Combo Deals"
+    },
+    "info": {
+      "title": "How Deals Work",
+      "items": [
+        "Deals are managed through Odoo pricelists",
+        "Prices shown are final prices from Odoo (our inventory system)",
+        "All prices are validated by Odoo at checkout",
+        "Deals may have time restrictions or other conditions"
+      ]
+    }
+  },
+  "dealSort": {
+    "label": "Sort",
+    "default": "Default",
+    "title": "Sort Deals",
+    "options": {
+      "discountDesc": "Biggest Discount",
+      "discountAsc": "Smallest Discount",
+      "savingsDesc": "Biggest Savings",
+      "savingsAsc": "Smallest Savings",
+      "priceDesc": "Highest Price",
+      "priceAsc": "Lowest Price",
+      "nameAsc": "Name A-Z",
+      "nameDesc": "Name Z-A"
+    },
+    "results": "Showing {value} product{count, plural, one {} other {s}}"
+  },
+  "userActivation": {
+    "title": "🎁 Unlock Exclusive Deals",
+    "description": "Complete your profile to get personalized deals, early access to new offers, and special discounts.",
+    "benefits": [
+      "Personalized deals based on your preferences",
+      "Early access to new offers",
+      "Special discounts and promotions"
+    ],
+    "cta": "Complete Profile"
+  },
+  "paymentProcess": {
+    "errors": {
+      "missingPaymentInfo": "Missing payment information. Please return to checkout and try again.",
+      "initFailed": "Payment could not be initialized. Please try again.",
+      "missingOrderInfo": "Missing order ID or payment key. Please return to checkout."
+    },
+    "loading": {
+      "title": "Initializing Payment",
+      "description": "Please wait while we prepare your secure payment form...",
+      "fallback": "Loading..."
+    },
+    "error": {
+      "title": "Payment Error",
+      "back": "Return to Checkout",
+      "retry": "Try Again"
+    },
+    "backToCheckout": "Back to Checkout",
+    "title": "Complete Payment",
+    "orderNumber": "Order #{number}",
+    "method": {
+      "wallet": "Mobile Wallet Payment",
+      "card": "Card Payment",
+      "secure": "Secure Payment"
+    },
+    "totalAmount": "Total Amount",
+    "secureBadge": "Secure payment powered by Paymob",
+    "processing": {
+      "description": "For security reasons, we don't collect card details on our website. You'll be redirected to Paymob's secure checkout to enter your payment info.",
+      "openedToast": "Paymob checkout opened in a new tab. Complete payment there, then return here.",
+      "openButton": "Open Secure Payment Page",
+      "fallbackLink": "If it didn't open, click here",
+      "returnAfterPayment": "After paying in the Paymob tab, come back here and click \"I've Completed Payment\".",
+      "keepOpen": "We'll keep this page open so you can verify payment status after finishing.",
+      "completedButton": "I've Completed Payment",
+      "viewOrder": "View Order",
+      "encrypted": "Your payment information is encrypted and secure",
+      "walletInfo": "You can pay using Vodafone Cash, Orange Money, or Etisalat Wallet",
+      "cardInfo": "Credit/Debit cards and installments are accepted",
+      "preparing": "Preparing payment form..."
+    }
+  },
+  "paymentCallback": {
+    "loading": {
+      "title": "Checking Payment Status",
+      "description": "Please wait while we verify your payment...",
+      "fallback": "Loading..."
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "description": "Your order has been confirmed and payment has been processed successfully.",
+      "amountPaid": "Amount Paid"
+    },
+    "actions": {
+      "viewOrder": "View Order",
+      "continueShopping": "Continue Shopping",
+      "returnHome": "Return Home"
+    },
+    "failed": {
+      "cancelled": "Cancelled",
+      "failed": "Failed",
+      "title": "Payment {status}",
+      "cancelledDescription": "Payment was cancelled. Your order is still pending and you can try again.",
+      "failedDescription": "Payment could not be processed. Please check your payment details and try again.",
+      "retry": "Retry Payment"
+    },
+    "pending": {
+      "title": "Payment Pending",
+      "description": "Your payment is being processed. This may take a few moments. Please do not close this page."
+    },
+    "unknown": {
+      "title": "Payment Status Unknown",
+      "description": "We couldn't determine your payment status. Please check your order history or contact support.",
+      "checkOrder": "Check Order"
+    }
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "updatedAt": "Last updated: {date}",
+    "intro": "Cookies are small files stored on your device. We use them to keep the website working, improve performance, and support marketing and recommendations.",
+    "types": {
+      "title": "Types of cookies we use",
+      "essential": {
+        "title": "Essential",
+        "description": "Needed for core features like sign-in, security, and keeping the site stable."
+      },
+      "analytics": {
+        "title": "Analytics & preferences",
+        "description": "Help us understand what's working, fix issues, and remember preferences (where available)."
+      }
+    },
+    "session": {
+      "title": "Session vs persistent cookies",
+      "description": "Some cookies expire when you close your browser (session cookies). Others remain for a longer period (persistent cookies) to remember preferences or support analytics."
+    },
+    "thirdParty": {
+      "title": "Third-party cookies",
+      "description": "Some third parties (for example, payment providers or embedded services) may set cookies through our site. Those cookies are controlled by the third party."
+    },
+    "managing": {
+      "title": "Managing cookies",
+      "description": "You can control cookies in your browser settings (block, delete, or limit). Blocking essential cookies may prevent sign-in or checkout from working correctly."
+    },
+    "marketing": {
+      "title": "Marketing & recommendations",
+      "description": "Some cookies may be used to measure which pages are popular, how users navigate the site, and to support better recommendations (for example, showing items similar to what you viewed)."
+    },
+    "doNotTrack": {
+      "title": "Do Not Track",
+      "description": "Some browsers offer a \"Do Not Track\" setting. There is no single industry standard for how sites respond, so our response may vary depending on the tools in use."
+    },
+    "related": {
+      "title": "Related policies",
+      "description": "For more details on how we use information, see our",
+      "privacyLink": "Privacy Policy"
+    },
+    "changes": {
+      "title": "Changes to this policy",
+      "description": "We may update this Cookie Policy from time to time. We will update the \"Last updated\" date at the top of this page."
+    }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "updatedAt": "Last updated: {date}",
+    "intro": "This Privacy Policy explains how Elite Coffee (\"we\", \"us\") collects and uses information when you use our website and ordering experience in Egypt.",
+    "whoWeAre": {
+      "title": "Who we are",
+      "description": "Elite Coffee is a cafe in Egypt that sells coffee, desserts, and breakfast items.",
+      "address": "Faiyum, Governorate Club, next to the Governor's Villa"
+    },
+    "definitions": {
+      "title": "Definitions",
+      "account": {
+        "label": "Account",
+        "description": "a profile created using your email."
+      },
+      "order": {
+        "label": "Order",
+        "description": "a request for coffee, desserts, or breakfast items through our website."
+      },
+      "personalData": {
+        "label": "Personal data",
+        "description": "information that identifies you directly or indirectly (e.g., phone, address, order history)."
+      }
+    },
+    "collect": {
+      "title": "What we collect",
+      "accountInfo": {
+        "label": "Account info",
+        "description": "email, name (if provided)."
+      },
+      "orderInfo": {
+        "label": "Order info",
+        "description": "items (coffee, dessert, breakfast), customizations, notes, totals."
+      },
+      "deliveryDetails": {
+        "label": "Delivery details",
+        "description": "address and phone number (for delivery and online payment billing requirements)."
+      },
+      "deviceUsage": {
+        "label": "Device/usage",
+        "description": "basic technical data and pages you interact with (for security and performance)."
+      }
+    },
+    "use": {
+      "title": "Why we use it",
+      "processOrder": {
+        "label": "To process your order",
+        "description": "and provide customer support."
+      },
+      "onlinePayments": {
+        "label": "To enable online payments",
+        "description": "and prevent fraud."
+      },
+      "recommendations": {
+        "label": "To improve recommendations",
+        "description": "and personalize the experience (marketing and better suggestions)."
+      },
+      "improveService": {
+        "label": "To improve the service",
+        "description": "(analytics, debugging, performance)."
+      }
+    },
+    "legal": {
+      "title": "Legal basis (general)",
+      "description": "We process information to perform our services (processing orders), to comply with legal obligations where applicable, and for legitimate business interests such as security, preventing fraud, improving performance, and improving customer experience."
+    },
+    "payments": {
+      "title": "Payments & third parties",
+      "processing": {
+        "title": "Payment processing",
+        "description": "Online payments are processed by our payment provider (e.g. Paymob). We don't store your full card details on our servers."
+      },
+      "delivery": {
+        "title": "Delivery partners",
+        "description": "If delivery is fulfilled by third parties, we share only the information needed to deliver your order (name, phone, address, order contents)."
+      }
+    },
+    "marketing": {
+      "title": "Marketing & recommendations",
+      "description": "We may use purchase history and on-site interactions to improve menu recommendations and marketing (e.g., suggesting items you may like).",
+      "optOut": "You can opt out of marketing messages by following the unsubscribe instructions (when available) or by contacting us."
+    },
+    "cookies": {
+      "title": "Cookies",
+      "description": "We use cookies and similar technologies to keep you signed in, remember preferences, and measure performance. See our",
+      "link": "Cookie Policy"
+    },
+    "retention": {
+      "title": "Data retention",
+      "description": "We keep information only as long as needed for operations, support, security, accounting, and legal compliance, then delete or anonymize it where possible."
+    },
+    "security": {
+      "title": "Security",
+      "description": "We use reasonable technical and organizational measures to protect information. No system is 100% secure; please keep your account access secure."
+    },
+    "children": {
+      "title": "Children's privacy",
+      "description": "Our ordering service is intended for general audiences. If you believe a child has provided personal data through our site, contact us and we will take appropriate steps."
+    },
+    "choices": {
+      "title": "Your choices",
+      "updateAddresses": "You can update delivery addresses and phone numbers in your account settings.",
+      "manageCookies": "You can choose whether to accept cookies in your browser settings.",
+      "accessRequest": "You can contact us to request access/correction of your information."
+    },
+    "changes": {
+      "title": "Changes to this policy",
+      "description": "We may update this policy from time to time to reflect changes in our practices or services. We will update the \"Last updated\" date on this page."
+    },
+    "contact": {
+      "title": "Contact",
+      "request": "For privacy requests, contact us at",
+      "disclaimer": "This policy is provided for transparency and operational clarity. If you need formal legal advice for Egypt, consult a qualified lawyer."
+    }
+  },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "updatedAt": "Last updated: {date}",
+    "intro": "These Terms apply to using our website and ordering service in Egypt. By using the site, you agree to these Terms.",
+    "business": {
+      "title": "Business details",
+      "address": "Faiyum, Governorate Club, next to the Governor's Villa",
+      "contactLabel": "Contact:"
+    },
+    "service": {
+      "title": "Our service",
+      "description": "We are a cafe that sells coffee, desserts, and breakfast items. Availability and prices may change without notice."
+    },
+    "eligibility": {
+      "title": "Eligibility & accounts",
+      "description": "You are responsible for the accuracy of information you provide (especially phone number and delivery address) and for keeping access to your account secure."
+    },
+    "orders": {
+      "title": "Orders & payment (online only)",
+      "cardTitle": "Payment required to place an order",
+      "items": {
+        "placed": "Orders are considered placed only after successful online payment confirmation.",
+        "provider": "Payments are processed by our payment provider (e.g. Paymob).",
+        "failed": "If payment fails or is cancelled, the order won't be confirmed."
+      }
+    },
+    "menu": {
+      "title": "Menu details & allergens",
+      "description": "Ingredient and allergen information can vary. If you have allergies, please contact us before ordering and add notes at checkout where available."
+    },
+    "delivery": {
+      "title": "Delivery",
+      "description": "Delivery may be fulfilled by third-party delivery partners. Delivery times are estimates and can vary due to traffic, weather, and partner capacity."
+    },
+    "returns": {
+      "title": "Returns, refunds, and issues",
+      "description": "If there's an issue with your order, please contact us as soon as possible. Refunds (if applicable) may be handled through the original payment method and subject to provider processing timelines."
+    },
+    "cancellations": {
+      "title": "Cancellations",
+      "description": "Because we prepare food and drinks quickly, cancellation may not be possible after an order is confirmed/accepted for preparation. If you need help, contact us immediately."
+    },
+    "liability": {
+      "title": "Limitation of liability",
+      "description": "To the extent allowed by applicable law, we are not liable for indirect or consequential damages. Our responsibility for any claim related to an order is limited to the amount paid for that order."
+    },
+    "acceptable": {
+      "title": "Acceptable use",
+      "description": "Don't misuse the site (fraud, abuse, automated scraping, or interfering with normal operation). We may suspend access if needed for security."
+    },
+    "intellectual": {
+      "title": "Intellectual property",
+      "description": "Our brand, logos, and site content are owned by Elite Coffee or licensed to us. You may not copy or reuse them without permission."
+    },
+    "governing": {
+      "title": "Governing law (Egypt)",
+      "description": "These Terms are intended to be interpreted under the laws and regulations applicable in Egypt. If a dispute arises, we prefer to resolve it amicably first - please contact us."
+    },
+    "changes": {
+      "title": "Changes to these terms",
+      "description": "We may update these Terms from time to time. We will update the \"Last updated\" date on this page."
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "contact@officieleliteeg.com"
+    },
+    "privacy": {
+      "title": "Privacy & cookies",
+      "description": "See our",
+      "and": "and",
+      "links": {
+        "privacy": "Privacy Policy",
+        "cookie": "Cookie Policy"
+      }
+    }
+  },
+  "userMenu": {
+    "signIn": "Sign In",
+    "userInitial": "U",
+    "levels": {
+      "platinum": "Platinum",
+      "gold": "Gold",
+      "silver": "Silver",
+      "bronze": "Bronze"
+    },
+    "aria": {
+      "userMenu": "User menu"
+    },
+    "user": "User",
+    "loyalty": {
+      "pointsLabel": "Loyalty Points",
+      "pointsValue": "{count} pts",
+      "progressToNextTier": "{percent}% to next tier"
+    },
+    "links": {
+      "profile": "Profile",
+      "orders": "Orders",
+      "rewards": "Rewards",
+      "admin": "Admin Panel"
+    },
+    "signOut": "Sign Out"
+  },
+  "ordersList": {
+    "loading": "Loading orders...",
+    "error": {
+      "title": "Unable to load orders",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No orders yet",
+      "description": "You haven't placed any orders yet. Browse the menu to get started.",
+      "browseMenu": "Browse Menu"
+    },
+    "recentOrders": "Recent Orders",
+    "yourOrders": "Your Orders",
+    "ordersCount": "{count} orders",
+    "orderId": "Order #{id}",
+    "orderNumberLabel": "Order Number",
+    "totalLabel": "Total",
+    "viewDetails": "View Details",
+    "viewAll": "View all {count} orders"
+  },
+  "ordersAnalytics": {
+    "title": "Orders Overview",
+    "totalOrders": "Total Orders",
+    "totalSpent": "Total Spent",
+    "totalSaved": "Total Saved",
+    "pointsBalance": "Points Balance",
+    "active": "Active",
+    "completed": "Completed"
+  },
+  "orderFilters": {
+    "filters": "Filters",
+    "clearAll": "Clear All",
+    "labels": {
+      "status": "Status",
+      "dateRange": "Date Range",
+      "orderType": "Order Type",
+      "sortBy": "Sort By"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "ready": "Ready",
+      "outForDelivery": "Out for delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "datePresets": {
+      "today": "Today",
+      "week": "Last week",
+      "month": "Last month",
+      "year": "Last year",
+      "all": "All time"
+    },
+    "sortOptions": {
+      "date": "Date",
+      "price": "Price",
+      "savings": "Savings",
+      "points": "Points"
+    },
+    "orderType": {
+      "all": "All",
+      "delivery": "Delivery",
+      "pickup": "Pickup"
+    },
+    "results": "{count} results"
+  },
+  "orderStatus": {
+    "active": "Active",
+    "pending": "Pending",
+    "syncing": "Syncing",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "retrying": "Retrying",
+    "integration": {
+      "saleOrder": "Sale Order",
+      "viewInOdoo": "View in Odoo",
+      "kitchenDisplay": "Kitchen Display",
+      "posNumber": "POS Order #{id}"
+    }
+  },
+  "reorderModal": {
+    "title": "Your cart isn't empty",
+    "subtitle": "Choose how you'd like to handle items from your previous order.",
+    "close": "Close",
+    "currentCart": {
+      "title": "Current Cart",
+      "items": "{count} items"
+    },
+    "reorder": {
+      "title": "Reorder Items",
+      "items": "{count} items"
+    },
+    "actions": {
+      "addToExisting": "Add to existing cart",
+      "replaceCart": "Replace cart",
+      "cancel": "Cancel"
+    },
+    "helper": {
+      "addToCartTitle": "Add to existing cart:",
+      "addToCartBody": "We'll keep your current items and add the reorder items.",
+      "replaceCartTitle": "Replace cart:",
+      "replaceCartBody": "We'll clear your cart and add only the reorder items."
+    }
+  },
+  "orderDetail": {
+    "status": {
+      "pending": {
+        "title": "Pending",
+        "description": "We're confirming your order."
+      },
+      "confirmed": {
+        "title": "Confirmed",
+        "description": "Your order has been confirmed."
+      },
+      "preparing": {
+        "title": "Preparing",
+        "description": "We're preparing your order."
+      },
+      "ready": {
+        "title": "Ready",
+        "description": "Your order is ready for pickup or dispatch."
+      },
+      "outForDelivery": {
+        "title": "Out for delivery",
+        "description": "Your order is on the way."
+      },
+      "delivered": {
+        "title": "Delivered",
+        "description": "Your order has been delivered."
+      },
+      "cancelled": {
+        "title": "Cancelled",
+        "description": "This order was cancelled."
+      },
+      "unknown": {
+        "title": "Status: {status}",
+        "description": "We're working on updating this order's status."
+      }
+    },
+    "loading": "Loading order details...",
+    "error": {
+      "title": "We couldn't load this order",
+      "subtitle": "Something went wrong while fetching your order details.",
+      "causesTitle": "Possible reasons:",
+      "causes": {
+        "invalidId": "The order ID is invalid or no longer exists.",
+        "permission": "You don't have permission to view this order.",
+        "connection": "A network error occurred. Please try again."
+      },
+      "retry": "Retry",
+      "viewAllOrders": "View all orders",
+      "contactSupport": "Contact support"
+    },
+    "notAvailable": {
+      "title": "Order not available",
+      "description": "We couldn't find this order or it may have been removed.",
+      "backToOrders": "Back to Orders"
+    },
+    "reorder": {
+      "inProgress": "Reorder already in progress.",
+      "noItems": "This order has no items to reorder.",
+      "cartCleared": "Cart cleared. Adding {count} items...",
+      "unknownItem": "Unknown item",
+      "addedAll": "{count} items {action}.",
+      "actions": {
+        "added": "added",
+        "addedToCart": "added to your cart"
+      },
+      "addedSome": "Added {added} items. {failed} items failed.",
+      "addedNone": "No items could be added.",
+      "error": "Something went wrong while reordering. Please try again."
+    },
+    "breadcrumbs": {
+      "allOrders": "All Orders",
+      "profile": "Profile",
+      "shopMenu": "Shop Menu"
+    },
+    "orderId": "Order #{id}",
+    "progress": {
+      "label": "Progress"
+    },
+    "placedOn": "Placed on {date}",
+    "delivery": {
+      "estimatedArrival": "Est. Arrival",
+      "deliveryIn": "Delivery in",
+      "days": "{count} days",
+      "destination": "Destination",
+      "detailsTitle": "Delivery Details",
+      "deliveringTo": "Delivering to",
+      "defaultLabel": "Delivery Address",
+      "trackingNumber": "Tracking Number",
+      "copyTracking": "Copy tracking number",
+      "copied": "Tracking number copied"
+    },
+    "items": {
+      "title": "Items ({count})",
+      "unknown": "Unnamed item"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "deliveryFee": "Delivery",
+      "codFee": "COD Fee",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "support": {
+      "title": "Need help?",
+      "description": "Contact our team for order assistance and support.",
+      "cta": "Message Support"
+    },
+    "reorderCard": {
+      "title": "Reorder this",
+      "description": "Add these items to your cart in one tap.",
+      "ariaAdding": "Adding items to cart",
+      "ariaReorder": "Reorder items",
+      "adding": "Adding...",
+      "cta": "Reorder"
+    }
+  },
+  "ordersPage": {
+    "title": "My Orders",
+    "loading": "Loading your orders...",
+    "backToProfile": "Back to Profile",
+    "breadcrumbs": {
+      "home": "Home",
+      "profile": "Profile"
+    },
+    "subtitle": "Track your order history and status."
+  },
+  "orderDetailPage": {
+    "title": "Order Details"
+  },
+  "productPage": {
+    "title": "Product Details",
+    "loading": "Loading product...",
+    "errors": {
+      "fetch": "Failed to fetch product.",
+      "notFound": "Product not found.",
+      "loadFailed": "Failed to load product."
+    },
+    "notFound": {
+      "title": "Product not found",
+      "description": "We couldn't find that product. Please check the menu.",
+      "browseMenu": "Browse Menu"
+    }
+  },
+  "productDetail": {
+    "validation": {
+      "selectSize": "Please select a size.",
+      "selectAllRequired": "Please select all required options."
+    },
+    "toast": {
+      "addedToCart": "{name} added to cart."
+    },
+    "actions": {
+      "backToMenu": "Back to Menu",
+      "added": "Added",
+      "addToCart": "Add to cart"
+    },
+    "images": {
+      "noImage": "No image available",
+      "previous": "Previous image",
+      "next": "Next image",
+      "viewImage": "View image {number}",
+      "thumbnailAlt": "{name} thumbnail {number}"
+    },
+    "stock": {
+      "inStock": "In stock",
+      "soldOut": "Sold out"
+    },
+    "price": {
+      "starting": "starting",
+      "total": "Total"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "count": "{count} reviews",
+      "all": "All reviews ({count})",
+      "header": "Customer reviews",
+      "loading": "Loading reviews...",
+      "empty": {
+        "title": "No reviews yet",
+        "description": "Be the first to review this item."
+      }
+    },
+    "related": {
+      "title": "Related Items",
+      "subtitle": "More from {category}",
+      "thisCategory": "this category"
+    }
+  },
+  "itemDetail": {
+    "loading": "Loading item...",
+    "actions": {
+      "backToSubcategory": "Back to {name}"
+    },
+    "badges": {
+      "featured": "Featured"
+    },
+    "price": {
+      "mediumShown": "Price shown for medium size",
+      "addOn": "+{price}"
+    },
+    "size": {
+      "title": "Choose a size"
+    },
+    "flavors": {
+      "title": "Choose a flavor"
+    },
+    "toppings": {
+      "title": "Add toppings"
+    },
+    "allergens": {
+      "contains": "Contains: {items}",
+      "note": "Please inform us of any allergies when ordering."
+    },
+    "recommended": {
+      "title": "Recommended for you",
+      "subtitle": "You might also like these."
+    }
+  },
+  "profilePage": {
+    "title": "Profile",
+    "tabs": {
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "rewards": "Rewards",
+      "settings": "Settings"
+    },
+    "avatar": {
+      "alt": "User avatar",
+      "change": "Change avatar"
+    },
+    "userInitial": "U",
+    "user": "User",
+    "stats": {
+      "orders": "Orders",
+      "points": "Points"
+    },
+    "orders": {
+      "viewAll": "View All Orders",
+      "analytics": "Analytics"
+    },
+    "addresses": {
+      "title": "Your Addresses"
+    },
+    "rewards": {
+      "title": "Rewards coming soon",
+      "description": "We're working on a new rewards experience."
+    },
+    "settings": {
+      "title": "Settings coming soon",
+      "description": "Account settings will be available here soon.",
+      "cta": "Go to Settings"
+    },
+    "signOut": "Sign Out"
+  },
+  "addressManager": {
+    "labels": {
+      "home": "Home",
+      "work": "Work",
+      "office": "Office",
+      "other": "Other"
+    },
+    "errors": {
+      "duplicate": "This address already exists.",
+      "load": "Failed to load addresses: {error}"
+    },
+    "confirmDelete": "Are you sure you want to delete this address?",
+    "default": "Default",
+    "actions": {
+      "setDefault": "Set as default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "addNew": "Add New Address",
+      "saving": "Saving...",
+      "save": "Save Address",
+      "cancel": "Cancel"
+    },
+    "form": {
+      "editTitle": "Edit Address",
+      "newTitle": "New Address",
+      "label": "Label",
+      "street": {
+        "label": "Street address",
+        "placeholder": "Street, building, and floor"
+      },
+      "apartment": {
+        "label": "Apartment / Unit",
+        "placeholder": "Apartment, suite, etc."
+      },
+      "city": {
+        "label": "City",
+        "placeholder": "City"
+      },
+      "state": {
+        "label": "State / Region",
+        "placeholder": "State or governorate"
+      },
+      "zipCode": {
+        "label": "Zip code",
+        "placeholder": "Postal code"
+      },
+      "phone": {
+        "label": "Phone number",
+        "placeholder": "+20 1XX XXX XXXX"
+      },
+      "notes": {
+        "label": "Delivery notes",
+        "placeholder": "Add directions or delivery notes",
+        "counter": "{count}/{max} characters"
+      },
+      "optional": "optional"
+    },
+    "validation": {
+      "street": {
+        "required": "Street address is required.",
+        "min": "Street address must be at least {min} characters.",
+        "max": "Street address must be less than {max} characters.",
+        "invalid": "Street address contains invalid characters."
+      },
+      "apartment": {
+        "max": "Apartment must be less than {max} characters."
+      },
+      "city": {
+        "required": "City is required.",
+        "min": "City must be at least {min} characters.",
+        "max": "City must be less than {max} characters.",
+        "invalid": "City name cannot contain numbers or special characters."
+      },
+      "state": {
+        "max": "State must be less than {max} characters."
+      },
+      "zipCode": {
+        "max": "Zip code must be less than {max} characters.",
+        "invalid": "Please enter a valid zip/postal code."
+      },
+      "phone": {
+        "max": "Phone number must be less than {max} characters.",
+        "invalid": "Please enter a valid phone number (e.g., +20 123 456 7890).",
+        "egypt": "Please enter a valid Egyptian mobile number."
+      },
+      "notes": {
+        "max": "Notes must be less than {max} characters."
+      }
+    }
+  },
+  "rewardsPage": {
+    "loading": "Loading rewards...",
+    "title": "Rewards",
+    "subtitle": "Your loyalty, rewarded",
+    "error": {
+      "title": "Couldn't load rewards",
+      "retry": "Try again"
+    },
+    "earn": {
+      "title": "How to Earn Points",
+      "rules": {
+        "onePer": {
+          "label": "Points per EGP",
+          "value": "1 point",
+          "levels": {
+            "silver": "Silver members earn 1 point per EGP",
+            "gold": "Gold members earn 1.25 points per EGP",
+            "platinum": "Platinum members earn 1.5 points per EGP",
+            "bronze": "Bronze members earn 1 point per EGP"
+          }
+        },
+        "birthday": {
+          "label": "Birthday bonus",
+          "value": "2x points",
+          "description": "Earn double points on your birthday."
+        },
+        "referrals": {
+          "label": "Referrals",
+          "value": "+50 points",
+          "description": "Get bonus points when friends place their first order."
+        }
+      }
+    },
+    "actions": {
+      "startEarning": "Start Earning Points"
+    }
+  },
+  "loyalty": {
+    "levels": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum"
+    },
+    "card": {
+      "statusLabel": "Loyalty Status",
+      "memberLabel": "{level} Member",
+      "totalSpent": "Total Spent",
+      "pointsLabel": "Points",
+      "progressTo": "Progress to {level}",
+      "pointsToNext": "{count} points to reach {level}",
+      "maxTier": {
+        "title": "Top Tier Achieved",
+        "subtitle": "You've reached our highest tier."
+      }
+    },
+    "benefits": {
+      "title": "Your Benefits"
+    },
+    "activity": {
+      "empty": {
+        "title": "No activity yet",
+        "description": "Your points activity will appear here."
+      },
+      "title": "Recent Activity",
+      "points": "{count} pts",
+      "reasonFallback": "Loyalty activity",
+      "orderTotal": "Order total: {amount}"
+    },
+    "tiers": {
+      "title": "Loyalty Tiers",
+      "current": "Current",
+      "starting": "Starting tier",
+      "pointsThreshold": "{count} points required"
+    }
+  },
+  "authVerify": {
+    "hero": {
+      "title": "Check your email",
+      "subtitle": "We've sent you a sign-in link. Click it to finish signing in."
+    },
+    "steps": {
+      "title": "Next steps",
+      "one": "Open the email we just sent.",
+      "two": "Click the secure sign-in link.",
+      "three": "Return to Elite Coffee and start ordering."
+    },
+    "security": {
+      "title": "Security",
+      "items": {
+        "expiry": "Links expire after a short time.",
+        "singleUse": "Each link can be used only once.",
+        "noPassword": "No password needed."
+      }
+    },
+    "help": {
+      "title": "Need help?",
+      "items": {
+        "checkSpam": "Check your spam or junk folder.",
+        "verifyEmail": "Make sure the email address is correct.",
+        "wait": "It may take a minute to arrive."
+      }
+    },
+    "actions": {
+      "tryDifferentEmail": "Try a different email",
+      "backToShop": "Back to home"
+    }
+  },
+  "authError": {
+    "loading": "Loading...",
+    "errors": {
+      "configuration": {
+        "title": "Server configuration error",
+        "message": "There was a problem with the server configuration.",
+        "hint": "Please try again later or contact support."
+      },
+      "accessDenied": {
+        "title": "Access denied",
+        "message": "You do not have permission to sign in.",
+        "hint": "Use a different account or contact support."
+      },
+      "verification": {
+        "title": "Verification failed",
+        "message": "The sign-in link is invalid or has expired.",
+        "hint": "Request a new sign-in link."
+      },
+      "signIn": {
+        "title": "Sign-in failed",
+        "message": "We couldn't complete your sign-in.",
+        "hint": "Please try again."
+      },
+      "accountNotLinked": {
+        "title": "Account not linked",
+        "message": "This email is already linked to a different sign-in method.",
+        "hint": "Sign in using the original provider."
+      },
+      "emailSignin": {
+        "title": "Email sign-in error",
+        "message": "We couldn't send a sign-in email.",
+        "hint": "Please check the email address and try again."
+      },
+      "credentials": {
+        "title": "Invalid credentials",
+        "message": "The credentials you provided are incorrect.",
+        "hint": "Please try again."
+      },
+      "sessionRequired": {
+        "title": "Session required",
+        "message": "You must be signed in to access this page.",
+        "hint": "Sign in to continue."
+      },
+      "default": {
+        "title": "Authentication error",
+        "message": "Something went wrong during sign-in.",
+        "hint": "Please try again."
+      }
+    },
+    "errorCode": "Error code: {code}",
+    "nextSteps": {
+      "title": "What can you do?",
+      "items": {
+        "retry": "Try signing in again.",
+        "clearCache": "Clear your browser cache and cookies.",
+        "useDifferentBrowser": "Try a different browser or device.",
+        "contactSupport": "Contact support if the issue persists."
+      }
+    },
+    "actions": {
+      "tryAgain": "Try Again",
+      "backToHome": "Back to Home"
+    }
+  },
+  "authSignIn": {
+    "title": "Sign in",
+    "subtitle": "Sign in with a magic link to continue.",
+    "headline": {
+      "titleLine1": "Welcome back to",
+      "titleLine2": "Elite Coffee",
+      "subtitle": "Sign in to earn rewards and track orders."
+    },
+    "benefits": {
+      "earnPoints": {
+        "title": "Earn points",
+        "description": "Collect points on every order."
+      },
+      "fasterCheckout": {
+        "title": "Faster checkout",
+        "description": "Save your details for quick reorders."
+      },
+      "exclusiveDeals": {
+        "title": "Exclusive deals",
+        "description": "Access members-only offers."
+      },
+      "vipTiers": {
+        "title": "VIP tiers",
+        "description": "Unlock higher tiers with more benefits."
+      },
+      "saveFavorites": {
+        "title": "Save favorites",
+        "description": "Keep your go-to drinks handy."
+      }
+    },
+    "trust": {
+      "customers": "Trusted by coffee lovers"
+    },
+    "actions": {
+      "back": "Back",
+      "backToHome": "Back to Home",
+      "sending": "Sending link...",
+      "send": "Send magic link"
+    },
+    "errors": {
+      "sendLink": "Unable to send sign-in link. Please try again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "mobile": {
+      "welcomeTitle": "Welcome",
+      "welcomeSubtitle": "Sign in to continue",
+      "noPassword": "No password required",
+      "magicLinkDescription": "We'll email you a secure sign-in link.",
+      "benefitsTitle": "Why sign in?"
+    },
+    "form": {
+      "emailLabel": "Email address",
+      "tooltip": "We'll send a secure sign-in link to this email.",
+      "emailPlaceholder": "you@example.com"
+    },
+    "desktop": {
+      "passwordlessTitle": "Passwordless sign-in",
+      "passwordlessDescription": "Use a magic link to sign in securely without a password."
+    }
+  },
+  "analyticsPage": {
+    "title": "Analytics",
+    "loading": "Loading analytics...",
+    "export": {
+      "error": "Failed to export PDF.",
+      "exporting": "Exporting...",
+      "button": "Export PDF",
+      "mobileButton": "Export PDF"
+    },
+    "header": {
+      "title": "Your Insights",
+      "subtitle": "Track savings, points, and order trends."
+    },
+    "metrics": {
+      "lastMonth": "last month",
+      "avgSavings": {
+        "title": "Average Savings",
+        "caption": "per order"
+      },
+      "totalOrders": {
+        "title": "Total Orders",
+        "caption": "lifetime orders"
+      }
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "pointsHistory": {
+        "title": "Points history",
+        "description": "View your points transactions"
+      },
+      "orders": {
+        "title": "Order history",
+        "description": "See all of your orders"
+      }
+    }
+  },
+  "analytics": {
+    "savings": {
+      "savedLabel": "Saved:",
+      "title": "Total Saved",
+      "change": "{sign}{value}% vs {period}"
+    },
+    "points": {
+      "pointsLabel": "pts",
+      "title": "Points Balance",
+      "worth": "Worth {amount}",
+      "tierLabel": "{level} Member",
+      "toNextTier": "{count} points to next tier"
+    },
+    "tiers": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum"
+    }
+  },
+  "analyticsCharts": {
+    "empty": "No data yet",
+    "savings": {
+      "title": "Savings Over Time",
+      "lineLabel": "Savings"
+    },
+    "points": {
+      "title": "Points Earned",
+      "tooltip": "{count} pts",
+      "lineLabel": "Points"
+    },
+    "spending": {
+      "title": "Spending vs Savings",
+      "spendingLabel": "Spending",
+      "savingsLabel": "Savings"
+    }
+  },
+  "pointsHistory": {
+    "title": "Points History",
+    "loading": "Loading points history...",
+    "error": "Unable to load points history.",
+    "subtitle": "Track how you earned and used points.",
+    "empty": {
+      "title": "No points activity",
+      "description": "Your points activity will appear here."
+    },
+    "types": {
+      "earn": "Earned",
+      "redeem": "Redeemed",
+      "expire": "Expired",
+      "adjust": "Adjusted"
+    },
+    "balance": "Balance: {count} pts"
+  },
+  "suggestPage": {
+    "breadcrumbs": {
+      "menu": "Menu",
+      "current": "Drink Suggestion"
+    },
+    "title": "Find Your Perfect Drink",
+    "subtitle": "Tell us your preferences and we'll recommend a drink.",
+    "intro": {
+      "title": "How it works",
+      "description": "Answer a few quick questions and we'll suggest a drink you'll love."
+    },
+    "results": {
+      "title": "Recommended for you",
+      "topPick": "Top Pick",
+      "alternativesTitle": "Other options",
+      "alternative": "Alternative #{index}",
+      "personalizedLabel": "Personalized:",
+      "personalizedDescription": "Based on your favorites: {items}"
+    },
+    "toast": {
+      "added": "{name} added to cart.",
+      "failed": "Couldn't add item. Please try again."
+    },
+    "actions": {
+      "browseMenu": "Browse menu"
+    }
+  },
+  "suggestForm": {
+    "title": "Your Preferences",
+    "temperature": {
+      "label": "Temperature",
+      "options": {
+        "either": "Either",
+        "hot": "Hot",
+        "iced": "Iced"
+      }
+    },
+    "caffeine": {
+      "label": "Caffeine",
+      "options": {
+        "none": "None",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
+    "sweetness": {
+      "label": "Sweetness",
+      "options": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
+    "milk": {
+      "label": "Milk",
+      "options": {
+        "dairy": "Dairy",
+        "nonDairy": "Non-dairy",
+        "none": "No milk"
+      }
+    },
+    "flavors": {
+      "label": "Flavor notes",
+      "placeholder": "e.g. vanilla, caramel"
+    },
+    "budget": {
+      "label": "Budget (EGP)",
+      "placeholder": "Optional max price"
+    },
+    "size": {
+      "label": "Size",
+      "options": {
+        "auto": "Auto",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "timeOfDay": {
+      "label": "Time of day",
+      "options": {
+        "any": "Any time",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      }
+    },
+    "featuredBoost": "Prefer featured items",
+    "submit": {
+      "loading": "Finding a match...",
+      "default": "Get recommendation"
+    }
+  },
+  "recommendationCard": {
+    "reasonsTitle": "Why this pick",
+    "actions": {
+      "added": "Added",
+      "adding": "Adding...",
+      "add": "Add to cart"
+    }
+  }
+}

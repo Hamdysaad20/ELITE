@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Filter, ArrowUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export type DealSortOption =
   | "discount-desc" // Biggest discount first (default)
@@ -21,17 +22,6 @@ interface DealSortFilterProps {
   className?: string;
 }
 
-const sortOptions: Array<{ value: DealSortOption; label: string }> = [
-  { value: "discount-desc", label: "Biggest Discount" },
-  { value: "discount-asc", label: "Smallest Discount" },
-  { value: "savings-desc", label: "Biggest Savings" },
-  { value: "savings-asc", label: "Smallest Savings" },
-  { value: "price-desc", label: "Highest Price" },
-  { value: "price-asc", label: "Lowest Price" },
-  { value: "name-asc", label: "Name A-Z" },
-  { value: "name-desc", label: "Name Z-A" },
-];
-
 export default function DealSortFilter({
   sortBy,
   onSortChange,
@@ -39,6 +29,17 @@ export default function DealSortFilter({
   className,
 }: DealSortFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("dealSort");
+  const sortOptions: Array<{ value: DealSortOption; label: string }> = [
+    { value: "discount-desc", label: t("options.discountDesc") },
+    { value: "discount-asc", label: t("options.discountAsc") },
+    { value: "savings-desc", label: t("options.savingsDesc") },
+    { value: "savings-asc", label: t("options.savingsAsc") },
+    { value: "price-desc", label: t("options.priceDesc") },
+    { value: "price-asc", label: t("options.priceAsc") },
+    { value: "name-asc", label: t("options.nameAsc") },
+    { value: "name-desc", label: t("options.nameDesc") },
+  ];
 
   return (
     <div className={cn("relative", className)}>
@@ -50,10 +51,10 @@ export default function DealSortFilter({
         <Filter className="w-4 h-4 text-elite-burgundy" />
         <ArrowUpDown className="w-4 h-4 text-elite-burgundy" />
         <span className="font-cabin font-semibold text-elite-black text-sm">
-          Sort
+          {t("label")}
         </span>
         <span className="text-xs font-cabin text-elite-black/60">
-          ({sortOptions.find((o) => o.value === sortBy)?.label || "Default"})
+          ({sortOptions.find((o) => o.value === sortBy)?.label || t("default")})
         </span>
       </button>
 
@@ -71,7 +72,7 @@ export default function DealSortFilter({
             {/* Header */}
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-elite-burgundy/10">
               <h3 className="font-calistoga text-lg text-elite-black">
-                Sort Deals
+                {t("title")}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -105,11 +106,10 @@ export default function DealSortFilter({
             {/* Results Count */}
             <div className="mt-4 pt-3 border-t border-elite-burgundy/10">
               <p className="text-xs font-cabin text-elite-black/60 text-center">
-                Showing{" "}
-                <span className="font-bold text-elite-burgundy">
-                  {productCount}
-                </span>{" "}
-                product{productCount !== 1 ? "s" : ""}
+                {t("results", {
+                  count: productCount,
+                  value: productCount,
+                })}
               </p>
             </div>
           </div>

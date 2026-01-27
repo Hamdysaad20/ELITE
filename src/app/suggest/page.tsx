@@ -10,8 +10,10 @@ import { RecommendationCard } from "@/components/RecommendationCard";
 import { useToast } from "@/components/ToastProvider";
 import { Skeleton } from "@/components/Skeleton";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 import { Sparkles, Coffee, ChevronRight } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { cn } from "@/lib/utils";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { openSupportMessenger } from "@/lib/support";
@@ -20,6 +22,10 @@ export default function SuggestPage() {
   const { suggest, loading, error, result } = useDrinkSuggestion();
   const { addToCart } = useCart();
   const { push } = useToast();
+
+  const t = useTranslations("suggestPage");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
   const { orderingEnabled, orderingMessage } = useOrdering();
   const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
@@ -35,14 +41,14 @@ export default function SuggestPage() {
           <div className="max-w-4xl mx-auto px-6">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm mb-4">
-              <Link
+              <LocalizedLink
                 href="/menu"
                 className="hover:text-elite-light-cream transition-colors duration-200"
               >
-                Menu
-              </Link>
-              <ChevronRight className="w-4 h-4" />
-              <span className="font-semibold">AI Suggestion</span>
+                {t("breadcrumbs.menu")}
+              </LocalizedLink>
+              <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
+              <span className="font-semibold">{t("breadcrumbs.current")}</span>
             </div>
 
             {/* Page Header */}
@@ -52,10 +58,10 @@ export default function SuggestPage() {
               </div>
               <div>
                 <h1 className="font-calistoga text-4xl md:text-5xl mb-2">
-                  AI Drink Suggestion
+                  {t("title")}
                 </h1>
                 <p className="font-cabin text-elite-cream/90 text-lg">
-                  Let our AI find your perfect drink based on your preferences
+                  {t("subtitle")}
                 </p>
               </div>
             </div>
@@ -70,13 +76,10 @@ export default function SuggestPage() {
               <Coffee className="w-8 h-8 text-elite-burgundy flex-shrink-0 mt-1" />
               <div>
                 <h2 className="font-calistoga text-elite-burgundy text-xl mb-2">
-                  How it works
+                  {t("intro.title")}
                 </h2>
                 <p className="font-cabin text-elite-black/80">
-                  Tell us your preferences — temperature, caffeine level,
-                  sweetness, and more — and our AI will suggest the perfect
-                  drink for you. We&apos;ll also consider your past favorites to
-                  personalize the recommendation.
+                  {t("intro.description")}
                 </p>
               </div>
             </div>
@@ -112,12 +115,12 @@ export default function SuggestPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="w-5 h-5 text-elite-burgundy" />
                   <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                    Your Recommendations
+                    {t("results.title")}
                   </h2>
                 </div>
 
                 <RecommendationCard
-                  title="Top Pick"
+                  title={t("results.topPick")}
                   recommendation={result.recommendation}
                   primary
                   onAdd={async (item, size, flavor) => {
@@ -133,10 +136,10 @@ export default function SuggestPage() {
                       await addToCart(item.id, 1, { size, flavor });
                       push({
                         type: "success",
-                        message: `${item.name} added to cart`,
+                        message: t("toast.added", { name: item.name }),
                       });
                     } catch {
-                      push({ type: "error", message: "Failed to add item" });
+                      push({ type: "error", message: t("toast.failed") });
                     }
                   }}
                 />
@@ -144,13 +147,13 @@ export default function SuggestPage() {
                 {result.alternatives?.length ? (
                   <>
                     <h3 className="font-calistoga text-elite-black text-lg mt-6">
-                      You might also like
+                      {t("results.alternativesTitle")}
                     </h3>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {result.alternatives.map((alt, i) => (
                         <RecommendationCard
                           key={alt.item.id + i}
-                          title={`Alternative ${i + 1}`}
+                          title={t("results.alternative", { index: i + 1 })}
                           recommendation={alt}
                           onAdd={async (item, size, flavor) => {
                             try {
@@ -165,12 +168,12 @@ export default function SuggestPage() {
                               await addToCart(item.id, 1, { size, flavor });
                               push({
                                 type: "success",
-                                message: `${item.name} added to cart`,
+                                message: t("toast.added", { name: item.name }),
                               });
                             } catch {
                               push({
                                 type: "error",
-                                message: "Failed to add item",
+                                message: t("toast.failed"),
                               });
                             }
                           }}
@@ -184,10 +187,11 @@ export default function SuggestPage() {
                   <div className="p-4 bg-elite-cream/50 rounded-xl">
                     <p className="font-cabin text-sm text-elite-black/70">
                       <span className="font-semibold text-elite-burgundy">
-                        Personalized for you:
+                        {t("results.personalizedLabel")}
                       </span>{" "}
-                      Based on your favorites —{" "}
-                      {result.personalization.favorites.join(", ")}
+                      {t("results.personalizedDescription", {
+                        items: result.personalization.favorites.join(", "),
+                      })}
                     </p>
                   </div>
                 ) : null}
@@ -197,13 +201,13 @@ export default function SuggestPage() {
 
           {/* CTA */}
           <div className="mt-8 text-center">
-            <Link
+            <LocalizedLink
               href="/menu"
               className="inline-flex items-center gap-2 font-cabin text-elite-burgundy hover:text-elite-burgundy transition-colors"
             >
-              <span>Or browse our full menu</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+              <span>{t("actions.browseMenu")}</span>
+              <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
+            </LocalizedLink>
           </div>
         </div>
       </div>

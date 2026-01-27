@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { apiClient } from "@/lib/auth/apiClient";
+import { useTranslations } from "next-intl";
 
 export interface Product {
   id: string;
@@ -66,6 +67,7 @@ interface UseProductsReturn {
 export function useProducts(
   options: UseProductsOptions = {},
 ): UseProductsReturn {
+  const t = useTranslations("errors");
   const { categoryId, search, available, autoFetch = true } = options;
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -100,7 +102,7 @@ export function useProducts(
       setLastUpdate(response.lastUpdate || null);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to load products";
+        err instanceof Error ? err.message : t("products.default");
       setError(errorMessage);
       console.error("Failed to fetch products:", err);
 
@@ -109,21 +111,19 @@ export function useProducts(
         errorMessage.includes("503") ||
         errorMessage.includes("cache is empty")
       ) {
-        setError(
-          "Product catalog is being synchronized. Please try again in a moment.",
-        );
+        setError(t("products.syncing"));
       } else if (
         errorMessage.includes("Network") ||
         errorMessage.includes("Failed to fetch")
       ) {
-        setError("Unable to connect. Please check your internet connection.");
+        setError(t("network"));
       } else if (errorMessage.includes("timeout")) {
-        setError("Request timed out. Please try again.");
+        setError(t("timeout"));
       }
     } finally {
       setLoading(false);
     }
-  }, [categoryId, search, available]);
+  }, [categoryId, search, available, t]);
 
   // Auto-fetch on mount and when options change
   useEffect(() => {

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -25,7 +26,10 @@ const CategoryCard = ({
   title,
   emoji,
 }: CategoryCardProps) => (
-  <Link href={href} className="flex flex-col items-center group cursor-pointer">
+  <LocalizedLink
+    href={href}
+    className="flex flex-col items-center group cursor-pointer"
+  >
     <div
       ref={refProp}
       className="w-48 h-48 lg:w-64 lg:h-64 rounded-full bg-elite-burgundy overflow-hidden mb-8 transition-transform group-hover:scale-105 shadow-lg"
@@ -45,13 +49,14 @@ const CategoryCard = ({
     <h3 className="font-calistoga text-elite-black text-3xl lg:text-4xl">
       {title}
     </h3>
-  </Link>
+  </LocalizedLink>
 );
 
 export default function FindAndGet() {
   const classicDrinksRef = useRef<HTMLDivElement>(null);
   const specialDrinksRef = useRef<HTMLDivElement>(null);
   const kidsCornerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("findAndGet");
 
   useEffect(() => {
     const refs = [classicDrinksRef, specialDrinksRef, kidsCornerRef];
@@ -100,9 +105,9 @@ export default function FindAndGet() {
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
         <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-8 sm:mb-12 lg:mb-16">
-          Find and Get
+          {t("titleLine1")}
           <br />
-          What You Love
+          {t("titleLine2")}
         </h2>
 
         {/* Category Grid */}
@@ -112,8 +117,8 @@ export default function FindAndGet() {
             href="/menu/classic-drinks"
             refProp={classicDrinksRef}
             imageSrc="https://ext.same-assets.com/1022434225/2187497136.avif"
-            altText="Classic Drinks"
-            title="Classic Drinks"
+            altText={t("categories.classic")}
+            title={t("categories.classic")}
           />
 
           {/* Special Drinks Category */}
@@ -121,16 +126,16 @@ export default function FindAndGet() {
             href="/menu/special-drinks"
             refProp={specialDrinksRef}
             imageSrc="https://ext.same-assets.com/1022434225/3438940369.avif"
-            altText="Special Drinks"
-            title="Special Drinks"
+            altText={t("categories.special")}
+            title={t("categories.special")}
           />
 
           {/* Kids' Corner Category */}
           <CategoryCard
             href="/menu/kids-corner"
             refProp={kidsCornerRef}
-            altText="Kids' Corner"
-            title="Kids' Corner"
+            altText={t("categories.kids")}
+            title={t("categories.kids")}
             emoji="🎈"
           />
         </div>

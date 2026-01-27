@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { sanitizeImages } from "@/lib/imageUtils";
@@ -25,11 +25,13 @@ import EmptyState from "@/components/ui/EmptyState";
 import MenuPageSkeleton from "@/components/skeletons/MenuPageSkeleton";
 import ProductModal from "@/components/menu/ProductModal";
 import { Product } from "@/hooks/useProducts";
+import LocalizedLink from "@/components/LocalizedLink";
 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const t = useTranslations("menuPage");
 
   // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
@@ -84,20 +86,20 @@ export default function MenuPage() {
 
         return {
           id: cat.id,
-          name: cat.name || "Unknown Category",
-          description: cat.description || "Explore our selection",
+          name: cat.name || t("fallback.unknownCategory"),
+          description: cat.description || t("fallback.categoryDescription"),
           icon: "coffee",
           comingSoon: false, // Never show coming soon since we filter empty ones
           subCategories: [
             {
               id: cat.id,
-              name: cat.name || "Unknown Category",
+              name: cat.name || t("fallback.unknownCategory"),
               items: categoryProducts
                 .map((p) => {
                   if (!p || !p.id) return null;
                   return {
                     id: p.id,
-                    name: p.name || "Unnamed Product",
+                    name: p.name || t("fallback.unknownProduct"),
                     description: p.description || "",
                     price: typeof p.price === "number" ? p.price : 0,
                     images: sanitizeImages(p.images),
@@ -110,7 +112,7 @@ export default function MenuPage() {
         };
       })
       .filter(Boolean);
-  }, [apiCategories, apiProducts]);
+  }, [apiCategories, apiProducts, t]);
 
   const renderIcon = (iconName: string) => {
     const iconProps = { className: "w-5 h-5" };
@@ -139,7 +141,7 @@ export default function MenuPage() {
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
       <div className="hidden md:block"></div>
-      <MobileHeader title="Menu" showBack={true} transparent={true} />
+      <MobileHeader title={t("title")} showBack={true} transparent={true} />
 
       {/* Full-height background that flows behind content */}
       <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
@@ -154,11 +156,10 @@ export default function MenuPage() {
 
           <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
             <h1 className="font-calistoga text-6xl md:text-7xl font-bold mb-6">
-              Menu
+              {t("title")}
             </h1>
             <p className="font-cabin text-xl md:text-2xl text-elite-cream/90 max-w-3xl mx-auto leading-relaxed">
-              Explore our selection of premium coffee, beverages, and delicious
-              treats
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -182,9 +183,9 @@ export default function MenuPage() {
                 (categoriesEmpty || categories.length === 0) && (
                   <EmptyState
                     variant="no-products"
-                    title="Catalog Not Synced"
-                    description="The product catalog needs to be synchronized from Odoo. Please contact an administrator or try refreshing."
-                    actionLabel="Refresh"
+                    title={t("catalogNotSynced.title")}
+                    description={t("catalogNotSynced.description")}
+                    actionLabel={t("actions.refresh")}
                     onAction={handleRetry}
                   />
                 )}
@@ -208,7 +209,7 @@ export default function MenuPage() {
                           <span
                             className={`font-cabin text-sm ${activeCategory === null ? "font-bold" : "font-medium"}`}
                           >
-                            All
+                            {t("actions.all")}
                           </span>
                         </button>
 
@@ -245,7 +246,7 @@ export default function MenuPage() {
                                 </span>
                                 {cat.comingSoon && (
                                   <span className="text-[10px] bg-elite-burgundy/30 text-elite-cream px-1.5 py-0.5 rounded-full font-medium">
-                                    Soon
+                                    {t("actions.soon")}
                                   </span>
                                 )}
                               </button>
@@ -262,10 +263,10 @@ export default function MenuPage() {
                         {/* Sidebar Header */}
                         <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                           <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
-                            Categories
+                            {t("sidebar.title")}
                           </h2>
                           <p className="font-cabin text-elite-black/70 text-sm">
-                            Explore our menu
+                            {t("sidebar.subtitle")}
                           </p>
                         </div>
 
@@ -275,7 +276,7 @@ export default function MenuPage() {
                             .filter((cat) => cat !== null && cat !== undefined)
                             .map((cat, index) => (
                               <div key={cat.id}>
-                                <Link
+                                <LocalizedLink
                                   href={
                                     cat.comingSoon ? "#" : `/menu/${cat.id}`
                                   }
@@ -299,10 +300,10 @@ export default function MenuPage() {
                                   </div>
                                   {cat.comingSoon && (
                                     <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
-                                      Soon
+                                      {t("actions.soon")}
                                     </span>
                                   )}
-                                </Link>
+                                </LocalizedLink>
                                 {index < categories.length - 1 && (
                                   <div className="h-px bg-elite-burgundy/10 my-3"></div>
                                 )}
@@ -314,7 +315,7 @@ export default function MenuPage() {
                         <div className="mt-6 pt-4 border-t border-elite-burgundy/20">
                           <div className="text-center">
                             <p className="font-cabin text-elite-black/40 text-xs">
-                              Fresh ingredients daily
+                              {t("sidebar.footer")}
                             </p>
                           </div>
                         </div>
@@ -350,19 +351,21 @@ export default function MenuPage() {
                                       {category.name}
                                     </h3>
                                     <p className="font-cabin text-elite-black/50 text-xs">
-                                      {category.subCategories[0]?.items
-                                        .length || 0}{" "}
-                                      items
+                                      {t("itemsCount", {
+                                        count:
+                                          category.subCategories[0]?.items
+                                            .length || 0,
+                                      })}
                                     </p>
                                   </div>
                                 </div>
                                 {!category.comingSoon && (
-                                  <Link
+                                  <LocalizedLink
                                     href={`/menu/${category.id}`}
                                     className="font-cabin text-sm text-elite-burgundy font-semibold px-3 py-1.5 rounded-full bg-elite-burgundy/8 active:bg-elite-burgundy/15 transition-colors touch-manipulation"
                                   >
-                                    See all
-                                  </Link>
+                                    {t("actions.seeAll")}
+                                  </LocalizedLink>
                                 )}
                               </div>
 
@@ -419,7 +422,7 @@ export default function MenuPage() {
                               {category.comingSoon && (
                                 <div className="bg-elite-dark-cream/30 rounded-2xl p-6 text-center">
                                   <span className="font-cabin text-elite-black/40 text-sm">
-                                    Coming Soon
+                                    {t("actions.comingSoon")}
                                   </span>
                                 </div>
                               )}
@@ -476,7 +479,7 @@ export default function MenuPage() {
                                       </h3>
                                       {category.comingSoon && (
                                         <span className="bg-elite-burgundy/60 text-elite-cream/80 px-3 py-1 rounded-full text-sm font-cabin font-bold">
-                                          Coming Soon
+                                          {t("actions.comingSoon")}
                                         </span>
                                       )}
                                     </div>
@@ -555,17 +558,17 @@ export default function MenuPage() {
                 <div className="flex flex-col items-center justify-center py-20">
                   <Coffee className="w-16 h-16 text-elite-burgundy/40 mb-4" />
                   <h3 className="text-elite-black font-calistoga text-2xl mb-2">
-                    No Menu Available
+                    {t("empty.title")}
                   </h3>
                   <p className="text-elite-black/60 font-cabin mb-4">
-                    Our menu is being prepared. Please check back soon!
+                    {t("empty.description")}
                   </p>
                   <button
                     onClick={handleRetry}
                     className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all"
                   >
                     <RefreshCw className="w-4 h-4" />
-                    Refresh
+                    {t("actions.refresh")}
                   </button>
                 </div>
               )}

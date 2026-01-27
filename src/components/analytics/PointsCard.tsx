@@ -1,6 +1,7 @@
 "use client";
 
 import { Award, Star } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface PointsCardProps {
   balance: number;
@@ -31,6 +32,15 @@ export function PointsCard({
   pointsToNextTier,
   compact = false,
 }: PointsCardProps) {
+  const t = useTranslations("analytics");
+  const format = useFormatter();
+  const levelLabels: Record<string, string> = {
+    bronze: t("tiers.bronze"),
+    silver: t("tiers.silver"),
+    gold: t("tiers.gold"),
+    platinum: t("tiers.platinum"),
+  };
+  const levelLabel = levelLabels[tier] || tier;
   const progress = nextTierAt > 0 ? (balance / nextTierAt) * 100 : 100;
   const pointsValue = balance / 100; // 100 points = 1 EGP
 
@@ -40,9 +50,11 @@ export function PointsCard({
         <Star className="w-4 h-4 text-elite-burgundy flex-shrink-0" />
         <div className="flex items-baseline gap-1">
           <span className="font-calistoga text-elite-burgundy text-base">
-            {balance.toLocaleString()}
+            {format.number(balance)}
           </span>
-          <span className="font-cabin text-elite-black/60 text-xs">pts</span>
+          <span className="font-cabin text-elite-black/60 text-xs">
+            {t("points.pointsLabel")}
+          </span>
         </div>
       </div>
     );
@@ -54,7 +66,7 @@ export function PointsCard({
         <div className="flex items-center gap-2">
           <Award className="w-6 h-6 text-elite-burgundy" />
           <h3 className="font-calistoga text-xl text-elite-black">
-            Points Balance
+            {t("points.title")}
           </h3>
         </div>
         <span className="text-2xl">
@@ -63,16 +75,22 @@ export function PointsCard({
       </div>
 
       <p className="font-calistoga text-4xl text-elite-burgundy mb-1">
-        {balance.toLocaleString()}
+        {format.number(balance)}
       </p>
       <p className="text-sm text-elite-black/60 font-cabin mb-4">
-        Worth EGP {pointsValue.toFixed(2)}
+        {t("points.worth", {
+          amount: format.number(pointsValue, {
+            style: "currency",
+            currency: "EGP",
+            maximumFractionDigits: 2,
+          }),
+        })}
       </p>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="font-cabin font-semibold text-elite-black capitalize">
-            {tier} Member
+            {t("points.tierLabel", { level: levelLabel })}
           </span>
           <span className="text-elite-black/60 font-cabin">
             {Math.min(progress, 100).toFixed(0)}%
@@ -86,7 +104,9 @@ export function PointsCard({
         </div>
         {pointsToNextTier !== undefined && pointsToNextTier > 0 && (
           <p className="text-xs text-elite-black/60 font-cabin">
-            {pointsToNextTier.toLocaleString()} points to next tier
+            {t("points.toNextTier", {
+              count: format.number(pointsToNextTier),
+            })}
           </p>
         )}
       </div>

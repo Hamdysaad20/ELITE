@@ -3,8 +3,7 @@
 import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
@@ -20,35 +19,11 @@ import {
   Heart,
   Check,
 } from "lucide-react";
-
-// App benefits for desktop sidebar
-const benefits = [
-  {
-    icon: Gift,
-    title: "Earn Points",
-    description: "Get 1 point for every EGP spent on your orders",
-  },
-  {
-    icon: Zap,
-    title: "Faster Checkout",
-    description: "Save your preferences and order in seconds",
-  },
-  {
-    icon: Star,
-    title: "Exclusive Deals",
-    description: "Members-only discounts and early access to new drinks",
-  },
-  {
-    icon: Award,
-    title: "VIP Tiers",
-    description: "Unlock Bronze, Silver, Gold & Platinum rewards",
-  },
-  {
-    icon: Heart,
-    title: "Save Favorites",
-    description: "Quick reorder your favorite drinks anytime",
-  },
-];
+import { useLocale, useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
+import { cn } from "@/lib/utils";
 
 function SignInContent() {
   const [email, setEmail] = useState("");
@@ -56,8 +31,41 @@ function SignInContent() {
   const [error, setError] = useState<string | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const callbackUrl = searchParams?.get("callbackUrl") || "/";
+  const localizedRouter = useLocalizedRouter();
+  const t = useTranslations("authSignIn");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const rawCallbackUrl = searchParams?.get("callbackUrl");
+  const callbackUrl = rawCallbackUrl
+    ? addLocaleToPathname(rawCallbackUrl, locale)
+    : addLocaleToPathname("/", locale);
+  const benefits = [
+    {
+      icon: Gift,
+      title: t("benefits.earnPoints.title"),
+      description: t("benefits.earnPoints.description"),
+    },
+    {
+      icon: Zap,
+      title: t("benefits.fasterCheckout.title"),
+      description: t("benefits.fasterCheckout.description"),
+    },
+    {
+      icon: Star,
+      title: t("benefits.exclusiveDeals.title"),
+      description: t("benefits.exclusiveDeals.description"),
+    },
+    {
+      icon: Award,
+      title: t("benefits.vipTiers.title"),
+      description: t("benefits.vipTiers.description"),
+    },
+    {
+      icon: Heart,
+      title: t("benefits.saveFavorites.title"),
+      description: t("benefits.saveFavorites.description"),
+    },
+  ];
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,14 +83,16 @@ function SignInContent() {
         setError(result.error);
         setLoading(false);
       } else if (result?.ok) {
-        router.push("/auth/verify-request?email=" + encodeURIComponent(email));
+        localizedRouter.push(
+          `/auth/verify-request?email=${encodeURIComponent(email)}`,
+        );
       } else {
-        setError("Unable to send sign in link. Please try again.");
+        setError(t("errors.sendLink"));
         setLoading(false);
       }
     } catch (err) {
       console.error("Sign in exception:", err);
-      setError("Something went wrong. Please try again.");
+      setError(t("errors.generic"));
       setLoading(false);
     }
   };
@@ -124,24 +134,29 @@ function SignInContent() {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16 py-12 w-full">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 mb-12 group">
+          <LocalizedLink
+            href="/"
+            className="flex items-center gap-3 mb-12 group"
+          >
             <div className="w-14 h-14 bg-elite-cream rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <Coffee className="w-8 h-8 text-elite-burgundy" />
             </div>
             <span className="font-calistoga text-3xl text-elite-cream">
               Elite
             </span>
-          </Link>
+          </LocalizedLink>
 
           {/* Headline */}
           <div className="mb-12">
             <h1 className="font-calistoga text-4xl xl:text-5xl text-elite-cream leading-tight mb-4">
-              Your Coffee Journey
+              {t("headline.titleLine1")}
               <br />
-              <span className="text-elite-cream/80">Starts Here</span>
+              <span className="text-elite-cream/80">
+                {t("headline.titleLine2")}
+              </span>
             </h1>
             <p className="font-cabin text-elite-cream/70 text-lg xl:text-xl max-w-md">
-              Join thousands of coffee lovers earning rewards with every sip.
+              {t("headline.subtitle")}
             </p>
           </div>
 
@@ -187,7 +202,7 @@ function SignInContent() {
                   ))}
                 </div>
                 <span className="font-cabin text-elite-cream/70 text-sm ml-2">
-                  10,000+ happy customers
+                  {t("trust.customers")}
                 </span>
               </div>
             </div>
@@ -205,13 +220,13 @@ function SignInContent() {
           </div>
 
           <div className="relative z-10">
-            <Link
+            <LocalizedLink
               href="/"
               className="inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream active:scale-95 transition-all mb-6 font-cabin text-sm touch-manipulation"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </Link>
+              <ArrowLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
+              <span>{t("actions.back")}</span>
+            </LocalizedLink>
 
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-elite-cream rounded-2xl flex items-center justify-center shadow-lg">
@@ -219,10 +234,10 @@ function SignInContent() {
               </div>
               <div>
                 <h1 className="font-calistoga text-2xl text-elite-cream">
-                  Welcome Back
+                  {t("mobile.welcomeTitle")}
                 </h1>
                 <p className="font-cabin text-elite-cream/70 text-sm">
-                  Sign in to continue
+                  {t("mobile.welcomeSubtitle")}
                 </p>
               </div>
             </div>
@@ -233,21 +248,28 @@ function SignInContent() {
         <div className="flex-1 flex items-center justify-center px-5 py-8 lg:py-12 lg:px-12 xl:px-20">
           <div className="w-full max-w-md">
             {/* Desktop Back Link */}
-            <Link
+            <LocalizedLink
               href="/"
               className="hidden lg:inline-flex items-center gap-2 text-elite-burgundy/70 hover:text-elite-burgundy active:scale-95 transition-all mb-8 font-cabin text-base group touch-manipulation"
             >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Home</span>
-            </Link>
+              <ArrowLeft
+                className={cn(
+                  "w-5 h-5 transition-transform",
+                  isRTL
+                    ? "rotate-180 group-hover:translate-x-1"
+                    : "group-hover:-translate-x-1",
+                )}
+              />
+              <span className="font-medium">{t("actions.backToHome")}</span>
+            </LocalizedLink>
 
             {/* Desktop Header */}
             <div className="hidden lg:block mb-10">
               <h1 className="font-calistoga text-4xl xl:text-5xl text-elite-black mb-3">
-                Sign In
+                {t("title")}
               </h1>
               <p className="font-cabin text-elite-black/60 text-lg">
-                Enter your email to receive a magic link
+                {t("subtitle")}
               </p>
             </div>
 
@@ -256,12 +278,11 @@ function SignInContent() {
               <div className="flex items-center gap-3 mb-4">
                 <Sparkles className="w-5 h-5 text-elite-burgundy" />
                 <span className="font-cabin font-bold text-elite-burgundy text-sm">
-                  No password needed!
+                  {t("mobile.noPassword")}
                 </span>
               </div>
               <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
-                We'll send you a secure magic link. Just check your email and
-                tap to sign in instantly.
+                {t("mobile.magicLinkDescription")}
               </p>
             </div>
 
@@ -273,7 +294,7 @@ function SignInContent() {
                     htmlFor="email"
                     className="block font-cabin font-bold text-elite-black text-base"
                   >
-                    Email Address
+                    {t("form.emailLabel")}
                   </label>
                   <button
                     type="button"
@@ -286,7 +307,7 @@ function SignInContent() {
                   </button>
                   {showTooltip && (
                     <div className="hidden lg:block absolute right-0 top-full mt-2 w-72 bg-elite-burgundy text-elite-cream text-sm p-4 rounded-2xl shadow-2xl z-20 font-cabin">
-                      We'll send you a secure magic link - no password needed!
+                      {t("form.tooltip")}
                     </div>
                   )}
                 </div>
@@ -302,7 +323,7 @@ function SignInContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-12 pr-5 py-4 bg-white border-2 border-elite-burgundy/15 rounded-2xl font-cabin text-base text-elite-black placeholder-elite-black/35 focus:outline-none focus:border-elite-burgundy focus:ring-4 focus:ring-elite-burgundy/10 transition-all hover:border-elite-burgundy/30 touch-manipulation"
-                    placeholder="your@email.com"
+                    placeholder={t("form.emailPlaceholder")}
                     disabled={loading}
                   />
                 </div>
@@ -358,12 +379,12 @@ function SignInContent() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span>Sending Magic Link...</span>
+                    <span>{t("actions.sending")}</span>
                   </>
                 ) : (
                   <>
                     <Mail className="w-5 h-5" />
-                    <span>Send Magic Link</span>
+                    <span>{t("actions.send")}</span>
                   </>
                 )}
               </button>
@@ -377,11 +398,10 @@ function SignInContent() {
                 </div>
                 <div className="font-cabin text-elite-black/70 text-sm leading-relaxed">
                   <p className="font-semibold text-elite-burgundy mb-1">
-                    Passwordless Sign In
+                    {t("desktop.passwordlessTitle")}
                   </p>
                   <p>
-                    We'll send you a secure link. Just click it to sign in
-                    instantly - no password to remember!
+                    {t("desktop.passwordlessDescription")}
                   </p>
                 </div>
               </div>
@@ -391,7 +411,7 @@ function SignInContent() {
             <div className="lg:hidden mt-8 pt-6 border-t border-elite-burgundy/10">
               <h3 className="font-cabin font-bold text-elite-black text-sm mb-4 flex items-center gap-2">
                 <Award className="w-4 h-4 text-elite-burgundy" />
-                Member Benefits
+                {t("mobile.benefitsTitle")}
               </h3>
               <div className="space-y-3">
                 {benefits.slice(0, 3).map((benefit) => (

@@ -6,6 +6,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useFormatter, useTranslations } from "next-intl";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { openSupportMessenger } from "@/lib/support";
@@ -75,6 +76,8 @@ export default function DealCard({
   animationDelay = 0,
   size = "small",
 }: DealCardProps) {
+  const t = useTranslations("dealCard");
+  const format = useFormatter();
   const { addItem } = useLocalCart();
   const { orderingEnabled, orderingMessage } = useOrdering();
   const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
@@ -90,7 +93,7 @@ export default function DealCard({
   }, [animationDelay]);
 
   const validImages = sanitizeImages(images);
-  const displayName = name || "Unnamed Product";
+  const displayName = name || t("unnamed");
   const isAvailable = available !== false && dealActive;
   const sizes = sizeClasses[size];
   const animDuration = "duration-300";
@@ -101,6 +104,13 @@ export default function DealCard({
 
   const adaptivePriceSize =
     dealPrice.toString().length > 4 ? "text-base sm:text-lg" : sizes.price;
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
 
   const handleAddToOrder = async () => {
     if (!isAvailable || addToOrderState.adding) return;
@@ -202,7 +212,7 @@ export default function DealCard({
           {!isAvailable && (
             <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
               <span className="bg-elite-black/80 text-white px-2 py-1 rounded-full text-[10px] sm:text-xs font-cabin font-semibold">
-                Sold out
+                {t("soldOut")}
               </span>
             </div>
           )}
@@ -226,7 +236,7 @@ export default function DealCard({
           {/* Original Price (strikethrough) */}
           {originalPrice !== dealPrice && originalPrice > 0 && (
             <p className="text-xs sm:text-sm font-cabin text-elite-black/40 line-through decoration-elite-black/30">
-              {originalPrice.toFixed(0)} EGP
+              {formatPrice(originalPrice)}
             </p>
           )}
 
@@ -241,8 +251,7 @@ export default function DealCard({
                   : adaptivePriceSize,
               )}
             >
-              {dealPrice.toFixed(0)}{" "}
-              <span className="text-base sm:text-lg">EGP</span>
+              {formatPrice(dealPrice)}
             </p>
 
             {/* Savings Badge (Only for deals < 20% - subtle) */}
@@ -251,7 +260,7 @@ export default function DealCard({
               savingsPercent < 20 &&
               dealActive && (
                 <span className="inline-flex items-center bg-elite-cream/80 text-elite-burgundy px-2 py-1 rounded-md text-xs font-cabin font-semibold border border-elite-burgundy/20">
-                  Save {savingsPercent.toFixed(0)}%
+                  {t("savePercent", { percent: savingsPercent.toFixed(0) })}
                 </span>
               )}
           </div>
@@ -260,7 +269,7 @@ export default function DealCard({
           {!dealActive && (
             <p className="text-xs font-cabin text-elite-black/60 mt-1.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-elite-burgundy/60 rounded-full" />
-              Not currently active
+              {t("dealInactive")}
             </p>
           )}
         </div>

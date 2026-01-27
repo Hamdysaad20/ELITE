@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, AlertCircle, X, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface ReorderConfirmModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ export function ReorderConfirmModal({
   reorderItemCount,
   isProcessing,
 }: ReorderConfirmModalProps) {
+  const t = useTranslations("reorderModal");
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -81,17 +84,17 @@ export function ReorderConfirmModal({
                   </div>
                   <div className="flex-1">
                     <h3 className="font-calistoga text-xl text-elite-cream mb-1">
-                      Cart Not Empty
+                      {t("title")}
                     </h3>
                     <p className="font-cabin text-sm text-elite-cream/90 leading-relaxed">
-                      You have items in your cart. What would you like to do?
+                      {t("subtitle")}
                     </p>
                   </div>
                   {!isProcessing && (
                     <button
                       onClick={onClose}
                       className="flex-shrink-0 w-8 h-8 rounded-xl bg-elite-cream/10 hover:bg-elite-cream/20 flex items-center justify-center transition-all active:scale-95 touch-manipulation"
-                      aria-label="Close"
+                      aria-label={t("close")}
                     >
                       <X className="w-5 h-5 text-elite-cream" />
                     </button>
@@ -106,15 +109,14 @@ export function ReorderConfirmModal({
                   <div className="flex items-center gap-2 mb-2">
                     <ShoppingBag className="w-5 h-5 text-elite-burgundy" />
                     <span className="font-cabin font-bold text-sm text-elite-black">
-                      Current Cart
+                      {t("currentCart.title")}
                     </span>
                   </div>
                   <p className="font-cabin text-sm text-elite-black/70">
                     <span className="font-bold text-elite-burgundy">
                       {existingItemCount}
                     </span>{" "}
-                    {existingItemCount === 1 ? "item" : "items"} already in your
-                    cart
+                    {t("currentCart.items", { count: existingItemCount })}
                   </p>
                 </div>
 
@@ -123,14 +125,14 @@ export function ReorderConfirmModal({
                   <div className="flex items-center gap-2 mb-2">
                     <Plus className="w-5 h-5 text-elite-burgundy" />
                     <span className="font-cabin font-bold text-sm text-elite-black">
-                      Reorder Items
+                      {t("reorder.title")}
                     </span>
                   </div>
                   <p className="font-cabin text-sm text-elite-black/70">
                     <span className="font-bold text-elite-burgundy">
                       {reorderItemCount}
                     </span>{" "}
-                    {reorderItemCount === 1 ? "item" : "items"} to add
+                    {t("reorder.items", { count: reorderItemCount })}
                   </p>
                 </div>
 
@@ -143,7 +145,7 @@ export function ReorderConfirmModal({
                     className="w-full px-6 py-4 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[56px]"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Add to Existing Cart</span>
+                    <span>{t("actions.addToExisting")}</span>
                   </button>
 
                   {/* Replace Cart */}
@@ -153,7 +155,7 @@ export function ReorderConfirmModal({
                     className="w-full px-6 py-4 bg-white border-2 border-elite-burgundy/20 text-elite-burgundy rounded-2xl font-cabin font-bold text-base hover:bg-elite-cream/50 hover:border-elite-burgundy/40 hover:shadow-md transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[56px]"
                   >
                     <Trash2 className="w-5 h-5" />
-                    <span>Replace Cart</span>
+                    <span>{t("actions.replaceCart")}</span>
                   </button>
 
                   {/* Cancel */}
@@ -162,18 +164,22 @@ export function ReorderConfirmModal({
                       onClick={onClose}
                       className="w-full px-6 py-3 bg-transparent text-elite-black/60 rounded-2xl font-cabin font-semibold text-sm hover:text-elite-black hover:bg-elite-cream/30 transition-all duration-300 active:scale-95 touch-manipulation min-h-[44px]"
                     >
-                      Cancel
+                      {t("actions.cancel")}
                     </button>
                   )}
                 </div>
 
                 {/* Helper Text */}
                 <p className="text-xs text-elite-black/50 font-cabin text-center leading-relaxed pt-2">
-                  <span className="font-semibold">Add to Cart:</span> Keeps your
-                  current items and adds new ones.
+                  <span className="font-semibold">
+                    {t("helper.addToCartTitle")}
+                  </span>{" "}
+                  {t("helper.addToCartBody")}
                   <br />
-                  <span className="font-semibold">Replace Cart:</span> Removes
-                  current items and starts fresh.
+                  <span className="font-semibold">
+                    {t("helper.replaceCartTitle")}
+                  </span>{" "}
+                  {t("helper.replaceCartBody")}
                 </p>
               </div>
             </motion.div>

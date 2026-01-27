@@ -14,12 +14,27 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/components/ToastProvider";
-import Link from "next/link";
+import LocalizedLink from "@/components/LocalizedLink";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { addLocaleToPathname } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 
 function PaymentProcessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { push } = useToast();
+  const t = useTranslations("paymentProcess");
+  const format = useFormatter();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const orderPath = addLocaleToPathname("/order", locale);
+  const paymentCallbackPath = addLocaleToPathname("/payment/callback", locale);
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   const orderId = searchParams.get("orderId");
   const paymentKey = searchParams.get("paymentKey");
@@ -76,7 +91,7 @@ function PaymentProcessContent() {
   const initializePayment = useCallback(() => {
     if (!orderId || !paymentKey) {
       setError(
-        "Missing payment information. Please return to checkout and try again.",
+        t("errors.missingPaymentInfo"),
       );
       setLoading(false);
       return;
@@ -88,21 +103,21 @@ function PaymentProcessContent() {
       setProcessing(true);
     } catch (err: unknown) {
       console.error("[Payment] Initialization error:", err);
-      setError("Payment could not be initialized. Please try again.");
+      setError(t("errors.initFailed"));
       setLoading(false);
     }
-  }, [orderId, paymentKey]);
+  }, [orderId, paymentKey, t]);
 
   useEffect(() => {
     if (!orderId || !paymentKey) {
-      setError("Missing order ID or payment key. Please return to checkout.");
+      setError(t("errors.missingOrderInfo"));
       setLoading(false);
       return;
     }
 
     // Initialize payment (iframe-based, no SDK needed)
     initializePayment();
-  }, [orderId, paymentKey, initializePayment]);
+  }, [orderId, paymentKey, initializePayment, t]);
 
   // Build iframe URL
   const iframeId = iframeConfig?.iframeId || process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID || "983628";
@@ -117,10 +132,10 @@ function PaymentProcessContent() {
             <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-elite-burgundy animate-spin" />
           </div>
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-            Initializing Payment
+            {t("loading.title")}
           </h2>
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl">
-            Please wait while we prepare your secure payment form...
+            {t("loading.description")}
           </p>
         </div>
       </div>
@@ -137,7 +152,7 @@ function PaymentProcessContent() {
           </div>
 
           <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">
-            Payment Error
+            {t("error.title")}
           </h2>
 
           <p className="font-cabin text-elite-black/70 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-center">
@@ -145,13 +160,13 @@ function PaymentProcessContent() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link
-              href="/order"
+            <LocalizedLink
+              href={orderPath}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
             >
-              <ArrowLeft className="w-5 h-5" />
-              Return to Checkout
-            </Link>
+              <ArrowLeft className={cn("w-5 h-5", isRTL && "rotate-180")} />
+              {t("error.back")}
+            </LocalizedLink>
             <button
               onClick={() => {
                 setError(null);
@@ -160,7 +175,7 @@ function PaymentProcessContent() {
               }}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
             >
-              Try Again
+              {t("error.retry")}
             </button>
           </div>
         </div>
@@ -174,13 +189,13 @@ function PaymentProcessContent() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <Link
-            href="/order"
+          <LocalizedLink
+            href={orderPath}
             className="inline-flex items-center gap-2 text-elite-burgundy font-cabin font-semibold hover:text-elite-burgundy/80 transition-colors mb-4 sm:mb-6"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Checkout
-          </Link>
+            <ArrowLeft className={cn("w-5 h-5", isRTL && "rotate-180")} />
+            {t("backToCheckout")}
+          </LocalizedLink>
 
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-6 md:p-8">
             <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -193,20 +208,20 @@ function PaymentProcessContent() {
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-calistoga text-elite-burgundy text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">
-                  Complete Payment
+                  {t("title")}
                 </h1>
                 {orderInfo?.orderNumber && (
                   <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
-                    Order #{orderInfo.orderNumber}
+                    {t("orderNumber", { number: orderInfo.orderNumber })}
                   </p>
                 )}
                 {orderInfo?.paymentMethod && (
                   <p className="font-cabin text-elite-black/50 text-xs sm:text-sm mt-1">
                     {orderInfo.paymentMethod === "WALLET"
-                      ? "Mobile Wallet Payment"
+                      ? t("method.wallet")
                       : orderInfo.paymentMethod === "CARD"
-                        ? "Card Payment"
-                        : "Secure Payment"}
+                        ? t("method.card")
+                        : t("method.secure")}
                   </p>
                 )}
               </div>
@@ -216,10 +231,10 @@ function PaymentProcessContent() {
               <div className="bg-elite-cream/50 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8">
                 <div className="flex justify-between items-center">
                   <span className="font-cabin text-elite-black/70 text-base sm:text-lg">
-                    Total Amount
+                    {t("totalAmount")}
                   </span>
                   <span className="font-calistoga text-elite-burgundy text-xl sm:text-2xl md:text-3xl font-bold">
-                    {orderInfo.total.toFixed(2)} EGP
+                    {formatCurrency(orderInfo.total)}
                   </span>
                 </div>
               </div>
@@ -233,7 +248,7 @@ function PaymentProcessContent() {
           <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
             <Shield className="w-5 h-5 text-elite-burgundy" />
             <span className="font-cabin text-elite-black/70 text-sm sm:text-base">
-              Secure payment powered by Paymob
+              {t("secureBadge")}
             </span>
             <Lock className="w-4 h-4 text-elite-burgundy" />
           </div>
@@ -241,8 +256,7 @@ function PaymentProcessContent() {
           {processing && paymentKey && (
             <div className="space-y-4 sm:space-y-6">
               <p className="font-cabin text-elite-black/70 text-base sm:text-lg text-center">
-                For security reasons, we don&apos;t collect card details on our website.
-                You&apos;ll be redirected to Paymob&apos;s secure checkout to enter your payment info.
+                {t("processing.description")}
               </p>
 
               {/* No embedded iframe: open Paymob hosted checkout */}
@@ -258,13 +272,12 @@ function PaymentProcessContent() {
                       setOpened(true);
                       push({
                         type: "success",
-                        message:
-                          "Paymob checkout opened in a new tab. Complete payment there, then return here.",
+                        message: t("processing.openedToast"),
                       });
                     }}
                   >
                     <ExternalLink className="w-5 h-5" />
-                    Open Secure Payment Page
+                    {t("processing.openButton")}
                   </button>
 
                   <a
@@ -274,14 +287,14 @@ function PaymentProcessContent() {
                     className="w-full flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
                   >
                     <ExternalLink className="w-5 h-5" />
-                    If it didn&apos;t open, click here
+                    {t("processing.fallbackLink")}
                   </a>
                 </div>
 
                 <div className="mt-4 text-center font-cabin text-xs sm:text-sm text-elite-black/60">
                   {opened
-                    ? "After paying in the Paymob tab, come back here and click “I've Completed Payment”."
-                    : "We’ll keep this page open so you can verify payment status after finishing."}
+                    ? t("processing.returnAfterPayment")
+                    : t("processing.keepOpen")}
                 </div>
               </div>
 
@@ -291,24 +304,28 @@ function PaymentProcessContent() {
                   <button
                     type="button"
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-elite-burgundy text-elite-cream rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/90 transition-all duration-300 active:scale-[0.98] touch-manipulation"
-                    onClick={() => router.push(`/payment/callback?orderId=${orderId}`)}
+                    onClick={() =>
+                      router.push(
+                        `${paymentCallbackPath}?orderId=${orderId}`,
+                      )
+                    }
                   >
                     <Receipt className="w-5 h-5" />
-                    I&apos;ve Completed Payment
+                    {t("processing.completedButton")}
                   </button>
-                  <Link
+                  <LocalizedLink
                     href={`/orders/${orderId}`}
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-elite-burgundy text-elite-burgundy rounded-3xl font-cabin text-base sm:text-lg font-semibold hover:bg-elite-burgundy/5 transition-all duration-300 active:scale-[0.98] touch-manipulation"
                   >
                     <Receipt className="w-5 h-5" />
-                    View Order
-                  </Link>
+                    {t("processing.viewOrder")}
+                  </LocalizedLink>
                 </div>
               )}
 
               <div className="flex items-center justify-center gap-2 text-elite-black/50 text-xs sm:text-sm font-cabin">
                 <Lock className="w-3 h-3" />
-                <span>Your payment information is encrypted and secure</span>
+                <span>{t("processing.encrypted")}</span>
                 <Shield className="w-3 h-3" />
               </div>
 
@@ -316,10 +333,10 @@ function PaymentProcessContent() {
               <div className="bg-elite-cream/30 rounded-2xl p-4 text-center">
                 <p className="font-cabin text-elite-black/60 text-sm">
                   {orderInfo?.paymentMethod === "WALLET"
-                    ? "You can pay using Vodafone Cash, Orange Money, or Etisalat Wallet"
+                    ? t("processing.walletInfo")
                     : orderInfo?.paymentMethod === "CARD"
-                      ? "Credit/Debit cards and installments are accepted"
-                      : "Secure payment powered by Paymob"}
+                      ? t("processing.cardInfo")
+                      : t("secureBadge")}
                 </p>
               </div>
             </div>
@@ -329,7 +346,7 @@ function PaymentProcessContent() {
             <div className="text-center py-8 sm:py-12">
               <Loader2 className="w-12 h-12 animate-spin text-elite-burgundy mx-auto mb-4" />
               <p className="font-cabin text-elite-black/70">
-                Preparing payment form...
+                {t("processing.preparing")}
               </p>
             </div>
           )}
@@ -340,6 +357,7 @@ function PaymentProcessContent() {
 }
 
 export default function PaymentProcessPage() {
+  const t = useTranslations("paymentProcess");
   return (
     <Suspense
       fallback={
@@ -349,7 +367,7 @@ export default function PaymentProcessPage() {
               <Loader2 className="w-10 h-10 text-elite-burgundy animate-spin" />
             </div>
             <p className="font-calistoga text-elite-burgundy text-2xl font-bold">
-              Loading...
+              {t("loading.fallback")}
             </p>
           </div>
         </div>

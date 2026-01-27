@@ -8,6 +8,7 @@ import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
 import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
+import { useFormatter, useTranslations } from "next-intl";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { openSupportMessenger } from "@/lib/support";
@@ -23,6 +24,8 @@ export default function ProductModal({
   isOpen,
   onClose,
 }: ProductModalProps) {
+  const t = useTranslations("productModal");
+  const format = useFormatter();
   const { addItem } = useLocalCart();
   const { orderingEnabled, orderingMessage } = useOrdering();
   const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
@@ -69,6 +72,13 @@ export default function ProductModal({
 
     return price * quantity;
   }, [product, selectedOptions, quantity]);
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 2,
+    });
 
   const handleOptionSelect = (attrName: string, optionId: number) => {
     setSelectedOptions((prev) => ({
@@ -149,7 +159,7 @@ export default function ProductModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Customize Your Order"
+      title={t("title")}
       className="max-w-2xl md:max-w-4xl lg:max-w-5xl"
     >
       <div className="flex flex-col">
@@ -184,7 +194,7 @@ export default function ProductModal({
                   {product.name}
                 </h2>
                 <p className="font-cabin text-elite-black/70 text-sm sm:text-base leading-relaxed">
-                  {product.description || "No description available."}
+                  {product.description || t("noDescription")}
                 </p>
               </div>
 
@@ -231,10 +241,10 @@ export default function ProductModal({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="font-cabin text-xs sm:text-sm text-elite-black/60">
-                Total
+                {t("total")}
               </p>
               <p className="font-calistoga text-elite-burgundy text-lg sm:text-xl tabular-nums truncate">
-                {totalPrice.toFixed(2)} EGP
+                {formatPrice(totalPrice)}
               </p>
             </div>
 
@@ -243,7 +253,7 @@ export default function ProductModal({
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30 flex items-center justify-center"
                 disabled={quantity <= 1}
-                aria-label="Decrease quantity"
+                aria-label={t("decreaseQuantity")}
               >
                 <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -253,7 +263,7 @@ export default function ProductModal({
               <button
                 onClick={() => setQuantity(quantity + 1)}
                 className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 flex items-center justify-center"
-                aria-label="Increase quantity"
+                aria-label={t("increaseQuantity")}
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -292,8 +302,7 @@ export default function ProductModal({
               <>
                 <ShoppingBag className="w-5 h-5" />
                 <span>
-                  {orderingEnabled ? "Add to Order" : "Notify me"} • EGP{" "}
-                  {totalPrice.toFixed(2)}
+                  {orderingEnabled ? "Add to Order" : "Notify me"} • {formatPrice(totalPrice)}
                 </span>
               </>
             )}

@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Link from "next/link";
+import LocalizedLink from "@/components/LocalizedLink";
 import {
   Shield,
   Mail,
@@ -13,9 +13,11 @@ import {
   Clock,
   UserRound,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function PrivacyPolicyPage() {
   const updatedAt = "2026-01-23";
+  const t = useTranslations("privacyPolicy");
 
   return (
     <main className="page-transition loaded overflow-x-hidden">
@@ -29,10 +31,10 @@ export default function PrivacyPolicyPage() {
               </div>
               <div className="min-w-0">
                 <h1 className="font-calistoga text-3xl sm:text-4xl md:text-5xl">
-                  Privacy Policy
+                  {t("title")}
                 </h1>
                 <p className="font-cabin text-elite-cream/90 mt-2">
-                  Last updated: {updatedAt}
+                  {t("updatedAt", { date: updatedAt })}
                 </p>
               </div>
             </div>
@@ -43,27 +45,24 @@ export default function PrivacyPolicyPage() {
         <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12">
           <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8 md:p-10 space-y-8">
             <p className="font-cabin text-elite-black/80 text-lg sm:text-xl leading-relaxed">
-              This Privacy Policy explains how <strong>Elite Coffee</strong>{" "}
-              (“we”, “us”) collects and uses information when you use our
-              website and ordering experience in Egypt.
+              {t("intro")}
             </p>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Who we are
+                {t("whoWeAre.title")}
               </h2>
               <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5 space-y-2">
                 <div className="flex items-center gap-2">
                   <UserRound className="w-5 h-5 text-elite-burgundy" />
                   <p className="font-cabin text-elite-black/80">
-                    <strong>Elite Coffee</strong> is a café in Egypt that sells
-                    coffee, desserts, and breakfast items.
+                    {t("whoWeAre.description")}
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
                   <MapPin className="w-5 h-5 text-elite-burgundy flex-shrink-0 mt-0.5" />
                   <p className="font-cabin text-elite-black/80">
-                    Faiyum, Governorate Club, next to the Governor&apos;s Villa
+                    {t("whoWeAre.address")}
                   </p>
                 </div>
               </div>
@@ -71,111 +70,106 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Definitions
+                {t("definitions.title")}
               </h2>
               <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
-                  <strong>“Account”</strong>: a profile created using your email.
+                  <strong>{t("definitions.account.label")}</strong>:{" "}
+                  {t("definitions.account.description")}
                 </li>
                 <li>
-                  <strong>“Order”</strong>: a request for coffee, desserts, or
-                  breakfast items through our website.
+                  <strong>{t("definitions.order.label")}</strong>:{" "}
+                  {t("definitions.order.description")}
                 </li>
                 <li>
-                  <strong>“Personal data”</strong>: information that identifies
-                  you directly or indirectly (e.g., phone, address, order
-                  history).
+                  <strong>{t("definitions.personalData.label")}</strong>:{" "}
+                  {t("definitions.personalData.description")}
                 </li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                What we collect
+                {t("collect.title")}
               </h2>
               <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
-                  <strong>Account info</strong>: email, name (if provided).
+                  <strong>{t("collect.accountInfo.label")}</strong>:{" "}
+                  {t("collect.accountInfo.description")}
                 </li>
                 <li>
-                  <strong>Order info</strong>: items (coffee, dessert, breakfast),
-                  customizations, notes, totals.
+                  <strong>{t("collect.orderInfo.label")}</strong>:{" "}
+                  {t("collect.orderInfo.description")}
                 </li>
                 <li>
-                  <strong>Delivery details</strong>: address and phone number (for
-                  delivery and online payment billing requirements).
+                  <strong>{t("collect.deliveryDetails.label")}</strong>:{" "}
+                  {t("collect.deliveryDetails.description")}
                 </li>
                 <li>
-                  <strong>Device/usage</strong>: basic technical data and pages
-                  you interact with (for security and performance).
+                  <strong>{t("collect.deviceUsage.label")}</strong>:{" "}
+                  {t("collect.deviceUsage.description")}
                 </li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Why we use it
+                {t("use.title")}
               </h2>
               <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
-                  <strong>To process your order</strong> and provide customer
-                  support.
+                  <strong>{t("use.processOrder.label")}</strong>{" "}
+                  {t("use.processOrder.description")}
                 </li>
                 <li>
-                  <strong>To enable online payments</strong> and prevent fraud.
+                  <strong>{t("use.onlinePayments.label")}</strong>{" "}
+                  {t("use.onlinePayments.description")}
                 </li>
                 <li>
-                  <strong>To improve recommendations</strong> and personalize
-                  the experience (marketing and better suggestions).
+                  <strong>{t("use.recommendations.label")}</strong>{" "}
+                  {t("use.recommendations.description")}
                 </li>
                 <li>
-                  <strong>To improve the service</strong> (analytics, debugging,
-                  performance).
+                  <strong>{t("use.improveService.label")}</strong>{" "}
+                  {t("use.improveService.description")}
                 </li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Legal basis (general)
+                {t("legal.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                We process information to perform our services (processing
-                orders), to comply with legal obligations where applicable, and
-                for legitimate business interests such as security, preventing
-                fraud, improving performance, and improving customer experience.
+                {t("legal.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Payments & third parties
+                {t("payments.title")}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <CreditCard className="w-5 h-5 text-elite-burgundy" />
                     <p className="font-calistoga text-elite-black">
-                      Payment processing
+                      {t("payments.processing.title")}
                     </p>
                   </div>
                   <p className="font-cabin text-elite-black/75 text-sm leading-relaxed">
-                    Online payments are processed by our payment provider (e.g.
-                    Paymob). We don’t store your full card details on our
-                    servers.
+                    {t("payments.processing.description")}
                   </p>
                 </div>
                 <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <MapPin className="w-5 h-5 text-elite-burgundy" />
                     <p className="font-calistoga text-elite-black">
-                      Delivery partners
+                      {t("payments.delivery.title")}
                     </p>
                   </div>
                   <p className="font-cabin text-elite-black/75 text-sm leading-relaxed">
-                    If delivery is fulfilled by third parties, we share only the
-                    information needed to deliver your order (name, phone,
-                    address, order contents).
+                    {t("payments.delivery.description")}
                   </p>
                 </div>
               </div>
@@ -183,20 +177,16 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Marketing & recommendations
+                {t("marketing.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Megaphone className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <div className="space-y-2">
                   <p className="font-cabin text-elite-black/80 leading-relaxed">
-                    We may use purchase history and on-site interactions to
-                    improve menu recommendations and marketing (e.g., suggesting
-                    items you may like).
+                    {t("marketing.description")}
                   </p>
                   <p className="font-cabin text-elite-black/70 text-sm leading-relaxed">
-                    You can opt out of marketing messages by following the
-                    unsubscribe instructions (when available) or by contacting
-                    us.
+                    {t("marketing.optOut")}
                   </p>
                 </div>
               </div>
@@ -204,19 +194,18 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Cookies
+                {t("cookies.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Cookie className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  We use cookies and similar technologies to keep you signed in,
-                  remember preferences, and measure performance. See our{" "}
-                  <Link
+                  {t("cookies.description")}{" "}
+                  <LocalizedLink
                     href="/cookie-policy"
                     className="text-elite-burgundy underline font-semibold"
                   >
-                    Cookie Policy
-                  </Link>
+                    {t("cookies.link")}
+                  </LocalizedLink>
                   .
                 </p>
               </div>
@@ -224,91 +213,78 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Data retention
+                {t("retention.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Clock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  We keep information only as long as needed for operations,
-                  support, security, accounting, and legal compliance, then
-                  delete or anonymize it where possible.
+                  {t("retention.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Security
+                {t("security.title")}
               </h2>
               <div className="flex items-start gap-3 bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5">
                 <Lock className="w-6 h-6 text-elite-burgundy flex-shrink-0 mt-0.5" />
                 <p className="font-cabin text-elite-black/80 leading-relaxed">
-                  We use reasonable technical and organizational measures to
-                  protect information. No system is 100% secure; please keep
-                  your account access secure.
+                  {t("security.description")}
                 </p>
               </div>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Children’s privacy
+                {t("children.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                Our ordering service is intended for general audiences. If you
-                believe a child has provided personal data through our site,
-                contact us and we will take appropriate steps.
+                {t("children.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Your choices
+                {t("choices.title")}
               </h2>
               <ul className="list-disc pl-6 font-cabin text-elite-black/80 space-y-2 text-base sm:text-lg">
                 <li>
-                  You can update delivery addresses and phone numbers in your
-                  account settings.
+                  {t("choices.updateAddresses")}
                 </li>
                 <li>
-                  You can choose whether to accept cookies in your browser
-                  settings.
+                  {t("choices.manageCookies")}
                 </li>
                 <li>
-                  You can contact us to request access/correction of your
-                  information.
+                  {t("choices.accessRequest")}
                 </li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Changes to this policy
+                {t("changes.title")}
               </h2>
               <p className="font-cabin text-elite-black/80 leading-relaxed text-base sm:text-lg">
-                We may update this policy from time to time to reflect changes
-                in our practices or services. We will update the “Last updated”
-                date on this page.
+                {t("changes.description")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="font-calistoga text-elite-burgundy text-2xl">
-                Contact
+                {t("contact.title")}
               </h2>
               <div className="bg-elite-cream/40 rounded-2xl border border-elite-burgundy/10 p-5 space-y-2">
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-elite-burgundy" />
                   <p className="font-cabin text-elite-black/80">
-                    For privacy requests, contact us at{" "}
+                    {t("contact.request")}{" "}
                     <span className="font-semibold">contact@officieleliteeg.com</span>
                     .
                   </p>
                 </div>
                 <p className="font-cabin text-elite-black/60 text-sm">
-                  This policy is provided for transparency and operational
-                  clarity. If you need formal legal advice for Egypt, consult a
-                  qualified lawyer.
+                  {t("contact.disclaimer")}
                 </p>
               </div>
             </section>

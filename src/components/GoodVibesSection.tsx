@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useTranslations } from "next-intl";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -11,6 +12,7 @@ export default function GoodVibesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const imagesRef = useRef<HTMLDivElement>(null);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const t = useTranslations("goodVibes");
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -76,23 +78,23 @@ export default function GoodVibesSection() {
   const features = [
     {
       icon: "☕",
-      text: "Great Coffee, Tasty Sips",
-      description: "Expertly crafted beverages with premium beans",
+      text: t("features.coffee.title"),
+      description: t("features.coffee.description"),
     },
     {
       icon: "♥",
-      text: "Warm, Cozy Atmosphere",
-      description: "A welcoming space that feels like home",
+      text: t("features.cozy.title"),
+      description: t("features.cozy.description"),
     },
     {
       icon: "😊",
-      text: "Speedy Service with a Smile",
-      description: "Quick, friendly service every time",
+      text: t("features.service.title"),
+      description: t("features.service.description"),
     },
     {
       icon: "🏠",
-      text: "Local & Sustainable",
-      description: "Supporting local farmers and eco-friendly practices",
+      text: t("features.local.title"),
+      description: t("features.local.description"),
     },
   ];
 
@@ -114,13 +116,12 @@ export default function GoodVibesSection() {
             {/* Main Heading and Description */}
             <div className="space-y-6">
               <h2 className="font-calistoga text-elite-white text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
-                Good Vibes.
+                {t("titleLine1")}
                 <br />
-                <span className="text-elite-cream">Great Coffee.</span>
+                <span className="text-elite-cream">{t("titleLine2")}</span>
               </h2>
               <p className="text-elite-white font-cabin text-lg md:text-xl leading-relaxed max-w-lg">
-                At Elite, we serve great coffee and fresh pastries with care and
-                passion, creating a warm, cozy space that feels like home.
+                {t("description")}
               </p>
             </div>
 
@@ -169,14 +170,14 @@ export default function GoodVibesSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
               <img
                 src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bfc82841763bc93a7b_medium-shot-barista-with-mask-preparing-coffee.avif"
-                alt="Barista preparing coffee with care and expertise"
+                alt={t("images.baristaAlt")}
                 className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
               <div className="absolute bottom-4 left-4 z-20">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
                   <p className="text-elite-black font-cabin text-sm font-medium">
-                    Expert Baristas
+                    {t("images.baristaLabel")}
                   </p>
                 </div>
               </div>
@@ -194,14 +195,14 @@ export default function GoodVibesSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11bf98dbe39dd2a370be_interior-shot-cafe-with-chairs-near-bar-with-wooden-tables.avif"
-                  alt="Cozy cafe interior with warm lighting and comfortable seating"
+                  alt={t("images.interiorAlt")}
                   className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
                 <div className="absolute bottom-3 left-3 z-20">
                   <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
                     <p className="text-elite-black font-cabin text-sm font-medium">
-                      Cozy Space
+                      {t("images.interiorLabel")}
                     </p>
                   </div>
                 </div>
@@ -217,14 +218,14 @@ export default function GoodVibesSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl z-10 group-hover:opacity-0 transition-opacity duration-300"></div>
                 <img
                   src="https://cdn.prod.website-files.com/67fcb54501dc826cf4f8bfe9/67fd11fedcb344bd7472203b_white-ceramic-teacup-brown-surface.avif"
-                  alt="Beautiful handcrafted coffee with latte art"
+                  alt={t("images.cupAlt")}
                   className="w-full h-full object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
                 <div className="absolute bottom-3 left-3 z-20">
                   <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2">
                     <p className="text-elite-black font-cabin text-sm font-medium">
-                      Handcrafted
+                      {t("images.cupLabel")}
                     </p>
                   </div>
                 </div>

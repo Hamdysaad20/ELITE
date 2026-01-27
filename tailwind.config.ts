@@ -69,6 +69,7 @@ export default {
       fontFamily: {
         'cabin': ['var(--font-cabin-condensed)', 'sans-serif'],
         'calistoga': ['var(--font-calistoga)', 'serif'],
+        'arabic': ['var(--font-cairo)', 'sans-serif'],
       },
       keyframes: {
         shimmer: {

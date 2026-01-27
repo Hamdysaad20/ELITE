@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLocale, useTranslations } from "next-intl";
+import { addLocaleToPathname } from "@/i18n/routing";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -10,25 +12,27 @@ gsap.registerPlugin(ScrollTrigger);
 export default function LovedByLocals() {
   const productRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const locale = useLocale();
+  const t = useTranslations("lovedByLocals");
 
   const products = [
     {
-      name: "Cappuccino",
+      name: t("products.cappuccino"),
       image: "https://ext.same-assets.com/1022434225/2347648118.avif",
       link: "/menu/classic-drinks",
     },
     {
-      name: "Bubble Tea",
+      name: t("products.bubbleTea"),
       image: "https://ext.same-assets.com/1022434225/4278114908.avif",
       link: "/menu/special-drinks",
     },
     {
-      name: "Iced Tea",
+      name: t("products.icedTea"),
       image: "https://ext.same-assets.com/1022434225/703059297.avif",
       link: "/menu/special-drinks",
     },
     {
-      name: "Iced Latte",
+      name: t("products.icedLatte"),
       image: "https://ext.same-assets.com/1022434225/1157300862.avif",
       link: "/menu/special-drinks",
     },
@@ -77,12 +81,12 @@ export default function LovedByLocals() {
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
         <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-4 sm:mb-6">
-          Loved by Locals
+          {t("title")}
         </h2>
 
         {/* Subtext */}
         <p className="text-elite-black font-cabin text-xl md:text-2xl mb-16 max-w-2xl mx-auto">
-          Local go-to's everyone loves — handpicked and always fresh.
+          {t("subtitle")}
         </p>
 
         {/* Product Grid - Mobile: Horizontal Scroll, Desktop: Grid */}
@@ -93,7 +97,7 @@ export default function LovedByLocals() {
               {products.map((product, index) => (
                 <a
                   key={index}
-                  href={product.link}
+                  href={addLocaleToPathname(product.link, locale)}
                   className="group cursor-pointer flex flex-col items-center w-[240px] flex-shrink-0 snap-start"
                   ref={(el) => {
                     productRefs.current[index] = el;
@@ -123,7 +127,7 @@ export default function LovedByLocals() {
             {products.map((product, index) => (
               <a
                 key={index}
-                href={product.link}
+                href={addLocaleToPathname(product.link, locale)}
                 className="group cursor-pointer flex flex-col items-center"
                 ref={(el) => {
                   productRefs.current[index] = el;
@@ -153,7 +157,7 @@ export default function LovedByLocals() {
           ref={buttonRef}
           className="bg-elite-burgundy text-elite-white px-6 py-3 rounded-full font-cabin text-base font-semibold hover:opacity-90 transition-opacity"
         >
-          Explore Menu
+          {t("cta")}
         </button>
       </div>
     </section>

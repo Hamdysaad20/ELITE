@@ -9,20 +9,24 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface PointsChartProps {
   data: { month: string; earned: number; redeemed?: number }[];
 }
 
 export function PointsChart({ data }: PointsChartProps) {
+  const t = useTranslations("analyticsCharts");
+  const format = useFormatter();
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
         <h3 className="font-calistoga text-xl mb-6 text-elite-black">
-          Points Earned
+          {t("points.title")}
         </h3>
         <div className="h-[300px] flex items-center justify-center text-elite-black/50 font-cabin">
-          No data available
+          {t("empty")}
         </div>
       </div>
     );
@@ -31,7 +35,7 @@ export function PointsChart({ data }: PointsChartProps) {
   return (
     <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-6">
       <h3 className="font-calistoga text-xl mb-6 text-elite-black">
-        Points Earned
+        {t("points.title")}
       </h3>
 
       <ResponsiveContainer width="100%" height={300}>
@@ -64,7 +68,10 @@ export function PointsChart({ data }: PointsChartProps) {
               fontFamily: "Cabin",
               padding: "12px",
             }}
-            formatter={(value: number) => [`${value.toLocaleString()} pts`, ""]}
+            formatter={(value: number) => [
+              t("points.tooltip", { count: format.number(value) }),
+              "",
+            ]}
             labelStyle={{
               color: "#F5F5DC",
               fontWeight: "bold",
@@ -78,7 +85,7 @@ export function PointsChart({ data }: PointsChartProps) {
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorEarned)"
-            name="Points Earned"
+            name={t("points.lineLabel")}
           />
         </AreaChart>
       </ResponsiveContainer>

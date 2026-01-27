@@ -2,6 +2,7 @@
 import React from "react";
 import type { MenuItem } from "@/types";
 import { ShoppingCart, Check, Sparkles, Tag } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 
@@ -29,6 +30,15 @@ export function RecommendationCard({
   const flavor = suggestedFlavors?.[0];
   const [adding, setAdding] = React.useState(false);
   const [added, setAdded] = React.useState(false);
+  const t = useTranslations("recommendationCard");
+  const format = useFormatter();
+
+  const formatPrice = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "EGP",
+      maximumFractionDigits: 0,
+    });
   const { orderingEnabled, orderingMessage } = useOrdering();
   const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
@@ -46,11 +56,10 @@ export function RecommendationCard({
 
   return (
     <div
-      className={`rounded-2xl border-2 p-6 space-y-4 transition-all duration-300 hover:shadow-lg ${
-        primary
+      className={`rounded-2xl border-2 p-6 space-y-4 transition-all duration-300 hover:shadow-lg ${primary
           ? "bg-gradient-to-br from-elite-burgundy/5 to-elite-cream border-elite-burgundy/30 shadow-md"
           : "bg-white border-elite-burgundy/10 hover:border-elite-burgundy/20"
-      }`}
+        }`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -72,7 +81,7 @@ export function RecommendationCard({
         </div>
         <div className="text-right flex-shrink-0">
           <div className="font-calistoga text-elite-burgundy text-2xl">
-            {item.price} EGP
+            {formatPrice(item.price)}
           </div>
         </div>
       </div>
@@ -98,7 +107,7 @@ export function RecommendationCard({
       {reasons?.length ? (
         <div className="space-y-2">
           <p className="font-cabin text-xs font-semibold text-elite-black/60 uppercase tracking-wide">
-            Why we recommend this
+            {t("reasonsTitle")}
           </p>
           <ul className="space-y-1.5">
             {reasons.slice(0, 4).map((r, i) => (
@@ -118,11 +127,10 @@ export function RecommendationCard({
       <button
         onClick={handleAdd}
         disabled={adding}
-        className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${
-          added
+        className={`w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-full text-base tracking-wide shadow-md transition-all duration-300 ${added
             ? "bg-emerald-600 text-white font-calistoga"
             : "bg-elite-burgundy text-elite-cream font-calistoga hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
         title={orderingEnabled ? undefined : disabledMessage}
       >
         {added ? (

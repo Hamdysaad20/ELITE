@@ -10,11 +10,13 @@ import {
 } from "@/components/LoyaltyCard";
 import Footer from "@/components/Footer";
 import { Loader2, AlertCircle, RefreshCw, Gift } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 export default function RewardsPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { loyalty, loading, error, refetch } = useLoyalty();
+  const t = useTranslations("rewardsPage");
 
   if (authLoading || loading) {
     return (
@@ -23,7 +25,7 @@ export default function RewardsPage() {
           <div className="flex flex-col items-center">
             <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
             <p className="text-elite-black/70 font-cabin text-lg">
-              Loading your rewards...
+              {t("loading")}
             </p>
           </div>
         </div>
@@ -42,10 +44,10 @@ export default function RewardsPage() {
               <Gift className="w-10 h-10" />
               <div>
                 <h1 className="font-calistoga text-4xl md:text-5xl mb-2">
-                  Rewards & Loyalty
+                  {t("title")}
                 </h1>
                 <p className="font-cabin text-elite-cream/90">
-                  Earn points with every purchase and unlock exclusive benefits
+                  {t("subtitle")}
                 </p>
               </div>
             </div>
@@ -59,7 +61,7 @@ export default function RewardsPage() {
             <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center mb-8">
               <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
               <h3 className="text-red-900 font-calistoga text-xl mb-2">
-                Unable to Load Rewards
+                {t("error.title")}
               </h3>
               <p className="text-red-700 font-cabin mb-4">{error}</p>
               <button
@@ -67,7 +69,7 @@ export default function RewardsPage() {
                 className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-6 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-all"
               >
                 <RefreshCw className="w-4 h-4" />
-                Try Again
+                {t("error.retry")}
               </button>
             </div>
           )}
@@ -106,7 +108,7 @@ export default function RewardsPage() {
               <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border border-amber-200">
                 <h3 className="text-2xl font-calistoga text-gray-900 mb-6 flex items-center gap-2">
                   <Gift className="w-6 h-6 text-elite-burgundy" />
-                  How to Earn Points
+                  {t("earn.title")}
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -116,18 +118,21 @@ export default function RewardsPage() {
                         1
                       </p>
                       <p className="text-sm text-gray-600 font-cabin">
-                        Point per
+                        {t("earn.rules.onePer.label")}
                       </p>
                       <p className="text-lg font-semibold text-gray-900 font-cabin">
-                        10 EGP
+                        {t("earn.rules.onePer.value")}
                       </p>
                     </div>
                     <p className="text-sm text-gray-700 font-cabin">
-                      {loyalty.account.level === "silver" && "1.5 points "}
-                      {loyalty.account.level === "gold" && "2 points "}
-                      {loyalty.account.level === "platinum" && "3 points "}
+                      {loyalty.account.level === "silver" &&
+                        t("earn.rules.onePer.levels.silver")}
+                      {loyalty.account.level === "gold" &&
+                        t("earn.rules.onePer.levels.gold")}
+                      {loyalty.account.level === "platinum" &&
+                        t("earn.rules.onePer.levels.platinum")}
                       {loyalty.account.level === "bronze" &&
-                        "Earn with every purchase"}
+                        t("earn.rules.onePer.levels.bronze")}
                     </p>
                   </div>
 
@@ -137,14 +142,14 @@ export default function RewardsPage() {
                         2x
                       </p>
                       <p className="text-sm text-gray-600 font-cabin">
-                        Points on
+                        {t("earn.rules.birthday.label")}
                       </p>
                       <p className="text-lg font-semibold text-gray-900 font-cabin">
-                        Birthdays
+                        {t("earn.rules.birthday.value")}
                       </p>
                     </div>
                     <p className="text-sm text-gray-700 font-cabin">
-                      Double points on your special day
+                      {t("earn.rules.birthday.description")}
                     </p>
                   </div>
 
@@ -154,14 +159,14 @@ export default function RewardsPage() {
                         +50
                       </p>
                       <p className="text-sm text-gray-600 font-cabin">
-                        Bonus for
+                        {t("earn.rules.referrals.label")}
                       </p>
                       <p className="text-lg font-semibold text-gray-900 font-cabin">
-                        Referrals
+                        {t("earn.rules.referrals.value")}
                       </p>
                     </div>
                     <p className="text-sm text-gray-700 font-cabin">
-                      Invite friends and earn together
+                      {t("earn.rules.referrals.description")}
                     </p>
                   </div>
                 </div>
@@ -169,13 +174,13 @@ export default function RewardsPage() {
 
               {/* CTA */}
               <div className="text-center">
-                <Link
+                <LocalizedLink
                   href="/menu"
                   className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-bold text-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
                   <Gift className="w-5 h-5" />
-                  Start Earning Points
-                </Link>
+                  {t("actions.startEarning")}
+                </LocalizedLink>
               </div>
             </div>
           )}

@@ -5,10 +5,10 @@ import {
   Filter,
   X,
   Calendar,
-  DollarSign,
   Package,
   ArrowUpDown,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface OrderFilters {
   status: string[];
@@ -32,41 +32,60 @@ interface OrderFiltersProps {
   orderCount: number;
 }
 
-const statusOptions = [
-  { value: "PENDING", label: "Pending", color: "elite-burgundy" },
-  { value: "CONFIRMED", label: "Confirmed", color: "elite-burgundy" },
-  { value: "PREPARING", label: "Preparing", color: "elite-burgundy" },
-  { value: "READY", label: "Ready", color: "elite-burgundy" },
-  {
-    value: "OUT_FOR_DELIVERY",
-    label: "Out for Delivery",
-    color: "elite-burgundy",
-  },
-  { value: "DELIVERED", label: "Delivered", color: "elite-burgundy" },
-  { value: "CANCELLED", label: "Cancelled", color: "elite-black" },
-];
-
-const datePresets = [
-  { value: "today", label: "Today" },
-  { value: "week", label: "This Week" },
-  { value: "month", label: "This Month" },
-  { value: "year", label: "This Year" },
-  { value: "all", label: "All Time" },
-];
-
-const sortOptions = [
-  { value: "date", label: "Date" },
-  { value: "price", label: "Price" },
-  { value: "savings", label: "Savings" },
-  { value: "points", label: "Points" },
-];
-
 export function OrderFilters({
   filters,
   onFilterChange,
   orderCount,
 }: OrderFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("orderFilters");
+
+  const statusOptions = [
+    { value: "PENDING", label: t("status.pending"), color: "elite-burgundy" },
+    {
+      value: "CONFIRMED",
+      label: t("status.confirmed"),
+      color: "elite-burgundy",
+    },
+    {
+      value: "PREPARING",
+      label: t("status.preparing"),
+      color: "elite-burgundy",
+    },
+    { value: "READY", label: t("status.ready"), color: "elite-burgundy" },
+    {
+      value: "OUT_FOR_DELIVERY",
+      label: t("status.outForDelivery"),
+      color: "elite-burgundy",
+    },
+    {
+      value: "DELIVERED",
+      label: t("status.delivered"),
+      color: "elite-burgundy",
+    },
+    { value: "CANCELLED", label: t("status.cancelled"), color: "elite-black" },
+  ];
+
+  const datePresets = [
+    { value: "today", label: t("datePresets.today") },
+    { value: "week", label: t("datePresets.week") },
+    { value: "month", label: t("datePresets.month") },
+    { value: "year", label: t("datePresets.year") },
+    { value: "all", label: t("datePresets.all") },
+  ];
+
+  const sortOptions = [
+    { value: "date", label: t("sortOptions.date") },
+    { value: "price", label: t("sortOptions.price") },
+    { value: "savings", label: t("sortOptions.savings") },
+    { value: "points", label: t("sortOptions.points") },
+  ];
+
+  const orderTypes = [
+    { value: "all", label: t("orderType.all") },
+    { value: "delivery", label: t("orderType.delivery") },
+    { value: "pickup", label: t("orderType.pickup") },
+  ];
 
   const handleStatusToggle = (status: string) => {
     const newStatus = filters.status.includes(status)
@@ -146,7 +165,7 @@ export function OrderFilters({
         >
           <Filter className="w-4 h-4 text-elite-burgundy" />
           <span className="font-cabin font-semibold text-elite-black">
-            Filters
+            {t("filters")}
           </span>
           {activeFiltersCount > 0 && (
             <span className="bg-elite-burgundy text-elite-cream text-xs font-cabin font-bold px-2 py-0.5 rounded-full">
@@ -162,14 +181,16 @@ export function OrderFilters({
     <div className="w-full bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-5 space-y-5 animate-in slide-in-from-top-2 duration-300">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-calistoga text-lg text-elite-black">Filters</h3>
+        <h3 className="font-calistoga text-lg text-elite-black">
+          {t("filters")}
+        </h3>
         <div className="flex items-center gap-2">
           {activeFiltersCount > 0 && (
             <button
               onClick={clearFilters}
               className="text-sm font-cabin font-semibold text-elite-burgundy hover:underline"
             >
-              Clear All
+              {t("clearAll")}
             </button>
           )}
           <button
@@ -185,7 +206,7 @@ export function OrderFilters({
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-cabin font-semibold text-elite-black">
           <Package className="w-4 h-4" />
-          Status
+          {t("labels.status")}
         </label>
         <div className="flex flex-wrap gap-2">
           {statusOptions.map((option) => (
@@ -208,7 +229,7 @@ export function OrderFilters({
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-cabin font-semibold text-elite-black">
           <Calendar className="w-4 h-4" />
-          Date Range
+          {t("labels.dateRange")}
         </label>
         <div className="flex flex-wrap gap-2">
           {datePresets.map((preset) => (
@@ -235,22 +256,22 @@ export function OrderFilters({
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-cabin font-semibold text-elite-black">
           <Package className="w-4 h-4" />
-          Order Type
+          {t("labels.orderType")}
         </label>
         <div className="flex gap-2">
-          {["all", "delivery", "pickup"].map((type) => (
+          {orderTypes.map((type) => (
             <button
-              key={type}
+              key={type.value}
               onClick={() =>
-                handleOrderTypeChange(type as typeof filters.orderType)
+                handleOrderTypeChange(type.value as typeof filters.orderType)
               }
               className={`flex-1 px-3 py-2 rounded-xl text-sm font-cabin font-semibold capitalize transition-all touch-manipulation active:scale-95 ${
-                filters.orderType === type
+                filters.orderType === type.value
                   ? "bg-elite-burgundy text-elite-cream"
                   : "bg-elite-cream text-elite-black hover:bg-elite-burgundy/10"
               }`}
             >
-              {type}
+              {type.label}
             </button>
           ))}
         </div>
@@ -260,7 +281,7 @@ export function OrderFilters({
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-cabin font-semibold text-elite-black">
           <ArrowUpDown className="w-4 h-4" />
-          Sort By
+          {t("labels.sortBy")}
         </label>
         <div className="flex gap-2">
           <select
@@ -288,9 +309,10 @@ export function OrderFilters({
       {/* Results Count */}
       <div className="pt-4 border-t border-elite-burgundy/10">
         <p className="text-sm font-cabin text-elite-black/60 text-center">
-          Showing{" "}
-          <span className="font-bold text-elite-burgundy">{orderCount}</span>{" "}
-          order{orderCount !== 1 ? "s" : ""}
+          {t("results", {
+            count: orderCount,
+            countFormatted: orderCount,
+          })}
         </p>
       </div>
     </div>
