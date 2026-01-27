@@ -111,14 +111,14 @@ function normalizeProduct(
     categoryId: categoryId ? String(categoryId) : undefined,
     category: categoryDetail
       ? {
-          id: String(categoryDetail.id),
-          name: categoryDetail.name,
-        }
+        id: String(categoryDetail.id),
+        name: categoryDetail.name,
+      }
       : categoryName
         ? {
-            id: String(categoryId),
-            name: categoryName,
-          }
+          id: String(categoryId),
+          name: categoryName,
+        }
         : undefined,
     available,
     stock: (rec as any).qty_available ?? null,
@@ -130,6 +130,7 @@ function normalizeProduct(
         : image128
           ? [`data:image/png;base64,${image128}`]
           : [],
+    thumbnail: image128 ? `data:image/png;base64,${image128}` : null, // expose thumbnail for list view optimization
     uom: Array.isArray(rec.uom_id)
       ? { id: rec.uom_id[0], name: rec.uom_id[1] }
       : undefined,
@@ -240,7 +241,7 @@ async function performSync(
           `[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`,
         );
         // Release lock since we're not syncing
-        await redisDel(SYNC_LOCK_KEY).catch(() => {});
+        await redisDel(SYNC_LOCK_KEY).catch(() => { });
         return { success: false, error: "Rate limited" };
       }
     }
@@ -523,10 +524,13 @@ async function performSync(
     }
 
     // Cache products individually to allow partial success
+    // Store FULL product details (high-res images) in individual keys
     let cachedCount = 0;
     for (const p of products) {
       try {
-        await redisSet(`products:${p.id}`, p, cacheTTL);
+        // Remove the temporary 'thumbnail' field before saving individual product
+        const { thumbnail, ...productToSave } = p as any;
+        await redisSet(`products:${p.id}`, productToSave, cacheTTL);
         cachedCount++;
       } catch (err) {
         cacheErrors.push(
@@ -537,7 +541,18 @@ async function performSync(
     }
 
     try {
-      await redisSet("products:all", products, cacheTTL);
+      // Create lightweight summaries for the list view
+      // Use the thumbnail as the main image to reduce payload size (50MB -> <2MB)
+      const productSummaries = products.map((p: any) => {
+        const { thumbnail, images, ...rest } = p;
+        return {
+          ...rest,
+          // Use thumbnail if available, otherwise fallback to existing images (or empty)
+          images: thumbnail ? [thumbnail] : (images || []),
+        };
+      });
+
+      await redisSet("products:all", productSummaries, cacheTTL);
     } catch (err) {
       cacheErrors.push(
         `Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`,
