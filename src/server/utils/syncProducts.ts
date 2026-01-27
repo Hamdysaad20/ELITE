@@ -525,19 +525,28 @@ async function performSync(
 
     // Cache products individually to allow partial success
     // Store FULL product details (high-res images) in individual keys
+    // Parallelize caching in chunks to prevent connection timeouts
+    const chunkSize = 50;
     let cachedCount = 0;
-    for (const p of products) {
-      try {
-        // Remove the temporary 'thumbnail' field before saving individual product
-        const { thumbnail, ...productToSave } = p as any;
-        await redisSet(`products:${p.id}`, productToSave, cacheTTL);
-        cachedCount++;
-      } catch (err) {
-        cacheErrors.push(
-          `Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        // Continue caching other products
-      }
+
+    for (let i = 0; i < products.length; i += chunkSize) {
+      const chunk = products.slice(i, i + chunkSize);
+      const chunkResults = await Promise.all(
+        chunk.map(async (p) => {
+          try {
+            // Remove the temporary 'thumbnail' field before saving individual product
+            const { thumbnail, ...productToSave } = p as any;
+            await redisSet(`products:${p.id}`, productToSave, cacheTTL);
+            return true;
+          } catch (err) {
+            cacheErrors.push(
+              `Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+            return false;
+          }
+        }),
+      );
+      cachedCount += chunkResults.filter(Boolean).length;
     }
 
     try {
