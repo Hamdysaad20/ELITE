@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useState, useTransition, useEffect } from "react";
 import CartDrawer from "@/components/Cart/CartDrawer";
-import { Bell, Home, Compass, Tag, ShoppingBag, User } from "lucide-react";
+import { Bell, Home, Compass, ShoppingBag, User } from "lucide-react";
 import { useOrdering } from "@/context/OrderingContext";
 import { openSupportMessenger } from "@/lib/support";
 
