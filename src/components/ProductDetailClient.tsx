@@ -298,6 +298,7 @@ export default function ProductDetailClient({
                         fill
                         className="object-contain p-4 md:p-8"
                         priority
+                        quality={95}
                       />
                     </div>
                   ) : (

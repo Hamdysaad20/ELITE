@@ -51,6 +51,8 @@ type CategoryRecord = {
   active?: boolean;
 };
 
+import { getOldItemImage } from "./oldItemsMapping";
+
 function normalizeProduct(
   rec: ProductRecord,
   templateImages?: Map<number, ProductTemplateRecord>,
@@ -102,6 +104,26 @@ function normalizeProduct(
         ? template.image_128
         : null;
 
+  // Resolve Odoo images (base64)
+  const odooImages = image1024
+    ? [`data:image/png;base64,${image1024}`]
+    : image1920
+      ? [`data:image/png;base64,${image1920}`]
+      : image128
+        ? [`data:image/png;base64,${image128}`]
+        : [];
+
+  // Check for local "Old Items" image
+  const localImage = getOldItemImage(rec.name);
+
+  // Combine images: Local image takes precedence (first), followed by Odoo images
+  const images = localImage ? [localImage, ...odooImages] : odooImages;
+
+  // Thumbnail logic: Use local image if available, otherwise base64 thumbnail
+  const thumbnail = localImage
+    ? localImage
+    : (image128 ? `data:image/png;base64,${image128}` : null);
+
   return {
     id: String(rec.id),
     name: rec.name,
@@ -123,14 +145,8 @@ function normalizeProduct(
     available,
     stock: (rec as any).qty_available ?? null,
     sequence: (rec as any).sequence ?? 0,
-    images: image1024
-      ? [`data:image/png;base64,${image1024}`]
-      : image1920
-        ? [`data:image/png;base64,${image1920}`]
-        : image128
-          ? [`data:image/png;base64,${image128}`]
-          : [],
-    thumbnail: image128 ? `data:image/png;base64,${image128}` : null, // expose thumbnail for list view optimization
+    images: images,
+    thumbnail: thumbnail, // expose thumbnail for list view optimization
     uom: Array.isArray(rec.uom_id)
       ? { id: rec.uom_id[0], name: rec.uom_id[1] }
       : undefined,

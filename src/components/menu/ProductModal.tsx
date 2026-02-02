@@ -181,6 +181,7 @@ export default function ProductModal({
                       objectFit="cover"
                       showErrorIcon={true}
                       fill={true}
+                      quality={95}
                     />
                   </div>
                 </div>

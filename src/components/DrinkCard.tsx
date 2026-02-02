@@ -277,6 +277,7 @@ export default function DrinkCard({
               fill={true}
               objectFit="cover"
               showErrorIcon={true}
+              quality={95}
             />
             {/* Subtle gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-t from-elite-burgundy/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

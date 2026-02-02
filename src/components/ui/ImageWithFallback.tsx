@@ -18,6 +18,7 @@ interface ImageWithFallbackProps {
   showErrorIcon?: boolean;
   onError?: () => void;
   onLoad?: () => void;
+  quality?: number;
 }
 
 const DEFAULT_FALLBACK = "/images/placeholder.svg";
@@ -35,6 +36,7 @@ export default function ImageWithFallback({
   showErrorIcon = true,
   onError,
   onLoad,
+  quality,
 }: ImageWithFallbackProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hasGlobalError, setHasGlobalError] = useState(false);
@@ -120,6 +122,7 @@ export default function ImageWithFallback({
             height={fill ? undefined : height || 200}
             className={className}
             style={fill ? { objectFit } : undefined}
+            quality={quality}
           />
         ) : null}
       </div>
@@ -177,6 +180,7 @@ export default function ImageWithFallback({
           style={fill ? { objectFit } : undefined}
           onError={handleError}
           onLoad={handleLoad}
+          quality={quality}
         />
       )}
 
