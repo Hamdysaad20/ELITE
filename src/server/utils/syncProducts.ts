@@ -116,8 +116,8 @@ function normalizeProduct(
   // Check for local "Old Items" image
   const localImage = getOldItemImage(rec.name);
 
-  // Combine images: Local image takes precedence (first), followed by Odoo images
-  const images = localImage ? [localImage, ...odooImages] : odooImages;
+  // Combine images: Local image strictly replaces Odoo images if found
+  const images = localImage ? [localImage] : odooImages;
 
   // Thumbnail logic: Use local image if available, otherwise base64 thumbnail
   const thumbnail = localImage
