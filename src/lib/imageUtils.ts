@@ -158,16 +158,20 @@ export function sanitizeImages(
 }
 
 /**
- * Local product image candidates from our generated images library.
+ * Local product image candidates from Old Items directory.
  * Tries "base name" and the full name so we can handle variants consistently.
+ * Uses the -1.png naming convention from Old Items directory.
  */
 export function getLocalProductImageCandidates(
   name: string | undefined | null,
-  filename: string = "v1-1.png",
+  filename: string = "-1.png",
 ): string[] {
   if (!name) return [];
   const base = extractBaseName(name);
-  const slugs = [slugify(base), slugify(name)].filter(Boolean);
-  const uniqueSlugs = Array.from(new Set(slugs));
-  return uniqueSlugs.map((s) => `/products/${s}/${filename}`);
+  // Try both base name and full name with -1.png suffix
+  const candidates = [base, name]
+    .filter(Boolean)
+    .map((n) => `${n}${filename}`);
+  const uniqueCandidates = Array.from(new Set(candidates));
+  return uniqueCandidates.map((c) => `/Old Items/${c}`);
 }
