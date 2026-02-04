@@ -47,21 +47,21 @@ interface DrinkCardProps {
 
 const sizeClasses = {
   small: {
-    image: "h-32 sm:h-44",
+    image: "h-40 sm:h-52",
     title: "text-sm sm:text-base leading-tight",
     price: "text-base sm:text-lg",
     padding: "p-2 sm:p-2.5",
     contentPadding: "px-2.5 sm:px-3 pb-2.5 sm:pb-3",
   },
   medium: {
-    image: "h-44 sm:h-56",
+    image: "h-36 sm:h-44",
     title: "text-base sm:text-xl",
     price: "text-lg sm:text-2xl",
     padding: "p-2.5 sm:p-3",
     contentPadding: "px-3 sm:px-4 pb-3 sm:pb-4",
   },
   large: {
-    image: "h-52 sm:h-64",
+    image: "h-40 sm:h-52",
     title: "text-lg sm:text-2xl",
     price: "text-xl sm:text-3xl",
     padding: "p-3 sm:p-4",
@@ -262,6 +262,7 @@ export default function DrinkCard({
             "relative bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 rounded-xl sm:rounded-2xl overflow-hidden",
             "group-hover:shadow-inner",
             sizes.image,
+            "p-1" // Reduced padding for zoomed-in effect
           )}
         >
           {/* Image with enhanced hover effect */}
@@ -270,12 +271,12 @@ export default function DrinkCard({
               src={displayImages}
               alt={displayName}
               className={cn(
-                "w-full h-full object-cover transition-all",
+                "w-full h-full object-contain transition-all", // Changed to contain
                 animDuration,
                 "group-hover:scale-110",
               )}
               fill={true}
-              objectFit="cover"
+              objectFit="contain" // Changed to contain
               showErrorIcon={true}
               quality={95}
             />
