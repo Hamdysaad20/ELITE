@@ -500,12 +500,14 @@ async function performSync(
       )
       .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
 
-    // Deduplicate by id so cache and menu never show duplicate items
-    const productsById = new Map<string, (typeof normalizedList)[0]>();
-    for (const p of normalizedList) {
-      if (p?.id && !productsById.has(p.id)) productsById.set(p.id, p);
-    }
-    const products = Array.from(productsById.values());
+    // Deduplicate by id so cache and menu never show duplicate items (last occurrence wins, same as API/menu)
+    const products = Array.from(
+      new Map(
+        normalizedList
+          .filter((p) => p?.id)
+          .map((p) => [p.id, p] as [string, (typeof normalizedList)[0]]),
+      ).values(),
+    );
 
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach((cat) => {
