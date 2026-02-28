@@ -113,15 +113,10 @@ export async function GET(request: NextRequest) {
     const { products: allProducts, lastUpdate } = await getProductsSafe();
 
     // Filter out excluded categories (Extras, Services, etc.)
-    const filteredByCategory = allProducts.filter((product) => {
+    const websiteProducts = allProducts.filter((product) => {
       if (!product.category) return true; // Include products without category
       return !EXCLUDED_CATEGORIES.includes(product.category.name);
     });
-
-    // Deduplicate by id so menu never shows duplicate items (defensive)
-    const websiteProducts = Array.from(
-      new Map(filteredByCategory.map((p) => [p.id, p])).values(),
-    );
 
     // Handle single product fetch - ALWAYS include full images
     if (productId) {

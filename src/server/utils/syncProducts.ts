@@ -489,7 +489,7 @@ async function performSync(
       return true;
     });
 
-    const normalizedList = websiteProductsRaw
+    const products = websiteProductsRaw
       .map((p) =>
         normalizeProduct(
           p,
@@ -499,15 +499,6 @@ async function performSync(
         ),
       )
       .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
-
-    // Deduplicate by id so cache and menu never show duplicate items (last occurrence wins, same as API/menu)
-    const products = Array.from(
-      new Map(
-        normalizedList
-          .filter((p) => p?.id)
-          .map((p) => [p.id, p] as [string, (typeof normalizedList)[0]]),
-      ).values(),
-    );
 
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach((cat) => {
