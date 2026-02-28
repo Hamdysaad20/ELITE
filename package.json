@@ -16,9 +16,9 @@
     "worker:points-retry": "TS_NODE_PROJECT=scripts/tsconfig.json TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register -r tsconfig-paths/register ./scripts/run-points-retry-worker.ts",
     "investigate": "TS_NODE_PROJECT=scripts/tsconfig.json TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register -r tsconfig-paths/register ./scripts/investigate_orders.ts",
     "sync:orders": "TS_NODE_PROJECT=scripts/tsconfig.json TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register -r tsconfig-paths/register ./scripts/sync-unsynced-orders.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:notifications": "vitest run tests/item-availability"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules vitest run",
+    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules vitest",
+    "test:notifications": "cross-env NODE_OPTIONS=--experimental-vm-modules vitest run tests/item-availability"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -55,6 +55,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "@biomejs/biome": "1.9.4",
     "@eslint/eslintrc": "^3.3.1",
     "@types/node": "^20.17.50",

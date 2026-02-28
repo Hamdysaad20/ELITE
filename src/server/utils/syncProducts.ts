@@ -489,7 +489,7 @@ async function performSync(
       return true;
     });
 
-    const products = websiteProductsRaw
+    const normalizedList = websiteProductsRaw
       .map((p) =>
         normalizeProduct(
           p,
@@ -499,6 +499,13 @@ async function performSync(
         ),
       )
       .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
+
+    // Deduplicate by id so cache and menu never show duplicate items
+    const productsById = new Map<string, (typeof normalizedList)[0]>();
+    for (const p of normalizedList) {
+      if (p?.id && !productsById.has(p.id)) productsById.set(p.id, p);
+    }
+    const products = Array.from(productsById.values());
 
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach((cat) => {

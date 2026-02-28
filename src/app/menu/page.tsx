@@ -79,8 +79,13 @@ export default function MenuPage() {
           (p) => p?.categoryId === cat.id,
         );
 
+        // Deduplicate by id so each product appears at most once per category (UI safeguard)
+        const uniqueProducts = Array.from(
+          new Map(categoryProducts.map((p) => [p.id, p])).values(),
+        );
+
         // Skip empty categories entirely
-        if (categoryProducts.length === 0) {
+        if (uniqueProducts.length === 0) {
           return null;
         }
 
@@ -94,7 +99,7 @@ export default function MenuPage() {
             {
               id: cat.id,
               name: cat.name || t("fallback.unknownCategory"),
-              items: categoryProducts
+              items: uniqueProducts
                 .map((p) => {
                   if (!p || !p.id) return null;
                   return {
