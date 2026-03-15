@@ -130,12 +130,14 @@ export default function MobileNavigation() {
             isRTL ? "left-4" : "right-4",
           )}
         />
-        {/* Background with cream gradient and subtle shadow */}
+        {/* Liquid Glass background with enhanced blur and transparency */}
         <div
-          className="bg-gradient-to-t from-elite-cream via-elite-cream to-elite-cream/95 backdrop-blur-xl border-t border-elite-burgundy/8"
+          className="bg-gradient-to-t from-white/20 via-white/10 to-white/5 backdrop-blur-2xl border-t border-white/20"
           style={{
+            background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.05) 100%)",
+            backdropFilter: "blur(20px) saturate(180%)",
             boxShadow:
-              "0 -8px 40px rgba(139, 38, 53, 0.12), 0 -2px 8px rgba(139, 38, 53, 0.08)",
+              "0 -8px 32px rgba(139, 38, 53, 0.08), 0 -2px 8px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
             paddingBottom: "env(safe-area-inset-bottom, 0px)",
           }}
         >
@@ -163,20 +165,21 @@ export default function MobileNavigation() {
                   style={transitionStyle}
                 >
                   <div className="relative">
-                    {/* Icon container - optimized for active state */}
+                    {/* Icon container - Liquid Glass style */}
                     <div
                       className={cn(
                         "flex items-center justify-center w-11 h-11 rounded-2xl transition-all",
                         animDuration,
                         active || isOptimistic
-                          ? "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/30"
-                          : "bg-elite-dark-cream/40 text-elite-burgundy/65",
+                          ? "bg-gradient-to-br from-elite-burgundy/60 to-elite-burgundy/40 backdrop-blur-lg text-elite-cream shadow-lg shadow-elite-burgundy/20"
+                          : "bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md text-elite-burgundy/70",
                       )}
                       style={{
                         transform:
                           (active || isOptimistic) && !prefersReducedMotion
                             ? "translateY(-2px) scale(1.05)"
                             : "translateY(0) scale(1)",
+                        border: active || isOptimistic ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.15)",
                       }}
                     >
                       <Icon
@@ -194,19 +197,21 @@ export default function MobileNavigation() {
                       )}
                     </div>
 
-                    {/* Cart Badge - Premium style */}
+                    {/* Cart Badge - Liquid Glass style */}
                     {item.isCart && itemCount > 0 && (
                       <span
                         className={cn(
-                          "absolute -top-0.5 text-[10px] font-bold font-cabin rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 transition-all border-2",
+                          "absolute -top-0.5 text-[10px] font-bold font-cabin rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 transition-all border",
                           isRTL ? "-left-1" : "-right-1",
                           animDuration,
                           active || isOptimistic
-                            ? "bg-elite-cream text-elite-burgundy border-elite-burgundy scale-110 shadow-sm"
-                            : "bg-elite-burgundy text-elite-cream border-elite-cream",
+                            ? "bg-white/90 backdrop-blur-md text-elite-burgundy border-white/40 scale-110 shadow-lg"
+                            : "bg-elite-burgundy/80 backdrop-blur-sm text-white border-white/20",
                         )}
                         style={{
-                          boxShadow: "0 2px 8px rgba(139, 38, 53, 0.25)",
+                          boxShadow: active || isOptimistic 
+                            ? "0 4px 12px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(139, 38, 53, 0.2)" 
+                            : "0 2px 8px rgba(139, 38, 53, 0.2)",
                         }}
                       >
                         {itemCount > 99 ? "99+" : itemCount}
@@ -214,13 +219,13 @@ export default function MobileNavigation() {
                     )}
                   </div>
 
-                  {/* Label with optimistic highlight */}
+                  {/* Label with liquid glass theme */}
                   <span
                     className={cn(
                       "text-[11px] font-cabin leading-none transition-all",
                       animDuration,
                       active || isOptimistic
-                        ? "font-bold text-elite-burgundy"
+                        ? "font-bold text-elite-burgundy drop-shadow-sm"
                         : "font-medium text-elite-burgundy/50",
                     )}
                   >
