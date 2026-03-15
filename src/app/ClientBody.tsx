@@ -114,7 +114,9 @@ export default function ClientBody({
         )}
         <ToastProvider>
           {!isAuthPage && <OrderingBanner />}
-          {children}
+          <main className="md:pb-0 pb-[88px]">
+            {children}
+          </main>
         </ToastProvider>
         {!isAuthPage && <MobileNavigation />}
       </OrderingProvider>
