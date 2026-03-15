@@ -123,7 +123,7 @@ export default function MobileNavigation() {
   return (
     <>
       {/* Premium cream-colored bottom navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 relative">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50">
         <LanguageSwitcher
           className={cn(
             "absolute -top-12 z-10",
