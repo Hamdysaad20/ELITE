@@ -3,7 +3,7 @@ import {
     jsonResponse,
     successResponse,
 } from "@/server/utils/apiHelpers";
-import { getProductsSafe } from "@/server/services/product.service";
+import { getProductsSafe, Product } from "@/server/services/product.service";
 
 export type LovedByLocalProduct = {
     id: string;
@@ -64,7 +64,7 @@ const FALLBACK_PRODUCTS: LovedByLocalProduct[] = [
 export async function GET(request: NextRequest) {
     try {
         // Try to fetch products, but have fallback ready
-        let allProducts: LovedByLocalProduct[] = [];
+        let allProducts: Product[] = [];
         let usingFallback = false;
 
         try {
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
             .filter((p) => p.available !== false && p.images && p.images.length > 0)
             .sort((a, b) => {
                 // Prioritize by sequence (lower = featured)
-                const seqDiff = (a.sequence || 999) - (b.sequence || 999);
+                const seqDiff = (a.sequence ?? 999) - (b.sequence ?? 999);
                 if (seqDiff !== 0) return seqDiff;
                 // Then by name for consistency
                 return (a.name || "").localeCompare(b.name || "");
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
                     selectedProducts.push({
                         id: product.id,
                         name: product.name || "Unknown",
-                        image: (product.images && product.images[0]) || "/images/placeholder.svg",
+                        image: (product.images?.[0]) || "/images/placeholder.svg",
                         category: product.category?.name || "Beverages",
                         categoryId: product.categoryId,
                         reason: "Customer favorite",
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
             selectedProducts = featuredProducts.slice(0, 4).map((product) => ({
                 id: product.id,
                 name: product.name || "Unknown",
-                image: (product.images && product.images[0]) || "/images/placeholder.svg",
+                image: (product.images?.[0]) || "/images/placeholder.svg",
                 category: product.category?.name || "Beverages",
                 categoryId: product.categoryId,
                 reason: "Popular choice",
