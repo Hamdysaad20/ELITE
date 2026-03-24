@@ -32,7 +32,7 @@ const CategoryCard = ({
   >
     <div
       ref={refProp}
-      className="w-48 h-48 lg:w-64 lg:h-64 rounded-full bg-elite-burgundy overflow-hidden mb-8 transition-transform group-hover:scale-105 shadow-lg"
+      className="w-56 h-56 lg:w-80 lg:h-80 rounded-full bg-elite-burgundy overflow-hidden mb-8 transition-transform group-hover:scale-105 shadow-lg"
     >
       {imageSrc ? (
         <img
@@ -134,9 +134,9 @@ export default function FindAndGet() {
           <CategoryCard
             href="/menu/kids-corner"
             refProp={kidsCornerRef}
+            imageSrc="/kids corner/kids_corner_draft2.3.png"
             altText={t("categories.kids")}
             title={t("categories.kids")}
-            emoji="🎈"
           />
         </div>
       </div>

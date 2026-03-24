@@ -124,6 +124,37 @@ function forbiddenResponse(
 }
 
 /**
+ * Verify CSRF token for state-changing requests
+ */
+function verifyCSRFToken(request: NextRequest): boolean {
+  const method = request.method;
+
+  // Only check CSRF for state-changing methods
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    return true;
+  }
+
+  // Skip CSRF check for auth routes (NextAuth handles its own CSRF)
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/api/auth/')) {
+    return true;
+  }
+
+  // Get CSRF token from header
+  const csrfToken = request.headers.get('x-csrf-token');
+
+  // Get session CSRF token from cookie
+  const sessionToken = request.cookies.get('next-auth.csrf-token')?.value;
+
+  // Both must exist and match
+  if (!csrfToken || !sessionToken || csrfToken !== sessionToken) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Add security headers to response
  */
 function addSecurityHeaders(response: NextResponse): NextResponse {
@@ -194,7 +225,19 @@ export async function middleware(request: NextRequest) {
   locale = pathnameLocale;
   normalizedPath = stripLocaleFromPathname(pathname);
 
-  // Step 2: Handle authentication for protected routes
+  // Step 2: CSRF Protection for state-changing requests
+  if (normalizedPath.startsWith("/api/") && !verifyCSRFToken(request)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid CSRF token. Please refresh the page and try again.",
+        code: "CSRF_TOKEN_INVALID"
+      },
+      { status: 403 }
+    );
+  }
+
+  // Step 3: Handle authentication for protected routes
   // Check normalized path (without locale) against route lists
   const requiresAuth = matchesRoute(normalizedPath, PROTECTED_ROUTES);
   const requiresAdmin = matchesRoute(normalizedPath, ADMIN_ROUTES);
