@@ -19,6 +19,7 @@ interface ImageWithFallbackProps {
   onError?: () => void;
   onLoad?: () => void;
   quality?: number;
+  sizes?: string;
 }
 
 const DEFAULT_FALLBACK = "/images/placeholder.svg";
@@ -37,6 +38,7 @@ export default function ImageWithFallback({
   onError,
   onLoad,
   quality,
+  sizes,
 }: ImageWithFallbackProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hasGlobalError, setHasGlobalError] = useState(false);
@@ -181,6 +183,7 @@ export default function ImageWithFallback({
           onError={handleError}
           onLoad={handleLoad}
           quality={quality}
+          sizes={sizes}
         />
       )}
 

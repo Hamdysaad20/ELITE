@@ -7,6 +7,7 @@ import {
   errorResponse,
   parseRequestBody,
 } from "@/server/utils/apiHelpers";
+import { sanitizeInput } from "@/lib/sanitization";
 import { z } from "zod";
 
 const CreateReviewSchema = z.object({
@@ -126,13 +127,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sanitize user inputs before storing to prevent XSS
     const review = await prisma.review.create({
       data: {
         userId: user.id,
         productId: body.productId,
-        productName: body.productName,
+        productName: sanitizeInput(body.productName),
         rating: body.rating,
-        comment: body.comment,
+        comment: body.comment ? sanitizeInput(body.comment) : null,
         verified: true, // Always true since purchase is required
         status: "approved", // Auto-approve for now; can add moderation later
       },

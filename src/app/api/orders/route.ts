@@ -109,9 +109,17 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
         skip,
         take,
-        include: { items: true },
+        include: {
+          items: true,
+          address: true,
+          user: {
+            select: { name: true, email: true },
+          },
+        },
       }),
-      prisma.order.count({ where: { userId, paymentStatus: PaymentStatus.PAID } }),
+      prisma.order.count({
+        where: { userId, paymentStatus: PaymentStatus.PAID },
+      }),
     ]);
 
     return jsonResponse(

@@ -7,6 +7,7 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
+import { sanitizeInput, sanitizePhone } from "@/lib/sanitization";
 import { z } from "zod";
 import { createOdooClient } from "@/server/utils/odooClient";
 
@@ -98,14 +99,23 @@ export async function PATCH(request: NextRequest) {
 
     const { name, phone } = validation.data;
 
+    // Sanitize inputs before updating to prevent XSS
+    const updateData: any = {
+      updatedAt: new Date(),
+    };
+
+    if (name !== undefined) {
+      updateData.name = sanitizeInput(name);
+    }
+
+    if (phone !== undefined) {
+      updateData.phone = phone ? sanitizePhone(phone) : null;
+    }
+
     // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(phone !== undefined && { phone }),
-        updatedAt: new Date(),
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,

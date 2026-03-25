@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Address } from "@/types";
+import { authFetch } from "@/lib/auth/apiClient";
 
 interface UseAddressesReturn {
   addresses: Address[];
@@ -24,10 +25,15 @@ export function useAddresses(): UseAddressesReturn {
   const getErrorMessageFromResponse = async (res: Response) => {
     try {
       const json = await res.json();
-      if (json?.errors && Array.isArray(json.errors) && json.errors.length > 0) {
+      if (
+        json?.errors &&
+        Array.isArray(json.errors) &&
+        json.errors.length > 0
+      ) {
         // API returns { error: "Validation failed", errors: [{field,message}, ...] }
         const first = json.errors[0];
-        if (first?.field && first?.message) return `${first.field}: ${first.message}`;
+        if (first?.field && first?.message)
+          return `${first.field}: ${first.message}`;
         if (first?.message) return String(first.message);
       }
       if (json?.error) return String(json.error);
@@ -42,7 +48,7 @@ export function useAddresses(): UseAddressesReturn {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/addresses", {
+      const res = await authFetch("/api/addresses", {
         credentials: "include",
       });
 
@@ -70,7 +76,7 @@ export function useAddresses(): UseAddressesReturn {
     data: Partial<Address>,
   ): Promise<Address | null> => {
     try {
-      const res = await fetch("/api/addresses", {
+      const res = await authFetch("/api/addresses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -98,7 +104,7 @@ export function useAddresses(): UseAddressesReturn {
     data: Partial<Address>,
   ): Promise<Address | null> => {
     try {
-      const res = await fetch(`/api/addresses/${id}`, {
+      const res = await authFetch(`/api/addresses/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -123,7 +129,7 @@ export function useAddresses(): UseAddressesReturn {
 
   const deleteAddress = async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch(`/api/addresses/${id}`, {
+      const res = await authFetch(`/api/addresses/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -142,7 +148,7 @@ export function useAddresses(): UseAddressesReturn {
 
   const setDefaultAddress = async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch(`/api/addresses/${id}`, {
+      const res = await authFetch(`/api/addresses/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

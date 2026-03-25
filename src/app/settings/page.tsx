@@ -19,6 +19,7 @@ import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useRequireAuth } from "@/lib/auth/hooks";
+import { authFetch } from "@/lib/auth/apiClient";
 import AvatarUpload from "@/components/AvatarUpload";
 
 export default function SettingsPage() {
@@ -85,7 +86,7 @@ export default function SettingsPage() {
 
     setSavingName(true);
     try {
-      const res = await fetch("/api/user/update", {
+      const res = await authFetch("/api/user/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName.trim() }),
@@ -140,7 +141,7 @@ export default function SettingsPage() {
 
       // Save to backend API (if endpoint exists)
       try {
-        await fetch("/api/user/preferences", {
+        await authFetch("/api/user/preferences", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -303,7 +304,9 @@ export default function SettingsPage() {
               <div className="p-4 bg-elite-cream/30">
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => localizedRouter.push("/profile?tab=addresses")}
+                    onClick={() =>
+                      localizedRouter.push("/profile?tab=addresses")
+                    }
                     className="flex items-center gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-all border border-elite-burgundy/10"
                   >
                     <MapPinIcon className="w-5 h-5 text-elite-burgundy" />

@@ -6,6 +6,8 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { getProductsSafe } from "@/server/services/product.service";
+import { apiCache, CacheKeys } from "@/lib/apiCache";
+import { checkGenericRateLimit } from "@/server/utils/rateLimit";
 
 type Product = {
   id: string;
@@ -94,6 +96,13 @@ function stripImagesForListView(product: any): Product {
 
 export async function GET(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown_ip";
+    const limitCheck = await checkGenericRateLimit(ip, "PRODUCTS");
+    if (!limitCheck.allowed) {
+      return jsonResponse(errorResponse("Too many requests"), 429);
+    }
+
     const url = new URL(request.url);
 
     // Support fetching single product by ID
@@ -108,9 +117,14 @@ export async function GET(request: NextRequest) {
     const search = url.searchParams.get("search");
     const availability = url.searchParams.get("availability");
 
-    // Use safe product fetching with SWR (Stale-While-Revalidate) strategy
-    // This prevents blocking the user while cache is refreshing
-    const { products: allProducts, lastUpdate } = await getProductsSafe();
+    // Use in-memory cache for products list (5 minutes TTL)
+    // This adds an additional layer on top of the existing SWR strategy
+    const cacheKey = CacheKeys.products.all();
+    const { products: allProducts, lastUpdate } = await apiCache.get(
+      cacheKey,
+      () => getProductsSafe(),
+      300, // 5 minutes cache
+    );
 
     // Filter out excluded categories (Extras, Services, etc.)
     const websiteProducts = allProducts.filter((product) => {
@@ -120,10 +134,21 @@ export async function GET(request: NextRequest) {
 
     // Handle single product fetch - ALWAYS include full images
     if (productId) {
-      const product = websiteProducts.find((p) => p.id === productId);
+      // Cache individual product lookups (10 minutes TTL)
+      const product = await apiCache.get(
+        CacheKeys.products.byId(productId),
+        async () => {
+          const found = websiteProducts.find((p) => p.id === productId);
+          if (!found) throw new Error("Product not found");
+          return found;
+        },
+        600, // 10 minutes cache
+      );
+
       if (!product) {
         return jsonResponse(errorResponse("Product not found"), 404);
       }
+
       // Single product view: include full images
       return jsonResponse(
         successResponse(

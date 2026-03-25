@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Camera, X, Upload, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { authFetch } from "@/lib/auth/apiClient";
 
 interface AvatarUploadProps {
   onClose: () => void;
@@ -85,7 +86,7 @@ export default function AvatarUpload({
       const formData = new FormData();
       formData.append("avatar", selectedFile);
 
-      const res = await fetch("/api/user/avatar", {
+      const res = await authFetch("/api/user/avatar", {
         method: "POST",
         body: formData,
       });
@@ -118,7 +119,7 @@ export default function AvatarUpload({
     setError(null);
 
     try {
-      const res = await fetch("/api/user/avatar", {
+      const res = await authFetch("/api/user/avatar", {
         method: "DELETE",
       });
 

@@ -1,47 +1,63 @@
-import { createClient, type RedisClientType } from "redis";
+import { createClient } from "redis";
 
-let client: RedisClientType | null = null;
+type ClientType = ReturnType<typeof createClient>;
 
-function getClient(): RedisClientType {
-  if (client) return client;
+const POOL_SIZE = process.env.REDIS_POOL_SIZE
+  ? parseInt(process.env.REDIS_POOL_SIZE, 10)
+  : 5;
+let clients: ClientType[] = [];
+let nextClientIndex = 0;
+
+function getClient(): ClientType {
+  if (clients.length === POOL_SIZE) {
+    const client = clients[nextClientIndex];
+    nextClientIndex = (nextClientIndex + 1) % clients.length;
+    return client;
+  }
+
   const url = process.env.REDIS_URL;
   if (!url) {
     throw new Error("REDIS_URL is not set");
   }
-  client = createClient({
-    url,
-    socket: {
-      connectTimeout: 5000, // 5 seconds timeout
-      reconnectStrategy: (retries) => {
-        if (retries > 3) {
-          console.error("Redis max retries reached");
-          return new Error("Redis connection failed");
-        }
-        return Math.min(retries * 100, 3000);
+
+  for (let i = 0; i < POOL_SIZE; i++) {
+    const c = createClient({
+      url,
+      socket: {
+        connectTimeout: 5000, // 5 seconds timeout
+        reconnectStrategy: (retries) => {
+          if (retries > 3) {
+            console.error("Redis max retries reached");
+            return new Error("Redis connection failed");
+          }
+          return Math.min(retries * 100, 3000);
+        },
       },
-    },
-  });
-  client.on("error", (err) => {
-    // Only log Redis errors once, not repeatedly
-    if (
-      err.code === "ECONNRESET" ||
-      err.code === "ECONNREFUSED" ||
-      err.code === "ETIMEDOUT"
-    ) {
-      // Silently handle connection issues in development
-      if (process.env.NODE_ENV === "development") {
-        // Don't spam console
+    });
+
+    c.on("error", (err) => {
+      if (
+        err.code === "ECONNRESET" ||
+        err.code === "ECONNREFUSED" ||
+        err.code === "ETIMEDOUT"
+      ) {
+        if (process.env.NODE_ENV !== "development") {
+          console.error(`Redis connection error (Client ${i}):`, err.code);
+        }
       } else {
-        console.error("Redis connection error:", err.code);
+        console.error(`Redis error (Client ${i}):`, err);
       }
-    } else {
-      console.error("Redis error:", err);
-    }
-  });
+    });
+
+    clients.push(c);
+  }
+
+  const client = clients[nextClientIndex];
+  nextClientIndex = (nextClientIndex + 1) % clients.length;
   return client;
 }
 
-async function ensureConnected(): Promise<RedisClientType> {
+async function ensureConnected(): Promise<ClientType> {
   const c = getClient();
   if (!c.isOpen) {
     const timeout = new Promise((_, reject) =>
@@ -133,7 +149,13 @@ export async function redisSetNx(
 }
 
 export async function redisQuit(): Promise<void> {
-  if (client && client.isOpen) {
-    await client.quit();
-  }
+  await Promise.all(
+    clients.map(async (c) => {
+      if (c.isOpen) {
+        await c.quit();
+      }
+    }),
+  );
+  clients = [];
+  nextClientIndex = 0;
 }

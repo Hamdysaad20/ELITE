@@ -1,14 +1,19 @@
 /**
  * API Response Caching Layer
- * 
+ *
  * Provides in-memory caching for API responses to reduce database load
  * and improve response times by 40-60%.
- * 
+ *
  * Features:
  * - TTL-based expiration
  * - Pattern-based invalidation
  * - Memory-efficient storage
  * - Type-safe API
+ *
+ * Memory Usage:
+ * - Default max size: 1000 entries
+ * - Estimated memory per entry: ~1KB
+ * - Total estimated memory: ~1MB
  */
 
 interface CacheEntry<T> {
@@ -18,23 +23,32 @@ interface CacheEntry<T> {
 }
 
 class ApiCacheManager {
+  // Cache configuration constants
+  private static readonly DEFAULT_MAX_SIZE = 1000; // Maximum cached entries (~1MB memory)
+  private static readonly CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
   private cache = new Map<string, CacheEntry<any>>();
-  private maxSize = 1000; // Maximum number of cached entries
+  private maxSize: number;
   private cleanupInterval: NodeJS.Timeout | null = null;
 
-  constructor() {
+  /**
+   * Create a new cache manager
+   * @param maxSize - Maximum number of entries to cache (default: 1000)
+   */
+  constructor(maxSize: number = ApiCacheManager.DEFAULT_MAX_SIZE) {
+    this.maxSize = maxSize;
     // Start periodic cleanup every 5 minutes
     this.startCleanup();
   }
 
   /**
    * Get cached data or fetch and cache it
-   * 
+   *
    * @param key - Unique cache key
    * @param fetcher - Function to fetch data if not cached
    * @param ttl - Time to live in seconds (default: 60)
    * @returns Cached or freshly fetched data
-   * 
+   *
    * @example
    * ```typescript
    * const products = await apiCache.get(
@@ -47,7 +61,7 @@ class ApiCacheManager {
   async get<T>(
     key: string,
     fetcher: () => Promise<T>,
-    ttl: number = 60
+    ttl: number = 60,
   ): Promise<T> {
     // Check if cached and not expired
     const cached = this.cache.get(key);
@@ -66,7 +80,7 @@ class ApiCacheManager {
 
   /**
    * Set a value in the cache
-   * 
+   *
    * @param key - Unique cache key
    * @param data - Data to cache
    * @param ttl - Time to live in seconds
@@ -86,7 +100,7 @@ class ApiCacheManager {
 
   /**
    * Get a value from cache without fetching
-   * 
+   *
    * @param key - Cache key
    * @returns Cached data or null if not found/expired
    */
@@ -100,14 +114,14 @@ class ApiCacheManager {
 
   /**
    * Invalidate cache entries by pattern
-   * 
+   *
    * @param pattern - String pattern to match keys
-   * 
+   *
    * @example
    * ```typescript
    * // Invalidate all product caches
    * apiCache.invalidate('products:');
-   * 
+   *
    * // Invalidate specific category
    * apiCache.invalidate('products:category:drinks');
    * ```
@@ -125,7 +139,7 @@ class ApiCacheManager {
 
   /**
    * Invalidate cache entries by regex pattern
-   * 
+   *
    * @param regex - Regular expression to match keys
    */
   invalidateByRegex(regex: RegExp): number {
@@ -203,7 +217,7 @@ class ApiCacheManager {
           this.cache.delete(key);
         }
       }
-    }, 5 * 60 * 1000); // Every 5 minutes
+    }, ApiCacheManager.CLEANUP_INTERVAL_MS);
   }
 
   /**
@@ -237,20 +251,20 @@ export { ApiCacheManager };
  */
 export const CacheKeys = {
   products: {
-    all: () => 'products:all',
+    all: () => "products:all",
     byId: (id: string) => `products:id:${id}`,
     byCategory: (categoryId: string) => `products:category:${categoryId}`,
-    featured: () => 'products:featured',
-    available: () => 'products:available',
+    featured: () => "products:featured",
+    available: () => "products:available",
   },
   categories: {
-    all: () => 'categories:all',
+    all: () => "categories:all",
     byId: (id: string) => `categories:id:${id}`,
-    tree: () => 'categories:tree',
+    tree: () => "categories:tree",
   },
   deals: {
-    all: () => 'deals:all',
-    active: () => 'deals:active',
+    all: () => "deals:all",
+    active: () => "deals:active",
     byId: (id: string) => `deals:id:${id}`,
   },
   user: {

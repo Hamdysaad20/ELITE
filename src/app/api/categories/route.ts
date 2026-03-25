@@ -7,6 +7,7 @@ import {
 } from "@/server/utils/apiHelpers";
 import { redisGet } from "@/server/cache/redis";
 import { syncProductsFromOdoo } from "@/server/utils/syncProducts";
+import { apiCache, CacheKeys } from "@/lib/apiCache";
 
 type Category = { id: string; name: string; parentId?: string };
 
@@ -29,10 +30,21 @@ const EXCLUDED_CATEGORIES = [
 
 export async function GET(_request: NextRequest) {
   try {
-    let [allCategories, lastUpdate] = await Promise.all([
-      redisGet<Category[]>("categories:list"),
-      redisGet<string>("sync:last_update"),
-    ]);
+    // Add in-memory cache layer on top of Redis (15 minutes TTL)
+    // Categories change infrequently, so longer cache is appropriate
+    const cachedResult = await apiCache.get(
+      CacheKeys.categories.all(),
+      async () => {
+        const [allCategories, lastUpdate] = await Promise.all([
+          redisGet<Category[]>("categories:list"),
+          redisGet<string>("sync:last_update"),
+        ]);
+        return { allCategories, lastUpdate };
+      },
+      900, // 15 minutes cache
+    );
+
+    let { allCategories, lastUpdate } = cachedResult;
 
     // Check if cache is empty - auto-sync if needed
     if (!allCategories) {

@@ -1,6 +1,7 @@
 /**
  * Centralized API Error types to standardize error handling and status codes
  */
+import { NextResponse } from "next/server";
 
 export class ApiError extends Error {
   status: number;
@@ -54,4 +55,34 @@ export class ServiceUnavailableError extends ApiError {
   constructor(message = "Service Unavailable", code = "SERVICE_UNAVAILABLE") {
     super(message, 503, code);
   }
+}
+
+export class TooManyRequestsError extends ApiError {
+  constructor(message = "Too Many Requests", code = "TOO_MANY_REQUESTS") {
+    super(message, 429, code);
+  }
+}
+
+export function handleError(error: unknown): NextResponse {
+  if (error instanceof ApiError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message,
+        code: error.code,
+      },
+      { status: error.status },
+    );
+  }
+
+  // Intercept unexpected system failures without leaking server states
+  console.error("[CRITICAL] Unhandled API Exception:", error);
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: "Internal Server Error",
+    },
+    { status: 500 },
+  );
 }

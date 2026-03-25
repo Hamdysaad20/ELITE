@@ -13,7 +13,9 @@ import {
   BadRequestError,
   NotFoundError,
   ServiceUnavailableError,
+  TooManyRequestsError,
 } from "@/server/utils/errors";
+import { checkGenericRateLimit } from "@/server/utils/rateLimit";
 import { CART_CONFIG, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants";
 import type { CartItem } from "@/types";
 import { redisGet } from "@/server/cache/redis";
@@ -27,7 +29,7 @@ import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
  * @param items - Array of cart items
  * @returns Object containing calculated totals and item count
  */
-function calculateTotals(items: CartItem[]) {
+export function calculateTotals(items: CartItem[]) {
   const subtotal = items.reduce((sum, item) => sum + item.price, 0);
   const tax = subtotal * CART_CONFIG.TAX_RATE;
   const deliveryFee = 0; // Delivery fee determined at checkout based on address
@@ -108,6 +110,11 @@ export async function GET(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const limit = await checkGenericRateLimit(userId || clientIp, "CART");
+    if (!limit.allowed)
+      throw new TooManyRequestsError("Too many cart requests");
 
     const items = cartDB.get(userId);
     const totals = calculateTotals(items);
@@ -131,6 +138,12 @@ export async function POST(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const limit = await checkGenericRateLimit(userId || clientIp, "CART");
+    if (!limit.allowed)
+      throw new TooManyRequestsError("Too many cart requests");
+
     const { orderingEnabled, orderingMessage } = getOrderingStatus();
     if (!orderingEnabled) {
       throw new ServiceUnavailableError(
@@ -227,6 +240,11 @@ export async function DELETE(request: NextRequest) {
   try {
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const limit = await checkGenericRateLimit(userId || clientIp, "CART");
+    if (!limit.allowed)
+      throw new TooManyRequestsError("Too many cart requests");
 
     cartDB.clear(userId);
 
