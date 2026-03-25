@@ -10,6 +10,7 @@ import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
 import { sanitizeInput, sanitizePhone } from "@/lib/sanitization";
 import { z } from "zod";
 import { createOdooClient } from "@/server/utils/odooClient";
+import type { Prisma } from "@prisma/client";
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -100,7 +101,7 @@ export async function PATCH(request: NextRequest) {
     const { name, phone } = validation.data;
 
     // Sanitize inputs before updating to prevent XSS
-    const updateData: any = {
+    const updateData: Prisma.UserUpdateInput = {
       updatedAt: new Date(),
     };
 

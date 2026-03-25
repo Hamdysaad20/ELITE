@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateTotals } from "@/app/api/cart/route";
+import { calculateTotals } from "@/lib/cartTotals";
 import type { CartItem } from "@/types";
 import { CART_CONFIG } from "@/lib/constants";
 

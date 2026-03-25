@@ -97,7 +97,7 @@ export function sanitizeHTML(
  * // Returns: { name: 'John', address: { street: 'Main St' } }
  * ```
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
   if (!obj || typeof obj !== "object") {
     return obj;
   }
@@ -106,19 +106,21 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
 
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === "string") {
-      sanitized[key as keyof T] = sanitizeInput(value) as any;
+      sanitized[key as keyof T] = sanitizeInput(value) as T[keyof T];
     } else if (Array.isArray(value)) {
       sanitized[key as keyof T] = value.map((item) =>
         typeof item === "string"
           ? sanitizeInput(item)
           : typeof item === "object"
-            ? sanitizeObject(item)
+            ? sanitizeObject(item as Record<string, unknown>)
             : item,
-      ) as any;
+      ) as T[keyof T];
     } else if (typeof value === "object" && value !== null) {
-      sanitized[key as keyof T] = sanitizeObject(value);
+      sanitized[key as keyof T] = sanitizeObject(
+        value as Record<string, unknown>,
+      ) as T[keyof T];
     } else {
-      sanitized[key as keyof T] = value;
+      sanitized[key as keyof T] = value as T[keyof T];
     }
   }
 
@@ -257,7 +259,7 @@ export function sanitizeSQL(input: string): never {
  * @param input - JSON string to sanitize
  * @returns Parsed and sanitized object or null if invalid
  */
-export function sanitizeJSON<T = any>(input: string): T | null {
+export function sanitizeJSON<T = unknown>(input: string): T | null {
   if (typeof input !== "string") {
     return null;
   }
@@ -320,7 +322,7 @@ export function sanitizeSearchQuery(query: string): string {
  * @returns Sanitized number or null if invalid
  */
 export function sanitizeNumber(
-  input: any,
+  input: unknown,
   min?: number,
   max?: number,
 ): number | null {
@@ -348,7 +350,7 @@ export function sanitizeNumber(
  * @param input - Input to sanitize
  * @returns Boolean value
  */
-export function sanitizeBoolean(input: any): boolean {
+export function sanitizeBoolean(input: unknown): boolean {
   if (typeof input === "boolean") {
     return input;
   }
@@ -368,7 +370,9 @@ export function sanitizeBoolean(input: any): boolean {
  * @param body - Request body to sanitize
  * @returns Sanitized body
  */
-export function sanitizeRequestBody<T extends Record<string, any>>(body: T): T {
+export function sanitizeRequestBody<T extends Record<string, unknown>>(
+  body: T,
+): T {
   return sanitizeObject(body);
 }
 
@@ -387,17 +391,19 @@ export function sanitizeRequestBody<T extends Record<string, any>>(body: T): T {
  * const sanitized = sanitizeWithSchema(userInput, schema);
  * ```
  */
-export function sanitizeWithSchema<T extends Record<string, any>>(
-  data: any,
-  schema: Record<keyof T, (value: any) => any>,
+export function sanitizeWithSchema<T extends Record<string, unknown>>(
+  data: Partial<Record<keyof T, unknown>>,
+  schema: Record<keyof T, (value: unknown) => unknown>,
 ): Partial<T> {
   const result: Partial<T> = {};
 
-  for (const [key, sanitizer] of Object.entries(schema)) {
+  for (const [key, sanitizer] of Object.entries(schema) as Array<
+    [keyof T, (value: unknown) => unknown]
+  >) {
     if (key in data) {
       const sanitized = sanitizer(data[key]);
       if (sanitized !== null && sanitized !== undefined) {
-        result[key as keyof T] = sanitized;
+        result[key] = sanitized as T[keyof T];
       }
     }
   }

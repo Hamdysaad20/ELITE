@@ -27,7 +27,7 @@ class ApiCacheManager {
   private static readonly DEFAULT_MAX_SIZE = 1000; // Maximum cached entries (~1MB memory)
   private static readonly CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private maxSize: number;
   private cleanupInterval: NodeJS.Timeout | null = null;
 
