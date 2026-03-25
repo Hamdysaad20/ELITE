@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { createOdooClient } from "@/server/utils/odooClient";
 import { updateAddressSchema } from "@/server/validators/addressSchemas";
+import { sanitizeInput, sanitizePhone } from "@/lib/sanitization";
 import type { ZodIssue } from "zod";
 
 // GET /api/addresses/[id] - Get single address
@@ -147,24 +148,36 @@ export async function PATCH(
     }
 
     // Merge validated data with existing address (only update provided fields)
+    // Sanitize all string inputs to prevent XSS
     const updateData: Record<string, unknown> = {};
     if (validatedData.label !== undefined)
-      updateData.label = validatedData.label;
+      updateData.label = sanitizeInput(validatedData.label);
     if (validatedData.street !== undefined)
-      updateData.street = validatedData.street;
+      updateData.street = sanitizeInput(validatedData.street);
     if (validatedData.apartment !== undefined)
-      updateData.apartment = validatedData.apartment;
-    if (validatedData.city !== undefined) updateData.city = validatedData.city;
+      updateData.apartment = validatedData.apartment
+        ? sanitizeInput(validatedData.apartment)
+        : null;
+    if (validatedData.city !== undefined)
+      updateData.city = sanitizeInput(validatedData.city);
     if (validatedData.state !== undefined)
-      updateData.state = validatedData.state;
+      updateData.state = validatedData.state
+        ? sanitizeInput(validatedData.state)
+        : null;
     if (validatedData.zipCode !== undefined)
-      updateData.zipCode = validatedData.zipCode;
+      updateData.zipCode = validatedData.zipCode
+        ? sanitizeInput(validatedData.zipCode)
+        : null;
     if (validatedData.country !== undefined)
-      updateData.country = validatedData.country;
+      updateData.country = sanitizeInput(validatedData.country);
     if (validatedData.phone !== undefined)
-      updateData.phone = validatedData.phone;
+      updateData.phone = validatedData.phone
+        ? sanitizePhone(validatedData.phone)
+        : null;
     if (validatedData.notes !== undefined)
-      updateData.notes = validatedData.notes;
+      updateData.notes = validatedData.notes
+        ? sanitizeInput(validatedData.notes)
+        : null;
     if (validatedData.isDefault !== undefined)
       updateData.isDefault = validatedData.isDefault;
 

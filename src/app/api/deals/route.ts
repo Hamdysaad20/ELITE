@@ -23,6 +23,7 @@ import {
   validateDealProduct,
   sanitizeDealProduct,
 } from "@/server/utils/deals/securityValidation";
+import { apiCache, CacheKeys } from "@/lib/apiCache";
 import type { DealProduct, ComboDeal, Deal } from "@/types/deals";
 
 // Re-export types for backward compatibility

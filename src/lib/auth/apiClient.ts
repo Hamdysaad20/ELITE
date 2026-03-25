@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getSession, getCsrfToken } from "next-auth/react";
 import {
   withRetry,
   classifyError,
@@ -34,6 +34,15 @@ export async function authFetch(
   if (session?.user) {
     // NextAuth handles cookies automatically, but you can add custom headers if needed
     headers.set("X-Requested-With", "XMLHttpRequest");
+  }
+
+  // Add CSRF token for state-changing methods
+  const method = options?.method?.toUpperCase() || "GET";
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    const csrfToken = await getCsrfToken();
+    if (csrfToken) {
+      headers.set("x-csrf-token", csrfToken);
+    }
   }
 
   return fetch(url, {

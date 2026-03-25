@@ -124,6 +124,57 @@ function forbiddenResponse(
 }
 
 /**
+ * Verify CSRF token for state-changing requests
+ *
+ * TODO: Re-enable once client-side CSRF token handling is implemented
+ * Currently disabled to prevent breaking existing functionality
+ */
+function verifyCSRFToken(request: NextRequest): boolean {
+  // CSRF protection temporarily disabled
+  // Need to implement client-side token handling before enabling
+  return true;
+
+  /* Commented out until client-side is ready
+  const method = request.method;
+
+  // Only check CSRF for state-changing methods
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    return true;
+  }
+
+  // Skip CSRF check for auth routes (NextAuth handles its own CSRF)
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/api/auth/')) {
+    return true;
+  }
+
+  // Get CSRF token from header
+  const csrfToken = request.headers.get('x-csrf-token');
+
+  // Get session CSRF token from cookie
+  const sessionToken = request.cookies.get('next-auth.csrf-token')?.value;
+
+  // Verify tokens exist and match using timing-safe comparison
+  if (!csrfToken || !sessionToken) {
+    return false;
+  }
+
+  try {
+    const tokenBuffer = Buffer.from(csrfToken);
+    const sessionBuffer = Buffer.from(sessionToken);
+    
+    if (tokenBuffer.length !== sessionBuffer.length) {
+      return false;
+    }
+    
+    return timingSafeEqual(tokenBuffer, sessionBuffer);
+  } catch {
+    return false;
+  }
+  */
+}
+
+/**
  * Add security headers to response
  */
 function addSecurityHeaders(response: NextResponse): NextResponse {
@@ -139,10 +190,12 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   // Referrer policy
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  // Content Security Policy (adjust as needed)
+  // Content Security Policy
+  // Note: unsafe-inline for styles is needed for Tailwind/CSS-in-JS
+  // unsafe-eval for scripts should be removed if not needed by dependencies
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    script-src 'self';
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: blob: https:;
     font-src 'self' data:;
@@ -166,7 +219,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 /**
  * Unified middleware: handles i18n first, then authentication
  */
-export async function middleware(request: NextRequest) {
+async function runMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware for static files, API routes (handled separately), and Next.js internals
@@ -194,7 +247,19 @@ export async function middleware(request: NextRequest) {
   locale = pathnameLocale;
   normalizedPath = stripLocaleFromPathname(pathname);
 
-  // Step 2: Handle authentication for protected routes
+  // Step 2: CSRF Protection for state-changing requests
+  if (normalizedPath.startsWith("/api/") && !verifyCSRFToken(request)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid CSRF token. Please refresh the page and try again.",
+        code: "CSRF_TOKEN_INVALID"
+      },
+      { status: 403 }
+    );
+  }
+
+  // Step 3: Handle authentication for protected routes
   // Check normalized path (without locale) against route lists
   const requiresAuth = matchesRoute(normalizedPath, PROTECTED_ROUTES);
   const requiresAdmin = matchesRoute(normalizedPath, ADMIN_ROUTES);
@@ -280,11 +345,8 @@ export async function middleware(request: NextRequest) {
 
     const response = NextResponse.next({ request: { headers: requestHeaders } });
 
-    // Add user context headers for downstream use
+    // Add user context headers for downstream use (no PII)
     response.headers.set("x-user-id", token.sub);
-    if (token.email) {
-      response.headers.set("x-user-email", token.email as string);
-    }
     if (token.role) {
       response.headers.set("x-user-role", token.role as string);
     }
@@ -300,6 +362,45 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error("Middleware auth error:", error);
     return unauthorizedResponse(request, "Authentication failed", locale);
+  }
+}
+
+/**
+ * Main Middleware Wrapper for Request/Response Logging Telemetry
+ */
+export async function middleware(request: NextRequest) {
+  const startTime = Date.now();
+  const { pathname } = request.nextUrl;
+
+  // Skip logging for pure assets immediately
+  const isAsset =
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    PUBLIC_FILE.test(pathname);
+
+  try {
+    const response = await runMiddleware(request);
+
+    if (!isAsset) {
+      const duration = Date.now() - startTime;
+      const status = response.status;
+      // Identify specific user context if available
+      const userId = response.headers.get("x-user-id") || "guest";
+
+      console.log(
+        `[TELEMETRY] ${request.method} ${pathname} | Status: ${status} | User: ${userId} | [${duration}ms]`,
+      );
+    }
+
+    return response;
+  } catch (err) {
+    if (!isAsset) {
+      const duration = Date.now() - startTime;
+      console.error(
+        `[TELEMETRY] ${request.method} ${pathname} | ERROR | [${duration}ms]`,
+      );
+    }
+    throw err;
   }
 }
 

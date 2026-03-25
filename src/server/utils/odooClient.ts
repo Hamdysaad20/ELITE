@@ -2,6 +2,7 @@
 import axios, { AxiosInstance } from "axios";
 import https from "node:https";
 import type { Order, OrderItem } from "@/types";
+import { ApiKeyManager } from "./apiKeyRotation";
 
 export interface OdooConfig {
   host: string; // e.g. https://odoo.example.com:8069
@@ -75,6 +76,8 @@ export class OdooClient {
     // If we already authenticated, reuse uid
     if (this.uid) return this.uid;
 
+    const currentKey = await ApiKeyManager.getActiveKey("odoo");
+
     // Use JSON-RPC 'common' service authenticate (works with API keys)
     const payload: JsonRpcRequest = {
       jsonrpc: "2.0",
@@ -82,7 +85,12 @@ export class OdooClient {
       params: {
         service: "common",
         method: "authenticate",
-        args: [this.config.db, this.config.username, this.config.password, {}],
+        args: [
+          this.config.db,
+          this.config.username,
+          currentKey || this.config.password,
+          {},
+        ],
       },
       id: Date.now(),
     };
@@ -108,6 +116,8 @@ export class OdooClient {
     kwargs: Record<string, unknown> = {},
   ): Promise<T> {
     const uid = await this.authenticate();
+    const currentKey = await ApiKeyManager.getActiveKey("odoo");
+
     const payload: JsonRpcRequest = {
       jsonrpc: "2.0",
       method: "call",
@@ -117,7 +127,7 @@ export class OdooClient {
         args: [
           this.config.db,
           uid,
-          this.config.password,
+          currentKey || this.config.password,
           model,
           method,
           args,

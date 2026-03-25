@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { openSupportMessenger } from "@/lib/support";
+import { authFetch } from "@/lib/auth/apiClient";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -32,17 +33,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [isPending, startTransition] = useTransition();
   const [pendingItems, setPendingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const checkoutDisabledMessage =
-    orderingMessage || ORDERING_DISABLED_MESSAGE;
+  const checkoutDisabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
 
-  const itemCountLabel = `${itemCount} ${itemCount === 1
-    ? orderingEnabled
-      ? "item"
-      : "saved item"
-    : orderingEnabled
-      ? "items"
-      : "saved items"
-    }`;
+  const itemCountLabel = `${itemCount} ${
+    itemCount === 1
+      ? orderingEnabled
+        ? "item"
+        : "saved item"
+      : orderingEnabled
+        ? "items"
+        : "saved items"
+  }`;
   const cartTitle = orderingEnabled ? "Shopping Cart" : "Saved Items";
 
   const formatCurrency = (value: number) =>
@@ -171,7 +172,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       // Get productIds from cart items
       const productIds = items.map((item) => item.productId);
 
-      const response = await fetch("/api/notify/item-availability", {
+      const response = await authFetch("/api/notify/item-availability", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -205,8 +206,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label={orderingEnabled ? "Shopping cart" : "Saved items"}
-        className={`fixed right-0 top-0 h-full w-full sm:w-[min(480px,calc(100vw-2rem))] md:w-[min(540px,calc(100vw-2rem))] lg:w-[600px] xl:w-[640px] bg-elite-cream shadow-2xl z-[70] transform transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed right-0 top-0 h-full w-full sm:w-[min(480px,calc(100vw-2rem))] md:w-[min(540px,calc(100vw-2rem))] lg:w-[600px] xl:w-[640px] bg-elite-cream shadow-2xl z-[70] transform transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Header - Enhanced touch targets */}
@@ -246,7 +248,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <ShoppingCart className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-elite-burgundy/30" />
                 </div>
                 <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl lg:text-2xl mb-2 lg:mb-3">
-                  {orderingEnabled ? "Your cart is empty" : "No saved items yet"}
+                  {orderingEnabled
+                    ? "Your cart is empty"
+                    : "No saved items yet"}
                 </h3>
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base lg:text-lg mb-6 lg:mb-8 max-w-sm">
                   {orderingEnabled
@@ -281,10 +285,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {/* Image - Optimized sizing with aspect ratio */}
                         <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5 aspect-square">
                           <ImageWithFallback
-                            src={[
-                              ...getLocalProductImageCandidates(item.name),
-                              item.image,
-                            ].filter(Boolean) as string[]}
+                            src={
+                              [
+                                ...getLocalProductImageCandidates(item.name),
+                                item.image,
+                              ].filter(Boolean) as string[]
+                            }
                             alt={item.name}
                             width={112}
                             height={112}
@@ -388,7 +394,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               </p>
                               {item.quantity > 1 && (
                                 <p className="font-cabin text-elite-black/50 text-xs sm:text-sm">
-                                  {formatCurrency(item.totalPrice / item.quantity)}{" "}
+                                  {formatCurrency(
+                                    item.totalPrice / item.quantity,
+                                  )}{" "}
                                   {t("each")}
                                 </p>
                               )}

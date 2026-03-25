@@ -104,6 +104,9 @@ model LoyaltyLedger {
   deltaPoints Int
   reason      String?
   createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)]) // For user points history
+  @@index([orderId]) // For order-related points lookup
 }
 
 model Order {
@@ -156,6 +159,11 @@ model Order {
 
   @@index([paymobTransactionId])
   @@index([paymentStatus])
+  @@index([userId, createdAt(sort: Desc)]) // For user order history queries
+  @@index([status, createdAt(sort: Desc)]) // For admin order filtering
+  @@index([paymentStatus, createdAt(sort: Desc)]) // For payment tracking
+  @@index([odooStatusSale, odooStatusPos]) // For sync monitoring
+  @@index([createdAt(sort: Desc)]) // For general order listing
 }
 
 model CheckoutConfig {
@@ -379,6 +387,9 @@ model Product {
   @@index([posAvailable])
   @@index([categoryId])
   @@index([posCategoryId])
+  @@index([categoryId, posAvailable]) // For category filtering with availability
+  @@index([isFeatured, isArchived]) // For featured products queries
+  @@index([posAvailable, isFeatured]) // For POS featured items
 }
 
 model Category {

@@ -1,12 +1,17 @@
 /**
- * Vitest setup file
- * Runs before all tests
+ * Universal Vitest Configuration Hub
+ * Initializes Global mock frameworks across all suites.
  */
+import { afterAll, vi } from "vitest";
 
-import { beforeAll, afterAll } from "vitest";
-import { prisma } from "../src/server/db/client";
+// Inject deep proxy mocks protecting live instances
+import "./setup/prisma";
+import "./setup/redis";
 
-// Clean up database connections after all tests
+import { prisma } from "@/server/db/client";
+
+// Prevent lingering execution context overhead
 afterAll(async () => {
-  await prisma.$disconnect();
+  if (prisma.$disconnect) await prisma.$disconnect();
+  vi.clearAllMocks();
 });

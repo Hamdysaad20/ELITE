@@ -11,6 +11,7 @@ import {
 } from "@/server/auth/emailTemplates";
 import { logAuthEvent, AuthEvent } from "@/server/auth/logger";
 import { enforceRateLimit, AUTH_RATE_LIMITS } from "@/server/auth/rateLimit";
+import { checkGenericRateLimit } from "@/server/utils/rateLimit";
 import { createOdooClient } from "@/server/utils/odooClient";
 
 const EMAIL_SERVER_HOST = process.env.EMAIL_SERVER_HOST;
@@ -245,6 +246,19 @@ export function getAuthOptions(): NextAuthOptions {
 
     callbacks: {
       async signIn({ user, account }) {
+        const identifier = user.id || user.email || "unknown_auth";
+        const limitCheck = await checkGenericRateLimit(identifier, "AUTH");
+        if (!limitCheck.allowed) {
+          logAuthEvent(
+            AuthEvent.RATE_LIMIT_EXCEEDED,
+            { userId: user.id, email: user.email || undefined },
+            "warning",
+          );
+          throw new Error(
+            "Too many authentication attempts. Please try again later.",
+          );
+        }
+
         logAuthEvent(
           AuthEvent.SIGNIN_STARTED,
           {

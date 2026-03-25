@@ -225,6 +225,13 @@ export default function DrinkCard({
     return sizes.price;
   })();
 
+  const imgSizes =
+    size === "small"
+      ? "(max-width: 640px) 160px, (max-width: 1024px) 250px, 300px"
+      : size === "medium"
+        ? "(max-width: 640px) 250px, (max-width: 1024px) 350px, 450px"
+        : "(max-width: 768px) 100vw, 800px";
+
   const CardContent = () => (
     <div
       className={cn(
@@ -262,7 +269,7 @@ export default function DrinkCard({
             "relative bg-gradient-to-b from-elite-cream/60 to-elite-burgundy/8 rounded-xl sm:rounded-2xl overflow-hidden",
             "group-hover:shadow-inner",
             sizes.image,
-            "p-1" // Reduced padding for zoomed-in effect
+            "p-1", // Reduced padding for zoomed-in effect
           )}
         >
           {/* Image with enhanced hover effect */}
@@ -279,6 +286,7 @@ export default function DrinkCard({
               objectFit="contain" // Changed to contain
               showErrorIcon={true}
               quality={95}
+              sizes={imgSizes}
             />
             {/* Subtle gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-t from-elite-burgundy/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

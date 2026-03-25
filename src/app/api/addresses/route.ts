@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { getAuthOptions } from "@/server/auth/options";
 import { createOdooClient } from "@/server/utils/odooClient";
 import { createAddressSchema } from "@/server/validators/addressSchemas";
+import { sanitizeObject, sanitizePhone } from "@/lib/sanitization";
 
 // GET /api/addresses - Get all addresses for current user
 export async function GET(req: NextRequest) {
@@ -133,18 +134,30 @@ export async function POST(req: NextRequest) {
       where: { userId: session.user.id },
     });
 
+    // Sanitize address data before storing to prevent XSS
+    const sanitizedData = sanitizeObject({
+      label,
+      street,
+      apartment,
+      city,
+      state,
+      zipCode,
+      country,
+      notes,
+    });
+
     const address = await prisma.address.create({
       data: {
         userId: session.user.id,
-        label: label as string,
-        street: street as string,
-        apartment: apartment as string | null | undefined,
-        city: city as string,
-        state: state as string | null | undefined,
-        zipCode: zipCode as string | null | undefined,
-        country: country as string,
-        phone: phone as string | null | undefined,
-        notes: notes as string | null | undefined,
+        label: sanitizedData.label as string,
+        street: sanitizedData.street as string,
+        apartment: sanitizedData.apartment as string | null | undefined,
+        city: sanitizedData.city as string,
+        state: sanitizedData.state as string | null | undefined,
+        zipCode: sanitizedData.zipCode as string | null | undefined,
+        country: sanitizedData.country as string,
+        phone: phone ? sanitizePhone(phone as string) : null,
+        notes: sanitizedData.notes as string | null | undefined,
         isDefault: (isDefault as boolean) || addressCount === 0,
       },
     });

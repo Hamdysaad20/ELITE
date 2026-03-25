@@ -1,0 +1,16 @@
+{
+  "name": "ELITE Coffee Shop",
+  "short_name": "ELITE",
+  "description": "Order your favorite coffee natively connected to Elite's ERP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8B0000",
+  "theme_color": "#8B0000",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
