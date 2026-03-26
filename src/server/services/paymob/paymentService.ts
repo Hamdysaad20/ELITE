@@ -260,6 +260,23 @@ export class PaymentService {
       );
     }
 
+    // Safety: ensure Paymob webhook amount matches the stored order total.
+    const orderTotal = Number(order.total);
+    const webhookAmount = Number(transaction.amount_cents) / 100;
+    if (
+      !Number.isFinite(orderTotal) ||
+      !Number.isFinite(webhookAmount) ||
+      Math.abs(orderTotal - webhookAmount) > 0.01
+    ) {
+      throw new Error("Payment amount mismatch");
+    }
+    if (
+      typeof transaction.currency === "string" &&
+      transaction.currency.toUpperCase() !== "EGP"
+    ) {
+      throw new Error("Payment currency mismatch");
+    }
+
     // Determine payment status
     let paymentStatus: PaymentTransactionStatus;
     let orderPaymentStatus: string;

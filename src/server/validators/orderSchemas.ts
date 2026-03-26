@@ -1,23 +1,24 @@
 import { z } from "zod";
 import { PaymentMethod, OrderType } from "@/types";
+import { CART_CONFIG } from "@/lib/constants";
 
 // Schema for cart items sent from client (LocalCartItem format)
 const cartItemSchema = z.object({
   id: z.string(),
   productId: z.string(),
   name: z.string(),
-  basePrice: z.number(),
-  quantity: z.number().int().positive(),
+  basePrice: z.number().finite().nonnegative(),
+  quantity: z.number().int().positive().max(CART_CONFIG.MAX_QUANTITY),
   attributes: z.record(
     z.array(
       z.object({
-        valueId: z.number(),
-        valueName: z.string(),
-        priceExtra: z.number(),
+        valueId: z.number().int().positive(),
+        valueName: z.string().max(200),
+        priceExtra: z.number().finite().min(-1000).max(100000),
       }),
     ),
   ),
-  totalPrice: z.number(),
+  totalPrice: z.number().finite().nonnegative(),
   image: z.string().optional(),
 });
 

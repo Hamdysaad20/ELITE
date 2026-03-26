@@ -34,6 +34,7 @@ import { checkOrderRateLimit } from "@/server/utils/rateLimit";
 import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
 import { trackOrderEvent, trackApiPerformance } from "@/server/utils/analytics";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { buildPricedOrderItems } from "@/server/utils/orderPricing";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
 // Auto-start Points Retry worker when orders API is first accessed
@@ -155,25 +156,27 @@ export async function POST(request: NextRequest) {
     const body = createOrderSchema.parse(raw);
 
     const checkoutConfig = await getCheckoutConfig();
-    if (!checkoutConfig.orderingEnabled) {
-      throw new ServiceUnavailableError(
-        checkoutConfig.orderingMessage || ORDERING_DISABLED_MESSAGE,
-      );
-    }
+    // orderingEnabled now only pertains to online payments, so we don't globally block here.
 
     // Online payments require an authenticated user (Paymob requires email and identity)
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
     const isOnlinePayment = onlinePaymentMethods.includes(body.paymentMethod);
-    // Online-only checkout: all orders must be paid online.
-    if (!isOnlinePayment) {
-      throw new BadRequestError("Only online payment is available.");
+
+    // SECURITY ENFORCEMENT: The ORDERING_ENABLED flag exclusively controls online payments natively.
+    // If a request bypasses frontend UI constraints, we decisively block it here.
+    if (isOnlinePayment && !checkoutConfig.orderingEnabled) {
+      throw new ServiceUnavailableError(
+        checkoutConfig.orderingMessage ||
+          "Online payments are currently disabled. Please select Cash on Delivery.",
+      );
     }
-    if (!isPaymobConfigured()) {
+
+    if (isOnlinePayment && !isPaymobConfigured()) {
       throw new ServiceUnavailableError(
         "Online ordering is temporarily unavailable. Please try again later.",
       );
     }
-    if (!authUser?.id) {
+    if (isOnlinePayment && !authUser?.id) {
       throw new BadRequestError("Please sign in to pay online.");
     }
 
@@ -205,8 +208,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Calculate totals from LocalCartItem format
-    const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    // IMPORTANT: treat cart/order payload as untrusted; recompute pricing server-side.
+    const { pricedItems, subtotal } = await buildPricedOrderItems(cartItems);
     const deliveryFee =
       body.orderType === "DELIVERY" ? checkoutConfig.deliveryFee : 0;
     const codFee =
@@ -234,29 +237,16 @@ export async function POST(request: NextRequest) {
           notes: body.notes || null,
           clientOrderRef,
           items: {
-            create: cartItems.map((item) => {
-              // Calculate unit price (base + extras)
-              const unitPrice = item.totalPrice / item.quantity;
-              // Format attributes for storage
-              const attributesList = Object.entries(item.attributes).flatMap(
-                ([attrName, values]) =>
-                  values.map((v) => `${attrName}: ${v.valueName}`),
-              );
-              return {
-                productId: item.productId,
-                sku: item.productId,
-                name: item.name,
-                categoryId: undefined,
-                quantity: item.quantity,
-                unitPrice,
-                totalPrice: item.totalPrice,
-                attributes: {
-                  basePrice: item.basePrice,
-                  selections: item.attributes,
-                  formatted: attributesList,
-                },
-              };
-            }),
+            create: pricedItems.map((item) => ({
+              productId: item.productId,
+              sku: item.sku,
+              name: item.name,
+              categoryId: item.categoryId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.totalPrice,
+              attributes: item.attributes,
+            })),
           },
         },
         include: {

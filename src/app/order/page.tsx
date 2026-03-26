@@ -70,7 +70,7 @@ function OrderPageContent() {
     "PICKUP" as OrderType,
   );
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(
-    PaymentMethod.CARD,
+    PaymentMethod.CASH,
   );
   const [selectedAddress, setSelectedAddress] = React.useState<Address | null>(
     null,
@@ -112,10 +112,16 @@ function OrderPageContent() {
     enabledPaymentMethods: PaymentMethod[];
     deliveryFee: number;
     codFee: number;
+    orderingEnabled: boolean;
   }>({
-    enabledPaymentMethods: [PaymentMethod.CARD, PaymentMethod.WALLET],
+    enabledPaymentMethods: [
+      PaymentMethod.CARD,
+      PaymentMethod.WALLET,
+      PaymentMethod.CASH,
+    ],
     deliveryFee: 15,
     codFee: 0,
+    orderingEnabled: true,
   });
 
   React.useEffect(() => {
@@ -131,6 +137,7 @@ function OrderPageContent() {
           enabledPaymentMethods?: PaymentMethod[];
           deliveryFee?: number;
           codFee?: number;
+          orderingEnabled?: boolean;
         };
         if (cancelled) return;
         if (
@@ -142,6 +149,10 @@ function OrderPageContent() {
             deliveryFee:
               typeof data.deliveryFee === "number" ? data.deliveryFee : 15,
             codFee: typeof data.codFee === "number" ? data.codFee : 0,
+            orderingEnabled:
+              typeof data.orderingEnabled === "boolean"
+                ? data.orderingEnabled
+                : true,
           });
         }
       } catch {
@@ -167,12 +178,11 @@ function OrderPageContent() {
   const isCheckoutEnabled = checkoutConfig.enabledPaymentMethods.length > 0;
 
   const isOnlinePayment =
-    paymentMethod === PaymentMethod.CARD || paymentMethod === PaymentMethod.WALLET;
+    paymentMethod === PaymentMethod.CARD ||
+    paymentMethod === PaymentMethod.WALLET;
   const needsAddressForPayment = isOnlinePayment;
   const hasAuthForOnlinePayment = Boolean(session?.user?.email);
-  const hasPhoneForOnlinePayment = Boolean(
-    selectedAddress?.phone,
-  );
+  const hasPhoneForOnlinePayment = Boolean(selectedAddress?.phone);
 
   // Auto-select default address when switching to delivery or online payment
   React.useEffect(() => {
@@ -216,7 +226,9 @@ function OrderPageContent() {
         }
 
         clearCart();
-        localizedRouter.push(`/payment/process?orderId=${orderId}&paymentKey=${json.data.paymentKey}`);
+        localizedRouter.push(
+          `/payment/process?orderId=${orderId}&paymentKey=${json.data.paymentKey}`,
+        );
       } catch (e) {
         const msg =
           e instanceof Error && e.message ? e.message : t("errors.paymentInit");
@@ -265,7 +277,10 @@ function OrderPageContent() {
     }
 
     // Online-only checkout: force online payment methods only
-    if (paymentMethod !== PaymentMethod.CARD && paymentMethod !== PaymentMethod.WALLET) {
+    if (
+      paymentMethod !== PaymentMethod.CARD &&
+      paymentMethod !== PaymentMethod.WALLET
+    ) {
       setSubmitError(t("errors.onlineOnly"));
       setSubmitting(false);
       push({ type: "error", message: t("errors.onlineOnly") });
@@ -363,7 +378,9 @@ function OrderPageContent() {
       ) {
         clearCart(); // Order is created; cart should not remain after redirecting to payment
         // Redirect to payment page
-        localizedRouter.push(`/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`);
+        localizedRouter.push(
+          `/payment/process?orderId=${orderData.order.id}&paymentKey=${orderData.paymentIntent.paymentKey}`,
+        );
         return;
       }
 
@@ -430,10 +447,9 @@ function OrderPageContent() {
     : true;
 
   const getCartItemImageSources = (item: LocalCartItem): string[] => {
-    return [
-      ...getLocalProductImageCandidates(item.name),
-      item.image,
-    ].filter(Boolean) as string[];
+    return [...getLocalProductImageCandidates(item.name), item.image].filter(
+      Boolean,
+    ) as string[];
   };
 
   const formatCartItemOptions = (item: LocalCartItem): string | null => {
@@ -444,7 +460,10 @@ function OrderPageContent() {
     if (entries.length === 0) return null;
 
     const parts = entries.map(([k, values]) => {
-      const names = values.map((v) => v.valueName).filter(Boolean).join(", ");
+      const names = values
+        .map((v) => v.valueName)
+        .filter(Boolean)
+        .join(", ");
       return names ? `${k}: ${names}` : k;
     });
 
@@ -550,7 +569,9 @@ function OrderPageContent() {
                 <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${
-                      stepDetailsDone ? "w-2/3 bg-elite-burgundy" : "w-1/3 bg-elite-burgundy"
+                      stepDetailsDone
+                        ? "w-2/3 bg-elite-burgundy"
+                        : "w-1/3 bg-elite-burgundy"
                     }`}
                   />
                 </div>
@@ -578,7 +599,9 @@ function OrderPageContent() {
                 <div className="flex-1 h-1 bg-elite-burgundy/10 rounded-full mx-2 sm:mx-4 overflow-hidden hidden sm:block">
                   <div
                     className={`h-full rounded-full transition-all ${
-                      stepPaymentReady ? "w-full bg-elite-burgundy" : "w-1/2 bg-elite-burgundy"
+                      stepPaymentReady
+                        ? "w-full bg-elite-burgundy"
+                        : "w-1/2 bg-elite-burgundy"
                     }`}
                   />
                 </div>
@@ -604,14 +627,15 @@ function OrderPageContent() {
                 </div>
               </div>
 
-              {isOnlinePayment && (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
-                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
-                  <p className="font-cabin text-amber-900 text-sm">
-                    {t("warnings.onlinePaymentRequirements")}
-                  </p>
-                </div>
-              )}
+              {isOnlinePayment &&
+                (!hasAuthForOnlinePayment || !hasPhoneForOnlinePayment) && (
+                  <div className="mt-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                    <p className="font-cabin text-amber-900 text-sm">
+                      {t("warnings.onlinePaymentRequirements")}
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -998,39 +1022,60 @@ function OrderPageContent() {
                     </div>
                   ) : (
                     <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
-                      {/* Online-only payment methods */}
+                      {/* Map dynamic checkoutConfig items */}
                       {checkoutConfig.enabledPaymentMethods.map((m) => {
                         const isSelected = paymentMethod === m;
+                        const isOnlineMethod =
+                          m === PaymentMethod.CARD ||
+                          m === PaymentMethod.WALLET;
+                        const isTemporarilyDisabled =
+                          isOnlineMethod && !checkoutConfig.orderingEnabled;
                         const icon =
                           m === PaymentMethod.WALLET ? (
+                            <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />
+                          ) : m === PaymentMethod.CASH ? (
                             <Wallet className="w-6 h-6 sm:w-7 sm:h-7" />
                           ) : (
                             <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
                           );
                         const label = paymentMethodLabel(m);
-                        const desc = paymentMethodDescription(m);
+                        const desc = isTemporarilyDisabled
+                          ? `${paymentMethodDescription(m) || "Cash on Delivery"} (Temporarily Disabled)`
+                          : m === PaymentMethod.CASH
+                            ? "Cash on Delivery"
+                            : paymentMethodDescription(m);
 
                         return (
                           <label
                             key={m}
-                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation ${
-                              isSelected
+                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden ${
+                              isTemporarilyDisabled
+                                ? "cursor-not-allowed opacity-60 bg-gray-50 border-gray-200"
+                                : "cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation"
+                            } ${
+                              isSelected && !isTemporarilyDisabled
                                 ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
-                                : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
+                                : !isTemporarilyDisabled
+                                  ? "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
+                                  : ""
                             }`}
                           >
                             <input
                               type="radio"
                               className="sr-only"
                               checked={isSelected}
-                              onChange={() => setPaymentMethod(m)}
-                              disabled={submitting}
+                              onChange={() => {
+                                if (!isTemporarilyDisabled) setPaymentMethod(m);
+                              }}
+                              disabled={submitting || isTemporarilyDisabled}
                             />
                             <div
                               className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
-                                isSelected
+                                isSelected && !isTemporarilyDisabled
                                   ? "bg-elite-burgundy text-elite-cream"
-                                  : "bg-elite-cream text-elite-burgundy"
+                                  : isTemporarilyDisabled
+                                    ? "bg-gray-200 text-gray-400"
+                                    : "bg-elite-cream text-elite-burgundy"
                               }`}
                             >
                               {icon}
@@ -1045,7 +1090,7 @@ function OrderPageContent() {
                             </div>
                             <Check
                               className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0 transition-opacity duration-300 ${
-                                isSelected
+                                isSelected && !isTemporarilyDisabled
                                   ? "text-elite-burgundy opacity-100"
                                   : "text-elite-burgundy opacity-0"
                               }`}
@@ -1184,7 +1229,9 @@ function OrderPageContent() {
                               </div>
                             )}
                             <div className="font-cabin text-xs text-elite-black/60 flex items-center justify-between gap-2">
-                              <span>{t("summary.qty", { count: it.quantity })}</span>
+                              <span>
+                                {t("summary.qty", { count: it.quantity })}
+                              </span>
                               <span className="tabular-nums font-semibold text-elite-black/70">
                                 {formatCurrency(it.totalPrice)}
                               </span>

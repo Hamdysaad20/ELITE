@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import Image from "next/image";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -32,13 +33,15 @@ const CategoryCard = ({
   >
     <div
       ref={refProp}
-      className="w-56 h-56 lg:w-80 lg:h-80 rounded-full bg-elite-burgundy overflow-hidden mb-8 transition-transform group-hover:scale-105 shadow-lg"
+      className="w-56 h-56 lg:w-80 lg:h-80 rounded-full bg-elite-burgundy overflow-hidden mb-8 transition-transform group-hover:scale-105 shadow-lg relative"
     >
       {imageSrc ? (
-        <img
+        <Image
           src={imageSrc}
           alt={altText}
-          className="w-full h-full object-cover"
+          fill
+          sizes="(max-width: 1024px) 224px, 320px"
+          className="object-cover"
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
@@ -116,7 +119,7 @@ export default function FindAndGet() {
           <CategoryCard
             href="/menu/classic-drinks"
             refProp={classicDrinksRef}
-            imageSrc="https://ext.same-assets.com/1022434225/2187497136.avif"
+            imageSrc="/Old Items/Latte.png"
             altText={t("categories.classic")}
             title={t("categories.classic")}
           />
@@ -125,7 +128,7 @@ export default function FindAndGet() {
           <CategoryCard
             href="/menu/special-drinks"
             refProp={specialDrinksRef}
-            imageSrc="https://ext.same-assets.com/1022434225/3438940369.avif"
+            imageSrc="/Old Items/Cortado.png"
             altText={t("categories.special")}
             title={t("categories.special")}
           />
