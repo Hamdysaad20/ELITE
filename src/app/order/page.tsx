@@ -45,9 +45,19 @@ function OrderPageContent() {
   const format = useFormatter();
   const locale = useLocale();
   const isRTL = locale === "ar";
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const localizedRouter = useLocalizedRouter();
   const searchParams = useSearchParams();
+
+  // Redirect unauthenticated users to sign-in
+  React.useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      const callbackUrl = addLocaleToPathname("/order", locale);
+      localizedRouter.push(
+        `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+      );
+    }
+  }, [sessionStatus, locale, localizedRouter]);
   const {
     items: cartItems,
     isLoading: loading,
@@ -273,17 +283,6 @@ function OrderPageContent() {
         type: "error",
         message: t("errors.cartEmpty"),
       });
-      return;
-    }
-
-    // Online-only checkout: force online payment methods only
-    if (
-      paymentMethod !== PaymentMethod.CARD &&
-      paymentMethod !== PaymentMethod.WALLET
-    ) {
-      setSubmitError(t("errors.onlineOnly"));
-      setSubmitting(false);
-      push({ type: "error", message: t("errors.onlineOnly") });
       return;
     }
 
