@@ -102,11 +102,17 @@ export async function GET(request: NextRequest) {
     const take = Math.max(1, Math.min(100, Number(limit) || 20));
     const skip = Math.max(0, Number(offset) || 0);
 
+    // Show PAID orders + CASH-method orders (COD are auto-marked PAID, this is a safety net)
+    const visibilityFilter = {
+      userId,
+      OR: [
+        { paymentStatus: PaymentStatus.PAID },
+        { paymentMethod: PaymentMethod.CASH },
+      ],
+    };
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
-        // Online-only: treat an order as "placed" only when PAID.
-        // (We keep pending payment orders in DB for webhook/ops, but hide them from users.)
-        where: { userId, paymentStatus: PaymentStatus.PAID },
+        where: visibilityFilter,
         orderBy: { createdAt: "desc" },
         skip,
         take,
@@ -119,7 +125,7 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.order.count({
-        where: { userId, paymentStatus: PaymentStatus.PAID },
+        where: visibilityFilter,
       }),
     ]);
 
@@ -161,6 +167,7 @@ export async function POST(request: NextRequest) {
     // Online payments require an authenticated user (Paymob requires email and identity)
     const onlinePaymentMethods = [PaymentMethod.CARD, PaymentMethod.WALLET];
     const isOnlinePayment = onlinePaymentMethods.includes(body.paymentMethod);
+    const isCashPayment = body.paymentMethod === PaymentMethod.CASH;
 
     // SECURITY ENFORCEMENT: The ORDERING_ENABLED flag exclusively controls online payments natively.
     // If a request bypasses frontend UI constraints, we decisively block it here.
@@ -226,7 +233,9 @@ export async function POST(request: NextRequest) {
           userId,
           addressId: body.addressId || null,
           status: OrderStatus.PENDING,
-          paymentStatus: PaymentStatus.PENDING,
+          paymentStatus: isCashPayment
+            ? PaymentStatus.PAID
+            : PaymentStatus.PENDING,
           paymentMethod: body.paymentMethod,
           orderType: body.orderType,
           subtotal,
@@ -341,7 +350,6 @@ export async function POST(request: NextRequest) {
 
     // Only sync to Odoo if payment is confirmed (PAID) or CASH (COD)
     // For online payments, wait for payment confirmation via webhook
-    const isCashPayment = body.paymentMethod === PaymentMethod.CASH;
     const isPaid = created.paymentStatus === PaymentStatus.PAID;
 
     if (isCashPayment || isPaid) {

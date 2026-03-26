@@ -29,6 +29,7 @@ export async function GET(
         odooStatusPos: true,
         status: true,
         paymentStatus: true,
+        paymentMethod: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -37,8 +38,9 @@ export async function GET(
     if (!order) {
       return jsonResponse(errorResponse("Order not found"), 404);
     }
-    // Online-only: only expose orders to users once they're paid.
-    if (order.paymentStatus !== "PAID") {
+    // Hide unpaid online-payment orders (awaiting webhook confirmation).
+    // CASH orders are auto-marked PAID; this is a safety net.
+    if (order.paymentStatus !== "PAID" && order.paymentMethod !== "CASH") {
       return jsonResponse(errorResponse("Order not found"), 404);
     }
 
