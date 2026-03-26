@@ -1,13 +1,28 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
-import GoodVibesSection from "@/components/GoodVibesSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import NearbyCafesSection from "@/components/NearbyCafesSection";
-import FindAndGet from "@/components/FindAndGet";
-import LovedByLocals from "@/components/LovedByLocals";
-import Footer from "@/components/Footer";
+
+const GoodVibesSection = dynamic(
+  () => import("@/components/GoodVibesSection"),
+  { ssr: true },
+);
+const TestimonialsSection = dynamic(
+  () => import("@/components/TestimonialsSection"),
+  { ssr: true },
+);
+const NearbyCafesSection = dynamic(
+  () => import("@/components/NearbyCafesSection"),
+  { ssr: true },
+);
+const FindAndGet = dynamic(() => import("@/components/FindAndGet"), {
+  ssr: true,
+});
+const LovedByLocals = dynamic(() => import("@/components/LovedByLocals"), {
+  ssr: true,
+});
+const Footer = dynamic(() => import("@/components/Footer"), { ssr: true });
 
 export default function Home() {
   const { status } = useSession();

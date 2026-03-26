@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import Image from "next/image";
 
 export default function Hero() {
   const leftCupRef = useRef(null);
@@ -107,12 +108,13 @@ export default function Hero() {
               ref={leftCupRef}
               className="hidden sm:flex items-end justify-center -rotate-12 -mr-8 md:-mr-12 pointer-events-none"
             >
-              <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none">
-                <img
-                  src="https://ext.same-assets.com/1022434225/3040081048.avif"
+              <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none relative">
+                <Image
+                  src="/Old Items/Americano.png"
                   alt={t("alts.justCoffee")}
-                  className="w-full h-full object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
-                  loading="eager"
+                  fill
+                  sizes="(max-width: 768px) 144px, 224px"
+                  className="object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
                 />
               </div>
             </div>
@@ -122,12 +124,14 @@ export default function Hero() {
               ref={centerCupRef}
               className="flex items-end justify-center z-10 pointer-events-none"
             >
-              <div className="w-52 sm:w-56 md:w-64 lg:w-72 aspect-[4/5] pointer-events-none">
-                <img
-                  src="https://ext.same-assets.com/1022434225/3705697434.avif"
+              <div className="w-52 sm:w-56 md:w-64 lg:w-72 aspect-[4/5] pointer-events-none relative">
+                <Image
+                  src="/Old Items/Espresso.png"
                   alt={t("alts.espresso")}
-                  className="w-full h-full object-contain drop-shadow-2xl translate-y-6 sm:translate-y-4 pointer-events-none"
-                  loading="eager"
+                  fill
+                  sizes="(max-width: 640px) 208px, (max-width: 768px) 224px, 288px"
+                  className="object-contain drop-shadow-2xl translate-y-6 sm:translate-y-4 pointer-events-none"
+                  priority
                 />
               </div>
             </div>
@@ -137,12 +141,13 @@ export default function Hero() {
               ref={rightCupRef}
               className="hidden sm:flex items-end justify-center rotate-12 -ml-8 md:-ml-12 pointer-events-none"
             >
-              <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none">
-                <img
-                  src="https://ext.same-assets.com/1022434225/515548484.avif"
+              <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none relative">
+                <Image
+                  src="/Old Items/Iced Americano.png"
                   alt={t("alts.coldBrew")}
-                  className="w-full h-full object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
-                  loading="eager"
+                  fill
+                  sizes="(max-width: 768px) 144px, 224px"
+                  className="object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
                 />
               </div>
             </div>

@@ -8,18 +8,21 @@ const cabinCondensed = Cabin_Condensed({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   variable: "--font-cabin-condensed",
+  display: "swap",
 });
 
 const calistoga = Calistoga({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-calistoga",
+  display: "swap",
 });
 
 const cairo = Cairo({
   subsets: ["arabic"],
   weight: ["400", "600", "700"],
   variable: "--font-cairo",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

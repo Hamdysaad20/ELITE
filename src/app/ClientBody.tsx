@@ -83,22 +83,22 @@ export default function ClientBody({
     };
   }, []);
 
-  // Handle beforeunload to clean up state
+  // Handle pagehide to clean up state (supports bfcache)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handleBeforeUnload = () => {
+    const handlePageHide = () => {
       try {
         cleanupNavigationState();
       } catch (error) {
-        console.warn("Failed to cleanup on beforeunload:", error);
+        console.warn("Failed to cleanup on pagehide:", error);
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("pagehide", handlePageHide);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handlePageHide);
     };
   }, []);
 
@@ -114,9 +114,7 @@ export default function ClientBody({
         )}
         <ToastProvider>
           {!isAuthPage && <OrderingBanner />}
-          <main className="md:pb-0 pb-[88px]">
-            {children}
-          </main>
+          <main className="md:pb-0 pb-[88px]">{children}</main>
         </ToastProvider>
         {!isAuthPage && <MobileNavigation />}
       </OrderingProvider>
