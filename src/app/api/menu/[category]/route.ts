@@ -22,7 +22,13 @@ export async function GET(
       return jsonResponse({ success: false, error: "Category not found" }, 404);
     }
 
-    return jsonResponse(successResponse(category));
+    const response = jsonResponse(successResponse(category));
+    // Static menu data — cache aggressively
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=600, stale-while-revalidate=3600",
+    );
+    return response;
   } catch (error) {
     return handleApiError(error);
   }

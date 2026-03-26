@@ -12,7 +12,13 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    return jsonResponse(successResponse(menuData));
+    const response = jsonResponse(successResponse(menuData));
+    // Menu data is static — cache aggressively
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=600, stale-while-revalidate=3600",
+    );
+    return response;
   } catch (error) {
     return handleApiError(error);
   }

@@ -37,7 +37,13 @@ export async function GET(
       );
     }
 
-    return jsonResponse(successResponse(menuItem));
+    const response = jsonResponse(successResponse(menuItem));
+    // Static menu data — cache aggressively
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=600, stale-while-revalidate=3600",
+    );
+    return response;
   } catch (error) {
     return handleApiError(error);
   }
