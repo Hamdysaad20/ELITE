@@ -236,7 +236,7 @@ async function runMiddleware(request: NextRequest) {
   let locale: Locale;
   let normalizedPath: string;
 
-  if (!pathnameLocale) {
+  if (!pathnameLocale && !pathname.startsWith("/api")) {
     // No locale in pathname - redirect to add locale
     locale = getPreferredLocale(request);
     const url = request.nextUrl.clone();
@@ -244,7 +244,8 @@ async function runMiddleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  locale = pathnameLocale;
+  // For API routes lacking a locale prefix, assign the preferred locale without redirecting
+  locale = pathnameLocale || getPreferredLocale(request);
   normalizedPath = stripLocaleFromPathname(pathname);
 
   // Step 2: CSRF Protection for state-changing requests
