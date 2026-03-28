@@ -242,31 +242,31 @@ Phase 1 (must-have for COD checkout)
 - [ ] Enable “Add address” during checkout (no dead-ends) and auto-select newly created address.
 
 Phase 2 (polish + correctness)
-- [ ] Prefill partner info from session + address phone.
-- [ ] Disable Place Order while cart is updating/submitting.
-- [ ] Add clear unauthenticated handling for `/order`.
+- [x] Prefill partner info from session + address phone.
+- [x] Disable Place Order while cart is updating/submitting.
+- [x] Add clear unauthenticated handling for `/order`.
 
 Phase 3 (API correctness hardening)
-- [ ] Align `/api/cart/[itemId]` and `/api/orders/[id]` with `getAuthUser`.
-- [ ] Audit any other endpoints relying on `x-user-id` request header.
+- [x] Align `/api/cart/[itemId]` and `/api/orders/[id]` with `getAuthUser`.
+- [x] Audit any other endpoints relying on `x-user-id` request header.
 
 ---
 
 ## 8) Acceptance criteria (definition of done)
 
 COD-only
-- [ ] Checkout places an order with `paymentMethod = CASH`.
-- [ ] UI never shows card/online options.
+- [x] Checkout places an order with `paymentMethod = CASH`.
+- [x] UI never shows card/online options.
 
 Addresses
-- [ ] Delivery checkout works with existing saved addresses.
-- [ ] Delivery checkout works when user has **zero** addresses (can add one inline).
-- [ ] Newly created address can be selected immediately (auto-selected).
+- [x] Delivery checkout works with existing saved addresses.
+- [x] Delivery checkout works when user has **zero** addresses (can add one inline).
+- [x] Newly created address can be selected immediately (auto-selected).
 
 Prefill
-- [ ] Order payload includes partner name/email from session (no “Website Customer” placeholder).
+- [x] Order payload includes partner name/email from session (no “Website Customer” placeholder).
 
 Edge cases
-- [ ] Unauthenticated users are redirected or prompted to sign in.
-- [ ] Empty cart cannot place order.
-- [ ] Errors are shown clearly and allow retry without losing selections.
+- [x] Unauthenticated users are redirected or prompted to sign in.
+- [x] Empty cart cannot place order.
+- [x] Errors are shown clearly and allow retry without losing selections.

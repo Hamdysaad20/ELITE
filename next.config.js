@@ -9,6 +9,8 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -38,6 +40,31 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+
+  async headers() {
+    return [
+      {
+        // Long-term cache for static assets (images, fonts, etc.)
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache fonts aggressively
+        source: "/fonts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
   },
 
   async redirects() {

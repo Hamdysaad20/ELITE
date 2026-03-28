@@ -13,13 +13,19 @@ export async function GET(_req: NextRequest) {
     // Use safe catalog fetching with SWR strategy
     const { categories, products, lastUpdate } = await getCatalogSafe();
 
-    return jsonResponse(
+    const response = jsonResponse(
       successResponse({
         categories,
         products,
         lastUpdate: lastUpdate || null,
       }),
     );
+    // Catalog data — cache for 5 minutes, stale for 1 hour
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=300, stale-while-revalidate=3600",
+    );
+    return response;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to fetch menu";
     return jsonResponse(errorResponse(msg), 500);

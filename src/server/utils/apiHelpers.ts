@@ -62,7 +62,7 @@ export function jsonResponse<T>(data: ApiResponse<T>, status = 200): Response {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Cache-Control": "private, no-cache",
     },
   });
 }
