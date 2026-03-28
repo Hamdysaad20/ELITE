@@ -122,7 +122,9 @@ function normalizeProduct(
   // Thumbnail logic: Use local image if available, otherwise base64 thumbnail
   const thumbnail = localImage
     ? localImage
-    : (image128 ? `data:image/png;base64,${image128}` : null);
+    : image128
+      ? `data:image/png;base64,${image128}`
+      : null;
 
   return {
     id: String(rec.id),
@@ -133,14 +135,14 @@ function normalizeProduct(
     categoryId: categoryId ? String(categoryId) : undefined,
     category: categoryDetail
       ? {
-        id: String(categoryDetail.id),
-        name: categoryDetail.name,
-      }
+          id: String(categoryDetail.id),
+          name: categoryDetail.name,
+        }
       : categoryName
         ? {
-          id: String(categoryId),
-          name: categoryName,
-        }
+            id: String(categoryId),
+            name: categoryName,
+          }
         : undefined,
     available,
     stock: (rec as any).qty_available ?? null,
@@ -226,7 +228,9 @@ async function performSync(
     );
   }
 
-  // Try to acquire distributed lock (atomic operation)
+  // Try to acquire distributed lock (atomic operation).
+  // If Redis is unavailable, continue without lock and serve direct Odoo data.
+  let redisAvailable = true;
   let lockAcquired = false;
   try {
     lockAcquired = await redisSetNx(
@@ -235,50 +239,55 @@ async function performSync(
       SYNC_LOCK_TTL,
     );
   } catch (err) {
-    // Redis might be down - log but continue (will fail later if Redis is needed)
+    redisAvailable = false;
     console.warn("[AUTO-SYNC] Failed to check lock (Redis may be down):", err);
   }
 
-  if (!lockAcquired) {
+  if (redisAvailable && !lockAcquired) {
     console.log("[AUTO-SYNC] Sync already in progress, skipping...");
     return { success: false, error: "Sync already in progress" };
   }
 
   // Check rate limiting using Redis (works across instances)
-  try {
-    const lastAttemptStr = await redisGet<string>(SYNC_LAST_ATTEMPT_KEY);
-    if (lastAttemptStr) {
-      const lastAttempt = parseInt(lastAttemptStr, 10);
-      const now = Date.now();
-      const timeSinceLastAttempt = (now - lastAttempt) / 1000; // seconds
+  if (redisAvailable) {
+    try {
+      const lastAttemptStr = await redisGet<string>(SYNC_LAST_ATTEMPT_KEY);
+      if (lastAttemptStr) {
+        const lastAttempt = parseInt(lastAttemptStr, 10);
+        const now = Date.now();
+        const timeSinceLastAttempt = (now - lastAttempt) / 1000; // seconds
 
-      if (timeSinceLastAttempt < SYNC_RATE_LIMIT_SECONDS) {
-        console.log(
-          `[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`,
-        );
-        // Release lock since we're not syncing
-        await redisDel(SYNC_LOCK_KEY).catch(() => { });
-        return { success: false, error: "Rate limited" };
+        if (timeSinceLastAttempt < SYNC_RATE_LIMIT_SECONDS) {
+          console.log(
+            `[AUTO-SYNC] Rate limited, last sync was ${Math.round(timeSinceLastAttempt)}s ago`,
+          );
+          // Release lock since we're not syncing
+          await redisDel(SYNC_LOCK_KEY).catch(() => {});
+          return { success: false, error: "Rate limited" };
+        }
       }
+    } catch (err) {
+      // Redis error - continue without rate limiting
+      redisAvailable = false;
+      console.warn("[AUTO-SYNC] Failed to check rate limit:", err);
     }
-  } catch (err) {
-    // Redis error - log but continue (rate limiting is best-effort)
-    console.warn("[AUTO-SYNC] Failed to check rate limit:", err);
   }
 
   try {
-    // Update last attempt timestamp
-    try {
-      await redisSet(SYNC_LAST_ATTEMPT_KEY, Date.now().toString(), 60); // Keep for 1 minute
-    } catch (err) {
-      console.warn("[AUTO-SYNC] Failed to update last attempt timestamp:", err);
+    // Update last attempt timestamp (best effort)
+    if (redisAvailable) {
+      try {
+        await redisSet(SYNC_LAST_ATTEMPT_KEY, Date.now().toString(), 60); // Keep for 1 minute
+      } catch (err) {
+        redisAvailable = false;
+        console.warn(
+          "[AUTO-SYNC] Failed to update last attempt timestamp:",
+          err,
+        );
+      }
     }
 
     console.log("[AUTO-SYNC] Starting product sync from Odoo...");
-
-    if (!process.env.REDIS_URL) {
-      throw new Error("REDIS_URL is not configured for sync");
-    }
 
     if (!isOdooConfigured()) {
       throw new Error("Odoo not configured");
@@ -523,20 +532,28 @@ async function performSync(
 
     // Clear old product cache keys before writing new data (cleanup)
     // Note: We don't delete all keys to avoid race conditions, but we overwrite the main ones
-    console.log(
-      `[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`,
-    );
+    if (redisAvailable) {
+      console.log(
+        `[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`,
+      );
+    } else {
+      console.warn(
+        "[AUTO-SYNC] Redis unavailable - returning direct Odoo data without cache writes",
+      );
+    }
 
     // Cache with partial failure handling - cache what we can even if some writes fail
     const cacheErrors: string[] = [];
 
-    try {
-      await redisSet("categories:list", categories, cacheTTL);
-    } catch (err) {
-      cacheErrors.push(
-        `Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`,
-      );
-      console.error("[AUTO-SYNC] Failed to cache categories:", err);
+    if (redisAvailable) {
+      try {
+        await redisSet("categories:list", categories, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        console.error("[AUTO-SYNC] Failed to cache categories:", err);
+      }
     }
 
     // Cache products individually to allow partial success
@@ -545,44 +562,48 @@ async function performSync(
     const chunkSize = 50;
     let cachedCount = 0;
 
-    for (let i = 0; i < products.length; i += chunkSize) {
-      const chunk = products.slice(i, i + chunkSize);
-      const chunkResults = await Promise.all(
-        chunk.map(async (p) => {
-          try {
-            // Remove the temporary 'thumbnail' field before saving individual product
-            const { thumbnail, ...productToSave } = p as any;
-            await redisSet(`products:${p.id}`, productToSave, cacheTTL);
-            return true;
-          } catch (err) {
-            cacheErrors.push(
-              `Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`,
-            );
-            return false;
-          }
-        }),
-      );
-      cachedCount += chunkResults.filter(Boolean).length;
+    if (redisAvailable) {
+      for (let i = 0; i < products.length; i += chunkSize) {
+        const chunk = products.slice(i, i + chunkSize);
+        const chunkResults = await Promise.all(
+          chunk.map(async (p) => {
+            try {
+              // Remove the temporary 'thumbnail' field before saving individual product
+              const { thumbnail, ...productToSave } = p as any;
+              await redisSet(`products:${p.id}`, productToSave, cacheTTL);
+              return true;
+            } catch (err) {
+              cacheErrors.push(
+                `Failed to cache product ${p.id}: ${err instanceof Error ? err.message : String(err)}`,
+              );
+              return false;
+            }
+          }),
+        );
+        cachedCount += chunkResults.filter(Boolean).length;
+      }
     }
 
-    try {
-      // Create lightweight summaries for the list view
-      // Use the thumbnail as the main image to reduce payload size (50MB -> <2MB)
-      const productSummaries = products.map((p: any) => {
-        const { thumbnail, images, ...rest } = p;
-        return {
-          ...rest,
-          // Use thumbnail if available, otherwise fallback to existing images (or empty)
-          images: thumbnail ? [thumbnail] : (images || []),
-        };
-      });
+    if (redisAvailable) {
+      try {
+        // Create lightweight summaries for the list view
+        // Use the thumbnail as the main image to reduce payload size (50MB -> <2MB)
+        const productSummaries = products.map((p: any) => {
+          const { thumbnail, images, ...rest } = p;
+          return {
+            ...rest,
+            // Use thumbnail if available, otherwise fallback to existing images (or empty)
+            images: thumbnail ? [thumbnail] : images || [],
+          };
+        });
 
-      await redisSet("products:all", productSummaries, cacheTTL);
-    } catch (err) {
-      cacheErrors.push(
-        `Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`,
-      );
-      console.error("[AUTO-SYNC] Failed to cache products:all:", err);
+        await redisSet("products:all", productSummaries, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        console.error("[AUTO-SYNC] Failed to cache products:all:", err);
+      }
     }
 
     if (cacheErrors.length > 0) {
@@ -600,34 +621,41 @@ async function performSync(
       available: p.available,
       images: p.images?.slice(0, 1) || [],
     }));
-    try {
-      await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
-    } catch (err) {
-      cacheErrors.push(
-        `Failed to cache products list summary: ${err instanceof Error ? err.message : String(err)}`,
-      );
+    if (redisAvailable) {
+      try {
+        await redisSet(`products:list:1:${pageSize}:all`, summaries, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache products list summary: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
 
-    try {
-      await redisSet("sync:last_update", lastUpdate, cacheTTL);
-    } catch (err) {
-      cacheErrors.push(
-        `Failed to cache last_update: ${err instanceof Error ? err.message : String(err)}`,
-      );
-      console.error("[AUTO-SYNC] Failed to cache last_update:", err);
+    if (redisAvailable) {
+      try {
+        await redisSet("sync:last_update", lastUpdate, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache last_update: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        console.error("[AUTO-SYNC] Failed to cache last_update:", err);
+      }
+
+      try {
+        await redisSet("sync:etag", etag, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache etag: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
 
-    try {
-      await redisSet("sync:etag", etag, cacheTTL);
-    } catch (err) {
-      cacheErrors.push(
-        `Failed to cache etag: ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
-
-    // Consider sync successful if we cached at least some products
-    const isSuccess =
-      cachedCount > 0 || (products.length === 0 && categories.length > 0);
+    // Consider sync successful when either cache write succeeds or direct Odoo data exists.
+    const directDataAvailable =
+      products.length > 0 || (products.length === 0 && categories.length > 0);
+    const isSuccess = redisAvailable
+      ? cachedCount > 0 || (products.length === 0 && categories.length > 0)
+      : directDataAvailable;
 
     if (isSuccess) {
       console.log(
@@ -649,6 +677,11 @@ async function performSync(
         categories: categories.length,
         lastUpdate,
         etag,
+        fallbackCatalog: {
+          products,
+          categories,
+          lastUpdate,
+        },
       },
     };
   } catch (err: any) {
@@ -656,10 +689,12 @@ async function performSync(
     console.error("[AUTO-SYNC] Error:", msg, err);
     return { success: false, error: msg };
   } finally {
-    // Always release the lock
-    await redisDel(SYNC_LOCK_KEY).catch((err) => {
-      console.error("[AUTO-SYNC] Failed to release lock:", err);
-    });
+    // Release lock only when Redis is available.
+    if (redisAvailable) {
+      await redisDel(SYNC_LOCK_KEY).catch((err) => {
+        console.error("[AUTO-SYNC] Failed to release lock:", err);
+      });
+    }
   }
 }
 

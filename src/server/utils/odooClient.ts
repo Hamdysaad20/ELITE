@@ -28,12 +28,14 @@ interface JsonRpcResponse<T = any> {
 }
 
 export function isOdooConfigured(): boolean {
-  return Boolean(
-    process.env.ODOO_HOST &&
-      process.env.ODOO_DB &&
-      process.env.ODOO_USERNAME &&
-      (process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD),
-  );
+  const host = process.env.ODOO_HOST || process.env.ODOO_URL;
+  const username = process.env.ODOO_USERNAME || process.env.ODOO_USER;
+  const secret =
+    process.env.ODOO_API_KEY ||
+    process.env.ODOO_PASSWORD ||
+    process.env.ODOO_PASS;
+
+  return Boolean(host && process.env.ODOO_DB && username && secret);
 }
 
 // Default timeout for Odoo operations - 60s is needed because order sync
@@ -43,11 +45,23 @@ const DEFAULT_ODOO_TIMEOUT_MS = 60000;
 
 export function getOdooConfigFromEnv(): OdooConfig | null {
   if (!isOdooConfigured()) return null;
+
+  const host = process.env.ODOO_HOST || process.env.ODOO_URL;
+  const username = process.env.ODOO_USERNAME || process.env.ODOO_USER;
+  const password =
+    process.env.ODOO_API_KEY ||
+    process.env.ODOO_PASSWORD ||
+    process.env.ODOO_PASS;
+
+  if (!host || !username || !password || !process.env.ODOO_DB) {
+    return null;
+  }
+
   return {
-    host: String(process.env.ODOO_HOST),
+    host: String(host),
     db: String(process.env.ODOO_DB),
-    username: String(process.env.ODOO_USERNAME),
-    password: String(process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD),
+    username: String(username),
+    password: String(password),
     timeoutMs: process.env.ODOO_TIMEOUT_MS
       ? Number(process.env.ODOO_TIMEOUT_MS)
       : DEFAULT_ODOO_TIMEOUT_MS,
@@ -109,7 +123,7 @@ export class OdooClient {
     throw new Error(`Odoo auth failed: ${JSON.stringify(data)}`);
   }
 
-  private async rpc<T = any>(
+  async rpc<T = any>(
     model: string,
     method: string,
     args: any[] = [],

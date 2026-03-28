@@ -155,8 +155,25 @@ export async function getCatalogSafe(): Promise<{
       };
     }
 
+    const fallbackCatalog = result.data?.fallbackCatalog as
+      | {
+          products?: Product[];
+          categories?: Category[];
+          lastUpdate?: string | null;
+        }
+      | undefined;
+
+    // If Redis is down but Odoo returned data directly, use it immediately.
+    if (fallbackCatalog?.products && fallbackCatalog?.categories) {
+      return {
+        products: fallbackCatalog.products,
+        categories: fallbackCatalog.categories,
+        lastUpdate: fallbackCatalog.lastUpdate || null,
+      };
+    }
+
     // No data at all - check if sync is in progress and wait a bit
-    const isLocked = await redisGet(CACHE_KEYS.LOCK);
+    const isLocked = await redisGet(CACHE_KEYS.LOCK).catch(() => null);
     if (isLocked) {
       console.log("[CACHE] Sync in progress, waiting briefly...");
       // Wait up to 3 seconds for sync to complete
@@ -183,11 +200,27 @@ export async function getCatalogSafe(): Promise<{
     );
   }
 
+  const fallbackCatalog = result.data?.fallbackCatalog as
+    | {
+        products?: Product[];
+        categories?: Category[];
+        lastUpdate?: string | null;
+      }
+    | undefined;
+
+  if (fallbackCatalog?.products && fallbackCatalog?.categories) {
+    return {
+      products: fallbackCatalog.products,
+      categories: fallbackCatalog.categories,
+      lastUpdate: fallbackCatalog.lastUpdate || null,
+    };
+  }
+
   // Sync succeeded, fetch fresh data
   const [freshProducts, freshCategories, freshUpdate] = await Promise.all([
-    redisGet<Product[]>(CACHE_KEYS.DATA),
-    redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
-    redisGet<string>(CACHE_KEYS.TIMESTAMP),
+    redisGet<Product[]>(CACHE_KEYS.DATA).catch(() => null),
+    redisGet<Category[]>(CACHE_KEYS.CATEGORIES).catch(() => null),
+    redisGet<string>(CACHE_KEYS.TIMESTAMP).catch(() => null),
   ]);
 
   return {
