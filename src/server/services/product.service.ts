@@ -104,8 +104,9 @@ export async function getCatalogSafe(): Promise<{
     lastUpdate = null;
   }
 
-  // Only trigger freshness check if we successfully read from Redis
-  if (lastUpdate !== null) {
+  // Trigger freshness check whenever we have catalog data.
+  // This also recovers from the webhook path where timestamp is intentionally deleted.
+  if (products && categories) {
     try {
       await ensureFreshness(lastUpdate);
     } catch (err) {
@@ -213,8 +214,12 @@ export async function invalidateCatalogCache(): Promise<{
   message: string;
 }> {
   try {
-    // Delete the timestamp to force a fresh sync
-    await redisDel(CACHE_KEYS.TIMESTAMP);
+    // Delete timestamp and catalog payload to prevent stale menu data after webhook invalidation.
+    await Promise.all([
+      redisDel(CACHE_KEYS.TIMESTAMP),
+      redisDel(CACHE_KEYS.DATA),
+      redisDel(CACHE_KEYS.CATEGORIES),
+    ]);
     // Increment version to bust client-side caches
     const version = Date.now().toString();
     await redisSet(CACHE_KEYS.VERSION, version, HARD_TTL);

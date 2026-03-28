@@ -5,6 +5,7 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { invalidateCatalogCache } from "@/server/services/product.service";
+import { triggerBackgroundSync } from "@/server/utils/syncProducts";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,9 +33,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let syncTriggered = false;
+    try {
+      // Fire-and-forget to keep webhook response fast for Odoo.
+      triggerBackgroundSync();
+      syncTriggered = true;
+    } catch (err) {
+      console.warn("[WEBHOOK] Failed to trigger background sync:", err);
+    }
+
     // Return a very fast 200 response to Odoo so the Automation Rule doesn't timeout
     return jsonResponse(
-      successResponse(null, "Webhook received and cache invalidated"),
+      successResponse(
+        {
+          cacheInvalidated: true,
+          syncTriggered,
+        },
+        "Webhook received and cache invalidated",
+      ),
     );
   } catch (err) {
     const errorMsg =
