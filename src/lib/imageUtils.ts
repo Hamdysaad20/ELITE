@@ -3,6 +3,7 @@
  */
 
 import { extractBaseName, slugify } from "@/lib/utils";
+import { hasOldItemImageFile } from "@/server/utils/oldItemsMapping";
 
 /**
  * Marker used when images are stripped from list view for performance
@@ -171,7 +172,8 @@ export function getLocalProductImageCandidates(
   // Try both base name and full name with -1.png suffix
   const candidates = [base, name]
     .filter(Boolean)
-    .map((n) => `${n}${filename}`);
+    .map((n) => `${n}${filename}`)
+    .filter((fileName) => hasOldItemImageFile(fileName));
   const uniqueCandidates = Array.from(new Set(candidates));
   return uniqueCandidates.map((c) => `/Old Items/${c}`);
 }

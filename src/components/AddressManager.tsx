@@ -22,18 +22,17 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-type Translator = (key: string, values?: Record<string, string | number>) => string;
+type Translator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
 
 const extractNumber = (message: string) => {
   const match = message.match(/\d+/);
   return match ? Number(match[0]) : undefined;
 };
 
-const resolveAddressError = (
-  t: Translator,
-  field: string,
-  message: string,
-) => {
+const resolveAddressError = (t: Translator, field: string, message: string) => {
   if (!message) return message;
   const maxValue = extractNumber(message);
 
@@ -106,6 +105,32 @@ export default function AddressManager({
   });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const ADDRESS_FIELDS = new Set([
+    "label",
+    "street",
+    "apartment",
+    "city",
+    "state",
+    "zipCode",
+    "country",
+    "phone",
+    "notes",
+  ]);
+
+  const extractFieldErrorFromMessage = (
+    message: string,
+  ): { field: string; text: string } | null => {
+    const separatorIndex = message.indexOf(":");
+    if (separatorIndex <= 0) return null;
+
+    const field = message.slice(0, separatorIndex).trim();
+    const text = message.slice(separatorIndex + 1).trim();
+
+    if (!field || !text || !ADDRESS_FIELDS.has(field)) return null;
+    return { field, text };
+  };
 
   const labelTranslations: Record<string, string> = {
     Home: t("labels.home"),
@@ -126,6 +151,7 @@ export default function AddressManager({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     // Validate all fields using shared validator
     const validation = validateAddress(formData);
@@ -136,8 +162,16 @@ export default function AddressManager({
         errorMap[err.field] = resolveAddressError(t, err.field, err.message);
       });
       setErrors(errorMap);
+      const firstError = validation.errors[0];
+      if (firstError) {
+        setSubmitError(
+          resolveAddressError(t, firstError.field, firstError.message),
+        );
+      }
       return;
     }
+
+    setErrors({});
 
     setSubmitting(true);
 
@@ -164,6 +198,8 @@ export default function AddressManager({
         }
         setIsAdding(false);
       }
+      setSubmitError(null);
+      setErrors({});
       // Reset form
       setFormData({
         label: "Home",
@@ -178,9 +214,27 @@ export default function AddressManager({
       });
     } catch (err) {
       console.error("Error saving address:", err);
-      // Show error message if it's a duplicate address error
-      if (err instanceof Error && err.message.includes("already exists")) {
-        alert(t("errors.duplicate"));
+      if (err instanceof Error) {
+        const fieldError = extractFieldErrorFromMessage(err.message);
+        if (fieldError) {
+          const translated = resolveAddressError(
+            t,
+            fieldError.field,
+            fieldError.text,
+          );
+          setErrors((prev) => ({ ...prev, [fieldError.field]: translated }));
+          setSubmitError(translated);
+          return;
+        }
+
+        if (err.message.includes("already exists")) {
+          setSubmitError(t("errors.duplicate"));
+          return;
+        }
+
+        setSubmitError(err.message);
+      } else {
+        setSubmitError("Failed to save address");
       }
     } finally {
       setSubmitting(false);
@@ -188,6 +242,8 @@ export default function AddressManager({
   };
 
   const handleEdit = (address: Address) => {
+    setSubmitError(null);
+    setErrors({});
     setEditingId(address.id);
     setFormData({
       label: address.label,
@@ -222,6 +278,8 @@ export default function AddressManager({
   };
 
   const cancelForm = () => {
+    setSubmitError(null);
+    setErrors({});
     setIsAdding(false);
     setEditingId(null);
     setFormData({
@@ -271,6 +329,10 @@ export default function AddressManager({
                 <AddressForm
                   formData={formData}
                   setFormData={setFormData}
+                  errors={errors}
+                  setErrors={setErrors}
+                  submitError={submitError}
+                  setSubmitError={setSubmitError}
                   submitting={submitting}
                   onCancel={cancelForm}
                   isEditing={true}
@@ -383,6 +445,10 @@ export default function AddressManager({
           <AddressForm
             formData={formData}
             setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+            submitError={submitError}
+            setSubmitError={setSubmitError}
             submitting={submitting}
             onCancel={cancelForm}
             isEditing={false}
@@ -392,7 +458,11 @@ export default function AddressManager({
         (!onSelectAddress || allowAddInSelectMode) && (
           <button
             type="button"
-            onClick={() => setIsAdding(true)}
+            onClick={() => {
+              setSubmitError(null);
+              setErrors({});
+              setIsAdding(true);
+            }}
             className="w-full bg-white border-2 border-dashed border-elite-burgundy/30 hover:border-elite-burgundy rounded-3xl p-5 sm:p-6 flex items-center justify-center gap-3 text-elite-burgundy font-cabin font-bold text-lg transition-all hover:bg-elite-burgundy/5 hover:shadow-lg group"
           >
             <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center group-hover:bg-elite-burgundy/20 transition-colors">
@@ -409,6 +479,10 @@ export default function AddressManager({
 interface AddressFormProps {
   formData: Partial<Address>;
   setFormData: React.Dispatch<React.SetStateAction<Partial<Address>>>;
+  errors: Record<string, string>;
+  setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  submitError: string | null;
+  setSubmitError: React.Dispatch<React.SetStateAction<string | null>>;
   submitting: boolean;
   onCancel: () => void;
   isEditing: boolean;
@@ -417,11 +491,14 @@ interface AddressFormProps {
 function AddressForm({
   formData,
   setFormData,
+  errors,
+  setErrors,
+  submitError,
+  setSubmitError,
   submitting,
   onCancel,
   isEditing,
 }: AddressFormProps) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const t = useTranslations("addressManager");
 
   const labelOptions = [
@@ -446,6 +523,10 @@ function AddressForm({
   };
 
   const handleFieldChange = (name: string, value: string) => {
+    if (submitError) {
+      setSubmitError(null);
+    }
+
     // For city field, prevent numeric input in real-time
     if (name === "city") {
       // Remove any numeric characters
@@ -467,6 +548,12 @@ function AddressForm({
       <h4 className="font-calistoga text-elite-black text-lg mb-4">
         {isEditing ? t("form.editTitle") : t("form.newTitle")}
       </h4>
+
+      {submitError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <p className="font-cabin text-sm text-red-700">{submitError}</p>
+        </div>
+      )}
 
       {/* Label Selection */}
       <div>
@@ -521,9 +608,7 @@ function AddressForm({
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
           {t("form.apartment.label")}{" "}
-          <span className="text-elite-black/40">
-            ({t("form.optional")})
-          </span>
+          <span className="text-elite-black/40">({t("form.optional")})</span>
         </label>
         <input
           type="text"
@@ -650,9 +735,7 @@ function AddressForm({
       <div>
         <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
           {t("form.notes.label")}{" "}
-          <span className="text-elite-black/40">
-            ({t("form.optional")})
-          </span>
+          <span className="text-elite-black/40">({t("form.optional")})</span>
         </label>
         <textarea
           maxLength={ADDRESS_VALIDATION.NOTES_MAX_LENGTH}

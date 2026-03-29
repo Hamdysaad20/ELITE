@@ -27,6 +27,16 @@ interface JsonRpcResponse<T = any> {
   error?: { code: number; message: string; data?: unknown };
 }
 
+export interface OdooSaleOrderStatus {
+  id: number;
+  state?: string;
+}
+
+export interface OdooPosOrderStatus {
+  id: number;
+  state?: string;
+}
+
 export function isOdooConfigured(): boolean {
   const host = process.env.ODOO_HOST || process.env.ODOO_URL;
   const username = process.env.ODOO_USERNAME || process.env.ODOO_USER;
@@ -86,6 +96,78 @@ export class OdooClient {
     });
   }
 
+  private isRetriableNetworkError(error: unknown): boolean {
+    if (!error || typeof error !== "object") return false;
+    const code = (error as { code?: string }).code;
+    return (
+      code === "ETIMEDOUT" || code === "ECONNREFUSED" || code === "ECONNRESET"
+    );
+  }
+
+  private async postJsonRpcWithRetry<T>(
+    payload: JsonRpcRequest,
+  ): Promise<JsonRpcResponse<T>> {
+    const attempts = 3;
+    let lastError: unknown;
+
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        const { data } = await this.axios.post<JsonRpcResponse<T>>(
+          "/jsonrpc",
+          payload,
+        );
+        return data;
+      } catch (error) {
+        lastError = error;
+        if (!this.isRetriableNetworkError(error) || i === attempts) {
+          throw error;
+        }
+
+        const delayMs = i * 1000;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    throw lastError;
+  }
+
+  private formatOrderLineDetails(item: OrderItem): string | undefined {
+    const attrs = item.attributes as
+      | {
+          formatted?: string[];
+          selections?: Record<
+            string,
+            Array<{ valueName: string; priceExtra?: number }>
+          >;
+        }
+      | undefined;
+
+    if (!attrs) return undefined;
+
+    if (Array.isArray(attrs.formatted) && attrs.formatted.length > 0) {
+      return attrs.formatted.join(" | ");
+    }
+
+    if (attrs.selections && typeof attrs.selections === "object") {
+      const lines: string[] = [];
+      for (const [key, values] of Object.entries(attrs.selections)) {
+        const valueLabel = values
+          .map((v) =>
+            typeof v.priceExtra === "number" && v.priceExtra > 0
+              ? `${v.valueName} (+${v.priceExtra})`
+              : v.valueName,
+          )
+          .join(", ");
+        if (valueLabel) {
+          lines.push(`${key}: ${valueLabel}`);
+        }
+      }
+      if (lines.length > 0) return lines.join(" | ");
+    }
+
+    return undefined;
+  }
+
   private async authenticate(): Promise<number> {
     // If we already authenticated, reuse uid
     if (this.uid) return this.uid;
@@ -109,10 +191,7 @@ export class OdooClient {
       id: Date.now(),
     };
 
-    const { data } = await this.axios.post<JsonRpcResponse<number | false>>(
-      "/jsonrpc",
-      payload,
-    );
+    const data = await this.postJsonRpcWithRetry<number | false>(payload);
     if (data?.error) {
       throw new Error(`Odoo auth failed: ${JSON.stringify(data.error)}`);
     }
@@ -151,10 +230,7 @@ export class OdooClient {
       id: Date.now(),
     };
 
-    const { data } = await this.axios.post<JsonRpcResponse<T>>(
-      "/jsonrpc",
-      payload,
-    );
+    const data = await this.postJsonRpcWithRetry<T>(payload);
     if (data?.error) {
       throw new Error(
         `Odoo RPC error: ${data.error.message} :: ${JSON.stringify(
@@ -519,12 +595,18 @@ export class OdooClient {
         menuItem: line.menuItem,
       });
 
+      const lineDetails = this.formatOrderLineDetails(line as OrderItem);
+      const lineName = line.menuItem?.name || line.menuItemId;
+      const lineDisplayName = lineDetails
+        ? `${lineName}\n${lineDetails}`
+        : lineName;
+
       lines.push([
         0,
         0,
         {
           product_id: productId,
-          name: line.menuItem?.name || line.menuItemId,
+          name: lineDisplayName,
           product_uom_qty: line.quantity,
           price_unit: line.unitPrice,
           // tax_id can be set by fiscal position or left empty
@@ -559,6 +641,34 @@ export class OdooClient {
     // action_confirm expects a list of IDs
     await this.rpc("sale.order", "action_confirm", [[saleId]]);
     return true;
+  }
+
+  /** Get sale.order state by ID */
+  async getSaleOrderStatus(
+    saleId: number,
+  ): Promise<OdooSaleOrderStatus | null> {
+    const rows = await this.searchRead<OdooSaleOrderStatus>(
+      "sale.order",
+      [["id", "=", saleId]],
+      ["id", "state"],
+      { limit: 1 },
+    );
+
+    return rows?.[0] || null;
+  }
+
+  /** Get pos.order state by ID */
+  async getPosOrderStatus(
+    posOrderId: number,
+  ): Promise<OdooPosOrderStatus | null> {
+    const rows = await this.searchRead<OdooPosOrderStatus>(
+      "pos.order",
+      [["id", "=", posOrderId]],
+      ["id", "state"],
+      { limit: 1 },
+    );
+
+    return rows?.[0] || null;
   }
 
   // -----------------------------
@@ -686,8 +796,11 @@ export class OdooClient {
       });
       await this.ensureProductAvailableInPOS(productId);
 
+      const lineDetails = this.formatOrderLineDetails(line as OrderItem);
       const customer_note =
-        options?.customerNotePerLine || websiteOrder.notes || undefined;
+        [lineDetails, options?.customerNotePerLine, websiteOrder.notes]
+          .filter((v): v is string => Boolean(v && v.trim()))
+          .join(" | ") || undefined;
       lines.push([
         0,
         0,

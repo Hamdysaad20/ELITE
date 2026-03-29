@@ -55,13 +55,15 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
     // Check if Paymob is configured
     const paymobEnabled = isPaymobConfigured();
 
-    // Always provide all methods to the frontend;
-    // The frontend will disable online methods dynamically based on orderingEnabled.
-    const finalPaymentMethods = [
-      PaymentMethod.CARD,
-      PaymentMethod.WALLET,
-      PaymentMethod.CASH,
-    ];
+    // Respect DB/admin-configured methods, but never expose online methods when Paymob is disabled.
+    const finalPaymentMethods = enabledPaymentMethods.filter((method) =>
+      paymobEnabled ? true : method === PaymentMethod.CASH,
+    );
+
+    // Safety fallback to ensure checkout always has at least CASH.
+    if (finalPaymentMethods.length === 0) {
+      finalPaymentMethods.push(PaymentMethod.CASH);
+    }
 
     if (!row) {
       return {
@@ -83,14 +85,15 @@ export async function getCheckoutConfig(): Promise<CheckoutConfig> {
     };
   } catch {
     const { orderingEnabled, orderingMessage } = getOrderingStatus();
+    const paymobEnabled = isPaymobConfigured();
+    const fallbackMethods = paymobEnabled
+      ? [PaymentMethod.CARD, PaymentMethod.WALLET, PaymentMethod.CASH]
+      : [PaymentMethod.CASH];
+
     return {
       ...DEFAULT_CONFIG,
-      enabledPaymentMethods: [
-        PaymentMethod.CARD,
-        PaymentMethod.WALLET,
-        PaymentMethod.CASH,
-      ],
-      paymobEnabled: isPaymobConfigured(),
+      enabledPaymentMethods: fallbackMethods,
+      paymobEnabled,
       orderingEnabled,
       orderingMessage,
     };

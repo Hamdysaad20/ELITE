@@ -122,9 +122,8 @@ export default function DrinkCard({
     // Use -1.png naming convention from Old Items directory
     const v = imageVersion ? encodeURIComponent(imageVersion) : "";
     const localImage = `/Old Items/${baseName}-1.png${v ? `?v=${v}` : ""}`;
-    // Prepend to list so it is tried first.
-    // ImageWithFallback will skip it if it 404s (doesn't exist) thanks to our update.
-    displayImages = [localImage, ...validImages];
+    // Keep Old Items as a last-resort fallback to avoid noisy 404s when files are missing.
+    displayImages = [...validImages, localImage];
   }
 
   // Determine display price: use deal price if active, otherwise original or regular price

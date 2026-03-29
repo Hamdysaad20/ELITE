@@ -8,6 +8,58 @@ import {
 } from "@/server/utils/apiHelpers";
 import { getAuthUser } from "@/server/auth/session";
 import { awardOrderPoints } from "@/server/services/loyalty";
+import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
+
+function mapSaleStateToOrderStatus(saleState?: string): string | null {
+  switch ((saleState || "").toLowerCase()) {
+    case "draft":
+    case "sent":
+      return "PENDING";
+    case "sale":
+      return "CONFIRMED";
+    case "done":
+      return "DELIVERED";
+    case "cancel":
+      return "CANCELLED";
+    default:
+      return null;
+  }
+}
+
+function mapPosStateToOrderStatus(posState?: string): string | null {
+  switch ((posState || "").toLowerCase()) {
+    case "draft":
+      return "PENDING";
+    case "paid":
+    case "invoiced":
+      return "CONFIRMED";
+    case "done":
+      return "DELIVERED";
+    case "cancel":
+    case "cancelled":
+      return "CANCELLED";
+    default:
+      return null;
+  }
+}
+
+function resolveStatusPriority(
+  current: string,
+  saleMapped: string | null,
+  posMapped: string | null,
+): string {
+  const candidates = [current, saleMapped || "", posMapped || ""].filter(
+    Boolean,
+  );
+
+  if (candidates.includes("CANCELLED")) return "CANCELLED";
+  if (candidates.includes("DELIVERED")) return "DELIVERED";
+  if (candidates.includes("OUT_FOR_DELIVERY")) return "OUT_FOR_DELIVERY";
+  if (candidates.includes("READY")) return "READY";
+  if (candidates.includes("PREPARING")) return "PREPARING";
+  if (candidates.includes("CONFIRMED")) return "CONFIRMED";
+  return "PENDING";
+}
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +70,7 @@ export async function GET(
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
 
-    const order = await prisma.order.findFirst({
+    let order = await prisma.order.findFirst({
       where: { id, userId },
       select: {
         id: true,
@@ -42,6 +94,68 @@ export async function GET(
     // CASH orders are auto-marked PAID; this is a safety net.
     if (order.paymentStatus !== "PAID" && order.paymentMethod !== "CASH") {
       return jsonResponse(errorResponse("Order not found"), 404);
+    }
+
+    // Auto-sync local status from Odoo whenever IDs are present.
+    if (isOdooConfigured() && (order.saleOrderId || order.posOrderId)) {
+      try {
+        const client = createOdooClient();
+        if (client) {
+          const sale = order.saleOrderId
+            ? await client.getSaleOrderStatus(order.saleOrderId)
+            : null;
+          const pos = order.posOrderId
+            ? await client.getPosOrderStatus(order.posOrderId)
+            : null;
+
+          const saleMapped = mapSaleStateToOrderStatus(sale?.state);
+          const posMapped = mapPosStateToOrderStatus(pos?.state);
+          const nextStatus = resolveStatusPriority(
+            order.status,
+            saleMapped,
+            posMapped,
+          );
+
+          const nextOdooSale = sale?.state || order.odooStatusSale || "pending";
+          const nextOdooPos = pos?.state || order.odooStatusPos || "pending";
+
+          if (
+            nextStatus !== order.status ||
+            nextOdooSale !== (order.odooStatusSale || "pending") ||
+            nextOdooPos !== (order.odooStatusPos || "pending")
+          ) {
+            const updated = await prisma.order.update({
+              where: { id: order.id },
+              data: {
+                status: nextStatus,
+                odooStatusSale: nextOdooSale,
+                odooStatusPos: nextOdooPos,
+                updatedAt: new Date(),
+              },
+              select: {
+                id: true,
+                saleOrderId: true,
+                posOrderId: true,
+                odooWebUrl: true,
+                odooStatusSale: true,
+                odooStatusPos: true,
+                status: true,
+                paymentStatus: true,
+                paymentMethod: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            });
+            order = updated;
+          }
+        }
+      } catch (syncErr) {
+        // Do not fail status endpoint when Odoo is temporarily unreachable.
+        console.warn(
+          `[orders/status] Odoo status sync skipped for ${id}:`,
+          syncErr,
+        );
+      }
     }
 
     return jsonResponse(

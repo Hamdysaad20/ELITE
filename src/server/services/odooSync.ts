@@ -197,6 +197,7 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
       quantity: it.quantity,
       unitPrice: Number(it.unitPrice),
       totalPrice: Number(it.totalPrice),
+      attributes: it.attributes || undefined,
       menuItem: it.name
         ? {
             id: it.productId,
@@ -274,6 +275,20 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
         odooSyncLastAttemptAt: new Date(),
       },
     });
+
+    if (order.userId) {
+      try {
+        const { awardOrderPoints } = await import("@/server/services/loyalty");
+        await awardOrderPoints(order.id, order.userId);
+      } catch (rewardErr) {
+        // Non-blocking: order sync success should not fail because rewards failed.
+        console.error(
+          `[odooSync] Failed to award loyalty points for ${payload.orderId}:`,
+          rewardErr,
+        );
+      }
+    }
+
     console.log(
       `[odooSync] Order ${payload.orderId} sync completed successfully`,
     );

@@ -26,15 +26,21 @@ export const createOrderSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod),
   orderType: z.nativeEnum(OrderType),
   addressId: z.string().min(1).optional(),
-  notes: z.string().max(500).optional(),
+  notes: z.string().trim().max(500).optional(),
   items: z.array(cartItemSchema).min(1, "Cart cannot be empty"),
   odoo: z
     .object({
       partner: z
         .object({
-          name: z.string().min(1).optional(),
+          name: z.string().trim().min(2).max(120).optional(),
           email: z.string().email().optional(),
-          phone: z.string().optional(),
+          phone: z
+            .string()
+            .trim()
+            .min(8)
+            .max(20)
+            .regex(/^\+?[0-9\s()-]{8,20}$/, "Invalid phone number format")
+            .optional(),
           street: z.string().optional(),
           city: z.string().optional(),
           zip: z.string().optional(),

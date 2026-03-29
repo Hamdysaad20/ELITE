@@ -21,6 +21,10 @@ const EMAIL_SERVER_PASSWORD = process.env.EMAIL_SERVER_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@example.com";
 const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 
+const globalForAuthLogs = globalThis as unknown as {
+  __emailConfigLogged?: boolean;
+};
+
 function ensureDevNextAuthUrl() {
   // In local/dev, we want NextAuth to generate URLs (magic links, callbacks)
   // for the current dev server rather than a production NEXTAUTH_URL that may
@@ -59,16 +63,29 @@ if (
 }
 
 // Log email configuration status only in development to avoid noisy build/prod logs.
-if (typeof window === "undefined" && process.env.NODE_ENV === "development") {
-  console.log("📧 Email Configuration Check:");
-  console.log("  EMAIL_SERVER_HOST:", EMAIL_SERVER_HOST ? "✅" : "❌ MISSING");
-  console.log("  EMAIL_SERVER_PORT:", EMAIL_SERVER_PORT);
-  console.log("  EMAIL_SERVER_USER:", EMAIL_SERVER_USER ? "✅" : "❌ MISSING");
-  console.log(
-    "  EMAIL_SERVER_PASSWORD:",
-    EMAIL_SERVER_PASSWORD ? "✅" : "❌ MISSING",
-  );
-  console.log("  EMAIL_FROM:", EMAIL_FROM);
+if (
+  typeof window === "undefined" &&
+  process.env.NODE_ENV === "development" &&
+  process.env.AUTH_DEBUG_EMAIL_CONFIG === "true"
+) {
+  if (!globalForAuthLogs.__emailConfigLogged) {
+    console.log("📧 Email Configuration Check:");
+    console.log(
+      "  EMAIL_SERVER_HOST:",
+      EMAIL_SERVER_HOST ? "✅" : "❌ MISSING",
+    );
+    console.log("  EMAIL_SERVER_PORT:", EMAIL_SERVER_PORT);
+    console.log(
+      "  EMAIL_SERVER_USER:",
+      EMAIL_SERVER_USER ? "✅" : "❌ MISSING",
+    );
+    console.log(
+      "  EMAIL_SERVER_PASSWORD:",
+      EMAIL_SERVER_PASSWORD ? "✅" : "❌ MISSING",
+    );
+    console.log("  EMAIL_FROM:", EMAIL_FROM);
+    globalForAuthLogs.__emailConfigLogged = true;
+  }
 }
 
 // Create email transporter only if all credentials are provided

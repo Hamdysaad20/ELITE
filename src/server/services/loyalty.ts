@@ -47,8 +47,10 @@ export async function awardOrderPoints(
       return null;
     }
 
-    // Only award points for delivered/completed orders
-    if (!["DELIVERED", "COMPLETED"].includes(order.status)) {
+    // Award points once the order is operationally confirmed (or later).
+    // This keeps rewards active for real-world flows where orders may not transition
+    // to DELIVERED/COMPLETED promptly.
+    if (["PENDING", "CANCELLED"].includes(order.status)) {
       console.log(
         `ℹ️ Order ${orderId} status is ${order.status}, not awarding points yet`,
       );
