@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Cabin_Condensed, Calistoga, Cairo } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 import { getDirection } from "@/i18n/config";
 import { getRequestLocale } from "@/i18n/server";
@@ -59,6 +61,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getRequestLocale();
   const direction = getDirection(locale);
+  const messages = await getMessages({ locale });
 
   return (
     <html
@@ -68,7 +71,9 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );
