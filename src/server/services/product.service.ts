@@ -38,6 +38,19 @@ export type Category = {
 const SOFT_TTL = 30 * 60 * 1000;
 const HARD_TTL = 2 * 60 * 60; // seconds for Redis
 
+// Product names that should never be exposed in website catalog endpoints.
+const EXCLUDED_PRODUCT_NAME_PATTERNS = [/^open\s*register$/i];
+
+function isExcludedWebsiteProduct(product: Product): boolean {
+  const name = product.name?.trim();
+  if (!name) return false;
+  return EXCLUDED_PRODUCT_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+function filterWebsiteProducts(products: Product[]): Product[] {
+  return products.filter((product) => !isExcludedWebsiteProduct(product));
+}
+
 async function ensureFreshness(lastUpdate: string | null) {
   const now = Date.now();
   const lastSyncTime = lastUpdate ? new Date(lastUpdate).getTime() : 0;
@@ -120,7 +133,11 @@ export async function getCatalogSafe(): Promise<{
 
   // If we have cached data, return it (even if stale - better than error)
   if (products && categories) {
-    return { products, categories, lastUpdate };
+    return {
+      products: filterWebsiteProducts(products),
+      categories,
+      lastUpdate,
+    };
   }
 
   // Cache miss - try to sync, but handle failures gracefully
@@ -166,7 +183,7 @@ export async function getCatalogSafe(): Promise<{
     // If Redis is down but Odoo returned data directly, use it immediately.
     if (fallbackCatalog?.products && fallbackCatalog?.categories) {
       return {
-        products: fallbackCatalog.products,
+        products: filterWebsiteProducts(fallbackCatalog.products),
         categories: fallbackCatalog.categories,
         lastUpdate: fallbackCatalog.lastUpdate || null,
       };
@@ -186,7 +203,7 @@ export async function getCatalogSafe(): Promise<{
         ]);
         if (waitProducts && waitCategories) {
           return {
-            products: waitProducts,
+            products: filterWebsiteProducts(waitProducts),
             categories: waitCategories,
             lastUpdate: waitUpdate,
           };
@@ -210,7 +227,7 @@ export async function getCatalogSafe(): Promise<{
 
   if (fallbackCatalog?.products && fallbackCatalog?.categories) {
     return {
-      products: fallbackCatalog.products,
+      products: filterWebsiteProducts(fallbackCatalog.products),
       categories: fallbackCatalog.categories,
       lastUpdate: fallbackCatalog.lastUpdate || null,
     };
@@ -224,7 +241,7 @@ export async function getCatalogSafe(): Promise<{
   ]);
 
   return {
-    products: freshProducts || [],
+    products: filterWebsiteProducts(freshProducts || []),
     categories: freshCategories || [],
     lastUpdate: freshUpdate,
   };
