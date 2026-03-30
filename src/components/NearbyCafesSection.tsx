@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function NearbyCafesSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLButtonElement>(null);
   const t = useTranslations("nearby");
 
   useEffect(() => {
@@ -102,12 +102,12 @@ export default function NearbyCafesSection() {
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Modern Section Header */}
         <div className="text-center mb-16 lg:mb-20">
-          <h2 className="font-calistoga text-elite-black text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-tight mb-8">
+          <h2 className="font-calistoga text-elite-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.08] tracking-[-0.02em] mb-8">
             {t("titleLine1")}
             <br />
             <span className="text-elite-burgundy">{t("titleLine2")}</span>
           </h2>
-          <p className="text-elite-black font-cabin text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto">
+          <p className="text-elite-black font-cabin text-base sm:text-lg md:text-xl leading-[1.75] font-medium max-w-3xl mx-auto">
             {t("subtitle")}
           </p>
         </div>
@@ -115,7 +115,9 @@ export default function NearbyCafesSection() {
         {/* Main Content - Modern Card Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mb-16">
           {/* Interactive Map Card */}
-          <div
+          <button
+            type="button"
+            aria-label={t("getDirections")}
             ref={mapRef}
             className="group relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-700 h-[450px] lg:h-[500px] cursor-pointer transform hover:scale-[1.02]"
             onClick={handleGetDirections}
@@ -143,7 +145,7 @@ export default function NearbyCafesSection() {
                     <MapPin className="w-6 h-6 text-elite-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-elite-black font-cabin font-bold text-lg">
+                    <p className="text-elite-black font-cabin font-bold text-lg tracking-wide">
                       {cafe.name}
                     </p>
                     <p className="text-elite-black/70 font-cabin text-sm">
@@ -154,14 +156,14 @@ export default function NearbyCafesSection() {
                 </div>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Modern Info Card */}
           <div className="bg-elite-cream/80 backdrop-blur-md rounded-3xl p-8 lg:p-10 shadow-2xl border border-elite-burgundy/20 flex flex-col justify-center">
             <div className="space-y-8">
               {/* Café Name */}
               <div>
-                <h3 className="text-elite-black font-calistoga text-4xl lg:text-5xl mb-2">
+                <h3 className="text-elite-black font-calistoga text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-[-0.01em] mb-2">
                   {cafe.name}
                 </h3>
                 <div className="w-20 h-1 bg-elite-burgundy rounded-full"></div>
@@ -196,7 +198,7 @@ export default function NearbyCafesSection() {
               {/* CTA Button */}
               <button
                 onClick={handleGetDirections}
-                className="group relative w-full bg-elite-burgundy text-elite-black font-cabin font-bold text-xl py-5 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] overflow-hidden border-2 border-elite-burgundy/50 hover:border-elite-burgundy"
+                className="group relative w-full bg-elite-burgundy text-elite-white font-cabin font-bold text-lg sm:text-xl tracking-wide py-5 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] overflow-hidden border-2 border-elite-burgundy/50 hover:border-elite-burgundy"
               >
                 <span className="relative z-10 flex items-center justify-center space-x-3">
                   <Navigation className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
@@ -213,10 +215,10 @@ export default function NearbyCafesSection() {
         {/* Modern Contact Section */}
         <div className="text-center">
           <div className="bg-elite-cream/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 border border-elite-burgundy/20">
-            <h3 className="font-calistoga text-elite-black text-3xl md:text-4xl lg:text-5xl leading-tight mb-6">
+            <h3 className="font-calistoga text-elite-black text-3xl md:text-4xl lg:text-5xl leading-[1.1] tracking-[-0.01em] mb-6">
               {t("helpTitle")}
             </h3>
-            <p className="text-elite-black font-cabin text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+            <p className="text-elite-black font-cabin text-base sm:text-lg md:text-xl leading-[1.75] font-medium mb-8 max-w-2xl mx-auto">
               {t("helpSubtitle")}
             </p>
             <button

@@ -16,6 +16,7 @@ interface CategoryCardProps {
   imageSrc?: string;
   altText: string;
   title: string;
+  description: string;
   emoji?: string;
 }
 
@@ -25,11 +26,12 @@ const CategoryCard = ({
   imageSrc,
   altText,
   title,
+  description,
   emoji,
 }: CategoryCardProps) => (
   <LocalizedLink
     href={href}
-    className="flex flex-col items-center group cursor-pointer"
+    className="flex flex-col items-center group cursor-pointer rounded-3xl p-3 sm:p-4 transition-colors hover:bg-elite-burgundy/[0.04]"
   >
     <div
       ref={refProp}
@@ -49,9 +51,15 @@ const CategoryCard = ({
         </div>
       )}
     </div>
-    <h3 className="font-calistoga text-elite-black text-3xl lg:text-4xl">
+    <h3 className="font-calistoga text-elite-black text-2xl sm:text-3xl lg:text-4xl leading-[1.15] tracking-[-0.01em]">
       {title}
     </h3>
+    <p className="mt-2 text-sm sm:text-base font-cabin text-elite-black/75 text-center max-w-[16rem] leading-relaxed">
+      {description}
+    </p>
+    <span className="mt-3 inline-flex items-center rounded-full bg-elite-burgundy text-elite-white px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-wide uppercase">
+      Browse
+    </span>
   </LocalizedLink>
 );
 
@@ -107,7 +115,7 @@ export default function FindAndGet() {
     <section className="bg-elite-cream py-12 sm:py-16 md:py-20 xl:py-36 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto text-center">
         {/* Section Heading */}
-        <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-8 sm:mb-12 lg:mb-16">
+        <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[1.08] tracking-[-0.02em] mb-8 sm:mb-12 lg:mb-16">
           {t("titleLine1")}
           <br />
           {t("titleLine2")}
@@ -122,6 +130,7 @@ export default function FindAndGet() {
             imageSrc="/Old Items/Latte.png"
             altText={t("categories.classic")}
             title={t("categories.classic")}
+            description="Everyday favorites, from espresso to milk classics."
           />
 
           {/* Special Drinks Category */}
@@ -131,6 +140,7 @@ export default function FindAndGet() {
             imageSrc="/Old Items/Cortado.png"
             altText={t("categories.special")}
             title={t("categories.special")}
+            description="Creative blends for bold flavor cravings."
           />
 
           {/* Kids' Corner Category */}
@@ -140,6 +150,7 @@ export default function FindAndGet() {
             imageSrc="/kids corner/kids_corner_draft2.3.png"
             altText={t("categories.kids")}
             title={t("categories.kids")}
+            description="Fun, sweet picks for little coffee lovers."
           />
         </div>
       </div>

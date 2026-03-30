@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTranslations } from "next-intl";
+import LocalizedLink from "@/components/LocalizedLink";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -115,14 +116,23 @@ export default function GoodVibesSection() {
           <div className="space-y-8">
             {/* Main Heading and Description */}
             <div className="space-y-6">
-              <h2 className="font-calistoga text-elite-white text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
+              <span className="inline-flex rounded-full border border-elite-cream/25 bg-elite-cream/10 px-4 py-1 text-elite-cream text-[11px] sm:text-xs font-cabin uppercase tracking-[0.14em] font-semibold">
+                Elite experience
+              </span>
+              <h2 className="font-calistoga text-elite-white text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] tracking-[-0.02em]">
                 {t("titleLine1")}
                 <br />
                 <span className="text-elite-cream">{t("titleLine2")}</span>
               </h2>
-              <p className="text-elite-white font-cabin text-lg md:text-xl leading-relaxed max-w-lg">
+              <p className="text-elite-white font-cabin text-base sm:text-lg md:text-xl leading-[1.75] max-w-lg font-medium">
                 {t("description")}
               </p>
+              <LocalizedLink
+                href="/menu"
+                className="inline-flex items-center rounded-full bg-elite-cream text-elite-burgundy px-5 py-2.5 text-sm sm:text-base font-semibold font-cabin tracking-wide hover:bg-white transition-colors"
+              >
+                Explore drinks
+              </LocalizedLink>
             </div>
 
             {/* Enhanced Features Grid */}
@@ -139,7 +149,7 @@ export default function GoodVibesSection() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-cabin text-elite-black text-lg font-semibold mb-1 group-hover:text-elite-burgundy transition-colors duration-300">
+                      <h3 className="font-cabin text-elite-black text-base sm:text-lg font-semibold leading-snug mb-1 group-hover:text-elite-burgundy transition-colors duration-300">
                         {feature.text}
                       </h3>
                       <p className="text-elite-black/70 font-cabin text-sm leading-relaxed">

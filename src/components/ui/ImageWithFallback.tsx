@@ -33,7 +33,7 @@ interface ImageWithFallbackProps {
   sizes?: string;
 }
 
-const DEFAULT_FALLBACK = "/images/placeholder.svg";
+const DEFAULT_FALLBACK = "/images/PRINTING_CUP.png";
 
 export default function ImageWithFallback({
   src,

@@ -172,7 +172,7 @@ export default function CategoryPage() {
                   images:
                     p.images.length > 0
                       ? p.images
-                      : ["/images/placeholder.svg"],
+                      : ["/images/PRINTING_CUP.png"],
                   available: p.available !== false,
                 })),
               },

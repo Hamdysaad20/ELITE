@@ -118,20 +118,23 @@ export default function TestimonialsSection() {
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-          <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-4 sm:mb-6">
+          <h2 className="font-calistoga text-elite-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] tracking-[-0.02em] mb-4 sm:mb-6">
             {t("titleLine1")}
             <br />
             <span className="text-elite-burgundy">{t("titleLine2")}</span>
           </h2>
-          <p className="text-elite-black font-cabin text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto px-4">
+          <p className="text-elite-black font-cabin text-[15px] sm:text-lg md:text-xl leading-[1.7] font-medium max-w-2xl mx-auto px-4">
             {t("subtitle")}
           </p>
+          <div className="mt-5 inline-flex items-center rounded-full border border-elite-burgundy/20 bg-white/70 px-4 py-2 text-xs sm:text-sm font-cabin text-elite-black/80">
+            4.9/5 average rating from local customers
+          </div>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-stretch">
           {/* Left Column - Testimonials */}
-          <div className="space-y-6 flex flex-col justify-center min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]">
+          <div className="space-y-6 flex flex-col justify-center min-h-[360px] sm:min-h-[420px] lg:min-h-[700px] xl:min-h-[800px]">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={idx}
@@ -143,14 +146,14 @@ export default function TestimonialsSection() {
                 </div>
 
                 {/* Quote Text */}
-                <p className="text-elite-black font-cabin text-base leading-relaxed mb-4">
+                <p className="text-elite-black font-cabin text-[15px] sm:text-base leading-[1.7] mb-4">
                   {testimonial.quote}
                 </p>
 
                 {/* Author Info and Rating */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-elite-black font-cabin font-semibold text-sm">
+                    <p className="text-elite-black font-cabin font-semibold text-sm tracking-wide">
                       {testimonial.author}
                     </p>
                     <p className="text-elite-black/70 font-cabin text-xs">
@@ -172,7 +175,7 @@ export default function TestimonialsSection() {
           <div className="lg:col-span-1 h-full">
             <div
               ref={imageRef}
-              className="relative group rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 h-full min-h-[600px] lg:min-h-[700px] xl:min-h-[800px]"
+              className="relative group rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 h-full min-h-[360px] sm:min-h-[460px] lg:min-h-[700px] xl:min-h-[800px]"
             >
               <img
                 src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=800&fit=crop"

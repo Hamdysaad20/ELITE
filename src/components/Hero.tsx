@@ -61,7 +61,10 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="bg-elite-burgundy flex flex-col min-h-[85vh] md:max-h-[90vh] relative overflow-hidden">
+    <section
+      className="bg-elite-burgundy flex flex-col min-h-[85vh] md:max-h-[90vh] relative overflow-hidden"
+      aria-label="Homepage hero"
+    >
       {/* Background decorative elements - subtle glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-1/4 w-64 h-64 bg-elite-cream/5 rounded-full blur-[100px]" />
@@ -71,14 +74,14 @@ export default function Hero() {
       {/* Main content area - Optimized for mobile */}
       <div className="relative flex flex-col items-center justify-center text-center px-5 pt-16 md:pt-20 flex-1 z-20">
         {/* Title with refined typography */}
-        <h1 className="font-calistoga text-elite-white text-[2.75rem] sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] max-w-4xl mb-4 md:mb-6">
+        <h1 className="font-calistoga text-elite-white text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl leading-[1.04] tracking-[-0.02em] max-w-4xl mb-4 md:mb-6">
           {t("titleLine1")}
           <br />
           <span className="text-elite-cream/90">{t("titleLine2")}</span>
         </h1>
 
         {/* Subtitle - Compact on mobile */}
-        <p className="text-elite-white/80 font-cabin text-base sm:text-lg md:text-xl mb-8 md:mb-10 max-w-sm sm:max-w-md md:max-w-2xl leading-relaxed">
+        <p className="text-elite-white/85 font-cabin text-[15px] sm:text-lg md:text-xl mb-8 md:mb-10 max-w-sm sm:max-w-md md:max-w-2xl leading-[1.7] font-medium">
           {t("subtitle")}
         </p>
 
@@ -86,16 +89,48 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none sm:w-auto px-2 sm:px-0 relative z-30">
           <LocalizedLink
             href="/menu"
-            className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-3.5 sm:py-3 rounded-full font-cabin text-base font-bold shadow-lg shadow-black/10 active:scale-95 hover:bg-elite-white hover:shadow-xl transition-all duration-200 touch-manipulation inline-flex items-center justify-center relative z-30"
+            className="w-full sm:w-auto bg-elite-cream text-elite-burgundy px-8 py-3.5 sm:py-3 rounded-full font-cabin text-sm sm:text-base font-bold tracking-wide shadow-lg shadow-black/10 active:scale-95 hover:bg-elite-white hover:shadow-xl transition-all duration-200 touch-manipulation inline-flex items-center justify-center relative z-30"
           >
             {t("ctaExplore")}
           </LocalizedLink>
           <button
             onClick={handleLocationClick}
-            className="w-full sm:w-auto border-2 border-elite-cream/80 text-elite-cream px-8 py-3.5 sm:py-3 rounded-full font-cabin text-base font-semibold active:scale-95 hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-200 touch-manipulation relative z-30"
+            className="w-full sm:w-auto border-2 border-elite-cream/80 text-elite-cream px-8 py-3.5 sm:py-3 rounded-full font-cabin text-sm sm:text-base font-semibold tracking-wide active:scale-95 hover:bg-elite-cream hover:text-elite-burgundy transition-all duration-200 touch-manipulation relative z-30"
           >
             {t("ctaLocation")}
           </button>
+        </div>
+
+        <div className="mt-4 sm:mt-5 w-full max-w-3xl px-2">
+          <p className="text-elite-cream/80 text-[11px] sm:text-xs font-cabin font-semibold tracking-[0.14em] uppercase mb-2 text-center">
+            Elite vibes
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            <LocalizedLink
+              href="/menu/classic-drinks/milk-classics/matcha-latte"
+              className="rounded-full bg-elite-cream/15 border border-elite-cream/20 px-3 py-1.5 text-elite-cream text-xs sm:text-sm font-cabin hover:bg-elite-cream/25 transition-colors"
+            >
+              Matcha
+            </LocalizedLink>
+            <LocalizedLink
+              href="/menu"
+              className="rounded-full bg-elite-cream/15 border border-elite-cream/20 px-3 py-1.5 text-elite-cream text-xs sm:text-sm font-cabin hover:bg-elite-cream/25 transition-colors"
+            >
+              Boba Chocolate
+            </LocalizedLink>
+            <LocalizedLink
+              href="/menu"
+              className="rounded-full bg-elite-cream/15 border border-elite-cream/20 px-3 py-1.5 text-elite-cream text-xs sm:text-sm font-cabin hover:bg-elite-cream/25 transition-colors"
+            >
+              Oreo Milkshake
+            </LocalizedLink>
+            <LocalizedLink
+              href="/menu"
+              className="rounded-full bg-elite-cream/15 border border-elite-cream/20 px-3 py-1.5 text-elite-cream text-xs sm:text-sm font-cabin hover:bg-elite-cream/25 transition-colors"
+            >
+              Kinder Milkshake
+            </LocalizedLink>
+          </div>
         </div>
       </div>
 
@@ -110,8 +145,8 @@ export default function Hero() {
             >
               <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none relative">
                 <Image
-                  src="/Old Items/Americano.png"
-                  alt={t("alts.justCoffee")}
+                  src="/Old Items/Kinder Milkshake-1.png"
+                  alt="Kinder Milkshake"
                   fill
                   sizes="(max-width: 768px) 144px, 224px"
                   className="object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
@@ -126,8 +161,8 @@ export default function Hero() {
             >
               <div className="w-52 sm:w-56 md:w-64 lg:w-72 aspect-[4/5] pointer-events-none relative">
                 <Image
-                  src="/Old Items/Espresso.png"
-                  alt={t("alts.espresso")}
+                  src="/Old Items/Boba Chocolate-1.png"
+                  alt="Boba Chocolate"
                   fill
                   sizes="(max-width: 640px) 208px, (max-width: 768px) 224px, 288px"
                   className="object-contain drop-shadow-2xl translate-y-6 sm:translate-y-4 pointer-events-none"
@@ -143,8 +178,8 @@ export default function Hero() {
             >
               <div className="w-36 md:w-48 lg:w-56 aspect-[4/5] pointer-events-none relative">
                 <Image
-                  src="/Old Items/Iced Americano.png"
-                  alt={t("alts.coldBrew")}
+                  src="/Old Items/Oreo Milkshake-1.png"
+                  alt="Oreo Milkshake"
                   fill
                   sizes="(max-width: 768px) 144px, 224px"
                   className="object-contain drop-shadow-2xl translate-y-4 pointer-events-none"
