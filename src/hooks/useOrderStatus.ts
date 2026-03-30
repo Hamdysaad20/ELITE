@@ -77,6 +77,8 @@ export function useOrderStatus(
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
+  const streamRef = useRef<EventSource | null>(null);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch order status
   const fetchStatus = useCallback(async () => {
@@ -111,6 +113,52 @@ export function useOrderStatus(
     }
   }, [orderId, loading, stopWhen]);
 
+  const connectRealtime = useCallback(() => {
+    if (!orderId || !enabled || !isMountedRef.current) return;
+
+    if (streamRef.current) {
+      streamRef.current.close();
+      streamRef.current = null;
+    }
+
+    const source = new EventSource(`/api/orders/${orderId}/status/stream`);
+    streamRef.current = source;
+
+    source.addEventListener("status", (event) => {
+      try {
+        const payload = JSON.parse((event as MessageEvent).data) as OrderStatus;
+
+        if (!isMountedRef.current) return;
+
+        setStatus(payload);
+        setLoading(false);
+        setError(null);
+
+        if (stopWhen && stopWhen(payload)) {
+          setIsPolling(false);
+          source.close();
+          streamRef.current = null;
+        }
+      } catch (err) {
+        console.error("Failed to parse order status stream payload:", err);
+      }
+    });
+
+    source.addEventListener("end", () => {
+      source.close();
+      streamRef.current = null;
+      if (!isMountedRef.current || !enabled) return;
+      reconnectTimerRef.current = setTimeout(connectRealtime, 1500);
+    });
+
+    source.addEventListener("error", () => {
+      source.close();
+      streamRef.current = null;
+      if (!isMountedRef.current || !enabled) return;
+      reconnectTimerRef.current = setTimeout(connectRealtime, 3000);
+    });
+  }, [orderId, enabled, stopWhen]);
+
   // Start polling
   const startPolling = useCallback(() => {
     setIsPolling(true);
@@ -132,6 +180,8 @@ export function useOrderStatus(
     // Initial fetch
     fetchStatus();
 
+    connectRealtime();
+
     // Set up polling if enabled
     if (isPolling && enabled) {
       pollIntervalRef.current = setInterval(() => {
@@ -144,8 +194,14 @@ export function useOrderStatus(
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
+      if (streamRef.current) {
+        streamRef.current.close();
+      }
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+      }
     };
-  }, [orderId, pollInterval, isPolling, enabled, fetchStatus]);
+  }, [orderId, pollInterval, isPolling, enabled, fetchStatus, connectRealtime]);
 
   return {
     status,

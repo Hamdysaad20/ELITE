@@ -7,6 +7,7 @@ import {
   recordSuccess,
   recordFailure,
 } from "./circuitBreaker";
+import { markOrderingResumedForAvailableProducts } from "@/server/services/orderingInAppNotifications";
 
 type ProductRecord = {
   id: number;
@@ -509,6 +510,8 @@ async function performSync(
       )
       .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
 
+    const availableProductIds = products.map((product) => product.id);
+
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach((cat) => {
       if (cat.name.toLowerCase() === "extras") return;
@@ -664,6 +667,22 @@ async function performSync(
       if (cacheErrors.length > 0) {
         console.warn(
           `[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors)`,
+        );
+      }
+
+      try {
+        const notificationResult =
+          await markOrderingResumedForAvailableProducts(availableProductIds);
+
+        if (notificationResult.updated > 0) {
+          console.log(
+            `[AUTO-SYNC] Triggered ordering notifications for ${notificationResult.matchedProductIds.length} products (${notificationResult.updated} subscriptions)`,
+          );
+        }
+      } catch (notificationError) {
+        console.error(
+          "[AUTO-SYNC] Failed to send ordering resumed notifications:",
+          notificationError,
         );
       }
     } else {

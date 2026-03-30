@@ -8,7 +8,7 @@
  * 2. Filter: created within last 30 minutes
  * 3. Filter: attempts < 5 (max retries)
  * 4. Retry sync for each order
- * 5. If still failing after 30 min: send apology email to customer (once)
+ * 5. If still failing after 30 min: create a system notification note (once)
  */
 
 import { NextRequest } from "next/server";
@@ -19,13 +19,14 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { enqueueOrderSync } from "@/server/services/odooSync";
-import {
-  sendOrderSyncFailureEmail,
-  isEmailConfigured,
-} from "@/server/utils/emailService";
 
 const MAX_RETRY_ATTEMPTS = 5;
 const MAX_RETRY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+function appendSystemNote(existing: string | null, line: string): string {
+  const current = existing?.trim();
+  return current ? `${current}\n${line}` : line;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -91,32 +92,22 @@ export async function GET(request: NextRequest) {
         const orderAge = now.getTime() - order.createdAt.getTime();
         const isNearDeadline = orderAge >= MAX_RETRY_WINDOW_MS - 5 * 60 * 1000; // Within 5 min of 30-min deadline
 
-        // If order is near the 30-min deadline and hasn't been notified, send email first
-        if (isNearDeadline && !order.odooSyncNotifiedAt && order.user?.email) {
-          if (isEmailConfigured()) {
-            try {
-              await sendOrderSyncFailureEmail({
-                to: order.user.email,
-                orderNumber: order.id.substring(0, 8).toUpperCase(),
-                customerName: order.user.name || undefined,
-              });
+        // If order is near deadline and not yet notified, create a system notification note.
+        if (isNearDeadline && !order.odooSyncNotifiedAt) {
+          const line = `[SYSTEM] Odoo sync is delayed for order ${order.clientOrderRef || order.id}. The order is saved and queued for retry. (${new Date().toISOString()})`;
 
-              await prisma.order.update({
-                where: { id: order.id },
-                data: { odooSyncNotifiedAt: now },
-              });
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              odooSyncNotifiedAt: now,
+              notes: appendSystemNote(order.notes, line),
+            },
+          });
 
-              results.notified++;
-              console.log(
-                `[cron:retry-odoo-sync] Notified customer for order ${order.id}`,
-              );
-            } catch (emailErr) {
-              console.error(
-                `[cron:retry-odoo-sync] Failed to send email for order ${order.id}:`,
-                emailErr,
-              );
-            }
-          }
+          results.notified++;
+          console.log(
+            `[cron:retry-odoo-sync] Created system notification for order ${order.id}`,
+          );
         }
 
         // Retry sync
@@ -185,6 +176,8 @@ export async function GET(request: NextRequest) {
       },
       select: {
         id: true,
+        clientOrderRef: true,
+        notes: true,
         odooStatusSale: true,
         odooStatusPos: true,
         odooSyncNotifiedAt: true,
@@ -198,23 +191,16 @@ export async function GET(request: NextRequest) {
       take: 10,
     });
 
-    // Send notification for expired orders if not already notified
+    // Create system notification for expired orders if not already notified
     for (const order of expiredOrders) {
-      if (
-        !order.odooSyncNotifiedAt &&
-        order.user?.email &&
-        isEmailConfigured()
-      ) {
+      if (!order.odooSyncNotifiedAt) {
         try {
-          await sendOrderSyncFailureEmail({
-            to: order.user.email,
-            orderNumber: order.id.substring(0, 8).toUpperCase(),
-            customerName: order.user.name || undefined,
-          });
+          const line = `[SYSTEM] Odoo sync permanently failed for order ${order.clientOrderRef || order.id}. Manual intervention is required. (${new Date().toISOString()})`;
 
           await prisma.order.update({
             where: { id: order.id },
             data: {
+              notes: appendSystemNote(order.notes, line),
               odooSyncNotifiedAt: now,
               // Mark as permanently failed (manual intervention needed)
               odooStatusSale:
@@ -230,12 +216,12 @@ export async function GET(request: NextRequest) {
 
           results.notified++;
           console.log(
-            `[cron:retry-odoo-sync] Notified customer for expired order ${order.id}`,
+            `[cron:retry-odoo-sync] Created system notification for expired order ${order.id}`,
           );
-        } catch (emailErr) {
+        } catch (notifyErr) {
           console.error(
-            `[cron:retry-odoo-sync] Failed to send email for expired order ${order.id}:`,
-            emailErr,
+            `[cron:retry-odoo-sync] Failed to create system notification for expired order ${order.id}:`,
+            notifyErr,
           );
         }
       }

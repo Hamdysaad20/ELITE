@@ -13,23 +13,23 @@ const SUGGESTED_CATEGORIES = ["Iced", "Boba", "Smoothies", "Milkshakes"];
 const HIGHLIGHTED_ITEMS = [
   {
     name: "Kinder Milkshake",
+    productName: "Kinder Milkshake",
     imageSrc: "/Old Items/Kinder Milkshake-1.png",
-    href: "/menu",
   },
   {
     name: "Oreo Milkshake",
+    productName: "Oreo Milkshake",
     imageSrc: "/Old Items/Oreo Milkshake-1.png",
-    href: "/menu",
   },
   {
     name: "Boba Chococate",
+    productName: "Boba Chocolate",
     imageSrc: "/Old Items/Boba Chocolate-1.png",
-    href: "/menu",
   },
   {
-    name: "Matcha",
+    name: "Taro Matcha",
+    productName: "Taro Matcha",
     imageSrc: "/Old Items/Matcha Latte-1.png",
-    href: "/menu/classic-drinks/milk-classics/matcha-latte",
   },
 ];
 
@@ -108,7 +108,7 @@ export default function LovedByLocals() {
             {HIGHLIGHTED_ITEMS.map((item) => (
               <LocalizedLink
                 key={item.name}
-                href={item.href}
+                href={`/menu?product=${encodeURIComponent(item.productName)}`}
                 className="inline-flex items-center gap-2 rounded-full bg-elite-burgundy text-elite-cream pr-3 pl-1 py-1 shadow-md shadow-elite-burgundy/20 transition-transform hover:scale-[1.03] hover:opacity-95"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-elite-burgundy/10 relative">

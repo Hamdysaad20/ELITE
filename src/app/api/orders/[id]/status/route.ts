@@ -8,58 +8,15 @@ import {
 } from "@/server/utils/apiHelpers";
 import { getAuthUser } from "@/server/auth/session";
 import { awardOrderPoints } from "@/server/services/loyalty";
+import { notifyOrderStatusChange } from "@/server/services/orderStatusNotifications";
 import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
-
-function mapSaleStateToOrderStatus(saleState?: string): string | null {
-  switch ((saleState || "").toLowerCase()) {
-    case "draft":
-    case "sent":
-      return "PENDING";
-    case "sale":
-      return "CONFIRMED";
-    case "done":
-      return "DELIVERED";
-    case "cancel":
-      return "CANCELLED";
-    default:
-      return null;
-  }
-}
-
-function mapPosStateToOrderStatus(posState?: string): string | null {
-  switch ((posState || "").toLowerCase()) {
-    case "draft":
-      return "PENDING";
-    case "paid":
-    case "invoiced":
-      return "CONFIRMED";
-    case "done":
-      return "DELIVERED";
-    case "cancel":
-    case "cancelled":
-      return "CANCELLED";
-    default:
-      return null;
-  }
-}
-
-function resolveStatusPriority(
-  current: string,
-  saleMapped: string | null,
-  posMapped: string | null,
-): string {
-  const candidates = [current, saleMapped || "", posMapped || ""].filter(
-    Boolean,
-  );
-
-  if (candidates.includes("CANCELLED")) return "CANCELLED";
-  if (candidates.includes("DELIVERED")) return "DELIVERED";
-  if (candidates.includes("OUT_FOR_DELIVERY")) return "OUT_FOR_DELIVERY";
-  if (candidates.includes("READY")) return "READY";
-  if (candidates.includes("PREPARING")) return "PREPARING";
-  if (candidates.includes("CONFIRMED")) return "CONFIRMED";
-  return "PENDING";
-}
+import {
+  mapPosStateToOrderStatus,
+  mapSaleStateToOrderStatus,
+  normalizeOrderStatus,
+  resolveOrderStatusPriority,
+  getAcceptedOrderStatusValues,
+} from "@/lib/orderStatus";
 
 export async function GET(
   request: NextRequest,
@@ -82,6 +39,7 @@ export async function GET(
         status: true,
         paymentStatus: true,
         paymentMethod: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -108,15 +66,26 @@ export async function GET(
             ? await client.getPosOrderStatus(order.posOrderId)
             : null;
 
-          const saleMapped = mapSaleStateToOrderStatus(sale?.state);
-          const posMapped = mapPosStateToOrderStatus(pos?.state);
-          const nextStatus = resolveStatusPriority(
-            order.status,
-            saleMapped,
-            posMapped,
-          );
+          const deliveryRollup = order.saleOrderId
+            ? await client.getSaleOutgoingDeliveryRollup(order.saleOrderId)
+            : { states: [], rolledState: null as null };
 
-          const nextOdooSale = sale?.state || order.odooStatusSale || "pending";
+          let effectiveSaleState = sale?.state;
+          if (deliveryRollup.rolledState === "done") {
+            effectiveSaleState = "done";
+          } else if (deliveryRollup.rolledState === "cancel") {
+            effectiveSaleState = "cancel";
+          }
+
+          const saleMapped = mapSaleStateToOrderStatus(effectiveSaleState);
+          const posMapped = mapPosStateToOrderStatus(pos?.state);
+          const hasOdooMappedStatus = Boolean(saleMapped || posMapped);
+          const nextStatus = hasOdooMappedStatus
+            ? resolveOrderStatusPriority("PENDING", saleMapped, posMapped)
+            : normalizeOrderStatus(order.status);
+
+          const nextOdooSale =
+            effectiveSaleState || order.odooStatusSale || "pending";
           const nextOdooPos = pos?.state || order.odooStatusPos || "pending";
 
           if (
@@ -124,6 +93,7 @@ export async function GET(
             nextOdooSale !== (order.odooStatusSale || "pending") ||
             nextOdooPos !== (order.odooStatusPos || "pending")
           ) {
+            const previousStatus = order.status;
             const updated = await prisma.order.update({
               where: { id: order.id },
               data: {
@@ -142,10 +112,20 @@ export async function GET(
                 status: true,
                 paymentStatus: true,
                 paymentMethod: true,
+                userId: true,
                 createdAt: true,
                 updatedAt: true,
               },
             });
+
+            await notifyOrderStatusChange({
+              orderId: order.id,
+              userId: order.userId,
+              previousStatus,
+              nextStatus,
+              source: "odoo-poll",
+            });
+
             order = updated;
           }
         }
@@ -161,7 +141,7 @@ export async function GET(
     return jsonResponse(
       successResponse({
         id: order.id,
-        status: order.status,
+        status: normalizeOrderStatus(order.status),
         paymentStatus: order.paymentStatus,
         saleOrderId: order.saleOrderId,
         posOrderId: order.posOrderId,
@@ -197,16 +177,7 @@ export async function PATCH(
     const { status, paymentStatus } = body;
 
     // Validate status
-    const validStatuses = [
-      "PENDING",
-      "CONFIRMED",
-      "PREPARING",
-      "READY",
-      "DELIVERING",
-      "DELIVERED",
-      "COMPLETED",
-      "CANCELLED",
-    ];
+    const validStatuses = getAcceptedOrderStatusValues();
     if (status && !validStatuses.includes(status)) {
       return jsonResponse(
         errorResponse(
@@ -236,7 +207,7 @@ export async function PATCH(
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
-        ...(status && { status }),
+        ...(status && { status: normalizeOrderStatus(status) }),
         ...(paymentStatus && { paymentStatus }),
         updatedAt: new Date(),
       },
@@ -260,7 +231,9 @@ export async function PATCH(
     // For online payments, points are only awarded after payment is confirmed (PAID status)
     const isPaid = updatedOrder.paymentStatus === "PAID";
     const isCashPayment = updatedOrder.paymentMethod === "CASH";
-    const isCompleted = status && ["DELIVERED", "COMPLETED"].includes(status);
+    const isCompleted =
+      (status ? normalizeOrderStatus(status) : updatedOrder.status) ===
+      "DELIVERED";
 
     if (isCompleted && updatedOrder.userId && (isPaid || isCashPayment)) {
       const result = await awardOrderPoints(id, updatedOrder.userId);
@@ -320,7 +293,7 @@ export async function PATCH(
       successResponse(
         {
           id: updatedOrder.id,
-          status: updatedOrder.status,
+          status: normalizeOrderStatus(updatedOrder.status),
           paymentStatus: updatedOrder.paymentStatus,
           saleOrderId: updatedOrder.saleOrderId,
           posOrderId: updatedOrder.posOrderId,

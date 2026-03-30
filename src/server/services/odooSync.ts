@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/server/db/client";
 import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
+import { notifyOrderStatusChange } from "@/server/services/orderStatusNotifications";
+import {
+  mapPosStateToOrderStatus,
+  mapSaleStateToOrderStatus,
+  normalizeOrderStatus,
+  resolveOrderStatusPriority,
+} from "@/lib/orderStatus";
 import { OrderStatus } from "@/types";
 import {
   odooQueue,
@@ -223,6 +230,8 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
   let saleId: number | undefined;
   let posOrderId: number | undefined;
   let odooWebUrl: string | undefined;
+  let saleState: string | undefined;
+  let posState: string | undefined;
 
   try {
     if (payload.enableSale) {
@@ -237,6 +246,13 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
       if (payload.autoConfirm && saleId) {
         await client.confirmSaleOrder(saleId).catch(() => null);
         console.log(`[odooSync] Sale order ${saleId} confirmed`);
+      }
+
+      if (saleId) {
+        const saleStatus = await client
+          .getSaleOrderStatus(saleId)
+          .catch(() => null);
+        saleState = saleStatus?.state;
       }
     }
     if (payload.enablePos) {
@@ -253,6 +269,13 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
       console.log(
         `[odooSync] POS order created: ${posOrderId} for order ${payload.orderId}`,
       );
+
+      if (posOrderId) {
+        const posStatus = await client
+          .getPosOrderStatus(posOrderId)
+          .catch(() => null);
+        posState = posStatus?.state;
+      }
     }
 
     const host = (process.env.ODOO_HOST || "").replace(/\/$/, "");
@@ -260,20 +283,35 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
       odooWebUrl = `${host}/web#model=sale.order&id=${saleId}&view_type=form`;
     }
 
+    const saleMapped = mapSaleStateToOrderStatus(saleState);
+    const posMapped = mapPosStateToOrderStatus(posState);
+    const hasMappedStatus = Boolean(saleMapped || posMapped);
+    const nextStatus = hasMappedStatus
+      ? resolveOrderStatusPriority("PENDING", saleMapped, posMapped)
+      : normalizeOrderStatus(order.status);
+
     await prisma.order.update({
       where: { id: order.id },
       data: {
         saleOrderId: saleId,
         posOrderId,
         odooWebUrl,
-        status: saleId ? OrderStatus.CONFIRMED : order.status,
-        odooStatusSale: payload.enableSale ? "synced" : "skipped",
-        odooStatusPos: payload.enablePos ? "synced" : "skipped",
+        status: nextStatus,
+        odooStatusSale: payload.enableSale ? saleState || "pending" : "skipped",
+        odooStatusPos: payload.enablePos ? posState || "pending" : "skipped",
         // Reset retry tracking on success
         odooSyncAttempts: { increment: 1 },
         odooSyncLastError: null,
         odooSyncLastAttemptAt: new Date(),
       },
+    });
+
+    await notifyOrderStatusChange({
+      orderId: order.id,
+      userId: order.userId,
+      previousStatus: order.status,
+      nextStatus,
+      source: "odoo-sync",
     });
 
     if (order.userId) {

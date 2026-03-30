@@ -1,19 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import {
-  X,
-  Settings,
-  ShoppingBag,
-  MapPin,
-  LogOut,
-} from "lucide-react";
+import { X, Settings, ShoppingBag, MapPin, LogOut } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import LocalizedLink from "@/components/LocalizedLink";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import InAppNotificationsBell from "@/components/InAppNotificationsBell";
 import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
 import { stripLocaleFromPathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
@@ -169,6 +164,8 @@ export default function Navigation() {
                   {t("soon")}
                 </span>
               </LocalizedLink>
+
+              {session && <InAppNotificationsBell />}
 
               {/* User Profile Dropdown */}
               <div className="relative" ref={dropdownRef}>

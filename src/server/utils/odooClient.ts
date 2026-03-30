@@ -37,6 +37,11 @@ export interface OdooPosOrderStatus {
   state?: string;
 }
 
+export interface OdooSaleDeliveryRollup {
+  states: string[];
+  rolledState: "done" | "cancel" | "in_progress" | null;
+}
+
 export function isOdooConfigured(): boolean {
   const host = process.env.ODOO_HOST || process.env.ODOO_URL;
   const username = process.env.ODOO_USERNAME || process.env.ODOO_USER;
@@ -669,6 +674,76 @@ export class OdooClient {
     );
 
     return rows?.[0] || null;
+  }
+
+  /**
+   * Get rolled outgoing delivery state for a sale order.
+   * - done: all outgoing pickings are done
+   * - cancel: all outgoing pickings are canceled
+   * - in_progress: mixed or active states
+   * - null: no outgoing pickings found
+   */
+  async getSaleOutgoingDeliveryRollup(
+    saleOrderId: number,
+  ): Promise<OdooSaleDeliveryRollup> {
+    try {
+      let pickings = await this.searchRead<{ id: number; state?: string }>(
+        "stock.picking",
+        [
+          ["sale_id", "=", saleOrderId],
+          ["picking_type_code", "=", "outgoing"],
+        ],
+        ["id", "state"],
+      );
+
+      // Fallback: some Odoo setups don't consistently expose/maintain sale_id
+      // on stock.picking, but keep origin = sale order name (e.g. SO012).
+      if (!pickings?.length) {
+        const saleRows = await this.searchRead<{ id: number; name?: string }>(
+          "sale.order",
+          [["id", "=", saleOrderId]],
+          ["id", "name"],
+          { limit: 1 },
+        );
+
+        const saleName = saleRows?.[0]?.name;
+        if (saleName) {
+          pickings = await this.searchRead<{ id: number; state?: string }>(
+            "stock.picking",
+            [
+              ["origin", "=", saleName],
+              ["picking_type_code", "=", "outgoing"],
+            ],
+            ["id", "state"],
+          );
+        }
+      }
+
+      const states = (pickings || [])
+        .map((p) => (p.state || "").toLowerCase())
+        .filter(Boolean);
+
+      if (states.length === 0) {
+        return { states: [], rolledState: null };
+      }
+
+      if (states.every((state) => state === "done")) {
+        return { states, rolledState: "done" };
+      }
+
+      if (states.every((state) => state === "cancel")) {
+        return { states, rolledState: "cancel" };
+      }
+
+      return { states, rolledState: "in_progress" };
+    } catch (error) {
+      // Some deployments may not expose stock models or sale_id relation.
+      console.warn(
+        `[OdooClient] Failed to read outgoing delivery state for sale ${saleOrderId}:`,
+        error,
+      );
+      return { states: [], rolledState: null };
+    }
   }
 
   // -----------------------------

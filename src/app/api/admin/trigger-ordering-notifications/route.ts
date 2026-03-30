@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
 import { prisma } from "@/server/db/client";
-import { sendOrderingResumedEmails } from "@/server/services/orderingEmailNotifications";
+import { markOrderingResumedInAppNotifications } from "@/server/services/orderingInAppNotifications";
 
 /**
  * POST /api/admin/trigger-ordering-notifications
- * Admin endpoint to trigger ordering resumed email notifications
+ * Admin endpoint to trigger ordering resumed in-app notifications
  * Requires admin role
  */
 export async function POST(request: NextRequest) {
@@ -14,10 +14,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "UNAUTHORIZED" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
     }
 
     // Check if user is admin
@@ -27,24 +24,22 @@ export async function POST(request: NextRequest) {
     });
 
     if (user?.role !== "admin") {
-      return NextResponse.json(
-        { error: "FORBIDDEN" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
 
-    // Trigger email notifications
-    await sendOrderingResumedEmails();
+    // Trigger in-app notifications for all pending subscriptions
+    const result = await markOrderingResumedInAppNotifications();
 
     return NextResponse.json({
       success: true,
-      message: "Ordering notifications sent",
+      updated: result.updated,
+      message: "Ordering in-app notifications triggered",
     });
   } catch (error) {
     console.error("[admin/trigger-ordering-notifications] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
