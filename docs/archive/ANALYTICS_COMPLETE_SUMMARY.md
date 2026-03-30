@@ -24,7 +24,7 @@
 - ✅ Automatic tier detection on points updates
 - ✅ Notification system created
 - ✅ Tier benefits configuration
-- ✅ Ready for email/push integration
+- ✅ Aligned for system/in-app notification integration
 - ✅ Triggers on every points calculation
 
 ### 4. Rewards Redemption Flow ✓
@@ -183,7 +183,7 @@ src/
 - **Tier Upgrades:** Congratulations + benefits list
 - **Points Earned:** Amount + order reference
 - **Savings Milestones:** 100, 250, 500, 1K+ EGP
-- **Extensible:** Ready for email/push/in-app
+- **Extensible:** Ready for system/in-app (email optional)
 
 ---
 

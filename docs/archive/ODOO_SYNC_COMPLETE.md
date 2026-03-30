@@ -313,7 +313,7 @@ All sync operations log to console:
 4. **Admin Dashboard**: View and manage loyalty accounts
 5. **Points Expiration**: Optional points expiry after 12 months
 6. **Odoo → Website Sync**: Pull order status updates from Odoo
-7. **Email Notifications**: Notify users of points earned/tier upgrades
+7. **System/In-App Notifications**: Notify users of points earned/tier upgrades
 
 ---
 

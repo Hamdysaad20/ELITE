@@ -171,7 +171,7 @@ Currently, deal rewards use "General Deals" as the deal type. Future enhancement
 
 ### 3. Notifications
 - Push notifications for achievement unlocks
-- Email notifications for milestone rewards
+- System/in-app notifications for milestone rewards
 - In-app notifications for badge unlocks
 
 ### 4. Advanced Features

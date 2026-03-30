@@ -13,7 +13,7 @@ GitHub Actions provides **free** cron job scheduling for public repositories, al
 - **Reliable**: GitHub's infrastructure
 - **Logs**: Full execution history in GitHub
 - **Manual Trigger**: Can trigger manually via GitHub UI
-- **Notifications**: Email notifications on failures
+- **Notifications**: GitHub account notifications on workflow failures
 
 ---
 
@@ -136,7 +136,7 @@ Workflows run automatically based on their schedule. No action needed!
 - **Red X**: Failure
 - **Yellow circle**: In progress
 
-### Email Notifications
+### GitHub Notifications
 
 GitHub will email you when:
 - A workflow fails

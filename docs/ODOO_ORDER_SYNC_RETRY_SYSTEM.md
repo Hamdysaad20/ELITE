@@ -1,11 +1,11 @@
 # Odoo Order Sync Retry System
 
 **Status:** ✅ Production Ready  
-**Last Updated:** December 20, 2025
+**Last Updated:** March 30, 2026
 
 ## Overview
 
-This document describes the automatic retry and customer notification system for Odoo order synchronization failures. The system ensures that customers are informed within 30 minutes if their order cannot be synced to Odoo, while continuously attempting to resolve the issue.
+This document describes the automatic retry and system notification flow for Odoo order synchronization failures. The system ensures each affected order is annotated with system status updates within the 30-minute retry window while continuously attempting to resolve the issue.
 
 ---
 
@@ -19,13 +19,13 @@ In serverless environments (Vercel), Odoo sync runs inline during order creation
 
 ---
 
-## Solution: 30-Minute Retry Window with Customer Notification
+## Solution: 30-Minute Retry Window with System Notification
 
 ### Key Features
 
 1. **Automatic Retries**: Failed syncs are retried every 5 minutes
 2. **30-Minute Deadline**: Maximum 30 minutes from order creation to final resolution
-3. **Customer Notification**: Apology email sent if sync fails within 30-min window
+3. **System Notification**: System note added to order if sync remains failed near deadline
 4. **Retry Tracking**: Database tracks attempts, errors, and notification status
 5. **Graceful Degradation**: Orders are still saved even if Odoo sync fails
 
@@ -56,7 +56,7 @@ Near 30-min deadline?
      ↓
      Yes
      ↓
-Send Apology Email to Customer
+Create System Notification Note
      ↓
 Continue retrying until 30 min
      ↓
@@ -77,7 +77,7 @@ model Order {
   odooSyncAttempts      Int       @default(0)
   odooSyncLastError     String?   // Last error message (max 500 chars)
   odooSyncLastAttemptAt DateTime? // When last sync was attempted
-  odooSyncNotifiedAt    DateTime? // When customer was notified (null = not notified)
+   odooSyncNotifiedAt    DateTime? // When a system notification note was recorded
 }
 ```
 
@@ -104,8 +104,8 @@ model Order {
 
 3. **Check Deadline**
    - If order age >= 25 minutes (within 5 min of deadline)
-   - AND customer not yet notified (`odooSyncNotifiedAt` is null)
-   - Send apology email
+   - AND order not yet system-notified (`odooSyncNotifiedAt` is null)
+   - Append system notification note to the order
 
 4. **Handle Expired Orders**
    - Orders older than 30 minutes with failed status
@@ -125,51 +125,44 @@ model Order {
 00:10 - Cron retry (attempt 3)
 00:15 - Cron retry (attempt 4)
 00:20 - Cron retry (attempt 5)
-00:25 - Near deadline, send email if still failing
+00:25 - Near deadline, add system note if still failing
 00:30 - Deadline reached, mark as failed_permanent
 ```
 
 ---
 
-## Customer Notification Email
+## System Notification Notes
 
-### When Sent
+### When Recorded
 
 - Order sync failing after multiple retries
 - Within 5 minutes of 30-minute deadline
 - OR after 30-minute deadline if not already notified
-- Only sent once per order
+- Recorded once per order per phase
 
-### Email Content
+### Note Content
 
-**Subject**: `Order #XXXXX - Processing Update`
+**Format**: `[SYSTEM] ...` line appended to `Order.notes`
 
 **Key Points**:
 - Order is confirmed and saved
 - Temporary technical issue
 - Team will manually process
 - No action needed from customer
-- Sincere apology
 
-**Tone**: Professional, reassuring, apologetic
+**Examples**:
+- `[SYSTEM] Odoo sync is delayed for order ABC123. The order is saved and queued for retry. (2026-03-30T10:00:00.000Z)`
+- `[SYSTEM] Odoo sync permanently failed for order ABC123. Manual intervention is required. (2026-03-30T10:30:00.000Z)`
+
+**Tone**: Operational and traceable
 
 ---
 
 ## Environment Variables
 
-### Required for Email Notifications
+### Required for System Notifications
 
-```bash
-# Email SMTP Configuration (same as NextAuth)
-EMAIL_SERVER_HOST=smtp.example.com
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER=your_smtp_username
-EMAIL_SERVER_PASSWORD=your_smtp_password
-EMAIL_FROM=noreply@yourdomain.com
-
-# Optional: Brand name for emails
-BRAND_NAME="Elite Coffee Shop"
-```
+No additional notification transport variables are required for Odoo retry notifications. The system writes notes directly to the order record.
 
 ### Required for Cron Security
 
@@ -217,15 +210,14 @@ CRON_SECRET=your-vercel-cron-secret
 [cron:retry-odoo-sync] Completed: 3 retried, 0 notified, 0 errors
 ```
 
-**Customer Notification**:
+**System Notification**:
 ```
-[cron:retry-odoo-sync] Notified customer for order abc123
-[emailService] Sync failure notification sent to customer@example.com for order ABC123
+[cron:retry-odoo-sync] Created system notification for order abc123
 ```
 
 **Permanent Failure**:
 ```
-[cron:retry-odoo-sync] Notified customer for expired order abc123
+[cron:retry-odoo-sync] Created system notification for expired order abc123
 Order abc123 marked as failed_permanent (manual intervention needed)
 ```
 
@@ -263,13 +255,13 @@ LIMIT 10;
 
 ## Edge Cases & Considerations
 
-### 1. Email Service Down
+### 1. Order Note Update Failure
 
-**Scenario**: SMTP server unavailable when trying to send notification
+**Scenario**: Database write fails when trying to append system note
 
 **Handling**:
-- Email send failure is logged but doesn't crash the cron job
-- Next cron run will try again (if customer not yet notified)
+- Note write failure is logged but doesn't crash the cron job
+- Next cron run can retry notification write (if `odooSyncNotifiedAt` is still null)
 - Order sync retries continue independently
 
 ### 2. Odoo Recovers Mid-Window
@@ -279,7 +271,7 @@ LIMIT 10;
 **Handling**:
 - Next cron run (at 20 min) will successfully sync
 - Order status updated to "synced"
-- Customer notification is NOT sent (only sent if still failing near deadline)
+- System notification is NOT created (only created if still failing near deadline)
 
 ### 3. Multiple Concurrent Cron Runs
 
@@ -299,14 +291,14 @@ LIMIT 10;
 - Still have full 30-minute window
 - Total retries: up to 6 attempts (initial + 5 retries)
 
-### 5. Customer Has No Email
+### 5. Missing Contact Email
 
 **Scenario**: Guest checkout without email
 
 **Handling**:
-- Notification is skipped (no email to send to)
+- System notification still works (stored on order record)
 - Order still retried normally
-- Manual intervention required if sync fails
+- Manual intervention required only if sync remains failed
 
 ---
 
@@ -368,27 +360,18 @@ LIMIT 10;
    - Run retry again
    - Order should sync successfully
 
-### Test Email Notification
+### Test System Notification
 
-1. **Set up test email**:
-   ```bash
-   EMAIL_SERVER_HOST=smtp.mailtrap.io
-   EMAIL_SERVER_PORT=2525
-   EMAIL_SERVER_USER=your-mailtrap-user
-   EMAIL_SERVER_PASSWORD=your-mailtrap-password
-   EMAIL_FROM=test@example.com
-   ```
+1. **Create order with failing sync**
 
-2. **Create order with failing sync**
+2. **Wait 25 minutes** (or modify deadline in code for testing)
 
-3. **Wait 25 minutes** (or modify deadline in code for testing)
-
-4. **Run cron**:
+3. **Run cron**:
    ```bash
    curl http://localhost:3000/api/cron/retry-odoo-sync
    ```
 
-5. **Check Mailtrap inbox** for apology email
+4. **Check order notes** for `[SYSTEM]` notification line
 
 ---
 
@@ -408,12 +391,12 @@ LIMIT 10;
 - Spread over 5-minute intervals
 - Acceptable load for Odoo
 
-### Email Load
+### Notification Write Load
 
-- Max 20 emails per cron run
-- Only sent once per order
+- Max 20 order note updates per cron run
+- Only written once per order phase
 - Only for orders near/past deadline
-- Typical: 0-2 emails per run
+- Typical: 0-2 updates per run
 
 ---
 
