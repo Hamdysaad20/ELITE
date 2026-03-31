@@ -29,6 +29,7 @@ declare module "next-auth/jwt" {
     sub: string;
     email?: string | null;
     name?: string | null;
+    image?: string | null;
     role?: string;
     status?: string;
     emailVerified?: Date | null;

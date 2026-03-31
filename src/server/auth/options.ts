@@ -292,6 +292,11 @@ export function getAuthOptions(): NextAuthOptions {
       async session({ session, token }) {
         if (token.sub && session.user) {
           session.user.id = token.sub;
+          session.user.email =
+            (token.email as string | null | undefined) ?? null;
+          session.user.name = (token.name as string | null | undefined) ?? null;
+          session.user.image =
+            (token.image as string | null | undefined) ?? null;
           session.user.role = (token.role as string) || "user";
           session.user.status = (token.status as string) || "active";
         }
@@ -303,6 +308,7 @@ export function getAuthOptions(): NextAuthOptions {
           token.sub = user.id;
           token.email = user.email;
           token.name = user.name || undefined;
+          token.image = user.image || undefined;
 
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
@@ -338,6 +344,7 @@ export function getAuthOptions(): NextAuthOptions {
               select: {
                 email: true,
                 name: true,
+                image: true,
                 role: true,
                 status: true,
                 emailVerified: true,
@@ -347,6 +354,7 @@ export function getAuthOptions(): NextAuthOptions {
             if (dbUser) {
               token.email = dbUser.email;
               token.name = dbUser.name;
+              token.image = dbUser.image;
               token.role = dbUser.role;
               token.status = dbUser.status;
               token.emailVerified = dbUser.emailVerified;
