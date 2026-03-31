@@ -63,7 +63,11 @@ function ProfileContent() {
     ) {
       setActiveTab(tabParam);
       // Scroll to top of page when navigating via URL parameter
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        window.scrollTo(0, 0);
+      }
     }
   }, [searchParams]);
 
@@ -301,11 +305,11 @@ function ProfileContent() {
 
           {/* Sign Out Button */}
           <button
-          onClick={() => signOut({ callbackUrl: signOutRedirect })}
+            onClick={() => signOut({ callbackUrl: signOutRedirect })}
             className="w-full mt-4 bg-white text-red-600 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-red-100 hover:border-red-200 active:scale-[0.98] flex items-center justify-center gap-3 group"
           >
             <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          <span className="font-cabin font-semibold">{t("signOut")}</span>
+            <span className="font-cabin font-semibold">{t("signOut")}</span>
           </button>
         </div>
       </main>

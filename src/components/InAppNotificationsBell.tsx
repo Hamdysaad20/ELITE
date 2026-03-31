@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import LocalizedLink from "@/components/LocalizedLink";
 import { useLocale } from "next-intl";
@@ -42,8 +42,15 @@ export default function InAppNotificationsBell() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<InAppNotification[]>([]);
+  const isFetchingRef = useRef(false);
+  const lastStreamSignatureRef = useRef("");
 
   const fetchNotifications = useCallback(async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    isFetchingRef.current = true;
     try {
       const response = await fetch("/api/notify/in-app", { cache: "no-store" });
       if (!response.ok) return;
@@ -53,6 +60,7 @@ export default function InAppNotificationsBell() {
     } catch (error) {
       console.error("Failed to load in-app notifications:", error);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   }, []);
@@ -72,10 +80,21 @@ export default function InAppNotificationsBell() {
             latest: Array<{ id: string; productId: string; createdAt: string }>;
           };
 
+          const signature = `${data.unreadCount}:${(data.latest || [])
+            .map((item) => item.id)
+            .join(",")}`;
+
+          if (signature === lastStreamSignatureRef.current) {
+            return;
+          }
+          lastStreamSignatureRef.current = signature;
+
           setUnreadCount(data.unreadCount || 0);
 
-          // Refresh full notification content only when count changes.
-          fetchNotifications();
+          // Refresh detailed content only when popover is open.
+          if (open) {
+            fetchNotifications();
+          }
         } catch (error) {
           console.error("Failed to parse notification stream payload:", error);
         }
@@ -94,10 +113,6 @@ export default function InAppNotificationsBell() {
 
     connect();
 
-    const fallbackPoll = setInterval(() => {
-      fetchNotifications();
-    }, 15000);
-
     return () => {
       if (source) {
         source.close();
@@ -105,9 +120,14 @@ export default function InAppNotificationsBell() {
       if (reconnectTimer) {
         clearTimeout(reconnectTimer);
       }
-      clearInterval(fallbackPoll);
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, open]);
+
+  useEffect(() => {
+    if (open) {
+      fetchNotifications();
+    }
+  }, [open, fetchNotifications]);
 
   const badgeLabel = useMemo(() => {
     if (unreadCount > 99) return "99+";
