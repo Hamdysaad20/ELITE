@@ -107,7 +107,7 @@ export default function Hero() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
             <LocalizedLink
-              href="/menu/classic-drinks/milk-classics/matcha-latte"
+              href="/menu"
               className="rounded-full bg-elite-cream/15 border border-elite-cream/20 px-3 py-1.5 text-elite-cream text-xs sm:text-sm font-cabin hover:bg-elite-cream/25 transition-colors"
             >
               Matcha

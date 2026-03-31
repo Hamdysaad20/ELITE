@@ -3,6 +3,7 @@
 import { Instagram, Facebook, Globe, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import { MENU_ENDPOINTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export default function Footer() {
@@ -99,7 +100,7 @@ export default function Footer() {
             </div>
             <nav className="space-y-4">
               <LocalizedLink
-                href="/menu/classic-drinks"
+                href="/menu"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
                   isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
@@ -108,7 +109,7 @@ export default function Footer() {
                 {t("menuCategories.classic")}
               </LocalizedLink>
               <LocalizedLink
-                href="/menu/special-drinks"
+                href={MENU_ENDPOINTS.SPECIAL}
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
                   isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
@@ -117,7 +118,7 @@ export default function Footer() {
                 {t("menuCategories.special")}
               </LocalizedLink>
               <LocalizedLink
-                href="/menu/kids-corner"
+                href={MENU_ENDPOINTS.KIDS}
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
                   isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",

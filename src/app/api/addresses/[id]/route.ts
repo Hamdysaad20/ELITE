@@ -164,10 +164,6 @@ export async function PATCH(
       updateData.state = validatedData.state
         ? sanitizeInput(validatedData.state)
         : null;
-    if (validatedData.zipCode !== undefined)
-      updateData.zipCode = validatedData.zipCode
-        ? sanitizeInput(validatedData.zipCode)
-        : null;
     if (validatedData.country !== undefined)
       updateData.country = sanitizeInput(validatedData.country);
     if (validatedData.phone !== undefined)
@@ -197,7 +193,6 @@ export async function PATCH(
           phone: address.phone || undefined,
           street: `${address.street}${address.apartment ? ", " + address.apartment : ""}`,
           city: address.city,
-          zip: address.zipCode || undefined,
         });
         console.log(
           `✅ Address update synced to Odoo for user ${session.user.id}`,

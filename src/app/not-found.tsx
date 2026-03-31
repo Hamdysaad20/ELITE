@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Coffee, Home, Menu, MapPin } from "lucide-react";
 import Footer from "@/components/Footer";
 import LocalizedLink from "@/components/LocalizedLink";
+import { MENU_ENDPOINTS } from "@/lib/constants";
 
 export default async function NotFound() {
   const t = await getTranslations("notFound");
@@ -58,7 +59,7 @@ export default async function NotFound() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <LocalizedLink
-                href="/menu/classic-drinks"
+                href="/menu"
                 className="flex items-center gap-3 p-4 rounded-xl bg-elite-cream hover:bg-elite-burgundy hover:text-elite-cream transition-all duration-300 group"
               >
                 <Coffee className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -67,7 +68,7 @@ export default async function NotFound() {
                 </span>
               </LocalizedLink>
               <LocalizedLink
-                href="/menu/special-drinks"
+                href={MENU_ENDPOINTS.SPECIAL}
                 className="flex items-center gap-3 p-4 rounded-xl bg-elite-cream hover:bg-elite-burgundy hover:text-elite-cream transition-all duration-300 group"
               >
                 <Coffee className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -76,7 +77,7 @@ export default async function NotFound() {
                 </span>
               </LocalizedLink>
               <LocalizedLink
-                href="/menu/kids-corner"
+                href={MENU_ENDPOINTS.KIDS}
                 className="flex items-center gap-3 p-4 rounded-xl bg-elite-cream hover:bg-elite-burgundy hover:text-elite-cream transition-all duration-300 group"
               >
                 <Coffee className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -98,14 +99,10 @@ export default async function NotFound() {
 
           {/* Contact Info */}
           <div className="mt-8 text-center">
-            <p className="font-cabin text-elite-black/60 mb-2">
-              {t("help")}
-            </p>
+            <p className="font-cabin text-elite-black/60 mb-2">{t("help")}</p>
             <div className="flex items-center justify-center gap-2 text-elite-burgundy font-cabin font-semibold">
               <MapPin className="w-4 h-4" />
-              <span>
-                {t("address")}
-              </span>
+              <span>{t("address")}</span>
             </div>
           </div>
         </div>

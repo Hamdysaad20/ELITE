@@ -92,6 +92,12 @@ export const MENU_CONFIG = {
   IMAGE_PLACEHOLDER: "/images/placeholder.jpg",
 } as const;
 
+// Canonical menu endpoints used across marketing and navigation surfaces
+export const MENU_ENDPOINTS = {
+  SPECIAL: "/menu/special-drinks",
+  KIDS: "/menu/special-drinks",
+} as const;
+
 // Validation Rules
 export const VALIDATION_RULES = {
   PHONE: /^[\+]?[1-9][\d]{0,15}$/,

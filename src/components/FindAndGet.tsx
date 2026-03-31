@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import Image from "next/image";
+import { MENU_ENDPOINTS } from "@/lib/constants";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -64,13 +65,12 @@ const CategoryCard = ({
 );
 
 export default function FindAndGet() {
-  const classicDrinksRef = useRef<HTMLDivElement>(null);
   const specialDrinksRef = useRef<HTMLDivElement>(null);
   const kidsCornerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("findAndGet");
 
   useEffect(() => {
-    const refs = [classicDrinksRef, specialDrinksRef, kidsCornerRef];
+    const refs = [specialDrinksRef, kidsCornerRef];
 
     // Set initial state - scale down to 0
     gsap.set(
@@ -84,7 +84,7 @@ export default function FindAndGet() {
     // Create timeline for staggered animation
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: classicDrinksRef.current,
+        trigger: specialDrinksRef.current,
         start: "top 90%",
         end: "bottom 10%",
         toggleActions: "play none none none",
@@ -122,22 +122,12 @@ export default function FindAndGet() {
         </h2>
 
         {/* Category Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
-          {/* Classic Drinks Category */}
-          <CategoryCard
-            href="/menu/classic-drinks"
-            refProp={classicDrinksRef}
-            imageSrc="/Old Items/Latte.png"
-            altText={t("categories.classic")}
-            title={t("categories.classic")}
-            description="Everyday favorites, from espresso to milk classics."
-          />
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
           {/* Special Drinks Category */}
           <CategoryCard
-            href="/menu/special-drinks"
+            href={MENU_ENDPOINTS.SPECIAL}
             refProp={specialDrinksRef}
-            imageSrc="/Old Items/Cortado.png"
+            imageSrc="/Old Items/Mix Choco Mango Shake-1.png"
             altText={t("categories.special")}
             title={t("categories.special")}
             description="Creative blends for bold flavor cravings."
@@ -145,7 +135,7 @@ export default function FindAndGet() {
 
           {/* Kids' Corner Category */}
           <CategoryCard
-            href="/menu/kids-corner"
+            href={MENU_ENDPOINTS.KIDS}
             refProp={kidsCornerRef}
             imageSrc="/kids corner/kids_corner_draft2.3.png"
             altText={t("categories.kids")}

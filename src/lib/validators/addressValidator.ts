@@ -78,7 +78,6 @@ export function validateAddressField(
     apartment: "APARTMENT_MAX_LENGTH",
     city: "CITY_MAX_LENGTH",
     state: "STATE_MAX_LENGTH",
-    zipCode: "ZIP_CODE_MAX_LENGTH",
     phone: "PHONE_MAX_LENGTH",
     notes: "NOTES_MAX_LENGTH",
   };
@@ -124,30 +123,12 @@ export function validateAddressField(
             message: `Phone number must be less than ${ADDRESS_VALIDATION.PHONE_MAX_LENGTH} characters`,
           };
         }
-        const phoneWithoutSpaces = valueStr.replace(/\s/g, "");
-        if (!ADDRESS_VALIDATION.PHONE_REGEX.test(phoneWithoutSpaces)) {
+        const phoneDigits = valueStr.replace(/\D/g, "");
+        if (!ADDRESS_VALIDATION.PHONE_EGYPT_REGEX.test(phoneDigits)) {
           return {
             isValid: false,
             message:
-              "Please enter a valid phone number (e.g., +20 123 456 7890)",
-          };
-        }
-      }
-      return { isValid: true };
-
-    case "zipCode":
-      if (valueStr) {
-        if (valueStr.length > ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH) {
-          return {
-            isValid: false,
-            message: `Zip code must be less than ${ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH} characters`,
-          };
-        }
-        if (!ADDRESS_VALIDATION.ZIP_REGEX.test(valueStr)) {
-          return {
-            isValid: false,
-            message:
-              "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
+              "Please enter a valid phone number (must be 11 digits and start with 01)",
           };
         }
       }

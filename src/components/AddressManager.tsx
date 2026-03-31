@@ -98,7 +98,6 @@ export default function AddressManager({
     apartment: "",
     city: "",
     state: "",
-    zipCode: "",
     country: "Egypt",
     phone: "",
     notes: "",
@@ -113,7 +112,6 @@ export default function AddressManager({
     "apartment",
     "city",
     "state",
-    "zipCode",
     "country",
     "phone",
     "notes",
@@ -182,7 +180,6 @@ export default function AddressManager({
         ...formData,
         apartment: formData.apartment?.trim() ? formData.apartment : undefined,
         state: formData.state?.trim() ? formData.state : undefined,
-        zipCode: formData.zipCode?.trim() ? formData.zipCode : undefined,
         phone: formData.phone?.trim() ? formData.phone : undefined,
         notes: formData.notes?.trim() ? formData.notes : undefined,
       };
@@ -207,7 +204,6 @@ export default function AddressManager({
         apartment: "",
         city: "",
         state: "",
-        zipCode: "",
         country: "Egypt",
         phone: "",
         notes: "",
@@ -251,7 +247,6 @@ export default function AddressManager({
       apartment: address.apartment || "",
       city: address.city,
       state: address.state || "",
-      zipCode: address.zipCode || "",
       country: address.country,
       phone: address.phone || "",
       notes: address.notes || "",
@@ -288,7 +283,6 @@ export default function AddressManager({
       apartment: "",
       city: "",
       state: "",
-      zipCode: "",
       country: "Egypt",
       phone: "",
       notes: "",
@@ -385,7 +379,6 @@ export default function AddressManager({
                     <p className="font-cabin text-elite-black/60 text-sm">
                       {address.city}
                       {address.state && `, ${address.state}`}
-                      {address.zipCode && ` ${address.zipCode}`}
                     </p>
                     {address.phone && (
                       <p className="font-cabin text-elite-black/60 text-sm mt-1">
@@ -681,54 +674,27 @@ function AddressForm({
         </div>
       </div>
 
-      {/* Zip Code & Phone */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            {t("form.zipCode.label")}
-          </label>
-          <input
-            type="text"
-            maxLength={ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH}
-            value={formData.zipCode}
-            onChange={(e) => handleFieldChange("zipCode", e.target.value)}
-            onBlur={(e) => validateField("zipCode", e.target.value)}
-            placeholder={t("form.zipCode.placeholder")}
-            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
-              errors.zipCode
-                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
-            }`}
-          />
-          {errors.zipCode && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">
-              {errors.zipCode}
-            </p>
-          )}
-        </div>
-        <div>
-          <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
-            {t("form.phone.label")}
-          </label>
-          <input
-            type="tel"
-            maxLength={ADDRESS_VALIDATION.PHONE_MAX_LENGTH}
-            value={formData.phone}
-            onChange={(e) => handleFieldChange("phone", e.target.value)}
-            onBlur={(e) => validateField("phone", e.target.value)}
-            placeholder={t("form.phone.placeholder")}
-            className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
-              errors.phone
-                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
-            }`}
-          />
-          {errors.phone && (
-            <p className="mt-1 text-sm text-red-600 font-cabin">
-              {errors.phone}
-            </p>
-          )}
-        </div>
+      {/* Phone */}
+      <div>
+        <label className="block font-cabin font-bold text-elite-black mb-3 text-sm">
+          {t("form.phone.label")}
+        </label>
+        <input
+          type="tel"
+          maxLength={ADDRESS_VALIDATION.PHONE_MAX_LENGTH}
+          value={formData.phone}
+          onChange={(e) => handleFieldChange("phone", e.target.value)}
+          onBlur={(e) => validateField("phone", e.target.value)}
+          placeholder="01XXXXXXXXX"
+          className={`w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:outline-none font-cabin transition-all ${
+            errors.phone
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+              : "border-elite-burgundy/20 focus:border-elite-burgundy focus:ring-elite-burgundy/20"
+          }`}
+        />
+        {errors.phone && (
+          <p className="mt-1 text-sm text-red-600 font-cabin">{errors.phone}</p>
+        )}
       </div>
 
       {/* Delivery Notes */}
