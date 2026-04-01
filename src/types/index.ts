@@ -179,7 +179,6 @@ export interface Address {
   apartment?: string;
   city: string;
   state?: string;
-  zipCode?: string;
   country: string;
   phone?: string;
   notes?: string; // Delivery instructions

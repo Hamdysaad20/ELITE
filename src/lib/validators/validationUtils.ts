@@ -98,41 +98,6 @@ export function validatePhoneByCountry(
 }
 
 /**
- * Validate postal code based on country
- */
-export function validateZipByCountry(
-  zip: string,
-  country: string = "Egypt",
-): {
-  isValid: boolean;
-  message?: string;
-} {
-  if (!zip || zip.trim() === "") {
-    return { isValid: true };
-  }
-
-  if (country === "Egypt" || country === "EG" || country === "EGY") {
-    if (ADDRESS_VALIDATION.ZIP_EGYPT_REGEX.test(zip)) {
-      return { isValid: true };
-    }
-    return {
-      isValid: false,
-      message: "Egyptian postal codes must be 5 digits (e.g., 12345)",
-    };
-  }
-
-  if (ADDRESS_VALIDATION.ZIP_REGEX.test(zip)) {
-    return { isValid: true };
-  }
-
-  return {
-    isValid: false,
-    message:
-      "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
-  };
-}
-
-/**
  * Check if string contains only allowed characters for city names
  */
 export function isValidCityName(city: string): boolean {
@@ -220,7 +185,6 @@ export function calculateAddressCompleteness(address: {
   city?: string | null;
   apartment?: string | null;
   state?: string | null;
-  zipCode?: string | null;
   phone?: string | null;
   country?: string | null;
 }): number {
@@ -234,9 +198,8 @@ export function calculateAddressCompleteness(address: {
   // Optional but important fields (60 points total)
   if (address.apartment?.trim()) score += 10;
   if (address.state?.trim()) score += 10;
-  if (address.zipCode?.trim()) score += 15;
-  if (address.phone?.trim()) score += 15;
-  if (address.country?.trim()) score += 10;
+  if (address.phone?.trim()) score += 20;
+  if (address.country?.trim()) score += 20;
 
   return Math.min(score, maxScore);
 }

@@ -211,7 +211,6 @@ export async function POST(request: NextRequest) {
       apartment: string | null;
       city: string;
       state: string | null;
-      zipCode: string | null;
       phone: string | null;
       notes: string | null;
     } | null = null;
@@ -224,7 +223,6 @@ export async function POST(request: NextRequest) {
           apartment: true,
           city: true,
           state: true,
-          zipCode: true,
           phone: true,
           notes: true,
         },
@@ -371,7 +369,6 @@ export async function POST(request: NextRequest) {
           apartment: validatedAddress.apartment,
           city: validatedAddress.city,
           state: validatedAddress.state,
-          zip: validatedAddress.zipCode,
           phone: validatedAddress.phone,
           notes: validatedAddress.notes,
         }
@@ -394,7 +391,6 @@ export async function POST(request: NextRequest) {
           phone: normalizedPhone || undefined,
           street: addressInfo?.street || body.odoo?.partner?.street,
           city: addressInfo?.city || body.odoo?.partner?.city,
-          zip: addressInfo?.zip || body.odoo?.partner?.zip,
         },
         enableSale,
         autoConfirm: body.odoo?.sale?.autoConfirm === true,

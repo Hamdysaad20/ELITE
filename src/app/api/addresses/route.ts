@@ -152,7 +152,6 @@ export async function POST(req: NextRequest) {
         apartment: sanitizedData.apartment as string | null | undefined,
         city: sanitizedData.city as string,
         state: sanitizedData.state as string | null | undefined,
-        zipCode: null,
         country: sanitizedData.country as string,
         phone: phone ? sanitizePhone(phone as string) : null,
         notes: sanitizedData.notes as string | null | undefined,

@@ -28,7 +28,6 @@ export function validateAddress(data: Partial<Address>): {
       apartment: data.apartment || null,
       city: data.city || "",
       state: data.state || null,
-      zipCode: data.zipCode || null,
       country: data.country || "Egypt",
       phone: data.phone || null,
       notes: data.notes || null,

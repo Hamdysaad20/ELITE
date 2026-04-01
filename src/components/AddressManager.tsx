@@ -57,9 +57,6 @@ const resolveAddressError = (t: Translator, field: string, message: string) => {
   if (message.includes("valid Egyptian mobile number")) {
     return t("validation.phone.egypt");
   }
-  if (message.includes("valid zip/postal code")) {
-    return t("validation.zipCode.invalid");
-  }
 
   return message;
 };

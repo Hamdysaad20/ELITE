@@ -766,7 +766,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   <br />
                   {order.address.city}
                   {order.address.state && `, ${order.address.state}`}
-                  {order.address.zipCode && ` ${order.address.zipCode}`}
                 </p>
               </div>
 

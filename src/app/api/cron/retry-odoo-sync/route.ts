@@ -120,7 +120,6 @@ export async function GET(request: NextRequest) {
           apartment?: string;
           city?: string;
           state?: string;
-          zip?: string;
           phone?: string;
           notes?: string;
         } | null = null;
@@ -130,7 +129,6 @@ export async function GET(request: NextRequest) {
             apartment: order.address.apartment ?? undefined,
             city: order.address.city ?? undefined,
             state: order.address.state ?? undefined,
-            zip: order.address.zipCode ?? undefined,
             phone: order.address.phone ?? undefined,
             notes: order.address.notes ?? undefined,
           };
@@ -145,7 +143,6 @@ export async function GET(request: NextRequest) {
             phone: addressInfo?.phone,
             street: addressInfo?.street,
             city: addressInfo?.city,
-            zip: addressInfo?.zip,
           },
           enableSale,
           autoConfirm: true,

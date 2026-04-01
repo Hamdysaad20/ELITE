@@ -26,6 +26,46 @@ import SwipeIndicator from "@/components/SwipeIndicator";
 import { Sparkles, AlertCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 
+interface DealMetrics {
+  savings: number;
+  savingsPercent: number;
+  price: number;
+  name: string;
+}
+
+function getDealMetrics(deal: Deal): DealMetrics {
+  if (!deal.products || deal.products.length === 0) {
+    return { savings: 0, savingsPercent: 0, price: 0, name: deal.name || "" };
+  }
+
+  let maxSavingsPercent = 0;
+  let maxSavings = 0;
+  let minPrice = Number.POSITIVE_INFINITY;
+
+  for (const product of deal.products) {
+    const savingsPercent = product.savingsPercent || 0;
+    const savings = product.savings || 0;
+    const dealPrice = product.dealPrice || 0;
+
+    if (savingsPercent > maxSavingsPercent) {
+      maxSavingsPercent = savingsPercent;
+    }
+    if (savings > maxSavings) {
+      maxSavings = savings;
+    }
+    if (dealPrice < minPrice) {
+      minPrice = dealPrice;
+    }
+  }
+
+  return {
+    savings: maxSavings,
+    savingsPercent: maxSavingsPercent,
+    price: Number.isFinite(minPrice) ? minPrice : 0,
+    name: deal.name,
+  };
+}
+
 /**
  * Deals page - Currently disabled
  * This page will be enabled in the future when deals feature is ready
@@ -38,40 +78,23 @@ export default function DealsPage() {
   const [sortBy, setSortBy] = useState<DealSortOption>("discount-desc"); // Default: biggest discount first
   const t = useTranslations("dealsPage");
 
-  const {
-    deals,
-    loading,
-    error,
-    totalProducts
-  } = useDeals(true);
+  const { deals, loading, error, totalProducts } = useDeals(true);
 
   const activeDeals = useMemo(() => {
     if (!deals) return [];
-    return deals.filter(d => d.active);
+    return deals.filter((d) => d.active);
   }, [deals]);
 
   const sortedDeals = useMemo(() => {
     if (!activeDeals) return [];
 
-    const getDealMetrics = (deal: Deal | undefined) => {
-      if (!deal || !deal.products || deal.products.length === 0) {
-        return { savings: 0, savingsPercent: 0, price: 0, name: deal?.name || "" };
-      }
-      const maxSavingsPercent = Math.max(...deal.products.map(p => p.savingsPercent || 0));
-      const maxSavings = Math.max(...deal.products.map(p => p.savings || 0));
-      const minPrice = Math.min(...deal.products.map(p => p.dealPrice || 0));
-
-      return {
-        savings: maxSavings,
-        savingsPercent: maxSavingsPercent,
-        price: minPrice,
-        name: deal.name
-      };
-    };
+    const metricsById = new Map(
+      activeDeals.map((deal) => [deal.id, getDealMetrics(deal)]),
+    );
 
     return [...activeDeals].sort((a, b) => {
-      const metricsA = getDealMetrics(a);
-      const metricsB = getDealMetrics(b);
+      const metricsA = metricsById.get(a.id) || getDealMetrics(a);
+      const metricsB = metricsById.get(b.id) || getDealMetrics(b);
 
       switch (sortBy) {
         case "discount-desc":
@@ -361,9 +384,7 @@ export default function DealsPage() {
                           <span className="text-elite-burgundy font-bold mt-0.5">
                             •
                           </span>
-                          <span>
-                            {t("info.items.1")}
-                          </span>
+                          <span>{t("info.items.1")}</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-elite-burgundy font-bold mt-0.5">
@@ -393,7 +414,6 @@ export default function DealsPage() {
           </div>
         </div>
       </div>
-
 
       <Footer />
     </>
