@@ -15,9 +15,6 @@ const SignaturePicks = dynamic(() => import("@/components/SignaturePicks"), {
 const LovedByLocals = dynamic(() => import("@/components/LovedByLocals"), {
   ssr: true,
 });
-const Testimonials = dynamic(() => import("@/components/Testimonials"), {
-  ssr: true,
-});
 const WhyElite = dynamic(() => import("@/components/WhyElite"), { ssr: true });
 const LoyaltyTeaser = dynamic(() => import("@/components/LoyaltyTeaser"), {
   ssr: true,
@@ -33,12 +30,12 @@ function WaveBurgundyToCreamy() {
   return (
     <div className="wave-divider bg-elite-burgundy -mb-px">
       <svg
-        viewBox="0 0 1440 56"
+        viewBox="0 0 1440 64"
         preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
+        className="w-full h-10 sm:h-14 md:h-16"
       >
         <path
-          d="M0,0 C480,56 960,56 1440,0 L1440,56 L0,56 Z"
+          d="M0,0 C240,58 720,64 1080,42 S1440,0 1440,0 L1440,64 L0,64 Z"
           fill="var(--elite-cream)"
         />
       </svg>
@@ -50,11 +47,11 @@ function WaveCreamToWhiteBg() {
   return (
     <div className="wave-divider bg-elite-cream -mb-px">
       <svg
-        viewBox="0 0 1440 56"
+        viewBox="0 0 1440 64"
         preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
+        className="w-full h-10 sm:h-14 md:h-16"
       >
-        <path d="M0,0 C360,56 1080,56 1440,0 L1440,56 L0,56 Z" fill="white" />
+        <path d="M0,0 C480,64 960,64 1440,0 L1440,64 L0,64 Z" fill="white" />
       </svg>
     </div>
   );
@@ -64,62 +61,13 @@ function WaveWhiteToBurgundy() {
   return (
     <div className="wave-divider bg-white -mb-px">
       <svg
-        viewBox="0 0 1440 56"
+        viewBox="0 0 1440 64"
         preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
+        className="w-full h-10 sm:h-14 md:h-16"
       >
         <path
-          d="M0,0 C480,56 960,56 1440,0 L1440,56 L0,56 Z"
+          d="M0,0 C360,6 720,64 1200,58 S1440,0 1440,0 L1440,64 L0,64 Z"
           fill="var(--elite-burgundy)"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function WaveWhiteToCreamy() {
-  return (
-    <div className="wave-divider bg-white -mb-px">
-      <svg
-        viewBox="0 0 1440 56"
-        preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
-      >
-        <path
-          d="M0,0 C360,56 1080,56 1440,0 L1440,56 L0,56 Z"
-          fill="var(--elite-cream)"
-        />
-      </svg>
-    </div>
-  );
-}
-
-/* Transitions into/out of the dark burgundy Testimonials section (#3a0e18) */
-function WaveCreamToDark() {
-  return (
-    <div className="wave-divider bg-elite-cream -mb-px">
-      <svg
-        viewBox="0 0 1440 56"
-        preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
-      >
-        <path d="M0,0 C480,56 960,56 1440,0 L1440,56 L0,56 Z" fill="#3a0e18" />
-      </svg>
-    </div>
-  );
-}
-
-function WaveDarkToCreamy() {
-  return (
-    <div className="wave-divider -mb-px" style={{ background: "#3a0e18" }}>
-      <svg
-        viewBox="0 0 1440 56"
-        preserveAspectRatio="none"
-        className="w-full h-8 sm:h-12 md:h-14"
-      >
-        <path
-          d="M0,0 C360,56 1080,56 1440,0 L1440,56 L0,56 Z"
-          fill="var(--elite-cream)"
         />
       </svg>
     </div>
@@ -157,22 +105,13 @@ export default function LandingPage() {
         {/* ⑥ Loved by locals — cream */}
         <LovedByLocals />
 
-        {/* ── cream → dark (Testimonials bg) ── */}
-        <WaveCreamToDark />
-
-        {/* ⑦ Testimonials — full-bleed matcha photo */}
-        <Testimonials />
-
-        {/* ── dark → cream ── */}
-        <WaveDarkToCreamy />
-
-        {/* ⑧ Rewards & join — cream */}
+        {/* ⑦ Rewards & join — cream (same bg, no wave needed) */}
         <LoyaltyTeaser />
 
         {/* ── cream → white ── */}
         <WaveCreamToWhiteBg />
 
-        {/* ⑨ Visit us — white */}
+        {/* ⑧ Visit us — white */}
         <LocationBar />
 
         {/* ── white → burgundy (into footer) ── */}

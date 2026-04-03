@@ -15,7 +15,6 @@ const STEPS = [
   {
     key: "browse" as const,
     number: "01",
-    emoji: "☕",
     href: "/menu",
     image: "/images/howitworks/fullmenu.png",
     objPos: "center 50%",
@@ -23,7 +22,6 @@ const STEPS = [
   {
     key: "order" as const,
     number: "02",
-    emoji: "🛒",
     href: "/menu",
     image: "/images/HQ16by9/ModelHolding.png",
     objPos: "center 42%",
@@ -31,141 +29,16 @@ const STEPS = [
   {
     key: "enjoy" as const,
     number: "03",
-    emoji: "✨",
     href: "/menu",
     image: "/images/menaCloseup.png",
     objPos: "center 50%",
   },
 ] as const;
 
-// Subtle warm bg shifts staying within the cream palette
+// Subtle warm bg shifts within the cream palette
 const SECTION_BG = ["#f8f0d2", "#f4e8c4", "#f0e0b6"] as const;
 
-/* ── Reusable tag chip ─────────────────────────────────────── */
-function Tag({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-elite-burgundy/15 bg-elite-burgundy/[0.06] px-3 py-1.5 font-cabin text-[11px] font-semibold tracking-wide text-elite-burgundy/75">
-      {label}
-    </span>
-  );
-}
-
-/* ── Desktop left-panel text block per step ─────────────────── */
-function StepText({
-  step,
-  index,
-  total,
-  t,
-}: {
-  step: (typeof STEPS)[number];
-  index: number;
-  total: number;
-  t: ReturnType<typeof useTranslations<"howItWorks">>;
-}) {
-  return (
-    <div style={{ height: "100vh", display: "grid", placeItems: "center" }}>
-      <div className="relative" style={{ maxWidth: "420px" }}>
-        {/* Ghost huge step number — decorative backdrop */}
-        <span
-          className="pointer-events-none absolute select-none font-bebas leading-none text-elite-burgundy/[0.055]"
-          style={{
-            fontSize: "clamp(9rem, 18vw, 14rem)",
-            top: "-1.5rem",
-            insetInlineStart: "-1.5rem",
-            zIndex: 0,
-          }}
-          aria-hidden="true"
-        >
-          {step.number}
-        </span>
-
-        <div className="relative z-10">
-          {/* ── Step counter + decorative line ── */}
-          <div className="mb-6 flex items-center gap-3">
-            <span
-              className="h-px w-7 bg-elite-burgundy/35"
-              aria-hidden="true"
-            />
-            <span className="font-cabin text-[10.5px] font-bold uppercase tracking-[0.32em] text-elite-burgundy/50">
-              Step {index + 1} / {total}
-            </span>
-          </div>
-
-          {/* ── Emoji icon in styled pill ── */}
-          <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-elite-burgundy/12 bg-white/70 text-2xl shadow-sm backdrop-blur-sm">
-            {step.emoji}
-          </div>
-
-          {/* ── Step title ── */}
-          <h3
-            className="font-bebas uppercase leading-[0.92] tracking-[0.05em] text-elite-black mb-1"
-            style={{ fontSize: "clamp(2.2rem, 3.8vw, 3.2rem)" }}
-          >
-            {t(`steps.${step.key}.title`)}
-          </h3>
-
-          {/* ── Arabic subtitle ── */}
-          <p
-            dir="rtl"
-            lang="ar"
-            className="font-tajawal text-sm font-semibold text-elite-burgundy/50 mb-5"
-          >
-            {t(`steps.${step.key}.arabicTitle`)}
-          </p>
-
-          {/* ── Gradient divider ── */}
-          <div
-            className="mb-5 h-px w-3/4"
-            style={{
-              background:
-                "linear-gradient(to right, rgba(139,38,53,0.25), transparent)",
-            }}
-            aria-hidden="true"
-          />
-
-          {/* ── Description ── */}
-          <p className="mb-6 font-cabin text-[14.5px] leading-relaxed text-elite-black/55">
-            {t(`steps.${step.key}.description`)}
-          </p>
-
-          {/* ── Feature tags ── */}
-          <div className="mb-7 flex flex-wrap gap-2">
-            <Tag label={t(`steps.${step.key}.tag1`)} />
-            <Tag label={t(`steps.${step.key}.tag2`)} />
-            <Tag label={t(`steps.${step.key}.tag3`)} />
-          </div>
-
-          {/* ── CTA ── */}
-          <LocalizedLink
-            href={step.href}
-            className="group/cta inline-flex items-center gap-2.5 rounded-2xl bg-elite-burgundy px-7 py-3.5 font-bebas text-[1.05rem] tracking-[0.1em] text-elite-cream shadow-[0_6px_24px_rgba(139,38,53,0.22)] transition-all duration-200 hover:shadow-[0_10px_32px_rgba(139,38,53,0.32)] hover:-translate-y-0.5 active:scale-[0.97]"
-          >
-            {t(`steps.${step.key}.cta`)}
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-0.5 rtl:rotate-180" />
-          </LocalizedLink>
-
-          {/* ── Progress dots ── */}
-          <div className="mt-8 flex items-center gap-2">
-            {STEPS.map((_, j) => (
-              <span
-                key={j}
-                className={[
-                  "rounded-full transition-all duration-300",
-                  j === index
-                    ? "h-2 w-6 bg-elite-burgundy"
-                    : "h-1.5 w-1.5 bg-elite-burgundy/20",
-                ].join(" ")}
-                aria-hidden="true"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Mobile card ────────────────────────────────────────────── */
+/* ── Mobile card ── */
 function MobileCard({
   step,
   t,
@@ -176,7 +49,6 @@ function MobileCard({
   return (
     <div className="min-w-[82vw] max-w-[300px] flex-shrink-0 snap-start">
       <div className="overflow-hidden rounded-3xl border border-elite-burgundy/8 bg-white shadow-sm">
-        {/* Photo */}
         <div className="relative h-[200px] w-full">
           <Image
             src={step.image}
@@ -186,41 +58,22 @@ function MobileCard({
             style={{ objectPosition: step.objPos }}
             sizes="82vw"
           />
-          {/* Step number badge */}
           <div className="absolute start-3.5 top-3.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-elite-burgundy shadow">
             <span className="font-cabin text-[11px] font-bold leading-none text-elite-cream">
               {step.number}
             </span>
           </div>
-          {/* Emoji badge */}
-          <div className="absolute end-3.5 top-3.5 z-10 flex h-9 min-w-[2.25rem] items-center justify-center rounded-2xl bg-white/85 px-2 text-base shadow-sm backdrop-blur-sm">
-            {step.emoji}
-          </div>
         </div>
-
-        {/* Body */}
         <div className="p-5">
           <h3
-            className="font-bebas uppercase tracking-[0.06em] leading-none text-elite-black mb-1"
+            className="font-bebas uppercase tracking-[0.06em] leading-none text-elite-black mb-2"
             style={{ fontSize: "clamp(1.55rem, 3.5vw, 1.85rem)" }}
           >
             {t(`steps.${step.key}.title`)}
           </h3>
-          <p
-            dir="rtl"
-            lang="ar"
-            className="mb-3 font-tajawal text-sm font-semibold text-elite-burgundy/50"
-          >
-            {t(`steps.${step.key}.arabicTitle`)}
-          </p>
           <p className="mb-4 font-cabin text-[13px] leading-relaxed text-elite-black/55">
             {t(`steps.${step.key}.description`)}
           </p>
-          <div className="mb-4 flex flex-wrap gap-1.5">
-            <Tag label={t(`steps.${step.key}.tag1`)} />
-            <Tag label={t(`steps.${step.key}.tag2`)} />
-            <Tag label={t(`steps.${step.key}.tag3`)} />
-          </div>
           <LocalizedLink
             href={step.href}
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-elite-burgundy/25 py-3 font-bebas text-[1.05rem] tracking-[0.1em] text-elite-burgundy transition-all duration-200 hover:border-elite-burgundy hover:bg-elite-burgundy hover:text-elite-cream active:scale-[0.97]"
@@ -234,12 +87,12 @@ function MobileCard({
   );
 }
 
-/* ── Section ─────────────────────────────────────────────────── */
+/* ── Section ── */
 export default function HowItWorks() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const archRef = useRef<HTMLDivElement>(null);
-  const rightColRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const textRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imgWrapperRefs = useRef<(HTMLDivElement | null)[]>([]);
   const t = useTranslations("howItWorks");
 
@@ -255,8 +108,9 @@ export default function HowItWorks() {
     ).matches;
     if (prefersReduced) return;
 
+    const texts = textRefs.current.filter(Boolean) as HTMLDivElement[];
     const wrappers = imgWrapperRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (!archRef.current || !rightColRef.current || wrappers.length < 2) return;
+    if (!pinRef.current || texts.length < 2 || wrappers.length < 2) return;
 
     // First image on top — highest z-index
     wrappers.forEach((w, i) => {
@@ -266,50 +120,70 @@ export default function HowItWorks() {
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 769px)", () => {
+      // Hide all text panels except the first
+      gsap.set(texts.slice(1), { autoAlpha: 0, y: 24 });
       gsap.set(wrappers, { clipPath: "inset(0% 0% 0% 0%)" });
 
-      const mainTl = gsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: archRef.current,
+          trigger: pinRef.current,
           start: "top top",
-          end: "bottom bottom",
-          pin: rightColRef.current,
-          scrub: true,
+          end: `+=${window.innerHeight * (STEPS.length - 1)}`,
+          pin: true,
+          scrub: 0.5,
         },
       });
 
       wrappers.forEach((wrapper, i) => {
-        const next = wrappers[i + 1];
-        if (!next) return;
+        if (i === wrappers.length - 1) return;
+        const currentText = texts[i];
+        const nextText = texts[i + 1];
+        if (!currentText || !nextText) return;
 
-        const stepTl = gsap.timeline();
-        stepTl
-          .to(
-            wrapper,
-            { clipPath: "inset(0% 0% 100% 0%)", duration: 1.5, ease: "none" },
-            0,
-          )
-          .to(
-            sectionRef.current,
-            {
-              backgroundColor: SECTION_BG[i + 1],
-              duration: 1.5,
-              ease: "power2.inOut",
-            },
-            0,
-          );
+        const label = `step${i}`;
 
-        mainTl.add(stepTl);
+        // Hold current step
+        tl.to({}, { duration: 0.35 });
+
+        // Transition: clip image + crossfade text + shift bg
+        tl.addLabel(label);
+        tl.to(
+          wrapper,
+          { clipPath: "inset(0% 0% 100% 0%)", duration: 1.2, ease: "none" },
+          label,
+        );
+        tl.to(
+          currentText,
+          { autoAlpha: 0, y: -16, duration: 0.45, ease: "power2.in" },
+          label,
+        );
+        tl.to(
+          nextText,
+          { autoAlpha: 1, y: 0, duration: 0.45, ease: "power2.out" },
+          `${label}+=0.35`,
+        );
+        tl.to(
+          sectionRef.current,
+          {
+            backgroundColor: SECTION_BG[i + 1],
+            duration: 1.2,
+            ease: "power2.inOut",
+          },
+          label,
+        );
+
+        // Hold next step
+        tl.to({}, { duration: 0.35 });
       });
 
       // Return to canonical cream so the wave divider after this section matches
-      mainTl.to(sectionRef.current, {
+      tl.to(sectionRef.current, {
         backgroundColor: SECTION_BG[0],
         duration: 0.5,
         ease: "power2.inOut",
       });
 
-      return () => mainTl.kill();
+      return () => tl.kill();
     });
 
     return () => mm.revert();
@@ -335,7 +209,7 @@ export default function HowItWorks() {
       />
 
       {/* ── Section heading ── */}
-      <div className="relative z-10 mx-auto max-w-5xl overflow-hidden px-4 pb-10 pt-14 sm:px-6 sm:pb-14 sm:pt-20 md:pt-28">
+      <div className="relative z-10 mx-auto max-w-5xl overflow-hidden px-4 pb-8 pt-14 sm:px-6 sm:pb-10 sm:pt-20 md:pt-28">
         <div ref={headingRef} className="text-center">
           <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/12 bg-white/60 px-4 py-2 font-cabin text-[11px] font-bold uppercase tracking-[0.22em] text-elite-burgundy/70">
             <Sparkles className="h-3.5 w-3.5" />
@@ -353,48 +227,62 @@ export default function HowItWorks() {
         </div>
       </div>
 
-      {/* ── Desktop: pinned image mask reveal ── */}
-      <div className="relative z-10 hidden md:block">
+      {/* ── Desktop: text on top, full-width pinned image below ── */}
+      <div
+        ref={pinRef}
+        className="relative z-10 hidden h-screen flex-col md:flex"
+      >
+        {/* Text area — generous strip at top */}
         <div
-          ref={archRef}
-          style={{
-            display: "flex",
-            gap: "clamp(40px, 5vw, 80px)",
-            justifyContent: "space-between",
-            maxWidth: "1180px",
-            marginInline: "auto",
-            padding: "0 2.5rem",
-          }}
+          className="relative mx-auto w-full max-w-6xl px-6 sm:px-10"
+          style={{ minHeight: "clamp(180px, 30vh, 320px)" }}
         >
-          {/* Left: scrolling text panels */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              minWidth: "320px",
-              flexShrink: 0,
-            }}
-          >
-            {STEPS.map((step, i) => (
-              <StepText
-                key={step.key}
-                step={step}
-                index={i}
-                total={STEPS.length}
-                t={t}
-              />
-            ))}
-          </div>
+          {STEPS.map((step, i) => (
+            <div
+              key={step.key}
+              ref={(el) => {
+                textRefs.current[i] = el;
+              }}
+              className="absolute inset-0 flex items-center px-6 sm:px-10"
+            >
+              <div className="flex w-full items-end justify-between gap-8">
+                <div className="min-w-0">
+                  {/* Step number — ghost watermark */}
+                  <span className="mb-2 block font-bebas text-[3.8rem] leading-none tracking-[0.12em] text-elite-burgundy/[0.10] sm:text-[4.5rem]">
+                    {step.number}
+                  </span>
+                  {/* Title */}
+                  <h3
+                    className="font-bebas uppercase leading-[0.92] tracking-[0.05em] text-elite-black"
+                    style={{ fontSize: "clamp(2.2rem, 4vw, 3.4rem)" }}
+                  >
+                    {t(`steps.${step.key}.title`)}
+                  </h3>
+                  {/* Short description */}
+                  <p className="mt-2.5 max-w-lg font-cabin text-sm leading-relaxed text-elite-black/50 sm:text-base md:text-[17px]">
+                    {t(`steps.${step.key}.description`)}
+                  </p>
+                </div>
+                {/* CTA button */}
+                <LocalizedLink
+                  href={step.href}
+                  className="group/cta flex-shrink-0 inline-flex items-center gap-2.5 rounded-2xl bg-elite-burgundy px-7 py-3.5 font-bebas text-[1rem] tracking-[0.1em] text-elite-cream shadow-[0_6px_20px_rgba(139,38,53,0.2)] transition-all duration-200 hover:shadow-[0_10px_28px_rgba(139,38,53,0.3)] hover:-translate-y-0.5 active:scale-[0.97]"
+                >
+                  {t(`steps.${step.key}.cta`)}
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-0.5 rtl:rotate-180" />
+                </LocalizedLink>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          {/* Right: pinned image stack */}
+        {/* Image area — full width, fills remaining space */}
+        <div className="relative mx-auto w-full max-w-6xl flex-1 px-6 pb-8 sm:px-10 sm:pb-12">
           <div
-            ref={rightColRef}
+            className="relative h-full overflow-hidden rounded-[1.6rem] sm:rounded-[2rem]"
             style={{
-              flexShrink: 1,
-              height: "100vh",
-              width: "100%",
-              maxWidth: "560px",
-              position: "relative",
+              boxShadow:
+                "0 0 80px 24px rgba(248,240,210,0.55), 0 20px 56px rgba(14,7,9,0.10)",
             }}
           >
             {STEPS.map((step, i) => (
@@ -403,17 +291,7 @@ export default function HowItWorks() {
                 ref={(el) => {
                   imgWrapperRefs.current[i] = el;
                 }}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: 0,
-                  transform: "translateY(-50%)",
-                  height: "440px",
-                  width: "100%",
-                  borderRadius: "24px",
-                  overflow: "hidden",
-                  boxShadow: "0 24px 64px rgba(14,7,9,0.14)",
-                }}
+                className="absolute inset-0"
               >
                 <Image
                   src={step.image}
@@ -421,20 +299,75 @@ export default function HowItWorks() {
                   fill
                   className="object-cover"
                   style={{ objectPosition: step.objPos }}
-                  sizes="(min-width: 769px) 560px"
+                  sizes="(min-width: 769px) 1140px"
                   priority={i === 0}
                 />
-                {/* Subtle bottom vignette on image */}
+                {/* Subtle bottom vignette */}
                 <div
                   className="pointer-events-none absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(to bottom, transparent 55%, rgba(8,3,5,0.35) 100%)",
+                      "linear-gradient(to bottom, transparent 50%, rgba(8,3,5,0.28) 100%)",
                   }}
                   aria-hidden="true"
                 />
               </div>
             ))}
+
+            {/* ── Progressive blur on edges ── */}
+            <div
+              className="pointer-events-none absolute inset-0 z-20 rounded-[inherit]"
+              aria-hidden="true"
+            >
+              {/* Layer 1 — widest band, lightest blur */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter: "blur(1.5px)",
+                  WebkitBackdropFilter: "blur(1.5px)",
+                  maskImage:
+                    "radial-gradient(ellipse 72% 65% at center, transparent 55%, black 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 72% 65% at center, transparent 55%, black 100%)",
+                }}
+              />
+              {/* Layer 2 — medium */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter: "blur(4px)",
+                  WebkitBackdropFilter: "blur(4px)",
+                  maskImage:
+                    "radial-gradient(ellipse 68% 58% at center, transparent 60%, black 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 68% 58% at center, transparent 60%, black 100%)",
+                }}
+              />
+              {/* Layer 3 — stronger, narrower */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  maskImage:
+                    "radial-gradient(ellipse 62% 50% at center, transparent 70%, black 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 62% 50% at center, transparent 70%, black 100%)",
+                }}
+              />
+              {/* Layer 4 — heaviest blur, very edges */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  maskImage:
+                    "radial-gradient(ellipse 56% 44% at center, transparent 78%, black 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 56% 44% at center, transparent 78%, black 100%)",
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -447,14 +380,6 @@ export default function HowItWorks() {
               <MobileCard key={step.key} step={step} t={t} />
             ))}
             <div className="min-w-4 flex-shrink-0" aria-hidden="true" />
-          </div>
-          <div className="mt-4 flex justify-center gap-2">
-            {STEPS.map((s) => (
-              <div
-                key={s.key}
-                className="h-1.5 w-1.5 rounded-full bg-elite-burgundy/25"
-              />
-            ))}
           </div>
         </div>
       </div>

@@ -502,12 +502,12 @@ export default function Hero() {
       {/* ── Wave: dark → cream ── */}
       <div className="wave-divider bg-[#040203] -mb-px relative z-10">
         <svg
-          viewBox="0 0 1440 56"
+          viewBox="0 0 1440 64"
           preserveAspectRatio="none"
-          className="w-full h-8 sm:h-12 md:h-14"
+          className="w-full h-10 sm:h-14 md:h-16"
         >
           <path
-            d="M0,0 C480,56 960,56 1440,0 L1440,56 L0,56 Z"
+            d="M0,0 C360,6 720,64 1200,58 S1440,0 1440,0 L1440,64 L0,64 Z"
             fill="var(--elite-cream)"
           />
         </svg>
