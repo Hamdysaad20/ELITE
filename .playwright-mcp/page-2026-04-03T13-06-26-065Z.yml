@@ -1,0 +1,478 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "إيليت كوفي — الرئيسية" [ref=e4] [cursor=pointer]:
+        - /url: /ar
+        - img "إيليت كوفي — الرئيسية" [ref=e5]
+      - generic [ref=e6]:
+        - button "Switch to English" [ref=e7] [cursor=pointer]: English
+        - button "فتح القائمة" [ref=e8] [cursor=pointer]:
+          - img [ref=e9]
+  - dialog "التنقل" [ref=e10]:
+    - generic [ref=e11]:
+      - img "إيليت كوفي — الرئيسية" [ref=e12]
+      - button "إغلاق القائمة" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "القائمة" [ref=e19] [cursor=pointer]:
+          - /url: /ar/menu
+          - img [ref=e20]
+          - generic [ref=e25]: القائمة
+        - link "الموقع" [ref=e26] [cursor=pointer]:
+          - /url: /ar#location
+          - img [ref=e27]
+          - generic [ref=e30]: الموقع
+        - generic [ref=e31]:
+          - img [ref=e32]
+          - generic [ref=e35]: العروض
+          - generic [ref=e36]: قريبًا
+        - generic [ref=e37]:
+          - img [ref=e38]
+          - generic [ref=e41]: المتجر
+          - generic [ref=e42]: قريبًا
+    - generic [ref=e43]:
+      - button "Switch to English" [ref=e44] [cursor=pointer]: English
+      - link "استكشف القائمة" [ref=e45] [cursor=pointer]:
+        - /url: /ar/menu
+  - dialog "Shopping cart" [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - generic [ref=e56]:
+            - heading "Shopping Cart" [level=2] [ref=e57]
+            - paragraph [ref=e58]: 0 items
+        - button "إغلاق السلة" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+      - generic [ref=e64]:
+        - img [ref=e66]
+        - heading "Your cart is empty" [level=3] [ref=e70]
+        - paragraph [ref=e71]: Start adding some delicious items to your order!
+        - button "متابعة التسوق" [ref=e72] [cursor=pointer]
+  - main [ref=e73]:
+    - main [ref=e74]:
+      - region "Homepage hero" [ref=e75]:
+        - generic [ref=e76]:
+          - img "Elite Coffee — Faiyum, Egypt" [ref=e78]
+          - img "Elite Coffee — Spanish Boba" [ref=e80]
+          - img "Elite Coffee — Signature Drinks" [ref=e82]
+        - generic [ref=e83]:
+          - generic [ref=e86]: Premium Coffee
+          - generic "ELITE COFFEE" [ref=e89]:
+            - generic [ref=e91]: ELITE
+            - generic [ref=e93]: COFFEE
+          - generic [ref=e97]:
+            - paragraph [ref=e98]: مُحضّرة في الفيوم لتناسب صباحك الهادئ، بريكك السريع، والقهوة اللي تستحق ترجع لها كل مرة.
+            - generic [ref=e99]:
+              - generic [ref=e100]: ★★★★★
+              - generic [ref=e101]: 4.9 · معجبون بنا محلياً
+            - generic [ref=e102]:
+              - link "استكشف القائمة" [ref=e104] [cursor=pointer]:
+                - /url: /ar/menu
+              - link "انضم مجانًا" [ref=e105] [cursor=pointer]:
+                - /url: /ar/auth/signin
+        - img [ref=e111]
+        - generic [ref=e115]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: 🌎
+            - generic [ref=e119]: نكهات عالمية
+          - generic [ref=e121]:
+            - generic [ref=e122]: 🌎
+            - generic [ref=e123]: نكهات عالمية
+          - generic [ref=e125]:
+            - generic [ref=e126]: 🌎
+            - generic [ref=e127]: نكهات عالمية
+          - generic [ref=e129]:
+            - generic [ref=e130]: ☕
+            - generic [ref=e131]: باريستا ودودون
+          - generic [ref=e133]:
+            - generic [ref=e134]: ☕
+            - generic [ref=e135]: باريستا ودودون
+          - generic [ref=e137]:
+            - generic [ref=e138]: ☕
+            - generic [ref=e139]: باريستا ودودون
+          - generic [ref=e141]:
+            - generic [ref=e142]: ⭐
+            - generic [ref=e143]: قهوة رائعة
+          - generic [ref=e145]:
+            - generic [ref=e146]: ⭐
+            - generic [ref=e147]: قهوة رائعة
+          - generic [ref=e149]:
+            - generic [ref=e150]: ⭐
+            - generic [ref=e151]: قهوة رائعة
+          - generic [ref=e153]:
+            - generic [ref=e154]: ⚡
+            - generic [ref=e155]: خدمة سريعة
+          - generic [ref=e157]:
+            - generic [ref=e158]: ⚡
+            - generic [ref=e159]: خدمة سريعة
+          - generic [ref=e161]:
+            - generic [ref=e162]: ⚡
+            - generic [ref=e163]: خدمة سريعة
+          - generic [ref=e165]:
+            - generic [ref=e166]: 🏠
+            - generic [ref=e167]: أجواء مريحة
+          - generic [ref=e169]:
+            - generic [ref=e170]: 🏠
+            - generic [ref=e171]: أجواء مريحة
+          - generic [ref=e173]:
+            - generic [ref=e174]: 🏠
+            - generic [ref=e175]: أجواء مريحة
+          - generic [ref=e177]:
+            - generic [ref=e178]: 📸
+            - generic [ref=e179]: مشروبات محضرة يدويًا
+          - generic [ref=e181]:
+            - generic [ref=e182]: 📸
+            - generic [ref=e183]: مشروبات محضرة يدويًا
+          - generic [ref=e185]:
+            - generic [ref=e186]: 📸
+            - generic [ref=e187]: مشروبات محضرة يدويًا
+          - generic [ref=e189]:
+            - generic [ref=e190]: 🏆
+            - generic [ref=e191]: تحميص محلي
+          - generic [ref=e193]:
+            - generic [ref=e194]: 🏆
+            - generic [ref=e195]: تحميص محلي
+          - generic [ref=e197]:
+            - generic [ref=e198]: 🏆
+            - generic [ref=e199]: تحميص محلي
+      - generic [ref=e202]:
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - img [ref=e205]
+            - text: ابدأ من هنا
+          - heading "إيش تشتهي؟" [level=2] [ref=e207]
+          - paragraph [ref=e208]: ادخل مباشرة إلى الجزء من القائمة الذي يناسب مزاجك الآن.
+          - generic [ref=e209]:
+            - generic [ref=e210]: ٦ أقسام أساسية
+            - link "عرض القائمة كاملة" [ref=e211] [cursor=pointer]:
+              - /url: /ar/menu
+              - text: عرض القائمة كاملة
+              - img [ref=e212]
+        - generic [ref=e214]:
+          - link "مشروبات ساخنة" [ref=e215] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e216]:
+              - img [ref=e219]
+              - generic [ref=e221]: مشروبات ساخنة
+          - link "مشروبات باردة" [ref=e222] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e223]:
+              - img [ref=e226]
+              - generic [ref=e228]: مشروبات باردة
+          - link "سموذي" [ref=e229] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e230]:
+              - img [ref=e233]
+              - generic [ref=e235]: سموذي
+          - link "ميلك شيك" [ref=e236] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e237]:
+              - img [ref=e240]
+              - generic [ref=e242]: ميلك شيك
+          - link "بوبا" [ref=e243] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e244]:
+              - img [ref=e247]
+              - generic [ref=e249]: بوبا
+          - link "ركن الأطفال" [ref=e250] [cursor=pointer]:
+            - /url: /ar/menu
+            - generic [ref=e251]:
+              - img [ref=e254]
+              - generic [ref=e256]: ركن الأطفال
+      - generic [ref=e265]:
+        - generic [ref=e267]:
+          - generic [ref=e268]:
+            - img [ref=e269]
+            - text: للمبتدئين
+          - heading "استكشف كيف يعمل" [level=2] [ref=e271]
+          - paragraph [ref=e272]: من الرغبة إلى الكوب — بسهولة كالعد 1، 2، 3.
+        - generic [ref=e275]:
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - img "تصفّح القائمة" [ref=e279]
+              - generic [ref=e281]: "01"
+            - generic [ref=e282]:
+              - heading "تصفّح القائمة" [level=3] [ref=e283]
+              - paragraph [ref=e284]: +50 مشروب محضّر يدويًا. اكتشف المفضل.
+              - link "عرض القائمة" [ref=e285] [cursor=pointer]:
+                - /url: /ar/menu
+                - text: عرض القائمة
+                - img [ref=e286]
+          - generic [ref=e289]:
+            - generic [ref=e290]:
+              - img "قدّم طلبك" [ref=e291]
+              - generic [ref=e293]: "02"
+            - generic [ref=e294]:
+              - heading "قدّم طلبك" [level=3] [ref=e295]
+              - paragraph [ref=e296]: استلام أو توصيل — في ثوانٍ.
+              - link "اطلب الآن" [ref=e297] [cursor=pointer]:
+                - /url: /ar/menu
+                - text: اطلب الآن
+                - img [ref=e298]
+          - generic [ref=e301]:
+            - generic [ref=e302]:
+              - img "استمتع بكل رشفة" [ref=e303]
+              - generic [ref=e305]: "03"
+            - generic [ref=e306]:
+              - heading "استمتع بكل رشفة" [level=3] [ref=e307]
+              - paragraph [ref=e308]: طازج، على ذوقك، كل مرة.
+              - link "جرّب اليوم" [ref=e309] [cursor=pointer]:
+                - /url: /ar/menu
+                - text: جرّب اليوم
+                - img [ref=e310]
+      - img [ref=e314]
+      - generic [ref=e317]:
+        - generic [ref=e318]:
+          - generic [ref=e319]:
+            - generic [ref=e320]:
+              - img [ref=e321]
+              - text: اختيارات مميزة
+            - heading "ابدأ بالمشروبات التي يعرف بها إيليت" [level=2] [ref=e323]
+            - paragraph [ref=e324]: "صور حقيقية من مشروبات إيليت: دافئة، ملموسة، ومعروضة بالطريقة التي يكتشف بها الناس العلامة فعلًا."
+          - link "استكشف القائمة كاملة" [ref=e325] [cursor=pointer]:
+            - /url: /ar/menu
+            - text: استكشف القائمة كاملة
+            - img [ref=e326]
+        - generic [ref=e329]:
+          - link [ref=e330] [cursor=pointer]:
+            - /url: /ar/menu
+            - article [ref=e331]:
+              - img "سيجنتشر ميلك شيك" [ref=e332]
+              - paragraph [ref=e335]: المفضلة في الحملة
+              - img [ref=e337]
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: مشهد حلو
+                - heading "سيجنتشر ميلك شيك" [level=3] [ref=e342]
+                - paragraph [ref=e343]: مشروب بطابع أغنى مع كريمة ولمسة توت وتقديم يجذب العين قبل أول رشفة.
+                - generic [ref=e345]:
+                  - text: شاهدها في القائمة
+                  - img [ref=e346]
+          - generic [ref=e349]:
+            - link [ref=e350] [cursor=pointer]:
+              - /url: /ar/menu
+              - article [ref=e351]:
+                - img "تارو بوبا" [ref=e352]
+                - img [ref=e355]
+                - generic [ref=e358]:
+                  - paragraph [ref=e359]: بنفسجي مخملي
+                  - heading "تارو بوبا" [level=3] [ref=e360]
+                  - paragraph [ref=e361]: درجات تارو كريمية، إحساس بارد، ولمسة اللؤلؤ الأسود التي تجعل الكوب يبدو إيليت من أول نظرة.
+            - link [ref=e362] [cursor=pointer]:
+              - /url: /ar/menu
+              - article [ref=e363]:
+                - img "سبانيش بوبا" [ref=e364]
+                - img [ref=e367]
+                - generic [ref=e370]:
+                  - paragraph [ref=e371]: كراميل كريمي
+                  - heading "سبانيش بوبا" [level=3] [ref=e372]
+                  - paragraph [ref=e373]: لون كراميل ناعم، وتفاصيل كوب لامعة، وإحساس دافئ من أجواء الكافيه لمن يريد شيئًا غنيًا لكن مرتبًا.
+            - link [ref=e374] [cursor=pointer]:
+              - /url: /ar/menu
+              - article [ref=e375]:
+                - img "جولدن بوبا لاتيه" [ref=e376]
+                - img [ref=e379]
+                - generic [ref=e382]:
+                  - paragraph [ref=e383]: إضاءة ذهبية
+                  - heading "جولدن بوبا لاتيه" [level=3] [ref=e384]
+                  - paragraph [ref=e385]: مشروب بوبا بدرجات عنبرية داخل ضوء طبيعي يجعل الصفحة تبدو كأنها حملة حقيقية من إيليت.
+        - link "استكشف القائمة كاملة" [ref=e387] [cursor=pointer]:
+          - /url: /ar/menu
+          - text: استكشف القائمة كاملة
+          - img [ref=e388]
+      - img [ref=e392]
+      - generic [ref=e395]:
+        - generic [ref=e396]:
+          - heading "ليه إيليت؟" [level=2] [ref=e397]
+          - paragraph [ref=e398]: أكثر من مجرد قهوة
+        - generic [ref=e399]:
+          - generic [ref=e400]:
+            - generic [ref=e401]:
+              - generic [ref=e402]: ☕
+              - heading "قهوة رائعة ونكهات لذيذة" [level=3] [ref=e403]
+              - paragraph [ref=e404]: مشروبات محضرة بإتقان من حبوب ممتازة
+            - generic [ref=e405]:
+              - generic [ref=e406]: 🏠
+              - heading "أجواء دافئة ومريحة" [level=3] [ref=e407]
+              - paragraph [ref=e408]: مكان مرحّب يشعرك كأنك في المنزل
+            - generic [ref=e409]:
+              - generic [ref=e410]: ⚡
+              - heading "خدمة سريعة بابتسامة" [level=3] [ref=e411]
+              - paragraph [ref=e412]: خدمة سريعة وودودة دائمًا
+            - generic [ref=e413]:
+              - generic [ref=e414]: 🌿
+              - heading "محلي ومستدام" [level=3] [ref=e415]
+              - paragraph [ref=e416]: ندعم المزارعين المحليين والممارسات الصديقة للبيئة
+          - generic [ref=e417]:
+            - generic [ref=e418]: “
+            - blockquote [ref=e419]: القهوة هنا رائعة بشكل لا يصدق. كل رشفة تشعرك بلحظة من السعادة الخالصة. الباريستا يعرفون حرفتهم حقًا وهذا واضح في كل كوب.
+            - generic [ref=e420]:
+              - paragraph [ref=e421]: عميل سعيد
+              - paragraph [ref=e422]: عاشق قهوة
+            - generic [ref=e423]:
+              - img [ref=e424]
+              - img [ref=e426]
+              - img [ref=e428]
+              - img [ref=e430]
+              - img [ref=e432]
+            - paragraph [ref=e434]: 4.9/5 من عملائنا المحليين
+      - img [ref=e436]
+      - generic [ref=e439]:
+        - generic [ref=e440]:
+          - heading "محبوب لدى أهل المنطقة" [level=2] [ref=e441]
+          - paragraph [ref=e442]: خيارات محلية مفضلة للجميع — مختارة بعناية وطازجة دائمًا.
+        - link "استكشف القائمة" [ref=e457] [cursor=pointer]:
+          - /url: /ar/menu
+      - generic [ref=e460]:
+        - generic [ref=e461]:
+          - generic [ref=e462]:
+            - img [ref=e463]
+            - text: المكافآت والعضوية
+          - heading "انضم مرة. واستمتع بكل زيارة أكثر." [level=2] [ref=e465]
+          - paragraph [ref=e466]: اطلب. اجمع نقاط. ارتقِ بمستواك.
+          - generic [ref=e467]:
+            - generic [ref=e468]:
+              - img [ref=e470]
+              - generic [ref=e472]: اكسب نقاط مع كل طلب
+            - generic [ref=e473]:
+              - img [ref=e475]
+              - generic [ref=e477]: طلب أسرع في كل مرة
+            - generic [ref=e478]:
+              - img [ref=e480]
+              - generic [ref=e484]: مكافآت ومفاجآت عيد الميلاد
+          - generic [ref=e485]:
+            - link "انضم مجانًا" [ref=e486] [cursor=pointer]:
+              - /url: /ar/auth/signin
+            - link "سجّل دخول" [ref=e487] [cursor=pointer]:
+              - /url: /ar/auth/signin
+          - paragraph [ref=e488]: مجاني بالكامل — لا بطاقة ائتمانية مطلوبة
+        - generic [ref=e489]:
+          - paragraph [ref=e490]: مستويات المكافآت
+          - paragraph [ref=e491]: ابدأ من البرونزي وارتقِ مع زيادة نقاطك. كل مستوى يعطيك عائدًا أفضل مع كل طلب.
+          - generic [ref=e492]:
+            - generic [ref=e493]:
+              - img "برونزي"
+              - paragraph [ref=e495]: برونزي
+              - paragraph [ref=e496]: ابدأ من هنا
+              - generic [ref=e497]:
+                - generic [ref=e498]: ٠ نقطة
+                - generic [ref=e499]: 1 نقطة / جنيه
+            - generic [ref=e500]:
+              - img "فضي"
+              - paragraph [ref=e502]: فضي
+              - paragraph [ref=e503]: في الطريق
+              - generic [ref=e504]:
+                - generic [ref=e505]: ٥٠٠ نقطة
+                - generic [ref=e506]: 1 نقطة / جنيه
+            - generic [ref=e507]:
+              - img "ذهبي"
+              - paragraph [ref=e509]: ذهبي
+              - paragraph [ref=e510]: الأكثر شيوعاً
+              - generic [ref=e511]:
+                - generic [ref=e512]: ٢٬٠٠٠ نقطة
+                - generic [ref=e513]: 1.25 نقطة / جنيه
+            - generic [ref=e514]:
+              - img "بلاتيني"
+              - paragraph [ref=e516]: بلاتيني
+              - paragraph [ref=e517]: مكانة النخبة
+              - generic [ref=e518]:
+                - generic [ref=e519]: ٥٬٠٠٠ نقطة
+                - generic [ref=e520]: 1.5 نقطة / جنيه
+      - img [ref=e522]
+      - generic [ref=e525]:
+        - generic [ref=e526]:
+          - heading "زورنا" [level=2] [ref=e527]
+          - paragraph [ref=e528]: سهل الوصول، ومريح للجلوس، ويستحق الوقفة سواء كنت خارج مع أصحابك أو تريد بريك سريع في يومك.
+        - generic [ref=e530]:
+          - generic:
+            - img
+          - generic [ref=e531]:
+            - generic [ref=e532]:
+              - generic [ref=e533]:
+                - img [ref=e535]
+                - heading "إيليت كافيه" [level=3] [ref=e538]
+              - paragraph [ref=e539]: الفيوم، نادي المحافظة، بجوار فيلا المحافظ
+              - generic [ref=e540]:
+                - img [ref=e541]
+                - generic [ref=e544]: ٨ ص - ٣ م يوميًا
+            - generic [ref=e545]:
+              - link "احصل على الاتجاهات" [ref=e546] [cursor=pointer]:
+                - /url: https://maps.google.com/?q=Elite+Cafee+Faiyum+Governorate+Club
+                - img [ref=e547]
+                - text: احصل على الاتجاهات
+              - link "راسلنا" [ref=e549] [cursor=pointer]:
+                - /url: https://www.facebook.com/elitecafee
+                - img [ref=e550]
+                - text: راسلنا
+      - img [ref=e553]
+    - generic [ref=e555]:
+      - generic [ref=e556]:
+        - generic [ref=e557]:
+          - generic [ref=e559]:
+            - heading "الحياة تبدأ بعد القهوة" [level=3] [ref=e560]:
+              - text: الحياة تبدأ
+              - text: بعد القهوة
+            - paragraph [ref=e561]: اختبر المزيج المثالي بين الأصالة والابتكار في كل كوب.
+          - generic [ref=e562]:
+            - generic [ref=e563]:
+              - heading "التنقل" [level=4] [ref=e564]
+              - paragraph [ref=e565]: استكشف عالمنا
+            - navigation [ref=e566]:
+              - link "القائمة" [ref=e567] [cursor=pointer]:
+                - /url: /ar/menu
+              - link "العروضقريبًا" [ref=e568] [cursor=pointer]:
+                - /url: /ar/deals
+              - link "المكافآتقريبًا" [ref=e569] [cursor=pointer]:
+                - /url: /ar/rewards
+              - link "المتجر قريبًا" [ref=e570] [cursor=pointer]:
+                - /url: /ar/shop
+          - generic [ref=e571]:
+            - generic [ref=e572]:
+              - heading "فئات القائمة" [level=4] [ref=e573]
+              - paragraph [ref=e574]: اختياراتنا
+            - navigation [ref=e575]:
+              - link "مشروبات كلاسيكية" [ref=e576] [cursor=pointer]:
+                - /url: /ar/menu
+              - link "مشروبات خاصة" [ref=e577] [cursor=pointer]:
+                - /url: /ar/menu/special-drinks
+              - link "ركن الأطفال" [ref=e578] [cursor=pointer]:
+                - /url: /ar/menu/special-drinks
+              - link "طعام وحلوياتقريبًا" [ref=e579] [cursor=pointer]:
+                - /url: /ar/menu/food
+              - link "قهوة للمنزلقريبًا" [ref=e580] [cursor=pointer]:
+                - /url: /ar/menu/at-home-coffee
+          - generic [ref=e581]:
+            - generic [ref=e582]:
+              - heading "الموقع" [level=4] [ref=e583]
+              - paragraph [ref=e584]: زورونا
+            - generic [ref=e586]:
+              - img [ref=e587]
+              - generic [ref=e590]:
+                - generic [ref=e591]: Faiyum, Governorate Club, next to the Governor's Villa
+                - generic [ref=e592]: الفيوم، نادي المحافظة، بجوار فيلا المحافظ
+        - generic [ref=e593]:
+          - heading "تابعنا" [level=4] [ref=e594]
+          - generic [ref=e595]:
+            - link [ref=e596] [cursor=pointer]:
+              - /url: https://instagram.com/officieleliteeg
+              - img [ref=e597]
+            - link [ref=e600] [cursor=pointer]:
+              - /url: https://www.facebook.com/profile.php?id=61577901386334
+              - img [ref=e601]
+            - link [ref=e603] [cursor=pointer]:
+              - /url: https://tiktok.com/@officieleliteeg
+              - img [ref=e604]
+            - link [ref=e606] [cursor=pointer]:
+              - /url: https://officieleliteeg.com
+              - img [ref=e607]
+        - heading "ELITE COFFEE" [level=2] [ref=e611]
+      - generic [ref=e614]:
+        - paragraph [ref=e615]: © 2026 إيليت كوفي. جميع الحقوق محفوظة.
+        - generic [ref=e616]:
+          - link "سياسة الخصوصية" [ref=e617] [cursor=pointer]:
+            - /url: /ar/privacy-policy
+          - link "شروط الخدمة" [ref=e618] [cursor=pointer]:
+            - /url: /ar/terms-of-service
+          - link "سياسة الكوكيز" [ref=e619] [cursor=pointer]:
+            - /url: /ar/cookie-policy

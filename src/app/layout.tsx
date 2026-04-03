@@ -5,6 +5,7 @@ import {
   Cairo,
   Bebas_Neue,
   Tajawal,
+  Readex_Pro,
 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -49,6 +50,15 @@ const tajawal = Tajawal({
   display: "swap",
 });
 
+// Readex Pro — modern geometric Arabic display font
+// Sharp, bold, highly readable at large sizes (pairs with Bebas for EN/AR headings)
+const readexPro = Readex_Pro({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-readex",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   icons: {
     icon: [
@@ -89,7 +99,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={direction}
-      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${tajawal.variable}`}
+      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${tajawal.variable} ${readexPro.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>

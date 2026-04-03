@@ -24,7 +24,7 @@ export default function MobileTopBar({
 
   return (
     <header
-      className="sticky top-0 z-[100] block min-[641px]:!hidden"
+      className="fixed top-0 inset-x-0 z-[100] block min-[641px]:!hidden"
       style={{
         backgroundColor: "var(--nav-bg-glass)",
         backdropFilter: "blur(28px) saturate(170%)",
@@ -34,7 +34,7 @@ export default function MobileTopBar({
         boxShadow: "var(--nav-shadow-subtle)",
       }}
     >
-      <div className="flex items-center h-full px-4 gap-3" dir="ltr">
+      <div className="flex items-center h-full px-4 gap-3">
         {/* Logo — properly sized for mobile */}
         <LocalizedLink
           href="/"

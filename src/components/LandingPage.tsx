@@ -26,6 +26,26 @@ const Footer = dynamic(() => import("@/components/Footer"), { ssr: true });
 
 /* ── Wave dividers for smooth section transitions ── */
 
+/** Thin decorative rule between two same-cream sections — signals intentional flow */
+function CreamSectionBridge() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative z-10 bg-elite-cream py-1 sm:py-2"
+    >
+      <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 sm:px-6">
+        <div className="h-px flex-1 bg-elite-burgundy/[0.09]" />
+        <div className="flex items-center gap-1.5">
+          <div className="h-1 w-1 rounded-full bg-elite-burgundy/[0.18]" />
+          <div className="h-1.5 w-1.5 rounded-full bg-elite-burgundy/[0.26]" />
+          <div className="h-1 w-1 rounded-full bg-elite-burgundy/[0.18]" />
+        </div>
+        <div className="h-px flex-1 bg-elite-burgundy/[0.09]" />
+      </div>
+    </div>
+  );
+}
+
 function WaveBurgundyToCreamy() {
   return (
     <div className="wave-divider bg-elite-burgundy -mb-px">
@@ -83,6 +103,9 @@ export default function LandingPage() {
 
         {/* ② What are you craving? */}
         <MenuPreview />
+
+        {/* bridge — same cream, signals intentional section flow */}
+        <CreamSectionBridge />
 
         {/* ③ How it works — cream bg with pinned scroll animation */}
         <HowItWorks />

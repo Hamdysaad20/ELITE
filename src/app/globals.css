@@ -187,7 +187,7 @@
 
   .marquee-item {
     flex-shrink: 0;
-    margin-right: 2rem;
+    margin-inline-end: 2rem;
     color: var(--elite-black);
     font-family: var(--font-cabin-condensed);
     font-size: 1.125rem;
@@ -214,7 +214,7 @@
     }
     
     .marquee-item {
-      margin-right: 1.5rem;
+      margin-inline-end: 1.5rem;
       font-size: 1rem;
     }
   }
@@ -510,9 +510,10 @@ html[dir="rtl"] .nav-drawer {
   .nav-bottom-bar { display: none !important; }
 }
 
-/* Mobile body padding */
+/* Mobile body padding — offset for fixed top bar + bottom bar */
 @media (max-width: 640px) {
   .nav-body-offset {
+    padding-top: var(--nav-height-mobile);
     padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px));
   }
 }

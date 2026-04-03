@@ -72,6 +72,7 @@ export default {
         'arabic': ['var(--font-cairo)', 'sans-serif'],
         'bebas': ['var(--font-bebas)', 'Impact', 'sans-serif'],
         'tajawal': ['var(--font-tajawal)', 'sans-serif'],
+        'readex': ['var(--font-readex)', 'sans-serif'],
       },
       keyframes: {
         shimmer: {

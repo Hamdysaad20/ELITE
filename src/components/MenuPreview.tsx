@@ -140,7 +140,7 @@ export default function MenuPreview() {
   return (
     <section
       ref={sectionRef}
-      className="bg-elite-cream px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-20 md:pb-24 md:pt-24 relative z-10 overflow-hidden will-change-transform"
+      className="bg-elite-cream px-4 pb-6 pt-16 sm:px-6 sm:pb-8 sm:pt-20 md:pb-10 md:pt-24 relative z-10 overflow-hidden will-change-transform"
     >
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[15%] left-[4%] h-44 w-44 rounded-full bg-white/60 blur-3xl" />

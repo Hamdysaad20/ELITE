@@ -66,12 +66,12 @@ function MobileCard({
         </div>
         <div className="p-5">
           <h3
-            className="font-bebas uppercase tracking-[0.06em] leading-none text-elite-black mb-2"
+            className="font-readex font-bold tracking-tight leading-none text-elite-black mb-2 rtl:tracking-normal"
             style={{ fontSize: "clamp(1.55rem, 3.5vw, 1.85rem)" }}
           >
             {t(`steps.${step.key}.title`)}
           </h3>
-          <p className="mb-4 font-cabin text-[13px] leading-relaxed text-elite-black/55">
+          <p className="mb-4 font-readex text-[13px] leading-relaxed text-elite-black/55">
             {t(`steps.${step.key}.description`)}
           </p>
           <LocalizedLink
@@ -209,19 +209,19 @@ export default function HowItWorks() {
       />
 
       {/* ── Section heading ── */}
-      <div className="relative z-10 mx-auto max-w-5xl overflow-hidden px-4 pb-8 pt-14 sm:px-6 sm:pb-10 sm:pt-20 md:pt-28">
+      <div className="relative z-10 mx-auto max-w-5xl overflow-hidden px-4 pb-10 pt-6 sm:px-6 sm:pb-14 sm:pt-10 md:pb-16 md:pt-14">
         <div ref={headingRef} className="text-center">
           <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/12 bg-white/60 px-4 py-2 font-cabin text-[11px] font-bold uppercase tracking-[0.22em] text-elite-burgundy/70">
             <Sparkles className="h-3.5 w-3.5" />
             {t("badge")}
           </span>
           <h2
-            className="mt-2 font-bebas uppercase leading-none tracking-[0.07em] text-elite-black"
+            className="mt-2 font-readex font-bold leading-none tracking-tight text-elite-black rtl:tracking-normal"
             style={{ fontSize: "clamp(2.2rem, 6.5vw, 4.6rem)" }}
           >
             {t("title")}
           </h2>
-          <p className="mx-auto mt-2.5 max-w-sm font-cabin text-sm leading-relaxed text-elite-black/50 sm:text-base">
+          <p className="mx-auto mt-3 max-w-md font-readex text-sm leading-relaxed text-elite-black/50 sm:text-base md:text-lg">
             {t("subtitle")}
           </p>
         </div>
@@ -230,12 +230,12 @@ export default function HowItWorks() {
       {/* ── Desktop: text on top, full-width pinned image below ── */}
       <div
         ref={pinRef}
-        className="relative z-10 hidden h-screen flex-col md:flex"
+        className="relative z-10 hidden h-screen flex-col pt-6 lg:pt-10 md:flex"
       >
         {/* Text area — generous strip at top */}
         <div
           className="relative mx-auto w-full max-w-6xl px-6 sm:px-10"
-          style={{ minHeight: "clamp(180px, 30vh, 320px)" }}
+          style={{ minHeight: "clamp(220px, 34vh, 380px)" }}
         >
           {STEPS.map((step, i) => (
             <div
@@ -248,25 +248,25 @@ export default function HowItWorks() {
               <div className="flex w-full items-end justify-between gap-8">
                 <div className="min-w-0">
                   {/* Step number — ghost watermark */}
-                  <span className="mb-2 block font-bebas text-[3.8rem] leading-none tracking-[0.12em] text-elite-burgundy/[0.10] sm:text-[4.5rem]">
+                  <span className="mb-3 block font-bebas text-[4.5rem] leading-none tracking-[0.12em] text-elite-burgundy/[0.08] lg:text-[5.5rem]">
                     {step.number}
                   </span>
-                  {/* Title */}
+                  {/* Title — Bebas for Latin, Readex Pro for Arabic */}
                   <h3
-                    className="font-bebas uppercase leading-[0.92] tracking-[0.05em] text-elite-black"
-                    style={{ fontSize: "clamp(2.2rem, 4vw, 3.4rem)" }}
+                    className="font-readex font-bold leading-[1] tracking-tight text-elite-black rtl:tracking-normal"
+                    style={{ fontSize: "clamp(2.4rem, 4.8vw, 3.8rem)" }}
                   >
                     {t(`steps.${step.key}.title`)}
                   </h3>
                   {/* Short description */}
-                  <p className="mt-2.5 max-w-lg font-cabin text-sm leading-relaxed text-elite-black/50 sm:text-base md:text-[17px]">
+                  <p className="mt-3 max-w-xl font-readex text-base leading-[1.7] text-elite-black/50 sm:text-lg md:text-xl rtl:font-medium">
                     {t(`steps.${step.key}.description`)}
                   </p>
                 </div>
                 {/* CTA button */}
                 <LocalizedLink
                   href={step.href}
-                  className="group/cta flex-shrink-0 inline-flex items-center gap-2.5 rounded-2xl bg-elite-burgundy px-7 py-3.5 font-bebas text-[1rem] tracking-[0.1em] text-elite-cream shadow-[0_6px_20px_rgba(139,38,53,0.2)] transition-all duration-200 hover:shadow-[0_10px_28px_rgba(139,38,53,0.3)] hover:-translate-y-0.5 active:scale-[0.97]"
+                  className="group/cta flex-shrink-0 inline-flex items-center gap-2.5 rounded-2xl bg-elite-burgundy px-8 py-4 font-readex text-sm font-semibold tracking-wide text-elite-cream shadow-[0_6px_20px_rgba(139,38,53,0.2)] transition-all duration-200 hover:shadow-[0_10px_28px_rgba(139,38,53,0.3)] hover:-translate-y-0.5 active:scale-[0.97]"
                 >
                   {t(`steps.${step.key}.cta`)}
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-0.5 rtl:rotate-180" />

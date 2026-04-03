@@ -3,45 +3,64 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import LocalizedLink from "@/components/LocalizedLink";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ── Hero background carousel ──────────────────────────────────────────
-   objectPosition strategy: text/CTAs sit on the LEFT, so we want each
-   slide's subject (model, drink) to land in the RIGHT 55-70% of the
-   viewport. Lower X% shifts the rendered image RIGHT, pushing left-
-   positioned subjects toward the right of the visible area.
+   objectPosition strategy:
+   LTR (en): text/CTAs sit on the LEFT  → subjects land in the RIGHT 55–70 %
+   RTL (ar): text/CTAs sit on the RIGHT → subjects land in the LEFT  30–45 %
+   X positions are mirrored (X → 100-X) between the two directions so
+   the visible window flips to the opposite side of each image.
    ─────────────────────────────────────────────────────────────────── */
 const HERO_SLIDES = [
   {
     // Subject (face + cup) at ~44 % of image width
-    // mobile: appears at ~65 % of viewport  tablet: ~63 %  desktop: ~51 %
     src: "/images/HQ16by9/MenaCloseMatcha.png",
     alt: "Elite Coffee — Faiyum, Egypt",
-    mobile: "object-[27%_38%]",
-    tablet: "sm:object-[16%_32%]",
-    desktop: "lg:object-[5%_28%]",
+    ltr: {
+      mobile: "object-[27%_38%]",
+      tablet: "sm:object-[16%_32%]",
+      desktop: "lg:object-[5%_28%]",
+    },
+    rtl: {
+      mobile: "object-[73%_38%]",
+      tablet: "sm:object-[84%_32%]",
+      desktop: "lg:object-[95%_28%]",
+    },
   },
   {
     // Subject (drink) at ~30 % of image width (LEFT-biased composition)
-    // mobile: appears at ~64 %  tablet: ~52 %  desktop: ~35 % (right edge of text panel)
     src: "/images/HQ16by9/MICRO_LEFT_bobaspanish.png",
     alt: "Elite Coffee — Spanish Boba",
-    mobile: "object-[2%_42%]",
-    tablet: "sm:object-[2%_38%]",
-    desktop: "lg:object-[0%_35%]",
+    ltr: {
+      mobile: "object-[2%_42%]",
+      tablet: "sm:object-[2%_38%]",
+      desktop: "lg:object-[0%_35%]",
+    },
+    rtl: {
+      mobile: "object-[98%_42%]",
+      tablet: "sm:object-[98%_38%]",
+      desktop: "lg:object-[100%_35%]",
+    },
   },
   {
     // Subject (model) at ~50 % of image width
-    // mobile: appears at ~65 %  tablet: ~65 %  desktop: ~53 %
     src: "/images/HQ16by9/ModelHolding.png",
     alt: "Elite Coffee — Signature Drinks",
-    mobile: "object-[38%_38%]",
-    tablet: "sm:object-[30%_34%]",
-    desktop: "lg:object-[30%_30%]",
+    ltr: {
+      mobile: "object-[38%_38%]",
+      tablet: "sm:object-[30%_34%]",
+      desktop: "lg:object-[30%_30%]",
+    },
+    rtl: {
+      mobile: "object-[62%_38%]",
+      tablet: "sm:object-[70%_34%]",
+      desktop: "lg:object-[70%_30%]",
+    },
   },
 ] as const;
 
@@ -72,6 +91,8 @@ export default function Hero() {
 
   const [activeSlide, setActiveSlide] = useState(0);
   const t = useTranslations("hero");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
 
   /* ── Magnetic CTA ── */
   const handleCtaMouseMove = useCallback(
@@ -200,6 +221,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
+      dir={isRtl ? "rtl" : "ltr"}
       className="hero-section relative flex flex-col overflow-hidden bg-[#040203] min-h-[calc(68svh_-_var(--nav-height-mobile))] min-[641px]:min-h-[calc(100svh_-_var(--nav-height-desktop))]"
       aria-label="Homepage hero"
     >
@@ -222,7 +244,7 @@ export default function Hero() {
               fill
               priority={i === 0}
               sizes="100vw"
-              className={`object-cover ${slide.mobile} ${slide.tablet} ${slide.desktop}`}
+              className={`object-cover ${isRtl ? `${slide.rtl.mobile} ${slide.rtl.tablet} ${slide.rtl.desktop}` : `${slide.ltr.mobile} ${slide.ltr.tablet} ${slide.ltr.desktop}`}`}
             />
           </div>
         ))}
@@ -274,7 +296,7 @@ export default function Hero() {
         {/* ── Eyebrow pill ── */}
         <div
           ref={eyebrowRef}
-          className="inline-flex w-fit items-center gap-3 rounded-full border border-white/32 bg-black/52 px-4 py-2 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.38)]"
+          className="inline-flex self-start w-fit items-center gap-3 rounded-full border border-white/32 bg-black/52 px-4 py-2 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.38)]"
         >
           <div
             className="h-px w-6 flex-shrink-0 bg-white/55"
@@ -338,7 +360,7 @@ export default function Hero() {
                 {t("subtitle")}
               </p>
 
-              <div className="mb-6 sm:mb-5 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/28 bg-black/52 px-4 py-1.5 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
+              <div className="mb-6 sm:mb-5 inline-flex self-start w-fit items-center gap-2.5 rounded-full border border-white/28 bg-black/52 px-4 py-1.5 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
                 <span
                   className="text-[#FFD166] text-[12px] select-none"
                   aria-hidden="true"
@@ -420,7 +442,7 @@ export default function Hero() {
                     href="/menu"
                     className="flex-shrink-0 rounded-full bg-elite-cream px-3.5 py-1.5 font-cabin text-[11px] font-bold text-elite-black transition-all duration-200 hover:bg-white hover:scale-[1.03] active:scale-95 shadow-[0_2px_12px_rgba(0,0,0,0.28)]"
                   >
-                    {t("showcase.cta")} →
+                    {t("showcase.cta")} {isRtl ? "←" : "→"}
                   </LocalizedLink>
                 </div>
 
@@ -438,24 +460,24 @@ export default function Hero() {
                             src={item.image}
                             alt={t(`showcase.items.${item.key}.name`)}
                             fill
-                            sizes="(max-width: 768px) 45vw, 14rem"
+                            sizes="(max-width: 767px) 1px, (max-width: 1023px) 14rem, 15rem"
                             className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                             style={{ objectPosition: item.objectPosition }}
                           />
                           {/* Gradient */}
                           <div className="absolute inset-0 bg-gradient-to-t from-[rgba(4,2,3,0.96)] via-[rgba(4,2,3,0.28)] to-[rgba(4,2,3,0.18)]" />
 
-                          {/* Category tag — top left */}
-                          <div className="absolute top-2.5 left-2.5">
+                          {/* Category tag — top start */}
+                          <div className="absolute top-2.5 start-2.5">
                             <span className="inline-block rounded-full border border-white/24 bg-black/52 px-2 py-0.5 font-cabin text-[9px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
                               {t(`showcase.items.${item.key}.tag`)}
                             </span>
                           </div>
 
-                          {/* Arrow icon — top right, reveals on hover */}
-                          <div className="absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full border border-white/22 bg-black/44 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          {/* Arrow icon — top end, reveals on hover */}
+                          <div className="absolute top-2.5 end-2.5 flex h-6 w-6 items-center justify-center rounded-full border border-white/22 bg-black/44 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <svg
-                              className="h-3 w-3 text-white"
+                              className={`h-3 w-3 text-white${isRtl ? " scale-x-[-1]" : ""}`}
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -485,7 +507,7 @@ export default function Hero() {
                             </p>
                             {/* Hover hint */}
                             <p className="mt-1 font-cabin text-[9px] font-semibold uppercase tracking-[0.14em] text-[#f5c87a] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              Tap to order →
+                              Tap to order {isRtl ? "←" : "→"}
                             </p>
                           </div>
                         </div>
@@ -500,7 +522,7 @@ export default function Hero() {
       </div>
 
       {/* ── Wave: dark → cream ── */}
-      <div className="wave-divider bg-[#040203] -mb-px relative z-10">
+      <div className="wave-divider bg-transparent -mb-px relative z-10">
         <svg
           viewBox="0 0 1440 64"
           preserveAspectRatio="none"
@@ -529,7 +551,7 @@ export default function Hero() {
               .flatMap((item) => [item, item, item])
               .map((item, index) => (
                 <div className="marquee-item" key={`${item.text}-${index}`}>
-                  <span className="flex items-center space-x-2">
+                  <span className="flex items-center gap-2">
                     <span>{item.icon}</span>
                     <span>{item.text}</span>
                   </span>
