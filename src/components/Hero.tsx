@@ -206,7 +206,7 @@ export default function Hero() {
       {/* ── Background carousel ── */}
       <div
         ref={photoRef}
-        className="absolute inset-x-0 z-0 will-change-transform [top:10%] [bottom:5%] sm:[top:-4%] sm:[bottom:-18%]"
+        className="absolute inset-x-0 z-0 will-change-transform [top:10%] [bottom:-2%] sm:[top:-4%] sm:[bottom:-18%]"
       >
         {HERO_SLIDES.map((slide, i) => (
           <div
@@ -497,6 +497,20 @@ export default function Hero() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Wave: dark → cream ── */}
+      <div className="wave-divider bg-[#040203] -mb-px relative z-10">
+        <svg
+          viewBox="0 0 1440 56"
+          preserveAspectRatio="none"
+          className="w-full h-8 sm:h-12 md:h-14"
+        >
+          <path
+            d="M0,0 C480,56 960,56 1440,0 L1440,56 L0,56 Z"
+            fill="var(--elite-cream)"
+          />
+        </svg>
       </div>
 
       {/* ── Cream marquee band ── */}

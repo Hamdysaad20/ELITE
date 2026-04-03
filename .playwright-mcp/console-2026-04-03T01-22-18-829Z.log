@@ -8,3 +8,48 @@ https://next-auth.js.org/errors#client_fetch_error Unexpected token '<', "<!DOCT
 [   96815ms] [LOG] [Fast Refresh] done in 7335ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
 [  100119ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
 [  102452ms] [LOG] [Fast Refresh] done in 2334ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  115671ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  135630ms] [LOG] [Fast Refresh] done in 19960ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  144501ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  144837ms] [LOG] [Fast Refresh] done in 335ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  146536ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/checkout/config:0
+[  146539ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/session:0
+[  146598ms] [ERROR] [next-auth][error][CLIENT_FETCH_ERROR] 
+https://next-auth.js.org/errors#client_fetch_error Unexpected token '<', "<!DOCTYPE "... is not valid JSON {error: Object, url: /api/auth/session, message: Unexpected token '<', "<!DOCTYPE "... is not valid JSON} @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  148229ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/_log:0
+[  259591ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  262987ms] [LOG] [Fast Refresh] done in 3398ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  367957ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  371950ms] [LOG] [Fast Refresh] done in 3995ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  382096ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  384606ms] [LOG] [Fast Refresh] done in 2509ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  388694ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  391793ms] [LOG] [Fast Refresh] done in 3099ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  395771ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  402388ms] [LOG] [Fast Refresh] done in 6618ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  407444ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  408259ms] [LOG] [Fast Refresh] done in 815ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  427771ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  429448ms] [LOG] [Fast Refresh] done in 1678ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  435228ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  436588ms] [LOG] [Fast Refresh] done in 1359ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  440695ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  443030ms] [LOG] [Fast Refresh] done in 2335ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  469215ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  469946ms] [LOG] [Fast Refresh] done in 731ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  678334ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  685643ms] [LOG] [Fast Refresh] done in 7310ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  687303ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/en?_rsc=1lp5v:0
+[  694254ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[  695057ms] [WARNING] Image with src "/images/levels/B.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  696325ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/session:0
+[  696326ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/checkout/config:0
+[  696331ms] [ERROR] [next-auth][error][CLIENT_FETCH_ERROR] 
+https://next-auth.js.org/errors#client_fetch_error Unexpected token '<', "<!DOCTYPE "... is not valid JSON {error: Object, url: /api/auth/session, message: Unexpected token '<', "<!DOCTYPE "... is not valid JSON} @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  696686ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/_log:0
+[  798735ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  811699ms] [LOG] [Fast Refresh] done in 12973ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  815911ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  818530ms] [LOG] [Fast Refresh] done in 2620ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  844758ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  848771ms] [LOG] [Fast Refresh] done in 4014ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13

@@ -208,7 +208,7 @@ export default function MenuPreview() {
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
                     style={{
                       background:
-                        "linear-gradient(to top, #FDF5E6 0%, #FDF5E6 25%, rgba(253,245,230,0.88) 55%, rgba(253,245,230,0.3) 80%, transparent 100%)",
+                        "linear-gradient(to top, #f8f0d2 0%, #f8f0d2 25%, rgba(248,240,210,0.88) 55%, rgba(248,240,210,0.3) 80%, transparent 100%)",
                     }}
                   />
                   {/* Left edge soften */}

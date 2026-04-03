@@ -11,9 +11,9 @@ export default {
     extend: {
       colors: {
         // Elite Coffee theme colors
-        'elite-burgundy': '#8B0000',
+        'elite-burgundy': '#8b2635',
         'elite-dark-burgundy': '#8b2635',
-        'elite-cream': '#FDF5E6',
+        'elite-cream': '#f8f0d2',
         'elite-dark-cream': '#F5E6D3',
         'elite-white': '#FFFFFF',
         'elite-black': '#000000',

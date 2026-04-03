@@ -229,7 +229,7 @@ export default function LoyaltyTeaser() {
       let rafId = -1;
 
       /* ── Render loop ── */
-      const CREAM = "#FDF5E6";
+      const CREAM = "#f8f0d2";
       const renderFrame = () => {
         // Fill with section bg colour so multiply blending has a real surface
         c.fillStyle = CREAM;
@@ -305,10 +305,13 @@ export default function LoyaltyTeaser() {
       });
       gsap.set(ctaRef.current, { opacity: 0, y: 20 });
 
-      /* ── ScrollTrigger ── */
+      /* ── Hide section bg until the canvas paints it in ── */
+      gsap.set(section, { backgroundColor: "transparent" });
+
+      /* ── ScrollTrigger — fires as soon as section enters view ── */
       ScrollTrigger.create({
         trigger: section,
-        start: "top 76%",
+        start: "top 92%",
         once: true,
         onEnter: () => {
           animating = true;
@@ -329,11 +332,11 @@ export default function LoyaltyTeaser() {
 
           /* — content starts emerging AFTER flash peak — */
 
-          /* 3 ── Heading rises from the light */
+          /* 3 ── Heading rises from the light — after burst peaks */
           tl.to(
             headRef.current,
             { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" },
-            0.42,
+            0.55,
           );
 
           /* 4 ── Cards materialise, staggered, from depth */
@@ -343,39 +346,48 @@ export default function LoyaltyTeaser() {
               opacity: 1,
               scale: 1,
               y: 0,
-              duration: 0.72,
-              stagger: 0.1,
+              duration: 0.75,
+              stagger: 0.11,
               ease: "back.out(1.2)",
             },
-            0.52,
+            0.65,
           );
 
           /* 5 ── Perks strip slides in */
           tl.to(
             perksRef.current,
-            { opacity: 1, y: 0, duration: 0.48, ease: "power3.out" },
-            0.6,
+            { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+            0.72,
           );
 
           /* 6 ── CTA last */
           tl.to(
             ctaRef.current,
-            { opacity: 1, y: 0, duration: 0.48, ease: "power3.out" },
-            0.98,
+            { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+            1.2,
           );
 
-          /* 7 ── Stop canvas, clear residual pixels */
+          /* 7 ── Freeze canvas, restore section bg, fade out smoothly */
           tl.add(() => {
             animating = false;
             cancelAnimationFrame(rafId);
-            c.clearRect(0, 0, W, H);
+            // Restore section bg so it sits behind the fading canvas
+            gsap.set(section, { clearProps: "backgroundColor" });
             gsap.set(
               [headRef.current, perksRef.current, ctaRef.current, ...cards],
-              {
-                clearProps: "filter,willChange",
-              },
+              { clearProps: "filter,willChange" },
             );
-          }, 2.2);
+            // Fade the frozen canvas frame out instead of instant clearRect
+            gsap.to(canvas, {
+              opacity: 0,
+              duration: 0.7,
+              ease: "power2.out",
+              onComplete: () => {
+                c.clearRect(0, 0, W, H);
+                canvas.style.opacity = "";
+              },
+            });
+          }, 2.8);
         },
       });
 

@@ -39,7 +39,7 @@ const STEPS = [
 ] as const;
 
 // Subtle warm bg shifts staying within the cream palette
-const SECTION_BG = ["#FDF5E6", "#F8EDD8", "#F3E4C8"] as const;
+const SECTION_BG = ["#f8f0d2", "#f4e8c4", "#f0e0b6"] as const;
 
 /* ── Reusable tag chip ─────────────────────────────────────── */
 function Tag({ label }: { label: string }) {
@@ -300,6 +300,13 @@ export default function HowItWorks() {
           );
 
         mainTl.add(stepTl);
+      });
+
+      // Return to canonical cream so the wave divider after this section matches
+      mainTl.to(sectionRef.current, {
+        backgroundColor: SECTION_BG[0],
+        duration: 0.5,
+        ease: "power2.inOut",
       });
 
       return () => mainTl.kill();
