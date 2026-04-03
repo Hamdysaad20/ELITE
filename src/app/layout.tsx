@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Cabin_Condensed, Calistoga, Cairo } from "next/font/google";
+import {
+  Cabin_Condensed,
+  Calistoga,
+  Cairo,
+  Bebas_Neue,
+  Tajawal,
+} from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
@@ -21,9 +27,25 @@ const calistoga = Calistoga({
 });
 
 const cairo = Cairo({
-  subsets: ["arabic"],
-  weight: ["400", "600", "700"],
+  subsets: ["arabic", "latin"],
+  weight: ["400", "600", "700", "800", "900"],
   variable: "--font-cairo",
+  display: "swap",
+});
+
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  display: "swap",
+});
+
+// Tajawal — Arabic display font for hero text
+// Better kashida glyph support than Cairo at large display sizes
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700", "800", "900"],
+  variable: "--font-tajawal",
   display: "swap",
 });
 
@@ -67,7 +89,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={direction}
-      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable}`}
+      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${tajawal.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>

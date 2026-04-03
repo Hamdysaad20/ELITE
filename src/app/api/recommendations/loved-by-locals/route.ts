@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { jsonResponse, successResponse } from "@/server/utils/apiHelpers";
-import { getProductsSafe, Product } from "@/server/services/product.service";
+import type { Product } from "@/server/services/product.service";
 
 export type LovedByLocalProduct = {
   id: string;
@@ -65,6 +65,9 @@ export async function GET(request: NextRequest) {
     let usingFallback = false;
 
     try {
+      const { getProductsSafe } = await import(
+        "@/server/services/product.service"
+      );
       const { products: fetchedProducts } = await getProductsSafe();
       allProducts = Array.isArray(fetchedProducts) ? fetchedProducts : [];
     } catch (err) {

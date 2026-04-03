@@ -52,6 +52,23 @@ export default function Footer() {
                 {t("navigation.menu")}
               </LocalizedLink>
               <LocalizedLink
+                href="/deals"
+                className={cn(
+                  "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
+                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                )}
+              >
+                {t("navigation.deals")}
+                <span
+                  className={cn(
+                    "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
+                    isRTL ? "mr-1" : "ml-1",
+                  )}
+                >
+                  {t("soon")}
+                </span>
+              </LocalizedLink>
+              <LocalizedLink
                 href="/rewards"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",

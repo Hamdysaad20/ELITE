@@ -19,6 +19,7 @@
     "profileMenu": "Open profile menu",
     "profile": "Profile",
     "signIn": "Sign In",
+    "joinFree": "Join Free",
     "user": "User",
     "myOrders": "My Orders",
     "addresses": "Addresses",
@@ -36,12 +37,35 @@
     "goBack": "Go back",
     "openMenu": "Open menu"
   },
+  "globalNav": {
+    "menu": "Menu",
+    "location": "Location",
+    "deals": "Deals",
+    "shop": "Shop",
+    "soon": "soon",
+    "home": "Home",
+    "cart": "Cart",
+    "orders": "Orders",
+    "profile": "Profile",
+    "signIn": "Sign In",
+    "joinFree": "Join Free",
+    "exploreMenu": "Explore Menu",
+    "rewards": "Rewards",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "navigation": "Navigation",
+    "logoAlt": "Elite Coffee — Home",
+    "switchLang": "\u0639\u0631\u0628\u064a",
+    "switchLangLabel": "Switch to Arabic"
+  },
   "hero": {
-    "titleLine1": "Life Begins",
-    "titleLine2": "After Coffee",
-    "subtitle": "Because great coffee is the start of something even greater.",
+    "titleLine1": "ELITE",
+    "titleLine2": "COFFEE",
+    "subtitle": "Crafted in Faiyum for slow mornings, quick resets, and the kind of coffee worth coming back for.",
     "ctaExplore": "Explore Menu",
     "ctaLocation": "Our Locations",
+    "ctaJoin": "Join Free",
+    "socialProof": "Loved by locals",
     "alts": {
       "justCoffee": "Just Coffee Cup",
       "espresso": "Espresso Cup",
@@ -55,6 +79,34 @@
       "cozySpace": "Cozy Space",
       "handcraftedDrinks": "Handcrafted Drinks",
       "localRoasts": "Local Roasts"
+    },
+    "arabicTagline": "خدي بريك",
+    "arabicTaglineEn": "TAKE A BREAK",
+    "featured": "Featured Drink",
+    "productLabel": "Caramel Macchiato",
+    "eliteVibes": "Elite vibes",
+    "showcase": {
+      "badge": "Now pouring",
+      "subtitle": "Two fan favourites, ready when you are.",
+      "cta": "See full menu",
+      "items": {
+        "taro": {
+          "name": "Taro Boba",
+          "tag": "Boba · Iced",
+          "note": "Purple taro · boba pearls · iced"
+        },
+        "spanishBoba": {
+          "name": "Spanish Boba",
+          "tag": "Boba · Iced",
+          "note": "Espresso · caramel · boba pearls"
+        }
+      }
+    },
+    "pills": {
+      "matcha": "Matcha",
+      "bobaChocolate": "Boba Chocolate",
+      "oreoMilkshake": "Oreo Milkshake",
+      "kinderMilkshake": "Kinder Milkshake"
     }
   },
   "goodVibes": {
@@ -109,9 +161,11 @@
     "cta": "Explore Menu"
   },
   "testimonials": {
+    "badge": "Customer Stories",
     "titleLine1": "What People",
     "titleLine2": "Love About Us",
     "subtitle": "Real stories from real people who've made Elite their daily ritual",
+    "ratingLabel": "4.9 / 5 from local customers",
     "items": [
       {
         "quote": "The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.",
@@ -156,6 +210,7 @@
       "title": "Navigation",
       "subtitle": "Explore our world",
       "menu": "Menu",
+      "deals": "Deals",
       "rewards": "Rewards",
       "shop": "Shop"
     },
@@ -1260,7 +1315,9 @@
       "description": "Account settings will be available here soon.",
       "cta": "Go to Settings"
     },
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "aboutElite": "About Elite Coffee",
+    "aboutEliteDesc": "Learn about our story and brand"
   },
   "addressManager": {
     "labels": {
@@ -1775,5 +1832,174 @@
       "adding": "Adding...",
       "add": "Add to cart"
     }
+  },
+  "homePage": {
+    "greeting": "Welcome back, {name}!",
+    "browseMenu": "Browse Menu",
+    "viewDeals": "View Deals",
+    "recentOrders": "Recent Orders",
+    "seeAllOrders": "See All Orders",
+    "noOrders": "No orders yet",
+    "noOrdersDesc": "Browse our menu to get started!",
+    "reorder": "Reorder",
+    "recommendedForYou": "Recommended For You",
+    "personalizedLabel": "Personalized for you",
+    "viewAll": "View All",
+    "orderStatus": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "READY": "Ready",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "OUT_FOR_DELIVERY": "On the way"
+    },
+    "items": "{count, plural, one {# item} other {# items}}",
+    "aboutElite": "About Elite Coffee",
+    "aboutEliteDesc": "Learn about our story and brand"
+  },
+  "howItWorks": {
+    "badge": "Getting Started",
+    "title": "Explore How It Works",
+    "subtitle": "From craving to cup — easy as 1, 2, 3.",
+    "imagePlaceholder": "Image coming soon",
+    "steps": {
+      "browse": {
+        "title": "Browse The Menu",
+        "arabicTitle": "تصفّح القائمة",
+        "description": "Explore our full range of handcrafted drinks, from classic coffee to specialty beverages.",
+        "cta": "View Menu",
+        "tag1": "50+ drinks",
+        "tag2": "Daily specials",
+        "tag3": "Full menu"
+      },
+      "order": {
+        "title": "Place Your Order",
+        "arabicTitle": "قدّم طلبك",
+        "description": "Order online for pickup or delivery in seconds — no wait, no hassle.",
+        "cta": "Order Now",
+        "tag1": "Pickup & delivery",
+        "tag2": "Pay online",
+        "tag3": "No hassle"
+      },
+      "enjoy": {
+        "title": "Enjoy Every Sip",
+        "arabicTitle": "استمتع بكل رشفة",
+        "description": "Your drink is made fresh, exactly how you like it, every single time.",
+        "cta": "Try Today",
+        "tag1": "Made to order",
+        "tag2": "Your way",
+        "tag3": "Always fresh"
+      }
+    }
+  },
+  "loyaltyTeaser": {
+    "badge": "Rewards & Membership",
+    "title": "Join Once. Enjoy Every Visit More.",
+    "subtitle": "Order. Earn points. Level up.",
+    "joinBadge": "Free membership",
+    "joinTitle": "Rewards, faster checkout, and your favorite drinks remembered.",
+    "joinSubtitle": "Membership keeps the practical side simple while making every visit feel a little more rewarding.",
+    "benefits": {
+      "fastCheckout": "Checkout faster with your saved details ready when you need them.",
+      "personalizedPicks": "Get recommendations shaped around what you actually order and love.",
+      "birthdayPerks": "Celebrate with birthday bonuses and member-only surprises across the year."
+    },
+    "tiersLabel": "Tier perks",
+    "tiersSubtitle": "Start at Bronze and move up as your points grow. Each tier gives you a better return on every order.",
+    "pointsBronze": "0 pts",
+    "pointsSilver": "500 pts",
+    "pointsGold": "2,000 pts",
+    "pointsPlatinum": "5,000 pts",
+    "rateBronze": "1 pt / EGP",
+    "rateSilver": "1 pt / EGP",
+    "rateGold": "1.25 pts / EGP",
+    "ratePlatinum": "1.5 pts / EGP",
+    "promoTitle": "Double points on your birthday",
+    "promoDesc": "Earn 2× points on every order placed on your birthday and turn your usual order into a bigger reward day.",
+    "promoLink": "Join free",
+    "cta": "Join Free",
+    "signIn": "Sign In",
+    "freeNote": "Free to join — no credit card required",
+    "trustSignal": "10,000+ members",
+    "perk1": "Earn points on every order",
+    "perk2": "Faster checkout, every time",
+    "perk3": "Birthday rewards & surprises",
+    "tiers": {
+      "bronze":   { "tagline": "Start Here" },
+      "silver":   { "tagline": "Rising Fast" },
+      "gold":     { "tagline": "Most Popular" },
+      "platinum": { "tagline": "Elite Status" }
+    }
+  },
+  "menuPreview": {
+    "badge": "Start here",
+    "title": "What Are You Craving?",
+    "subtitle": "Jump straight to the side of the menu that fits your mood right now.",
+    "quickNote": "6 signature categories",
+    "categories": {
+      "hotDrinks": "Hot Drinks",
+      "icedDrinks": "Iced Drinks",
+      "smoothies": "Smoothies",
+      "milkshakes": "Milkshakes",
+      "boba": "Boba",
+      "kidsCorner": "Kids Corner"
+    },
+    "viewFullMenu": "View Full Menu"
+  },
+  "signaturePicks": {
+    "badge": "Signature Picks",
+    "title": "Start With The Drinks We’re Known For",
+    "subtitle": "Real campaign pours from the Elite counter: warm, tactile, and styled the way guests actually discover the brand.",
+    "cta": "Explore Full Menu",
+    "featuredLabel": "Campaign favorite",
+    "featuredNote": "Built from Elite’s branded photography, not just catalog cutouts.",
+    "viewDrink": "See in menu",
+    "items": {
+      "signatureMilkshake": {
+        "name": "Signature Milkshake",
+        "tag": "Dessert spotlight",
+        "description": "A richer hero pour with cream, berry contrast, and the kind of presentation that earns a second look before the first sip."
+      },
+      "taroBoba": {
+        "name": "Taro Boba",
+        "tag": "Velvet purple",
+        "description": "Creamy taro tones, chilled texture, and the bold black pearl finish that makes the cup read instantly as Elite."
+      },
+      "spanishBoba": {
+        "name": "Spanish Boba",
+        "tag": "Creamy caramel",
+        "description": "Soft caramel color, glossy cup detail, and a warmer café feel for guests who want something indulgent but polished."
+      },
+      "goldenBoba": {
+        "name": "Golden Boba Latte",
+        "tag": "Sunlit pour",
+        "description": "An amber-toned boba drink framed in natural light, built to make the landing page feel like a real Elite campaign set."
+      }
+    }
+  },
+  "whyElite": {
+    "title": "Why Elite?",
+    "subtitle": "More than just coffee",
+    "quote": "The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.",
+    "quoteAuthor": "A Happy Customer",
+    "quoteDescriptor": "Coffee Enthusiast",
+    "rating": "4.9/5 from local customers"
+  },
+  "joinCta": {
+    "title": "Join the Elite Family",
+    "subtitle": "Sign up for free and unlock rewards, faster checkout, and personalized recommendations.",
+    "cta": "Join Free",
+    "signInPrompt": "Already have an account?",
+    "signInLink": "Sign In"
+  },
+  "locationBar": {
+    "title": "Visit Us",
+    "subtitle": "Easy to find, easy to settle into, and worth the stop whether you're meeting friends or resetting your day.",
+    "name": "Elite Cafee",
+    "address": "Faiyum, Governorate Club, next to the Governor's Villa",
+    "hours": "8 AM - 3 PM Daily",
+    "getDirections": "Get Directions",
+    "messageUs": "Message Us"
   }
 }

@@ -70,6 +70,8 @@ export default {
         'cabin': ['var(--font-cabin-condensed)', 'sans-serif'],
         'calistoga': ['var(--font-calistoga)', 'serif'],
         'arabic': ['var(--font-cairo)', 'sans-serif'],
+        'bebas': ['var(--font-bebas)', 'Impact', 'sans-serif'],
+        'tajawal': ['var(--font-tajawal)', 'sans-serif'],
       },
       keyframes: {
         shimmer: {

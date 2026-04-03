@@ -1,0 +1,30 @@
+[   36146ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   90904ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[   96946ms] [LOG] 0 hero-section relative flex flex-col overflow-hidden bg-[#040 @ :0
+[   96947ms] [LOG] 1 bg-elite-cream px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-20 md @ :0
+[   96947ms] [LOG] 2 bg-white px-4 py-14 sm:px-6 sm:py-20 md:py-24 relative overf @ :0
+[   96947ms] [LOG] 3 bg-elite-burgundy py-14 sm:py-20 md:py-28 px-4 sm:px-6 overf @ :0
+[   96947ms] [LOG] 4 bg-elite-cream py-12 sm:py-16 md:py-24 px-3 sm:px-6 relative @ :0
+[   96947ms] [LOG] 5 relative py-20 sm:py-28 md:py-36 px-4 sm:px-6 overflow-hidde @ :0
+[   96947ms] [LOG] 6 bg-elite-cream px-4 py-10 sm:py-14 lg:py-16 overflow-hidden @ :0
+[   96947ms] [LOG] 7 bg-white px-4 py-12 sm:px-6 sm:py-16 md:py-20 will-change-tr @ :0
+[  104477ms] [WARNING] Image with src "/images/levels/B.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  108746ms] [LOG] [Fast Refresh] done in 17870ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  124630ms] [LOG] 1 What Are You Craving? bg-elite-cream px-4 pb-14 pt-16 sm:px-6  @ :0
+[  124639ms] [LOG] 2 Start With The Drinks We’re Known For bg-white px-4 py-14 sm:px-6 sm:py-20 md: @ :0
+[  124642ms] [LOG] 3 Why Elite? bg-elite-burgundy py-14 sm:py-20 md:py-2 @ :0
+[  124642ms] [LOG] 4 Loved by Locals bg-elite-cream py-12 sm:py-16 md:py-24 p @ :0
+[  124643ms] [LOG] 5 What People Love About Us relative py-20 sm:py-28 md:py-36 px-4 sm @ :0
+[  124643ms] [LOG] 6 Join Once. Enjoy Every Visit More. bg-elite-cream px-4 py-10 sm:py-14 lg:py @ :0
+[  124643ms] [LOG] 7 Visit Us bg-white px-4 py-12 sm:px-6 sm:py-16 md: @ :0
+[  126822ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/checkout/config:0
+[  126962ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/session:0
+[  127055ms] [ERROR] [next-auth][error][CLIENT_FETCH_ERROR] 
+https://next-auth.js.org/errors#client_fetch_error Unexpected token '<', "<!DOCTYPE "... is not valid JSON {error: Object, url: /api/auth/session, message: Unexpected token '<', "<!DOCTYPE "... is not valid JSON} @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  129055ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/auth/_log:0
+[  341695ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  363737ms] [LOG] [Fast Refresh] done in 22043ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  373075ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[  380299ms] [LOG] [Fast Refresh] done in 7224ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  380319ms] [WARNING] Image with src "/images/levels/S.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  380320ms] [WARNING] Image with src "/images/levels/G.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
