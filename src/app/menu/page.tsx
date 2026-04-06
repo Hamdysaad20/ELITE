@@ -218,7 +218,7 @@ export default function MenuPage() {
               <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
               {t("sidebar.title")}
             </span>
-            <h1 className="mb-4 font-calistoga text-3xl text-elite-black sm:text-4xl md:text-5xl lg:text-6xl">
+            <h1 className="mb-4 font-calistoga text-4xl text-elite-black sm:text-5xl md:text-5xl lg:text-6xl">
               {t("title")}
             </h1>
             <p className="mx-auto max-w-2xl font-cabin text-sm leading-relaxed text-elite-black/60 sm:text-base md:text-lg">
