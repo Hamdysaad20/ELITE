@@ -512,14 +512,6 @@ export default function ProductDetailClient({
                   </div>
 
                   {/* Add to Cart Button - Rounded pill style with optimistic feedback */}
-                  {!orderingEnabled && (
-                    <div className="mb-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
-                      <p className="font-cabin text-amber-900 text-sm">
-                        {disabledMessage} Tap notify to get updates.
-                      </p>
-                    </div>
-                  )}
                   <button
                     onClick={handleAddToCart}
                     disabled={!product.available || addedToCart}
@@ -537,15 +529,25 @@ export default function ProductDetailClient({
                     ) : addedToCart ? (
                       <>
                         <Check className="w-5 h-5 animate-bounce" />
-                        {orderingEnabled ? t("actions.added") : "Notified!"}
+                        {orderingEnabled
+                          ? t("actions.added")
+                          : t("actions.notified")}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="w-5 h-5" />
-                        {orderingEnabled ? t("actions.addToCart") : "Notify me"}
+                        {orderingEnabled
+                          ? t("actions.addToCart")
+                          : t("actions.notifyMe")}
                       </>
                     )}
                   </button>
+                  {!orderingEnabled && (
+                    <p className="mt-3 inline-flex items-center gap-1.5 font-cabin text-xs md:text-sm text-amber-800/90">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      {t("actions.notifyHint", { message: disabledMessage })}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

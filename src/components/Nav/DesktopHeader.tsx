@@ -71,8 +71,8 @@ export default function DesktopHeader({ auth }: DesktopHeaderProps) {
             alt={t("logoAlt")}
             className="w-auto object-contain transition-all duration-300 group-hover:opacity-80 group-hover:scale-[0.97]"
             style={{
-              height: "42px",
-              maxWidth: "160px",
+              height: "50px",
+              maxWidth: "190px",
             }}
           />
         </LocalizedLink>

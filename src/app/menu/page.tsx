@@ -218,7 +218,7 @@ export default function MenuPage() {
               <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
               {t("sidebar.title")}
             </span>
-            <h1 className="mb-4 font-calistoga text-4xl text-elite-black sm:text-5xl md:text-5xl lg:text-6xl">
+            <h1 className="mb-4 font-calistoga text-[2.5rem] leading-[1.1] tracking-[-0.02em] text-elite-black sm:text-5xl md:text-5xl lg:text-6xl">
               {t("title")}
             </h1>
             <p className="mx-auto max-w-2xl font-cabin text-sm leading-relaxed text-elite-black/60 sm:text-base md:text-lg">
@@ -265,7 +265,7 @@ export default function MenuPage() {
                           onClick={() => setActiveCategory(null)}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
                             activeCategory === null
-                              ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                              ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-elite-cream"
                               : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
                           }`}
                         >
@@ -288,7 +288,7 @@ export default function MenuPage() {
                                 }
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
                                   isActive
-                                    ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
+                                    ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-elite-cream"
                                     : cat.comingSoon
                                       ? "bg-elite-dark-cream/60 text-elite-black/40 cursor-not-allowed"
                                       : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
@@ -397,87 +397,83 @@ export default function MenuPage() {
                           )
                           .map((category, catIndex) => (
                             <section key={category.id} className="relative">
-                              {/* Category Header - Sticky on scroll */}
-                              <div className="flex items-center justify-between mb-4 px-1">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                      category.comingSoon
-                                        ? "bg-elite-dark-cream text-elite-burgundy/50"
-                                        : "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20"
-                                    }`}
-                                  >
-                                    {renderIcon(category.icon)}
+                              {/* Category Header */}
+                              <div className="mb-5 rounded-2xl bg-gradient-to-b from-white/80 to-white/40 border border-elite-burgundy/6 px-4 py-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div
+                                      className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                                        category.comingSoon
+                                          ? "bg-elite-dark-cream text-elite-burgundy/50"
+                                          : "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25"
+                                      }`}
+                                    >
+                                      {renderIcon(category.icon)}
+                                    </div>
+                                    <div>
+                                      <h3 className="font-calistoga text-elite-black text-[1.25rem] font-bold leading-tight tracking-[-0.01em]">
+                                        {category.name}
+                                      </h3>
+                                      <span className="inline-flex items-center mt-1 font-cabin text-elite-black/45 text-[11px] font-medium">
+                                        {t("itemsCount", {
+                                          count:
+                                            category.subCategories[0]?.items
+                                              .length || 0,
+                                        })}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <h3 className="font-calistoga text-elite-black text-xl font-bold leading-tight">
-                                      {category.name}
-                                    </h3>
-                                    <p className="font-cabin text-elite-black/50 text-xs">
-                                      {t("itemsCount", {
-                                        count:
-                                          category.subCategories[0]?.items
-                                            .length || 0,
-                                      })}
-                                    </p>
-                                  </div>
+                                  {!category.comingSoon && (
+                                    <LocalizedLink
+                                      href={`/menu/${category.id}`}
+                                      className="flex items-center gap-1 font-cabin text-sm text-elite-cream font-semibold px-4 py-2 rounded-full bg-elite-burgundy shadow-md shadow-elite-burgundy/15 active:scale-95 transition-all touch-manipulation"
+                                    >
+                                      {t("actions.seeAll")}
+                                      <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                                    </LocalizedLink>
+                                  )}
                                 </div>
-                                {!category.comingSoon && (
-                                  <LocalizedLink
-                                    href={`/menu/${category.id}`}
-                                    className="font-cabin text-sm text-elite-burgundy font-semibold px-3 py-1.5 rounded-full bg-elite-burgundy/8 active:bg-elite-burgundy/15 transition-colors touch-manipulation"
-                                  >
-                                    {t("actions.seeAll")}
-                                  </LocalizedLink>
-                                )}
                               </div>
 
-                              {/* Products - Horizontal scroll for native feel */}
+                              {/* Products - 2-column grid for browsable layout */}
                               {!category.comingSoon &&
                                 category.subCategories.length > 0 && (
-                                  <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 pb-2">
-                                    <div className="flex gap-3 snap-x snap-mandatory">
-                                      {category.subCategories[0]?.items
-                                        .filter(
-                                          (item) =>
-                                            item !== null && item !== undefined,
-                                        )
-                                        .slice(0, 8)
-                                        .map((item, idx) => (
-                                          <div
-                                            key={item.id}
-                                            className="w-[160px] flex-shrink-0 snap-start"
-                                          >
-                                            <DrinkCard
-                                              id={item.id}
-                                              images={item.images}
-                                              name={item.name}
-                                              price={item.price}
-                                              description={item.description}
-                                              available={item.available}
-                                              size="small"
-                                              href={`/products/${item.id}`}
-                                              menuItemId={item.id}
-                                              showAddToOrder={true}
-                                              categoryId={category.id}
-                                              imageVersion={productsLastUpdate}
-                                              animationDelay={
-                                                catIndex * 100 + idx * 30
-                                              }
-                                              onQuickAdd={() => {
-                                                const product =
-                                                  apiProducts.find(
-                                                    (p) => p.id === item.id,
-                                                  );
-                                                if (product) {
-                                                  setSelectedProduct(product);
-                                                  setIsModalOpen(true);
-                                                }
-                                              }}
-                                            />
-                                          </div>
-                                        ))}
-                                    </div>
+                                  <div className="grid grid-cols-2 gap-3 px-1">
+                                    {category.subCategories[0]?.items
+                                      .filter(
+                                        (item) =>
+                                          item !== null && item !== undefined,
+                                      )
+                                      .slice(0, 10)
+                                      .map((item, idx) => (
+                                        <DrinkCard
+                                          key={item.id}
+                                          id={item.id}
+                                          images={item.images}
+                                          name={item.name}
+                                          price={item.price}
+                                          description={item.description}
+                                          available={item.available}
+                                          size="small"
+                                          href={`/products/${item.id}`}
+                                          menuItemId={item.id}
+                                          showAddToOrder={true}
+                                          categoryId={category.id}
+                                          imageVersion={productsLastUpdate}
+                                          animationDelay={
+                                            catIndex * 80 + idx * 40
+                                          }
+                                          onQuickAdd={() => {
+                                            const product = apiProducts.find(
+                                              (p) => p.id === item.id,
+                                            );
+                                            if (product) {
+                                              setSelectedProduct(product);
+                                              setIsModalOpen(true);
+                                            }
+                                          }}
+                                        />
+                                      ))}
                                   </div>
                                 )}
 
@@ -490,7 +486,7 @@ export default function MenuPage() {
                                 </div>
                               )}
 
-                              {/* Subtle divider */}
+                              {/* Decorative divider */}
                               {catIndex <
                                 categories.filter(
                                   (c) =>
@@ -499,7 +495,11 @@ export default function MenuPage() {
                                       c.id === activeCategory),
                                 ).length -
                                   1 && (
-                                <div className="h-px bg-gradient-to-r from-transparent via-elite-burgundy/10 to-transparent mt-6" />
+                                <div className="flex items-center gap-3 mt-8 mb-2 px-4">
+                                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-elite-burgundy/10" />
+                                  <div className="h-1.5 w-1.5 rounded-full bg-elite-burgundy/20" />
+                                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-elite-burgundy/10" />
+                                </div>
                               )}
                             </section>
                           ))}

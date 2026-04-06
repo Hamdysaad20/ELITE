@@ -293,7 +293,8 @@
     "savePercent": "وفر {percent}%",
     "dealInactive": "العرض غير نشط حاليًا",
     "added": "تمت الإضافة!",
-    "add": "إضافة"
+    "add": "إضافة",
+    "seeMore": "عرض المزيد"
   },
   "productModal": {
     "title": "خصّص طلبك",
@@ -303,7 +304,8 @@
     "increaseQuantity": "زيادة الكمية",
     "added": "تمت الإضافة!",
     "adding": "جارٍ الإضافة...",
-    "addToOrder": "أضف إلى الطلب • {total}"
+    "addToOrder": "أضف إلى الطلب • {total}",
+    "seeDetails": "عرض التفاصيل الكاملة"
   },
   "menuPage": {
     "title": "القائمة",
@@ -1217,7 +1219,10 @@
     "actions": {
       "backToMenu": "العودة إلى القائمة",
       "added": "تمت الإضافة",
-      "addToCart": "أضف إلى السلة"
+      "addToCart": "أضف إلى السلة",
+      "notifyMe": "أبلغني",
+      "notified": "تم تسجيل التنبيه!",
+      "notifyHint": "{message} اضغط أبلغني في هذه الصفحة للحصول على التحديثات."
     },
     "images": {
       "noImage": "لا توجد صورة",

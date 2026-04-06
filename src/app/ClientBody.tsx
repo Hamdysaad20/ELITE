@@ -7,7 +7,6 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 import NetworkStatus from "@/components/NetworkStatus";
 import CartButton from "@/components/Cart/CartButton";
 import Nav from "@/components/Nav";
-import OrderingBanner from "@/components/OrderingBanner";
 import { OrderingProvider } from "@/context/OrderingContext";
 import {
   createNavigationState,
@@ -114,7 +113,6 @@ export default function ClientBody({
           </>
         )}
         <ToastProvider>
-          {!isAuthPage && <OrderingBanner />}
           <main className={isLandingPage ? "" : "nav-body-offset"}>
             {children}
           </main>
