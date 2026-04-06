@@ -2001,5 +2001,12 @@
     "hours": "8 AM - 3 PM Daily",
     "getDirections": "Get Directions",
     "messageUs": "Message Us"
+  },
+  "instagramGallery": {
+    "title": "See Us on Instagram",
+    "subtitle": "Real moments from our place — follow along for the latest drinks, vibes, and customer photos.",
+    "followPrompt": "Join us on Instagram",
+    "cta": "Follow @officieleliteeg",
+    "handle": "@officieleliteeg on Instagram"
   }
 }

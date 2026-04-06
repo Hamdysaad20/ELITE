@@ -2,24 +2,24 @@
 
 import { useRef, useEffect, useState, useMemo, useId } from "react";
 import { useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface CurvedLoopProps {
   marqueeText?: string;
   speed?: number;
-  /** CSS class applied to the SVG <text> element — use fill-*, font-*, text-* utilities */
+  /** Tailwind classes applied to the SVG <text> element — use fill-*, font-*, text-* utilities */
   className?: string;
   /** How deep the arc bows (quadratic bezier control-point offset from baseline y=40) */
   curveAmount?: number;
   direction?: "left" | "right";
   interactive?: boolean;
   /**
-   * Explicit CSS height for the SVG (e.g. "clamp(80px, 12vw, 180px)").
+   * Explicit height for the SVG wrapper (Tailwind height class, e.g. "h-24").
    * When set, the SVG scales with preserveAspectRatio="xMidYMid slice" so the
-   * arc stays proportional and text clips cleanly at container edges — ideal for
-   * fixed-height marquee strips. When omitted the SVG keeps its natural 100:12
-   * aspect ratio with overflow visible.
+   * arc stays proportional and text clips cleanly at container edges.
+   * When omitted the SVG keeps its natural 100:12 aspect ratio (overflow visible).
    */
-  svgHeight?: string;
+  svgHeightClass?: string;
 }
 
 export function CurvedLoop({
@@ -29,7 +29,7 @@ export function CurvedLoop({
   curveAmount = 400,
   direction = "left",
   interactive = true,
-  svgHeight,
+  svgHeightClass,
 }: CurvedLoopProps) {
   const prefersReduced = useReducedMotion();
 
@@ -45,10 +45,10 @@ export function CurvedLoop({
   const pathRef = useRef<SVGPathElement>(null);
   const [spacing, setSpacing] = useState(0);
   const [offset, setOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const uid = useId();
   const pathId = `curve-${uid}`;
-  // Quadratic bezier: baseline at y=40, control point bows down by curveAmount
   const pathD = `M-100,40 Q500,${40 + curveAmount} 1540,40`;
 
   const dragRef = useRef(false);
@@ -103,6 +103,7 @@ export function CurvedLoop({
   const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (!interactive) return;
     dragRef.current = true;
+    setIsDragging(true);
     lastXRef.current = e.clientX;
     velRef.current = 0;
     (e.target as Element).setPointerCapture(e.pointerId);
@@ -126,49 +127,30 @@ export function CurvedLoop({
   const endDrag = () => {
     if (!interactive) return;
     dragRef.current = false;
+    setIsDragging(false);
     dirRef.current = velRef.current > 0 ? "right" : "left";
   };
 
-  const cursorStyle = !interactive
-    ? "auto"
-    : dragRef.current
-      ? "grabbing"
-      : "grab";
-
-  // When svgHeight is provided: SVG fills the explicit height using slice scaling
-  // so the arc is always proportional to the container. Edges clip cleanly.
-  // When omitted: natural 100:12 aspect ratio with overflow visible (original behaviour).
-  const svgStyle: React.CSSProperties = svgHeight
-    ? {
-        userSelect: "none",
-        width: "100%",
-        height: svgHeight,
-        overflow: "hidden",
-        display: "block",
-      }
-    : {
-        userSelect: "none",
-        width: "100%",
-        aspectRatio: "100 / 12",
-        overflow: "visible",
-        display: "block",
-      };
-
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        visibility: ready ? "visible" : "hidden",
-        cursor: cursorStyle,
-      }}
+      className={cn(
+        "flex w-full items-center justify-center",
+        !ready && "invisible",
+        interactive && (isDragging ? "cursor-grabbing" : "cursor-grab"),
+        !interactive && "cursor-auto",
+        svgHeightClass,
+      )}
     >
       <svg
         viewBox="0 0 1440 120"
-        preserveAspectRatio={svgHeight ? "xMidYMid slice" : "xMidYMid meet"}
-        style={svgStyle}
+        preserveAspectRatio={
+          svgHeightClass ? "xMidYMid slice" : "xMidYMid meet"
+        }
+        className={cn(
+          "block w-full select-none",
+          svgHeightClass ? "h-full overflow-hidden" : "overflow-visible",
+          !svgHeightClass && "[aspect-ratio:100/12]",
+        )}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -178,8 +160,7 @@ export function CurvedLoop({
         <text
           ref={measureRef}
           xmlSpace="preserve"
-          style={{ visibility: "hidden", opacity: 0, pointerEvents: "none" }}
-          className={className}
+          className={cn("invisible opacity-0 pointer-events-none", className)}
         >
           {text}
         </text>

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import { CurvedLoop } from "@/components/CurvedLoop";
+import { InstagramGallery } from "@/components/InstagramGallery";
 
 const MenuPreview = dynamic(() => import("@/components/MenuPreview"), {
   ssr: true,
@@ -102,16 +103,18 @@ export default function LandingPage() {
         {/* ① Hero */}
         <Hero />
 
-        {/* ── curved text marquee — no background, rides the Hero wave curve ── */}
-        <CurvedLoop
-          marqueeText="Great Coffee ✦ Elite Vibes ✦ Faiyum ✦ Handcrafted Drinks ✦ Made With Love ✦"
-          speed={1.5}
-          curveAmount={90}
-          direction="left"
-          interactive={true}
-          svgHeight="clamp(80px, 12vw, 180px)"
-          className="fill-elite-burgundy/80 font-bebas text-[2.2rem] sm:text-[3rem] md:text-[4.5rem] uppercase tracking-wide"
-        />
+        {/* ── curved text marquee — cream background strip ── */}
+        <section className="bg-elite-cream w-full py-2">
+          <CurvedLoop
+            marqueeText="Great Coffee ✦ Elite Vibes ✦ Faiyum ✦ Handcrafted Drinks ✦ Made With Love ✦"
+            speed={1.5}
+            curveAmount={90}
+            direction="left"
+            interactive={true}
+            svgHeightClass="h-20 sm:h-28 md:h-36 lg:h-44"
+            className="fill-elite-burgundy font-bebas text-[2.2rem] sm:text-[3rem] md:text-[4.5rem] uppercase tracking-wide"
+          />
+        </section>
 
         {/* ② What are you craving? */}
         <MenuPreview />
@@ -143,10 +146,16 @@ export default function LandingPage() {
         {/* ⑦ Rewards & join — cream (same bg, no wave needed) */}
         <LoyaltyTeaser />
 
+        {/* ── cream section bridge ── */}
+        <CreamSectionBridge />
+
+        {/* ⑧ Instagram gallery — cream */}
+        <InstagramGallery />
+
         {/* ── cream → white ── */}
         <WaveCreamToWhiteBg />
 
-        {/* ⑧ Visit us — white */}
+        {/* ⑨ Visit us — white */}
         <LocationBar />
 
         {/* ── white → burgundy (into footer) ── */}

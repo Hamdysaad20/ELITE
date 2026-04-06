@@ -2001,5 +2001,12 @@
     "hours": "٨ ص - ٣ م يوميًا",
     "getDirections": "احصل على الاتجاهات",
     "messageUs": "راسلنا"
+  },
+  "instagramGallery": {
+    "title": "شوفنا على إنستغرام",
+    "subtitle": "لحظات حقيقية من مكاننا — تابعونا لأحدث المشروبات والأجواء وصور العملاء.",
+    "followPrompt": "انضم إلينا على إنستغرام",
+    "cta": "تابع @officieleliteeg",
+    "handle": "@officieleliteeg على إنستغرام"
   }
 }
