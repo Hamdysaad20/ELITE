@@ -30,11 +30,13 @@ export async function GET(
 
     let order = await prisma.order.findFirst({
       where: { id, userId },
-      select: {
-        id: true,
-        saleOrderId: true,
-        posOrderId: true,
-        odooWebUrl: true,
+        select: {
+          id: true,
+          clientOrderRef: true,
+          notes: true,
+          saleOrderId: true,
+          posOrderId: true,
+          odooWebUrl: true,
         odooStatusSale: true,
         odooStatusPos: true,
         status: true,
@@ -109,6 +111,8 @@ export async function GET(
               },
               select: {
                 id: true,
+                clientOrderRef: true,
+                notes: true,
                 saleOrderId: true,
                 posOrderId: true,
                 odooWebUrl: true,
@@ -125,7 +129,8 @@ export async function GET(
 
             await notifyOrderStatusChange({
               orderId: order.id,
-              userId: order.userId,
+              existingNotes: order.notes,
+              clientOrderRef: order.clientOrderRef,
               previousStatus,
               nextStatus,
               source: "odoo-poll",

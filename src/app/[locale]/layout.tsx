@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import ClientBody from "@/app/ClientBody";
 import { ErrorBoundary } from "@/components/ui";
@@ -46,13 +45,9 @@ export default async function LocaleLayout({
   const locale: Locale = isLocale(localeParam) ? localeParam : "en";
   if (!locales.includes(locale)) notFound();
 
-  const messages = await getMessages({ locale });
-
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <ErrorBoundary>
-        <ClientBody>{children}</ClientBody>
-      </ErrorBoundary>
-    </NextIntlClientProvider>
+    <ErrorBoundary>
+      <ClientBody>{children}</ClientBody>
+    </ErrorBoundary>
   );
 }

@@ -15,6 +15,8 @@ export default function LovedByLocals() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("lovedByLocals");
   const { products, loading, error, isPersonalized } = useRecommendedProducts();
+  const getProductCategoryHref = (categoryId?: string) =>
+    categoryId ? `/menu/${categoryId}` : "/menu";
 
   const hasReadyProducts = !loading && products.length > 0;
 
@@ -147,7 +149,7 @@ export default function LovedByLocals() {
                 {products.map((product, index) => (
                   <LocalizedLink
                     key={product.id}
-                    href={`/menu/${product.category?.toLowerCase().replace(/\s+/g, "-") || ""}`}
+                    href={getProductCategoryHref(product.categoryId)}
                     className="min-w-[160px] max-w-[180px] flex-shrink-0 snap-start"
                   >
                     <div
@@ -188,7 +190,7 @@ export default function LovedByLocals() {
               {products.map((product, index) => (
                 <LocalizedLink
                   key={product.id}
-                  href={`/menu/${product.category?.toLowerCase().replace(/\s+/g, "-") || ""}`}
+                  href={getProductCategoryHref(product.categoryId)}
                   className="block"
                 >
                   <div
@@ -229,7 +231,7 @@ export default function LovedByLocals() {
               {products.map((product, index) => (
                 <LocalizedLink
                   key={product.id}
-                  href={`/menu/${product.category?.toLowerCase().replace(/\s+/g, "-") || ""}`}
+                  href={getProductCategoryHref(product.categoryId)}
                   className="block"
                 >
                   <div
