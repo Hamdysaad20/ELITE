@@ -214,9 +214,9 @@ export default function MenuPage() {
           </div>
 
           <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/10 bg-white/80 px-4 py-2 font-cabin text-[11px] font-bold uppercase tracking-[0.22em] text-elite-burgundy/72">
-              <Sparkles className="h-3.5 w-3.5" />
-              {t("title")}
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/10 bg-white/80 px-4 py-2 font-cabin text-xs font-bold uppercase tracking-[0.22em] text-elite-burgundy/72">
+              <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+              {t("sidebar.title")}
             </span>
             <h1 className="mb-4 font-calistoga text-3xl text-elite-black sm:text-4xl md:text-5xl lg:text-6xl">
               {t("title")}
