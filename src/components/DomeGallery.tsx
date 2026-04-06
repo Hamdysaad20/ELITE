@@ -123,7 +123,7 @@ export default function DomeGallery({
   maxVerticalRotationDeg = DEFAULTS.maxVerticalRotationDeg,
   dragSensitivity = DEFAULTS.dragSensitivity,
   enlargeTransitionMs = DEFAULTS.enlargeTransitionMs,
-  segments = DEFAULTS.segments,
+  segments: segmentsProp = DEFAULTS.segments,
   dragDampening = 2,
   openedImageWidth = "400px",
   openedImageHeight = "400px",
@@ -131,6 +131,11 @@ export default function DomeGallery({
   openedImageBorderRadius = "30px",
   grayscale = false,
 }: DomeGalleryProps) {
+  // Reduce segments on mobile for fewer DOM elements (175 → ~80 tiles)
+  const segments =
+    typeof window !== "undefined" && window.innerWidth < 768
+      ? Math.min(segmentsProp, 16)
+      : segmentsProp;
   const rootRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const sphereRef = useRef<HTMLDivElement>(null);
@@ -882,6 +887,8 @@ export default function DomeGallery({
                       src={it.src}
                       draggable={false}
                       alt={it.alt}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover pointer-events-none"
                       style={{
                         backfaceVisibility: "hidden",

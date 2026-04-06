@@ -55,6 +55,8 @@ export function CurvedLoop({
   const lastXRef = useRef(0);
   const dirRef = useRef<"left" | "right">(direction);
   const velRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isVisibleRef = useRef(true);
 
   const totalText = useMemo(() => {
     if (!spacing) return text;
@@ -78,12 +80,26 @@ export function CurvedLoop({
     setOffset(initial);
   }, [spacing]);
 
+  // Pause RAF when off-screen to save CPU
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     if (!spacing || !ready || prefersReduced) return;
 
     let frame: number;
     const step = () => {
-      if (!dragRef.current && textPathRef.current) {
+      if (!dragRef.current && textPathRef.current && isVisibleRef.current) {
         const delta = dirRef.current === "right" ? speed : -speed;
         const current = parseFloat(
           textPathRef.current.getAttribute("startOffset") ?? "0",
@@ -133,6 +149,7 @@ export function CurvedLoop({
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "flex w-full items-center justify-center",
         !ready && "invisible",

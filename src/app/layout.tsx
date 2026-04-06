@@ -4,7 +4,6 @@ import {
   Calistoga,
   Cairo,
   Bebas_Neue,
-  Tajawal,
   Readex_Pro,
 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -38,15 +37,6 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-bebas",
-  display: "swap",
-});
-
-// Tajawal — Arabic display font for hero text
-// Better kashida glyph support than Cairo at large display sizes
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "700", "800", "900"],
-  variable: "--font-tajawal",
   display: "swap",
 });
 
@@ -99,7 +89,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={direction}
-      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${tajawal.variable} ${readexPro.variable}`}
+      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${readexPro.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>

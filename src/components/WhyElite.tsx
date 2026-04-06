@@ -38,26 +38,27 @@ export default function WhyElite() {
 
   useEffect(() => {
     const section = sectionRef.current;
-    const blobs = blobRefs.current.filter(Boolean);
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (!section || prefersReduced) return;
 
-    const triggers = blobs.map((blob, i) =>
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1.2,
-        onUpdate: (self) => {
-          const speed = [0.22, -0.16, 0.1][i % 3];
-          gsap.set(blob, { y: self.progress * 60 * speed });
-        },
-      }),
-    );
+    const ctx = gsap.context(() => {
+      blobRefs.current.filter(Boolean).forEach((blob, i) => {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1.2,
+          onUpdate: (self) => {
+            const speed = [0.22, -0.16, 0.1][i % 3];
+            gsap.set(blob, { y: self.progress * 60 * speed });
+          },
+        });
+      });
+    }, sectionRef);
 
-    return () => triggers.forEach((tr) => tr.kill());
+    return () => ctx.revert();
   }, []);
 
   return (

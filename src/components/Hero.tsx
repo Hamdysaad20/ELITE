@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 const HERO_SLIDES = [
   {
     // Subject (face + cup) at ~44 % of image width
-    src: "/images/HQ16by9/MenaCloseMatcha.png",
+    src: "/images/HQ16by9/MenaCloseMatcha.jpg",
     alt: "Elite Coffee — Faiyum, Egypt",
     ltr: {
       mobile: "object-[27%_18%]",
@@ -34,7 +34,7 @@ const HERO_SLIDES = [
   },
   {
     // Subject (drink) at ~30 % of image width (LEFT-biased composition)
-    src: "/images/HQ16by9/MICRO_LEFT_bobaspanish.png",
+    src: "/images/HQ16by9/MICRO_LEFT_bobaspanish.jpg",
     alt: "Elite Coffee — Spanish Boba",
     ltr: {
       mobile: "object-[2%_22%]",
@@ -49,7 +49,7 @@ const HERO_SLIDES = [
   },
   {
     // Subject (model) at ~50 % of image width
-    src: "/images/HQ16by9/ModelHolding.png",
+    src: "/images/HQ16by9/ModelHolding.jpg",
     alt: "Elite Coffee — Signature Drinks",
     ltr: {
       mobile: "object-[38%_18%]",
@@ -88,6 +88,7 @@ export default function Hero() {
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const currentSlide = useRef(0);
   const carouselTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isVisibleRef = useRef(true);
 
   const [activeSlide, setActiveSlide] = useState(0);
   const t = useTranslations("hero");
@@ -125,65 +126,68 @@ export default function Hero() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    // Initialize slide opacities
-    slideRefs.current.forEach((slide, i) => {
-      if (slide) gsap.set(slide, { opacity: i === 0 ? 1 : 0 });
-    });
-
-    if (reduced) {
-      gsap.set([eyebrowRef.current, bottomRef.current], { opacity: 1, y: 0 });
-      gsap.set(titleRef.current?.querySelectorAll(".hero-word") ?? [], {
-        opacity: 1,
-        y: 0,
-        rotateX: 0,
+    const ctx = gsap.context(() => {
+      // Initialize slide opacities
+      slideRefs.current.forEach((slide, i) => {
+        if (slide) gsap.set(slide, { opacity: i === 0 ? 1 : 0 });
       });
-    } else {
-      gsap.set(eyebrowRef.current, { opacity: 0, y: -14 });
-      gsap.set(titleRef.current?.querySelectorAll(".hero-word") ?? [], {
-        opacity: 0,
-        y: 72,
-        rotateX: -38,
-      });
-      gsap.set(bottomRef.current, { opacity: 0, y: 28 });
 
-      const tl = gsap.timeline({ delay: 0.06 });
-      tl.to(
-        eyebrowRef.current,
-        { opacity: 1, y: 0, duration: 0.58, ease: "power3.out" },
-        0,
-      );
-      tl.to(
-        titleRef.current?.querySelectorAll(".hero-word") ?? [],
-        {
+      if (reduced) {
+        gsap.set([eyebrowRef.current, bottomRef.current], { opacity: 1, y: 0 });
+        gsap.set(titleRef.current?.querySelectorAll(".hero-word") ?? [], {
           opacity: 1,
           y: 0,
           rotateX: 0,
-          duration: 0.88,
-          ease: "power3.out",
-          stagger: 0.06,
-        },
-        0.14,
-      );
-      tl.to(
-        bottomRef.current,
-        { opacity: 1, y: 0, duration: 0.72, ease: "power3.out" },
-        0.5,
-      );
-
-      if (section && photoRef.current) {
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1.8,
-          onUpdate: (self) =>
-            gsap.set(photoRef.current, { y: self.progress * 65 }),
         });
-      }
-    }
+      } else {
+        gsap.set(eyebrowRef.current, { opacity: 0, y: -14 });
+        gsap.set(titleRef.current?.querySelectorAll(".hero-word") ?? [], {
+          opacity: 0,
+          y: 72,
+          rotateX: -38,
+        });
+        gsap.set(bottomRef.current, { opacity: 0, y: 28 });
 
-    // Auto-advance carousel every 5 s with 1.3 s crossfade
+        const tl = gsap.timeline({ delay: 0.06 });
+        tl.to(
+          eyebrowRef.current,
+          { opacity: 1, y: 0, duration: 0.58, ease: "power3.out" },
+          0,
+        );
+        tl.to(
+          titleRef.current?.querySelectorAll(".hero-word") ?? [],
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.88,
+            ease: "power3.out",
+            stagger: 0.06,
+          },
+          0.14,
+        );
+        tl.to(
+          bottomRef.current,
+          { opacity: 1, y: 0, duration: 0.72, ease: "power3.out" },
+          0.5,
+        );
+
+        if (section && photoRef.current) {
+          ScrollTrigger.create({
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.8,
+            onUpdate: (self) =>
+              gsap.set(photoRef.current, { y: self.progress * 65 }),
+          });
+        }
+      }
+    }, sectionRef);
+
+    // Auto-advance carousel every 5 s with 1.3 s crossfade (pauses when off-screen)
     const advance = () => {
+      if (!isVisibleRef.current) return;
       const prev = currentSlide.current;
       const next = (prev + 1) % HERO_SLIDES.length;
       currentSlide.current = next;
@@ -198,11 +202,19 @@ export default function Hero() {
 
     carouselTimer.current = setInterval(advance, 5000);
 
+    // Pause carousel when hero scrolls off-screen
+    const visObs = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    if (section) visObs.observe(section);
+
     return () => {
       if (carouselTimer.current) clearInterval(carouselTimer.current);
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === section) st.kill();
-      });
+      visObs.disconnect();
+      ctx.revert();
     };
   }, []);
 

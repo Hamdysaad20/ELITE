@@ -23,7 +23,7 @@ const STEPS = [
     key: "order" as const,
     number: "02",
     href: "/menu",
-    image: "/images/HQ16by9/ModelHolding.png",
+    image: "/images/HQ16by9/ModelHolding.jpg",
     objPos: "center 42%",
   },
   {

@@ -10,7 +10,7 @@ import { useLandingReveal } from "@/hooks/useLandingReveal";
 const PICKS = [
   {
     key: "signatureMilkshake" as const,
-    image: "/images/HQ16by9/MICROTalentCenteredMILKSHAKE.png",
+    image: "/images/HQ16by9/MICROTalentCenteredMILKSHAKE.jpg",
     objectPosition: "center 35%",
   },
   {
@@ -25,7 +25,7 @@ const PICKS = [
   },
   {
     key: "goldenBoba" as const,
-    image: "/images/HQ16by9/ModelHolding.png",
+    image: "/images/HQ16by9/ModelHolding.jpg",
     objectPosition: "center 42%",
   },
 ] as const;

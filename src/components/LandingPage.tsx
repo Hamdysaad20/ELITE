@@ -3,8 +3,48 @@
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import { CurvedLoop } from "@/components/CurvedLoop";
-import { InstagramGallery } from "@/components/InstagramGallery";
+import { LazySection } from "@/components/LazySection";
 
+/* ── Skeleton placeholders for deferred sections ── */
+
+function SectionSkeleton({ className }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={`animate-pulse ${className ?? ""}`}>
+      <div className="mx-auto max-w-4xl px-4 py-10 space-y-4">
+        <div className="mx-auto h-8 w-48 rounded-lg bg-current opacity-[0.07]" />
+        <div className="mx-auto h-4 w-72 rounded bg-current opacity-[0.05]" />
+      </div>
+    </div>
+  );
+}
+
+function GallerySkeleton() {
+  return (
+    <section className="bg-elite-cream">
+      <SectionSkeleton className="text-elite-burgundy" />
+      <div className="h-[clamp(380px,55vw,680px)]" />
+    </section>
+  );
+}
+
+function LocationSkeleton() {
+  return (
+    <section className="bg-white px-4 py-16 sm:py-24">
+      <SectionSkeleton className="text-elite-black" />
+      <div className="mx-auto max-w-6xl h-[420px] rounded-[2.5rem] bg-elite-cream/30 animate-pulse" />
+    </section>
+  );
+}
+
+function FooterSkeleton() {
+  return (
+    <footer className="bg-elite-burgundy min-h-[300px]">
+      <SectionSkeleton className="text-white" />
+    </footer>
+  );
+}
+
+/* ── Above-fold: SSR + eager ── */
 const MenuPreview = dynamic(() => import("@/components/MenuPreview"), {
   ssr: true,
 });
@@ -14,17 +54,32 @@ const HowItWorks = dynamic(() => import("@/components/HowItWorks"), {
 const SignaturePicks = dynamic(() => import("@/components/SignaturePicks"), {
   ssr: true,
 });
+
+/* ── Below-fold: client-only, deferred ── */
 const LovedByLocals = dynamic(() => import("@/components/LovedByLocals"), {
-  ssr: true,
+  ssr: false,
 });
-const WhyElite = dynamic(() => import("@/components/WhyElite"), { ssr: true });
+const WhyElite = dynamic(() => import("@/components/WhyElite"), {
+  ssr: false,
+});
 const LoyaltyTeaser = dynamic(() => import("@/components/LoyaltyTeaser"), {
-  ssr: true,
+  ssr: false,
 });
+const InstagramGallery = dynamic(
+  () =>
+    import("@/components/InstagramGallery").then((m) => ({
+      default: m.InstagramGallery,
+    })),
+  { ssr: false, loading: () => <GallerySkeleton /> },
+);
 const LocationBar = dynamic(() => import("@/components/LocationBar"), {
-  ssr: true,
+  ssr: false,
+  loading: () => <LocationSkeleton />,
 });
-const Footer = dynamic(() => import("@/components/Footer"), { ssr: true });
+const Footer = dynamic(() => import("@/components/Footer"), {
+  ssr: false,
+  loading: () => <FooterSkeleton />,
+});
 
 /* ── Wave dividers for smooth section transitions ── */
 
@@ -129,34 +184,86 @@ export default function LandingPage() {
         <WaveCreamToWhiteBg />
 
         {/* ④ Signature picks — white */}
-        <SignaturePicks />
+        <LazySection
+          rootMargin="400px"
+          minHeight="600px"
+          fallback={
+            <div className="bg-white min-h-[600px]">
+              <SectionSkeleton className="text-elite-black" />
+            </div>
+          }
+        >
+          <SignaturePicks />
+        </LazySection>
 
         {/* ── white → burgundy ── */}
         <WaveWhiteToBurgundy />
 
         {/* ⑤ Why Elite — burgundy */}
-        <WhyElite />
+        <LazySection
+          rootMargin="400px"
+          minHeight="500px"
+          fallback={
+            <div className="bg-elite-burgundy min-h-[500px]">
+              <SectionSkeleton className="text-elite-cream" />
+            </div>
+          }
+        >
+          <WhyElite />
+        </LazySection>
 
         {/* ── burgundy → cream ── */}
         <WaveBurgundyToCreamy />
 
         {/* ⑥ Loved by locals — cream */}
-        <LovedByLocals />
+        <LazySection
+          rootMargin="300px"
+          minHeight="500px"
+          fallback={
+            <div className="bg-elite-cream min-h-[500px]">
+              <SectionSkeleton className="text-elite-burgundy" />
+            </div>
+          }
+        >
+          <LovedByLocals />
+        </LazySection>
 
         {/* ⑦ Rewards & join — cream (same bg, no wave needed) */}
-        <LoyaltyTeaser />
+        <LazySection
+          rootMargin="300px"
+          minHeight="600px"
+          fallback={
+            <div className="bg-elite-cream min-h-[600px]">
+              <SectionSkeleton className="text-elite-burgundy" />
+            </div>
+          }
+        >
+          <LoyaltyTeaser />
+        </LazySection>
 
         {/* ── cream section bridge ── */}
         <CreamSectionBridge />
 
         {/* ⑧ Instagram gallery — cream */}
-        <InstagramGallery />
+        <LazySection
+          rootMargin="200px"
+          minHeight="600px"
+          fallback={<GallerySkeleton />}
+        >
+          <InstagramGallery />
+        </LazySection>
 
         {/* ── cream → white ── */}
         <WaveCreamToWhiteBg />
 
         {/* ⑨ Visit us — white */}
-        <LocationBar />
+        <LazySection
+          rootMargin="200px"
+          minHeight="500px"
+          fallback={<LocationSkeleton />}
+        >
+          <LocationBar />
+        </LazySection>
 
         {/* ── white → burgundy (into footer) ── */}
         <WaveWhiteToBurgundy />

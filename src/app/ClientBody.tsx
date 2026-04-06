@@ -105,7 +105,7 @@ export default function ClientBody({
 
   return (
     <AuthProvider>
-      <OrderingProvider>
+      <OrderingProvider lazy={isLandingPage || isAuthPage}>
         <NetworkStatus />
         {!isAuthPage && (
           <>
