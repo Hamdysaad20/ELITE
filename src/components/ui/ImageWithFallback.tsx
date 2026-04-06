@@ -5,6 +5,17 @@ import Image from "next/image";
 import { ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Remember failed sources across component mounts to avoid repeated 404 spam.
+const globalFailedSrcs = new Set<string>();
+
+function toFailureKey(src: string): string {
+  // Normalize Old Items URLs so cache-buster query params don't cause retries.
+  if (src.startsWith("/Old Items/")) {
+    return src.split("?")[0];
+  }
+  return src;
+}
+
 interface ImageWithFallbackProps {
   src?: string | string[];
   alt: string;
@@ -22,7 +33,7 @@ interface ImageWithFallbackProps {
   sizes?: string;
 }
 
-const DEFAULT_FALLBACK = "/images/placeholder.svg";
+const DEFAULT_FALLBACK = "/images/PRINTING_CUP.png";
 
 export default function ImageWithFallback({
   src,
@@ -42,18 +53,20 @@ export default function ImageWithFallback({
 }: ImageWithFallbackProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hasGlobalError, setHasGlobalError] = useState(false);
-  const [failedSrcs, setFailedSrcs] = useState<Set<string>>(new Set());
+  const [failedSrcs, setFailedSrcs] = useState<Set<string>>(
+    () => new Set(globalFailedSrcs),
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   // Handle multiple images - create array
   const rawImages = Array.isArray(src) ? src : src ? [src] : [];
   // Filter out images that have failed to load
-  const images = rawImages.filter((img) => !failedSrcs.has(img));
+  const images = rawImages.filter((img) => !failedSrcs.has(toFailureKey(img)));
 
   // Reset failure state if src prop changes entirely (optional, but good practice)
   const rawImagesKey = JSON.stringify(rawImages);
   useEffect(() => {
-    setFailedSrcs(new Set());
+    setFailedSrcs(new Set(globalFailedSrcs));
     setHasGlobalError(false);
     setCurrentImageIndex(0);
   }, [rawImagesKey]);
@@ -75,9 +88,11 @@ export default function ImageWithFallback({
   const handleError = () => {
     if (currentSrc) {
       console.warn(`Image load failed: ${currentSrc}`);
+      const failureKey = toFailureKey(currentSrc);
+      globalFailedSrcs.add(failureKey);
       setFailedSrcs((prev) => {
         const next = new Set(prev);
-        next.add(currentSrc);
+        next.add(failureKey);
         return next;
       });
       // Reset loading to allow next image to try loading
@@ -133,6 +148,7 @@ export default function ImageWithFallback({
 
   // Check if image is base64
   const isBase64 = currentSrc.startsWith("data:");
+  const isOldItemsPath = currentSrc.startsWith("/Old Items/");
 
   return (
     <div className={cn("relative", fill && "w-full h-full")}>
@@ -184,6 +200,7 @@ export default function ImageWithFallback({
           onLoad={handleLoad}
           quality={quality}
           sizes={sizes}
+          unoptimized={isOldItemsPath}
         />
       )}
 

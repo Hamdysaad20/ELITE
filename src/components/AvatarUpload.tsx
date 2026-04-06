@@ -100,9 +100,8 @@ export default function AvatarUpload({
       // Update session with new image
       await update({ image: data.imageUrl });
 
-      // Close modal and refresh
+      // Close modal after session is updated
       onClose();
-      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload avatar");
     } finally {
@@ -130,9 +129,8 @@ export default function AvatarUpload({
       // Update session
       await update({ image: null });
 
-      // Close modal and refresh
+      // Close modal after session is updated
       onClose();
-      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove avatar");
     } finally {

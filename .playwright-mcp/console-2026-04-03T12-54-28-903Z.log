@@ -1,0 +1,54 @@
+[   17197ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[   17750ms] [LOG] [Fast Refresh] done in 557ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[   65124ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[   81514ms] Unexpected end of input
+[   85917ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   89819ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LovedByLocals_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_Footer_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LocationBar_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_HowItWorks_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_WhyElite_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LoyaltyTeaser_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_MenuPreview_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[   89820ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_SignaturePicks_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  206093ms] [ERROR] %o
+
+%s ChunkLoadError: Loading chunk app/[locale]/page failed.
+(timeout: http://localhost:3000/_next/static/chunks/app/%5Blocale%5D/page.js)
+    at __webpack_require__.f.j (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:838:29)
+    at http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:145:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:144:67)
+    at fn.e (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:369:50)
+    at loadChunk (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:113:34)
+    at preloadModule (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:82:31)
+    at resolveModule (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2078:20)
+    at processFullStringRow (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2769:11)
+    at processFullBinaryRow (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2764:7)
+    at processBinaryChunk (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2967:15)
+    at progress (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:3231:13) The above error occurred in the <ClientPageRoot> component. It was handled by the <ErrorBoundary> error boundary. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/react-client-callbacks/error-boundary-callbacks.js:67
+[  206106ms] [ERROR] ErrorBoundary caught an error: ChunkLoadError: Loading chunk app/[locale]/page failed.
+(timeout: http://localhost:3000/_next/static/chunks/app/%5Blocale%5D/page.js)
+    at __webpack_require__.f.j (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:838:29)
+    at http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:145:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:144:67)
+    at fn.e (http://localhost:3000/_next/static/chunks/webpack.js?v=1775220924012:369:50)
+    at loadChunk (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:113:34)
+    at preloadModule (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:82:31)
+    at resolveModule (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2078:20)
+    at processFullStringRow (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2769:11)
+    at processFullBinaryRow (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2764:7)
+    at processBinaryChunk (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2967:15)
+    at progress (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:3231:13) {componentStack: 
+    at ClientPageRoot (<anonymous>)
+    at Segmen…ode_modules/next/dist/client/app-index.js:156:11)} @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LovedByLocals_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_Footer_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LocationBar_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_HowItWorks_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_WhyElite_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_LoyaltyTeaser_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_MenuPreview_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  209884ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_SignaturePicks_tsx.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/ar:0
+[  293947ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630

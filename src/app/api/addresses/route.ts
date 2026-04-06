@@ -81,7 +81,6 @@ export async function POST(req: NextRequest) {
       apartment,
       city,
       state,
-      zipCode,
       country = "Egypt",
       phone,
       notes,
@@ -141,7 +140,6 @@ export async function POST(req: NextRequest) {
       apartment,
       city,
       state,
-      zipCode,
       country,
       notes,
     });
@@ -154,7 +152,6 @@ export async function POST(req: NextRequest) {
         apartment: sanitizedData.apartment as string | null | undefined,
         city: sanitizedData.city as string,
         state: sanitizedData.state as string | null | undefined,
-        zipCode: sanitizedData.zipCode as string | null | undefined,
         country: sanitizedData.country as string,
         phone: phone ? sanitizePhone(phone as string) : null,
         notes: sanitizedData.notes as string | null | undefined,
@@ -173,7 +170,6 @@ export async function POST(req: NextRequest) {
           phone: address.phone || undefined,
           street: `${address.street}${address.apartment ? ", " + address.apartment : ""}`,
           city: address.city,
-          zip: address.zipCode || undefined,
         });
         console.log(`✅ Address synced to Odoo for user ${session.user.id}`);
       }

@@ -7,7 +7,10 @@ import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
 import { cn } from "@/lib/utils";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
-import { getLocalProductImageCandidates, sanitizeImages } from "@/lib/imageUtils";
+import {
+  getLocalProductImageCandidates,
+  sanitizeImages,
+} from "@/lib/imageUtils";
 import { useFormatter, useTranslations } from "next-intl";
 import { useOrdering } from "@/context/OrderingContext";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
@@ -175,7 +178,7 @@ export default function ProductModal({
                     )}
                   >
                     <ImageWithFallback
-                      src={[...localImages, ...validImages]}
+                      src={[...validImages, ...localImages]}
                       alt={product.name}
                       className="w-full h-full object-contain sm:object-cover"
                       objectFit="cover"
@@ -303,7 +306,8 @@ export default function ProductModal({
               <>
                 <ShoppingBag className="w-5 h-5" />
                 <span>
-                  {orderingEnabled ? "Add to Order" : "Notify me"} • {formatPrice(totalPrice)}
+                  {orderingEnabled ? "Add to Order" : "Notify me"} •{" "}
+                  {formatPrice(totalPrice)}
                 </span>
               </>
             )}

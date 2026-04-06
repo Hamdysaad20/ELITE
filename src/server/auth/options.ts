@@ -21,6 +21,10 @@ const EMAIL_SERVER_PASSWORD = process.env.EMAIL_SERVER_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@example.com";
 const BRAND_NAME = process.env.BRAND_NAME || "Elite Coffee Shop";
 
+const globalForAuthLogs = globalThis as unknown as {
+  __emailConfigLogged?: boolean;
+};
+
 function ensureDevNextAuthUrl() {
   // In local/dev, we want NextAuth to generate URLs (magic links, callbacks)
   // for the current dev server rather than a production NEXTAUTH_URL that may
@@ -59,16 +63,29 @@ if (
 }
 
 // Log email configuration status only in development to avoid noisy build/prod logs.
-if (typeof window === "undefined" && process.env.NODE_ENV === "development") {
-  console.log("📧 Email Configuration Check:");
-  console.log("  EMAIL_SERVER_HOST:", EMAIL_SERVER_HOST ? "✅" : "❌ MISSING");
-  console.log("  EMAIL_SERVER_PORT:", EMAIL_SERVER_PORT);
-  console.log("  EMAIL_SERVER_USER:", EMAIL_SERVER_USER ? "✅" : "❌ MISSING");
-  console.log(
-    "  EMAIL_SERVER_PASSWORD:",
-    EMAIL_SERVER_PASSWORD ? "✅" : "❌ MISSING",
-  );
-  console.log("  EMAIL_FROM:", EMAIL_FROM);
+if (
+  typeof window === "undefined" &&
+  process.env.NODE_ENV === "development" &&
+  process.env.AUTH_DEBUG_EMAIL_CONFIG === "true"
+) {
+  if (!globalForAuthLogs.__emailConfigLogged) {
+    console.log("📧 Email Configuration Check:");
+    console.log(
+      "  EMAIL_SERVER_HOST:",
+      EMAIL_SERVER_HOST ? "✅" : "❌ MISSING",
+    );
+    console.log("  EMAIL_SERVER_PORT:", EMAIL_SERVER_PORT);
+    console.log(
+      "  EMAIL_SERVER_USER:",
+      EMAIL_SERVER_USER ? "✅" : "❌ MISSING",
+    );
+    console.log(
+      "  EMAIL_SERVER_PASSWORD:",
+      EMAIL_SERVER_PASSWORD ? "✅" : "❌ MISSING",
+    );
+    console.log("  EMAIL_FROM:", EMAIL_FROM);
+    globalForAuthLogs.__emailConfigLogged = true;
+  }
 }
 
 // Create email transporter only if all credentials are provided
@@ -275,6 +292,11 @@ export function getAuthOptions(): NextAuthOptions {
       async session({ session, token }) {
         if (token.sub && session.user) {
           session.user.id = token.sub;
+          session.user.email =
+            (token.email as string | null | undefined) ?? null;
+          session.user.name = (token.name as string | null | undefined) ?? null;
+          session.user.image =
+            (token.image as string | null | undefined) ?? null;
           session.user.role = (token.role as string) || "user";
           session.user.status = (token.status as string) || "active";
         }
@@ -286,6 +308,7 @@ export function getAuthOptions(): NextAuthOptions {
           token.sub = user.id;
           token.email = user.email;
           token.name = user.name || undefined;
+          token.image = user.image || undefined;
 
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
@@ -321,6 +344,7 @@ export function getAuthOptions(): NextAuthOptions {
               select: {
                 email: true,
                 name: true,
+                image: true,
                 role: true,
                 status: true,
                 emailVerified: true,
@@ -330,6 +354,7 @@ export function getAuthOptions(): NextAuthOptions {
             if (dbUser) {
               token.email = dbUser.email;
               token.name = dbUser.name;
+              token.image = dbUser.image;
               token.role = dbUser.role;
               token.status = dbUser.status;
               token.emailVerified = dbUser.emailVerified;

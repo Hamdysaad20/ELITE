@@ -167,7 +167,6 @@ export class PaymentService {
       apartment: string | null;
       city: string;
       state: string | null;
-      zipCode: string | null;
       country: string;
       phone: string | null;
     } | null;
@@ -218,7 +217,7 @@ export class PaymentService {
       building: "0",
       phone_number: normalizedPhone,
       shipping_method: "PKG",
-      postal_code: address.zipCode || "",
+      postal_code: "",
       city: address.city,
       country: address.country || "Egypt",
       last_name: lastName,
@@ -366,7 +365,6 @@ export class PaymentService {
               undefined,
             street: orderWithRelations.address?.street || undefined,
             city: orderWithRelations.address?.city || undefined,
-            zip: orderWithRelations.address?.zipCode || undefined,
           },
           enableSale: true,
           autoConfirm: false,

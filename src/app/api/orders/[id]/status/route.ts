@@ -8,6 +8,16 @@ import {
 } from "@/server/utils/apiHelpers";
 import { getAuthUser } from "@/server/auth/session";
 import { awardOrderPoints } from "@/server/services/loyalty";
+import { notifyOrderStatusChange } from "@/server/services/orderStatusNotifications";
+import { createOdooClient, isOdooConfigured } from "@/server/utils/odooClient";
+import {
+  mapPosStateToOrderStatus,
+  mapSaleStateToOrderStatus,
+  normalizeOrderStatus,
+  resolveOrderStatusPriority,
+  getAcceptedOrderStatusValues,
+  isFinalOrderStatus,
+} from "@/lib/orderStatus";
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +28,7 @@ export async function GET(
     const authUser = await getAuthUser(request);
     const userId = authUser?.id || getUserId(request);
 
-    const order = await prisma.order.findFirst({
+    let order = await prisma.order.findFirst({
       where: { id, userId },
       select: {
         id: true,
@@ -30,6 +40,7 @@ export async function GET(
         status: true,
         paymentStatus: true,
         paymentMethod: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -44,10 +55,98 @@ export async function GET(
       return jsonResponse(errorResponse("Order not found"), 404);
     }
 
+    // Auto-sync local status from Odoo whenever IDs are present and order is not in a terminal state.
+    if (
+      isOdooConfigured() &&
+      (order.saleOrderId || order.posOrderId) &&
+      !isFinalOrderStatus(normalizeOrderStatus(order.status))
+    ) {
+      try {
+        const client = createOdooClient();
+        if (client) {
+          const sale = order.saleOrderId
+            ? await client.getSaleOrderStatus(order.saleOrderId)
+            : null;
+          const pos = order.posOrderId
+            ? await client.getPosOrderStatus(order.posOrderId)
+            : null;
+
+          const deliveryRollup = order.saleOrderId
+            ? await client.getSaleOutgoingDeliveryRollup(order.saleOrderId)
+            : { states: [], rolledState: null as null };
+
+          let effectiveSaleState = sale?.state;
+          if (deliveryRollup.rolledState === "done") {
+            effectiveSaleState = "done";
+          } else if (deliveryRollup.rolledState === "cancel") {
+            effectiveSaleState = "cancel";
+          }
+
+          const saleMapped = mapSaleStateToOrderStatus(effectiveSaleState);
+          const posMapped = mapPosStateToOrderStatus(pos?.state);
+          const hasOdooMappedStatus = Boolean(saleMapped || posMapped);
+          const nextStatus = hasOdooMappedStatus
+            ? resolveOrderStatusPriority("PENDING", saleMapped, posMapped)
+            : normalizeOrderStatus(order.status);
+
+          const nextOdooSale =
+            effectiveSaleState || order.odooStatusSale || "pending";
+          const nextOdooPos = pos?.state || order.odooStatusPos || "pending";
+
+          if (
+            nextStatus !== order.status ||
+            nextOdooSale !== (order.odooStatusSale || "pending") ||
+            nextOdooPos !== (order.odooStatusPos || "pending")
+          ) {
+            const previousStatus = order.status;
+            const updated = await prisma.order.update({
+              where: { id: order.id },
+              data: {
+                status: nextStatus,
+                odooStatusSale: nextOdooSale,
+                odooStatusPos: nextOdooPos,
+                updatedAt: new Date(),
+              },
+              select: {
+                id: true,
+                saleOrderId: true,
+                posOrderId: true,
+                odooWebUrl: true,
+                odooStatusSale: true,
+                odooStatusPos: true,
+                status: true,
+                paymentStatus: true,
+                paymentMethod: true,
+                userId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            });
+
+            await notifyOrderStatusChange({
+              orderId: order.id,
+              userId: order.userId,
+              previousStatus,
+              nextStatus,
+              source: "odoo-poll",
+            });
+
+            order = updated;
+          }
+        }
+      } catch (syncErr) {
+        // Do not fail status endpoint when Odoo is temporarily unreachable.
+        console.warn(
+          `[orders/status] Odoo status sync skipped for ${id}:`,
+          syncErr,
+        );
+      }
+    }
+
     return jsonResponse(
       successResponse({
         id: order.id,
-        status: order.status,
+        status: normalizeOrderStatus(order.status),
         paymentStatus: order.paymentStatus,
         saleOrderId: order.saleOrderId,
         posOrderId: order.posOrderId,
@@ -83,16 +182,7 @@ export async function PATCH(
     const { status, paymentStatus } = body;
 
     // Validate status
-    const validStatuses = [
-      "PENDING",
-      "CONFIRMED",
-      "PREPARING",
-      "READY",
-      "DELIVERING",
-      "DELIVERED",
-      "COMPLETED",
-      "CANCELLED",
-    ];
+    const validStatuses = getAcceptedOrderStatusValues();
     if (status && !validStatuses.includes(status)) {
       return jsonResponse(
         errorResponse(
@@ -122,7 +212,7 @@ export async function PATCH(
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
-        ...(status && { status }),
+        ...(status && { status: normalizeOrderStatus(status) }),
         ...(paymentStatus && { paymentStatus }),
         updatedAt: new Date(),
       },
@@ -146,7 +236,9 @@ export async function PATCH(
     // For online payments, points are only awarded after payment is confirmed (PAID status)
     const isPaid = updatedOrder.paymentStatus === "PAID";
     const isCashPayment = updatedOrder.paymentMethod === "CASH";
-    const isCompleted = status && ["DELIVERED", "COMPLETED"].includes(status);
+    const isCompleted =
+      (status ? normalizeOrderStatus(status) : updatedOrder.status) ===
+      "DELIVERED";
 
     if (isCompleted && updatedOrder.userId && (isPaid || isCashPayment)) {
       const result = await awardOrderPoints(id, updatedOrder.userId);
@@ -206,7 +298,7 @@ export async function PATCH(
       successResponse(
         {
           id: updatedOrder.id,
-          status: updatedOrder.status,
+          status: normalizeOrderStatus(updatedOrder.status),
           paymentStatus: updatedOrder.paymentStatus,
           saleOrderId: updatedOrder.saleOrderId,
           posOrderId: updatedOrder.posOrderId,

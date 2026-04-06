@@ -12,6 +12,8 @@ import {
   Award,
   Settings,
   Camera,
+  Coffee,
+  ChevronRight,
 } from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
 import MobileHeader from "@/components/MobileHeader";
@@ -63,7 +65,11 @@ function ProfileContent() {
     ) {
       setActiveTab(tabParam);
       // Scroll to top of page when navigating via URL parameter
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        window.scrollTo(0, 0);
+      }
     }
   }, [searchParams]);
 
@@ -299,13 +305,32 @@ function ProfileContent() {
             )}
           </div>
 
+          {/* About Elite Coffee Link */}
+          <LocalizedLink
+            href="/about"
+            className="w-full bg-white rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-elite-burgundy/10 hover:border-elite-burgundy/20 active:scale-[0.98] flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 rounded-full bg-elite-burgundy/10 flex items-center justify-center flex-shrink-0">
+              <Coffee className="w-5 h-5 text-elite-burgundy" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-cabin font-semibold text-elite-black text-sm">
+                {t("aboutElite")}
+              </p>
+              <p className="font-cabin text-xs text-elite-black/50">
+                {t("aboutEliteDesc")}
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-elite-black/30 group-hover:text-elite-burgundy transition-colors flex-shrink-0" />
+          </LocalizedLink>
+
           {/* Sign Out Button */}
           <button
-          onClick={() => signOut({ callbackUrl: signOutRedirect })}
+            onClick={() => signOut({ callbackUrl: signOutRedirect })}
             className="w-full mt-4 bg-white text-red-600 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-all duration-300 border-2 border-red-100 hover:border-red-200 active:scale-[0.98] flex items-center justify-center gap-3 group"
           >
             <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          <span className="font-cabin font-semibold">{t("signOut")}</span>
+            <span className="font-cabin font-semibold">{t("signOut")}</span>
           </button>
         </div>
       </main>

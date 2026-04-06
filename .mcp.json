@@ -1,0 +1,67 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--output-dir", ".playwright-screenshots"],
+      "description": "Browser automation via accessibility tree — visual testing, layout verification, RTL checks"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Persistent knowledge graph across sessions — design decisions, component patterns, tech debt"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Structured step-by-step reasoning for complex architecture and UI decisions"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "Fetch any URL as markdown — scrape design references, docs, competitor sites"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/hamdysaad/ELITE", "/Users/hamdysaad/Desktop", "/tmp"],
+      "description": "Controlled filesystem access beyond project scope"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "description": "Live up-to-date docs for Next.js 15, Tailwind CSS, Framer Motion, GSAP, next-intl, Prisma"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "description": "PR reviews, cross-repo search, issue management"
+    },
+    "storybook": {
+      "command": "npx",
+      "args": ["-y", "@storybook/mcp"],
+      "env": {
+        "STORYBOOK_URL": "http://localhost:6006"
+      },
+      "description": "Component docs, props inspection, design system extraction"
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"],
+      "description": "shadcn/ui component installation, theming, and design system management"
+    },
+    "lighthouse": {
+      "command": "npx",
+      "args": ["-y", "@danielsogl/lighthouse-mcp@latest"],
+      "description": "Core Web Vitals (LCP/CLS/FID), performance budgets, SEO audits, accessibility scoring"
+    },
+    "accessibility": {
+      "command": "npx",
+      "args": ["-y", "a11ymcp"],
+      "description": "WCAG 2.0/2.1/2.2 (A/AA/AAA) audits via axe-core — color contrast, ARIA, keyboard nav"
+    },
+    "react-bits": {
+      "command": "npx",
+      "args": ["-y", "@reactbits/mcp@latest"],
+      "description": "React Bits animated components library — access high-quality, customizable React components for UI"
+    }
+  }
+}

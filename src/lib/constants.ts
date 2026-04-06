@@ -65,8 +65,8 @@ export const FEATURES = {
 // Theme Configuration
 export const THEME_CONFIG = {
   COLORS: {
-    PRIMARY: "#8B0000", // elite-burgundy
-    SECONDARY: "#FDF5E6", // elite-cream
+    PRIMARY: "#8b2635", // elite-burgundy
+    SECONDARY: "#f8f0d2", // elite-cream
     SUCCESS: "#10B981",
     WARNING: "#F59E0B",
     ERROR: "#EF4444",
@@ -90,6 +90,12 @@ export const MENU_CONFIG = {
   },
   DEFAULT_SIZE: "Medium",
   IMAGE_PLACEHOLDER: "/images/placeholder.jpg",
+} as const;
+
+// Canonical menu endpoints used across marketing and navigation surfaces
+export const MENU_ENDPOINTS = {
+  SPECIAL: "/menu/special-drinks",
+  KIDS: "/menu/kids-corner",
 } as const;
 
 // Validation Rules

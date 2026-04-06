@@ -77,11 +77,11 @@ export default function QuantitySelector({
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="font-cabin text-elite-black/70 font-medium text-lg">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <span className="font-cabin text-elite-black/70 font-semibold text-base sm:text-lg tracking-wide">
         Quantity:
       </span>
-      <div className="flex items-center gap-2 bg-transparent rounded-xl border border-elite-burgundy/20 overflow-hidden">
+      <div className="flex items-center bg-white/45 rounded-2xl border border-elite-burgundy/20 overflow-hidden shadow-sm">
         <button
           onClick={handleDecrement}
           disabled={disabled || value <= min}
@@ -89,7 +89,7 @@ export default function QuantitySelector({
             disabled || value <= min
               ? "text-elite-black/20 cursor-not-allowed"
               : "text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20"
-          }`}
+          } border-0 outline-none focus-visible:ring-2 focus-visible:ring-elite-burgundy/40 focus-visible:ring-inset touch-manipulation w-11 h-11 flex items-center justify-center`}
           aria-label="Decrease quantity"
         >
           <Minus className="w-5 h-5" />
@@ -102,7 +102,7 @@ export default function QuantitySelector({
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
           disabled={disabled}
-          className="w-16 text-center font-cabin font-bold text-xl text-elite-burgundy bg-transparent focus:outline-none focus:bg-elite-cream/50 transition-colors disabled:text-elite-black/30"
+          className="w-14 sm:w-16 text-center font-cabin font-bold text-lg sm:text-xl text-elite-burgundy bg-transparent border-x border-elite-burgundy/15 focus:outline-none focus:bg-elite-cream/50 transition-colors disabled:text-elite-black/30"
           aria-label="Quantity"
         />
 
@@ -113,7 +113,7 @@ export default function QuantitySelector({
             disabled || value >= max
               ? "text-elite-black/20 cursor-not-allowed"
               : "text-elite-burgundy hover:bg-elite-burgundy/10 active:bg-elite-burgundy/20"
-          }`}
+          } border-0 outline-none focus-visible:ring-2 focus-visible:ring-elite-burgundy/40 focus-visible:ring-inset touch-manipulation w-11 h-11 flex items-center justify-center`}
           aria-label="Increase quantity"
         >
           <Plus className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function QuantitySelector({
       </div>
 
       {max && (
-        <span className="font-cabin text-elite-black/40 text-base">
+        <span className="font-cabin text-elite-black/45 text-sm sm:text-base">
           Max: {max}
         </span>
       )}

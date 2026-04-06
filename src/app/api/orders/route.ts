@@ -206,13 +206,49 @@ export async function POST(request: NextRequest) {
     }
 
     // If addressId provided, verify it exists and belongs to user
+    let validatedAddress: {
+      street: string;
+      apartment: string | null;
+      city: string;
+      state: string | null;
+      phone: string | null;
+      notes: string | null;
+    } | null = null;
+
     if (body.addressId) {
       const address = await prisma.address.findFirst({
         where: { id: body.addressId, userId },
+        select: {
+          street: true,
+          apartment: true,
+          city: true,
+          state: true,
+          phone: true,
+          notes: true,
+        },
       });
       if (!address) {
         throw new BadRequestError("Invalid delivery address");
       }
+      validatedAddress = address;
+    }
+
+    const normalizedName =
+      body.odoo?.partner?.name?.trim() ||
+      authUser?.name?.trim() ||
+      authUser?.email?.split("@")[0]?.trim() ||
+      "Website Customer";
+
+    const normalizedPhone =
+      body.odoo?.partner?.phone?.trim() ||
+      validatedAddress?.phone?.trim() ||
+      "";
+
+    // Delivery orders must always include a usable phone for downstream Odoo sync.
+    if (body.orderType === "DELIVERY" && !normalizedPhone) {
+      throw new BadRequestError(
+        "Phone number is required for delivery orders.",
+      );
     }
 
     // IMPORTANT: treat cart/order payload as untrusted; recompute pricing server-side.
@@ -243,7 +279,7 @@ export async function POST(request: NextRequest) {
           codFee,
           discount: 0,
           total,
-          notes: body.notes || null,
+          notes: body.notes?.trim() || null,
           clientOrderRef,
           items: {
             create: pricedItems.map((item) => ({
@@ -327,26 +363,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Get address details for Odoo sync if delivery order
-    let addressInfo: {
-      street?: string;
-      apartment?: string | null;
-      city?: string;
-      state?: string | null;
-      zip?: string | null;
-      phone?: string | null;
-      notes?: string | null;
-    } | null = null;
-    if (created.address) {
-      addressInfo = {
-        street: created.address.street,
-        apartment: created.address.apartment,
-        city: created.address.city,
-        state: created.address.state,
-        zip: created.address.zipCode,
-        phone: created.address.phone,
-        notes: created.address.notes,
-      };
-    }
+    const addressInfo = validatedAddress
+      ? {
+          street: validatedAddress.street,
+          apartment: validatedAddress.apartment,
+          city: validatedAddress.city,
+          state: validatedAddress.state,
+          phone: validatedAddress.phone,
+          notes: validatedAddress.notes,
+        }
+      : null;
 
     // Only sync to Odoo if payment is confirmed (PAID) or CASH (COD)
     // For online payments, wait for payment confirmation via webhook
@@ -360,13 +386,11 @@ export async function POST(request: NextRequest) {
         orderId: created.id,
         clientOrderRef: clientOrderRef,
         partner: {
-          name:
-            body.odoo?.partner?.name || authUser?.name || "Website Customer",
+          name: normalizedName,
           email: body.odoo?.partner?.email || authUser?.email,
-          phone: addressInfo?.phone || body.odoo?.partner?.phone,
+          phone: normalizedPhone || undefined,
           street: addressInfo?.street || body.odoo?.partner?.street,
           city: addressInfo?.city || body.odoo?.partner?.city,
-          zip: addressInfo?.zip || body.odoo?.partner?.zip,
         },
         enableSale,
         autoConfirm: body.odoo?.sale?.autoConfirm === true,

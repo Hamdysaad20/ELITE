@@ -191,8 +191,45 @@ function OrderPageContent() {
     paymentMethod === PaymentMethod.CARD ||
     paymentMethod === PaymentMethod.WALLET;
   const needsAddressForPayment = isOnlinePayment;
+  const requiresPhoneForOrder = orderType === "DELIVERY" || isOnlinePayment;
   const hasAuthForOnlinePayment = Boolean(session?.user?.email);
   const hasPhoneForOnlinePayment = Boolean(selectedAddress?.phone);
+
+  const placeOrderBlockReason = React.useMemo(() => {
+    if (submitting || isUpdating) return null;
+    if (!isCheckoutEnabled) return t("errors.checkoutUnavailable");
+    if (!cartItems || cartItems.length === 0) return t("errors.cartEmpty");
+    if (orderType === "DELIVERY" && !selectedAddress)
+      return t("errors.selectDeliveryAddress");
+    if (needsAddressForPayment && !selectedAddress)
+      return t("errors.selectBillingAddress");
+    if (isOnlinePayment && !hasAuthForOnlinePayment)
+      return t("errors.signInToPay");
+    if (requiresPhoneForOrder && !hasPhoneForOnlinePayment)
+      return t("errors.addPhone");
+    return null;
+  }, [
+    submitting,
+    isUpdating,
+    isCheckoutEnabled,
+    cartItems,
+    orderType,
+    selectedAddress,
+    needsAddressForPayment,
+    isOnlinePayment,
+    requiresPhoneForOrder,
+    hasAuthForOnlinePayment,
+    hasPhoneForOnlinePayment,
+    t,
+  ]);
+
+  const isPlaceOrderDisabled =
+    submitting || isUpdating || Boolean(placeOrderBlockReason);
+
+  const paymentMethodsGridClass =
+    checkoutConfig.enabledPaymentMethods.length === 1
+      ? "grid gap-3 md:gap-4 grid-cols-1"
+      : "grid gap-3 md:gap-4 sm:grid-cols-2";
 
   // Auto-select default address when switching to delivery or online payment
   React.useEffect(() => {
@@ -310,7 +347,7 @@ function OrderPageContent() {
       });
       return;
     }
-    if (isOnlinePayment && !hasPhoneForOnlinePayment) {
+    if (requiresPhoneForOrder && !hasPhoneForOnlinePayment) {
       setSubmitError(t("errors.addPhone"));
       setSubmitting(false);
       push({
@@ -507,7 +544,7 @@ function OrderPageContent() {
       <div className="min-h-screen bg-elite-cream w-full overflow-x-hidden">
         {/* Header - Menu page style with big rounded elements */}
         <div className="bg-elite-burgundy text-elite-cream py-8 sm:py-12 md:py-16">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb - Hidden on mobile, reserved space */}
             <div className="hidden sm:flex items-center gap-2 text-sm mb-4 h-6">
               <LocalizedLink
@@ -540,7 +577,7 @@ function OrderPageContent() {
         </div>
 
         {/* Main Content - Menu page spacing, prevent overflow on mobile */}
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12 lg:pt-32 overflow-x-hidden">
+        <div className="max-w-[1700px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 md:py-8 lg:py-12 lg:pt-32 overflow-x-hidden">
           {/* Checkout progress */}
           <div className="mb-4 sm:mb-6">
             <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
@@ -777,8 +814,8 @@ function OrderPageContent() {
               actionHref="/menu"
             />
           ) : (
-            <div className="grid gap-3 sm:gap-4 md:gap-5 lg:gap-8 xl:gap-10 lg:grid-cols-3">
-              <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6 xl:space-y-8 lg:col-span-2 min-w-0">
+            <div className="grid gap-3 sm:gap-4 md:gap-5 lg:gap-8 xl:gap-10 lg:grid-cols-12">
+              <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6 xl:space-y-8 lg:col-span-7 min-w-0">
                 {/* Cart Items - Menu page style: fully rounded, big text, prevent overflow */}
                 <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 overflow-hidden">
                   <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-5 lg:py-6 border-b border-elite-burgundy/10 bg-elite-cream/20">
@@ -910,14 +947,14 @@ function OrderPageContent() {
                 </div>
 
                 {/* Order Type Selection - Menu page style: fully rounded, big text, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-5 md:p-6 lg:p-7 xl:p-9 overflow-hidden">
                   <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     <MapPin className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
                     <span className="truncate">{t("orderType.title")}</span>
                   </h2>
-                  <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:gap-4 md:gap-5 sm:grid-cols-2">
                     <label
-                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
+                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden min-h-[108px] sm:min-h-[120px] ${
                         orderType === "PICKUP"
                           ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
                           : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
@@ -931,19 +968,19 @@ function OrderPageContent() {
                         className="sr-only"
                       />
                       <div
-                        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                        className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
                           orderType === "PICKUP"
                             ? "bg-elite-burgundy text-elite-cream"
                             : "bg-elite-cream text-elite-burgundy"
                         }`}
                       >
-                        <Store className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                        <Store className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
                       </div>
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl font-bold leading-tight line-clamp-2">
                           {t("orderType.pickup")}
                         </div>
-                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
+                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm mt-0.5 sm:mt-1">
                           {t("orderType.free")}
                         </div>
                       </div>
@@ -958,7 +995,7 @@ function OrderPageContent() {
                     </label>
 
                     <label
-                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden ${
+                      className={`flex items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation min-w-0 overflow-hidden min-h-[108px] sm:min-h-[120px] ${
                         orderType === "DELIVERY"
                           ? "border-elite-burgundy bg-elite-burgundy/5 shadow-md"
                           : "border-elite-burgundy/20 hover:border-elite-burgundy/40 bg-white"
@@ -972,19 +1009,19 @@ function OrderPageContent() {
                         className="sr-only"
                       />
                       <div
-                        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                        className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
                           orderType === "DELIVERY"
                             ? "bg-elite-burgundy text-elite-cream"
                             : "bg-elite-cream text-elite-burgundy"
                         }`}
                       >
-                        <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                        <Truck className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
                       </div>
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                        <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl font-bold leading-tight line-clamp-2">
                           {t("orderType.delivery")}
                         </div>
-                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">
+                        <div className="font-cabin text-elite-black/60 text-xs sm:text-sm mt-0.5 sm:mt-1">
                           {formatCurrency(checkoutConfig.deliveryFee)}
                         </div>
                       </div>
@@ -1001,7 +1038,7 @@ function OrderPageContent() {
                 </div>
 
                 {/* Payment Method - Menu page style: fully rounded, big text, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-5 md:p-6 lg:p-7 xl:p-9 overflow-hidden">
                   <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
                     <span className="truncate">{t("payment.title")}</span>
@@ -1020,7 +1057,7 @@ function OrderPageContent() {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid gap-2.5 sm:gap-3 md:gap-4 sm:grid-cols-2">
+                    <div className={paymentMethodsGridClass}>
                       {/* Map dynamic checkoutConfig items */}
                       {checkoutConfig.enabledPaymentMethods.map((m) => {
                         const isSelected = paymentMethod === m;
@@ -1047,7 +1084,7 @@ function OrderPageContent() {
                         return (
                           <label
                             key={m}
-                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 md:p-5 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden ${
+                            className={`relative flex items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-6 rounded-3xl border-2 transition-all duration-300 min-w-0 overflow-hidden min-h-[108px] sm:min-h-[120px] ${
                               isTemporarilyDisabled
                                 ? "cursor-not-allowed opacity-60 bg-gray-50 border-gray-200"
                                 : "cursor-pointer hover:shadow-lg active:scale-[0.98] touch-manipulation"
@@ -1069,7 +1106,7 @@ function OrderPageContent() {
                               disabled={submitting || isTemporarilyDisabled}
                             />
                             <div
-                              className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                              className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
                                 isSelected && !isTemporarilyDisabled
                                   ? "bg-elite-burgundy text-elite-cream"
                                   : isTemporarilyDisabled
@@ -1080,10 +1117,10 @@ function OrderPageContent() {
                               {icon}
                             </div>
                             <div className="flex-1 min-w-0 overflow-hidden">
-                              <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate leading-tight tracking-tight">
+                              <div className="font-calistoga text-elite-black text-base sm:text-lg md:text-xl font-bold leading-tight line-clamp-2 tracking-tight">
                                 {label}
                               </div>
-                              <div className="font-cabin text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 line-clamp-1 text-elite-black/60">
+                              <div className="font-cabin text-xs sm:text-sm mt-0.5 sm:mt-1 line-clamp-2 text-elite-black/60 leading-snug">
                                 {desc}
                               </div>
                             </div>
@@ -1104,7 +1141,7 @@ function OrderPageContent() {
 
                 {/* Delivery Address Selection - Menu page style, reserved space to prevent layout shift, prevent overflow */}
                 <div
-                  className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 transition-all duration-300 min-h-[120px] md:min-h-[200px] overflow-hidden ${
+                  className={`bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-5 md:p-6 lg:p-7 xl:p-9 transition-all duration-300 min-h-[140px] md:min-h-[230px] overflow-hidden ${
                     orderType === "DELIVERY" || needsAddressForPayment
                       ? "opacity-100"
                       : "opacity-0 pointer-events-none"
@@ -1160,7 +1197,7 @@ function OrderPageContent() {
                             </p>
                           </div>
                         )}
-                        {isOnlinePayment &&
+                        {requiresPhoneForOrder &&
                           selectedAddress &&
                           !hasPhoneForOnlinePayment && (
                             <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-3 sm:p-4 flex items-start gap-3">
@@ -1192,9 +1229,9 @@ function OrderPageContent() {
               </div>
 
               {/* Order Summary & Actions - Menu page style: fully rounded, big text, adjusted sticky position */}
-              <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:col-span-1 lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overflow-x-hidden">
+              <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:col-span-5 lg:min-w-[360px] xl:min-w-[420px] lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overflow-x-hidden">
                 {/* Order Summary - Menu page style, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-5 md:p-6 lg:p-7 xl:p-9 overflow-hidden">
                   <h2 className="font-calistoga text-elite-burgundy text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 md:mb-5 flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     <Receipt className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
                     <span className="truncate">{t("summary.title")}</span>
@@ -1206,7 +1243,7 @@ function OrderPageContent() {
                       {cartItems.map((it) => (
                         <div
                           key={`summary-${it.id}`}
-                          className="flex items-center gap-3 rounded-2xl bg-elite-cream/30 border border-elite-burgundy/10 p-3"
+                          className="flex items-center gap-3 rounded-2xl bg-elite-cream/30 border border-elite-burgundy/10 p-4"
                         >
                           <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-elite-burgundy/10 flex-shrink-0">
                             <ImageWithFallback
@@ -1241,7 +1278,7 @@ function OrderPageContent() {
                     </div>
                   </div>
 
-                  <div className="space-y-3 sm:space-y-4 font-cabin text-base sm:text-lg">
+                  <div className="space-y-3 sm:space-y-4 font-cabin text-sm sm:text-base">
                     <div className="flex justify-between text-elite-black/70">
                       <span>{t("summary.subtotal")}</span>
                       <span className="tabular-nums font-semibold">
@@ -1270,11 +1307,11 @@ function OrderPageContent() {
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-between pt-4 sm:pt-5 border-t-2 border-elite-burgundy/20">
-                      <span className="font-calistoga text-elite-black text-xl sm:text-2xl font-bold">
+                    <div className="grid grid-cols-[1fr_auto] items-end gap-3 pt-4 sm:pt-5 border-t-2 border-elite-burgundy/20">
+                      <span className="font-calistoga text-elite-black text-lg sm:text-xl font-bold leading-tight">
                         {t("summary.total")}
                       </span>
-                      <span className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl md:text-4xl font-bold tabular-nums">
+                      <span className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold tabular-nums text-right whitespace-nowrap leading-none">
                         {formatCurrency(totalAmount)}
                       </span>
                     </div>
@@ -1282,7 +1319,18 @@ function OrderPageContent() {
                 </div>
 
                 {/* Actions - Menu page style: fully rounded buttons, prevent overflow */}
-                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 space-y-2.5 sm:space-y-3 md:space-y-4 overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-4 sm:p-5 md:p-6 lg:p-7 xl:p-9 space-y-3 sm:space-y-4 md:space-y-5 overflow-hidden">
+                  {placeOrderBlockReason && (
+                    <div className="rounded-2xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-amber-900">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <p className="font-cabin text-sm leading-relaxed">
+                          {placeOrderBlockReason}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     className="w-full px-4 sm:px-6 md:px-8 py-3.5 sm:py-4 md:py-5 rounded-full border-2 border-elite-burgundy/20 text-elite-burgundy font-calistoga font-bold text-sm sm:text-base md:text-lg hover:bg-elite-burgundy/5 hover:shadow-lg active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     onClick={clearCart}
@@ -1293,17 +1341,10 @@ function OrderPageContent() {
                   <button
                     className="w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-elite-burgundy text-elite-cream rounded-full font-calistoga font-bold text-base sm:text-lg md:text-xl lg:text-2xl shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation"
                     onClick={placeOrder}
-                    disabled={
-                      submitting ||
-                      isUpdating ||
-                      (orderType === "DELIVERY" && !selectedAddress) ||
-                      (needsAddressForPayment && !selectedAddress) ||
-                      (isOnlinePayment && !hasAuthForOnlinePayment) ||
-                      (isOnlinePayment && !hasPhoneForOnlinePayment)
-                    }
+                    disabled={isPlaceOrderDisabled}
                   >
                     <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0" />
-                    <span className="truncate">
+                    <span className="text-center leading-tight whitespace-normal">
                       {submitting
                         ? t("actions.placingOrder")
                         : isOnlinePayment
@@ -1331,14 +1372,7 @@ function OrderPageContent() {
             <button
               className="w-2/3 py-3 rounded-full bg-elite-burgundy text-white font-bold shadow-lg"
               onClick={placeOrder}
-              disabled={
-                submitting ||
-                isUpdating ||
-                (orderType === "DELIVERY" && !selectedAddress) ||
-                (needsAddressForPayment && !selectedAddress) ||
-                (isOnlinePayment && !hasAuthForOnlinePayment) ||
-                (isOnlinePayment && !hasPhoneForOnlinePayment)
-              }
+              disabled={isPlaceOrderDisabled}
             >
               {submitting
                 ? t("actions.placingOrder")
@@ -1360,7 +1394,7 @@ export default function OrderPage() {
     <React.Suspense
       fallback={
         <div className="min-h-screen bg-elite-cream">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+          <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-8 sm:py-10">
             <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="space-y-2">

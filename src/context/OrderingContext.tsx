@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 
 type OrderingContextValue = {
   orderingEnabled: boolean;
@@ -18,17 +24,24 @@ const OrderingContext = createContext<OrderingContextValue>({
 
 type OrderingProviderProps = {
   children: React.ReactNode;
+  /** Skip the automatic fetch on mount (e.g. landing page doesn't need it) */
+  lazy?: boolean;
 };
 
-export function OrderingProvider({ children }: OrderingProviderProps) {
+export function OrderingProvider({
+  children,
+  lazy = false,
+}: OrderingProviderProps) {
   const [orderingEnabled, setOrderingEnabled] = React.useState(true);
-  const [orderingMessage, setOrderingMessage] = React.useState<string | undefined>(
-    undefined,
-  );
-  const [loading, setLoading] = React.useState(true);
+  const [orderingMessage, setOrderingMessage] = React.useState<
+    string | undefined
+  >(undefined);
+  const [loading, setLoading] = React.useState(!lazy);
+  const hasFetched = useRef(false);
 
   const loadConfig = useCallback(async () => {
     setLoading(true);
+    hasFetched.current = true;
     try {
       const res = await fetch("/api/checkout/config", {
         credentials: "include",
@@ -62,8 +75,10 @@ export function OrderingProvider({ children }: OrderingProviderProps) {
   }, []);
 
   useEffect(() => {
-    loadConfig();
-  }, [loadConfig]);
+    if (!lazy) {
+      loadConfig();
+    }
+  }, [loadConfig, lazy]);
 
   return (
     <OrderingContext.Provider

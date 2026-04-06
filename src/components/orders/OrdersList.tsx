@@ -43,6 +43,24 @@ export function OrdersList({
       currency: "EGP",
       maximumFractionDigits: 0,
     });
+
+  const safeOrders = Array.isArray(orders)
+    ? orders.filter(
+        (order) =>
+          order &&
+          typeof order === "object" &&
+          typeof order.id === "string" &&
+          order.id.length > 0,
+      )
+    : [];
+
+  const formatOrderDate = (value: unknown): string => {
+    const date = new Date(String(value || ""));
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
+    return format.dateTime(date, { dateStyle: "medium" });
+  };
   // Loading State
   if (loading) {
     return (
@@ -78,7 +96,7 @@ export function OrdersList({
   }
 
   // Empty State
-  if (!orders || orders.length === 0) {
+  if (safeOrders.length === 0) {
     return (
       <div className="bg-white rounded-3xl shadow-lg border-2 border-elite-burgundy/10 p-8 sm:p-12 text-center">
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-elite-cream flex items-center justify-center">
@@ -102,7 +120,7 @@ export function OrdersList({
   }
 
   // Display orders (with optional limit)
-  const displayOrders = maxItems ? orders.slice(0, maxItems) : orders;
+  const displayOrders = maxItems ? safeOrders.slice(0, maxItems) : safeOrders;
 
   return (
     <div className="space-y-4">
@@ -112,7 +130,7 @@ export function OrdersList({
             {showViewAll ? t("recentOrders") : t("yourOrders")}
           </h2>
           <p className="font-cabin text-sm text-elite-black/50">
-            {t("ordersCount", { count: orders.length })}
+            {t("ordersCount", { count: safeOrders.length })}
           </p>
         </div>
       )}
@@ -122,8 +140,9 @@ export function OrdersList({
           const isActive =
             order.status !== OrderStatus.DELIVERED &&
             order.status !== OrderStatus.CANCELLED;
-          const displayId = order.id.slice(0, 8).toUpperCase();
-          const orderDate = new Date(order.createdAt);
+          const displayId = String(order.id || "-")
+            .slice(0, 8)
+            .toUpperCase();
 
           return (
             <LocalizedLink
@@ -151,7 +170,7 @@ export function OrdersList({
                         {t("orderId", { id: displayId })}
                       </h3>
                       <p className="text-xs sm:text-sm text-elite-black/60 font-cabin">
-                        {format.dateTime(orderDate, { dateStyle: "medium" })}
+                        {formatOrderDate(order.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -218,7 +237,7 @@ export function OrdersList({
           href="/orders"
           className="block text-center py-4 text-elite-burgundy font-cabin font-bold hover:text-elite-burgundy/80 transition-colors"
         >
-          {t("viewAll", { count: orders.length })}
+          {t("viewAll", { count: safeOrders.length })}
         </LocalizedLink>
       )}
     </div>

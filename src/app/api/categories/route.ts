@@ -50,18 +50,24 @@ export async function GET(_request: NextRequest) {
     if (!allCategories) {
       console.log("[CATEGORIES] Cache empty, triggering auto-sync...");
       const syncResult = await syncProductsFromOdoo();
+      const fallbackCatalog = syncResult.data?.fallbackCatalog as
+        | { categories?: Category[]; lastUpdate?: string | null }
+        | undefined;
 
       if (!syncResult.success) {
         // Check if sync is in progress - wait briefly for it
-        const isLocked = await redisGet("sync:in_progress");
+        const isLocked = await redisGet("sync:in_progress").catch(() => null);
         if (isLocked) {
           console.log("[CATEGORIES] Sync in progress, waiting briefly...");
           // Wait up to 3 seconds for sync to complete
           for (let i = 0; i < 6; i++) {
             await new Promise((resolve) => setTimeout(resolve, 500));
-            const waitCategories =
-              await redisGet<Category[]>("categories:list");
-            const waitLastUpdate = await redisGet<string>("sync:last_update");
+            const waitCategories = await redisGet<Category[]>(
+              "categories:list",
+            ).catch(() => null);
+            const waitLastUpdate = await redisGet<string>(
+              "sync:last_update",
+            ).catch(() => null);
             if (waitCategories) {
               allCategories = waitCategories;
               lastUpdate = waitLastUpdate;
@@ -72,6 +78,13 @@ export async function GET(_request: NextRequest) {
 
         // If still no data after waiting, return 503
         if (!allCategories) {
+          if (fallbackCatalog?.categories) {
+            allCategories = fallbackCatalog.categories;
+            lastUpdate = fallbackCatalog.lastUpdate || null;
+          }
+        }
+
+        if (!allCategories) {
           return jsonResponse(
             errorResponse(
               "Category list is being synchronized. Please refresh the page in a moment.",
@@ -81,12 +94,19 @@ export async function GET(_request: NextRequest) {
         }
       } else {
         // Sync succeeded, fetch fresh data
-        const freshCategories = await redisGet<Category[]>("categories:list");
-        const freshLastUpdate = await redisGet<string>("sync:last_update");
+        const freshCategories = await redisGet<Category[]>(
+          "categories:list",
+        ).catch(() => null);
+        const freshLastUpdate = await redisGet<string>(
+          "sync:last_update",
+        ).catch(() => null);
 
         if (freshCategories) {
           allCategories = freshCategories;
           lastUpdate = freshLastUpdate;
+        } else if (fallbackCatalog?.categories) {
+          allCategories = fallbackCatalog.categories;
+          lastUpdate = fallbackCatalog.lastUpdate || null;
         } else {
           // Sync said it succeeded but no data - this shouldn't happen, but handle gracefully
           console.error("[CATEGORIES] Sync succeeded but no categories found");

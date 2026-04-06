@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Cabin_Condensed, Calistoga, Cairo } from "next/font/google";
+import {
+  Cabin_Condensed,
+  Calistoga,
+  Cairo,
+  Bebas_Neue,
+  Readex_Pro,
+} from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 import { getDirection } from "@/i18n/config";
 import { getRequestLocale } from "@/i18n/server";
@@ -19,9 +27,25 @@ const calistoga = Calistoga({
 });
 
 const cairo = Cairo({
-  subsets: ["arabic"],
-  weight: ["400", "600", "700"],
+  subsets: ["arabic", "latin"],
+  weight: ["400", "600", "700", "800", "900"],
   variable: "--font-cairo",
+  display: "swap",
+});
+
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  display: "swap",
+});
+
+// Readex Pro — modern geometric Arabic display font
+// Sharp, bold, highly readable at large sizes (pairs with Bebas for EN/AR headings)
+const readexPro = Readex_Pro({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-readex",
   display: "swap",
 });
 
@@ -59,16 +83,19 @@ export default async function RootLayout({
 }>) {
   const locale = await getRequestLocale();
   const direction = getDirection(locale);
+  const messages = await getMessages({ locale });
 
   return (
     <html
       lang={locale}
       dir={direction}
-      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable}`}
+      className={`${cabinCondensed.variable} ${calistoga.variable} ${cairo.variable} ${bebasNeue.variable} ${readexPro.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

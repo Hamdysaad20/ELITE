@@ -26,6 +26,16 @@ import {
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
+  let authUserId: string | undefined;
+  const trackSafely = (promise: Promise<void>) => {
+    void promise.catch((trackingError) => {
+      console.warn(
+        "[Payment Create] Analytics tracking failed:",
+        trackingError,
+      );
+    });
+  };
+
   try {
     // Check if Paymob is configured
     if (!isPaymobConfigured()) {
@@ -42,6 +52,7 @@ export async function POST(request: NextRequest) {
     if (!authUser?.id) {
       return jsonResponse(errorResponse("Please sign in to continue."), 401);
     }
+    authUserId = authUser.id;
 
     // Rate limiting
     const rateLimitResult = await checkPaymentRateLimit(
@@ -105,42 +116,50 @@ export async function POST(request: NextRequest) {
     );
 
     // Track payment initiation
-    await trackPaymentEvent("payment_initiated", {
-      orderId: body.orderId,
-      userId: authUser.id,
-      amount: Number(order.total),
-      paymentMethod: body.paymentMethod,
-    });
+    trackSafely(
+      trackPaymentEvent("payment_initiated", {
+        orderId: body.orderId,
+        userId: authUser.id,
+        amount: Number(order.total),
+        paymentMethod: body.paymentMethod,
+      }),
+    );
 
     // Track API performance
     const duration = Date.now() - startTime;
-    await trackApiPerformance("/api/payments/create", duration, 200);
+    trackSafely(trackApiPerformance("/api/payments/create", duration, 200));
 
     return jsonResponse(successResponse(paymentIntent));
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
-    await trackApiPerformance(
-      "/api/payments/create",
-      duration,
-      error instanceof BadRequestError ? 400 : 500,
+    trackSafely(
+      trackApiPerformance(
+        "/api/payments/create",
+        duration,
+        error instanceof BadRequestError ? 400 : 500,
+      ),
     );
 
     console.error("[Payment Create] Error:", error);
 
     if (error instanceof BadRequestError) {
-      await trackPaymentEvent("payment_failed", {
-        orderId: undefined,
-        userId: (await getAuthUser(request))?.id,
-        error: error.message,
-      });
+      trackSafely(
+        trackPaymentEvent("payment_failed", {
+          orderId: undefined,
+          userId: authUserId,
+          error: error.message,
+        }),
+      );
       return jsonResponse(errorResponse(error.message), 400);
     }
 
     if (error instanceof Error && error.message.includes("timeout")) {
-      await trackPaymentEvent("payment_failed", {
-        userId: (await getAuthUser(request))?.id,
-        error: "Timeout",
-      });
+      trackSafely(
+        trackPaymentEvent("payment_failed", {
+          userId: authUserId,
+          error: "Timeout",
+        }),
+      );
       return jsonResponse(
         errorResponse("Payment setup took too long. Please try again."),
         503,
@@ -150,10 +169,12 @@ export async function POST(request: NextRequest) {
     const message =
       (error as { message?: string })?.message ||
       "Payment could not be processed. Please try again.";
-    await trackPaymentEvent("payment_failed", {
-      userId: (await getAuthUser(request))?.id,
-      error: message,
-    });
+    trackSafely(
+      trackPaymentEvent("payment_failed", {
+        userId: authUserId,
+        error: message,
+      }),
+    );
     return jsonResponse(errorResponse(message), 500);
   }
 }

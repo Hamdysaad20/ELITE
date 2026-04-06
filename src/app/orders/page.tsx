@@ -16,6 +16,7 @@ import {
 } from "@/components/orders/OrderFilters";
 import { useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import { normalizeOrderStatus } from "@/lib/orderStatus";
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
@@ -43,8 +44,12 @@ export default function OrdersPage() {
 
     // Filter by status
     if (filters.status.length > 0) {
+      const selectedStatuses = new Set(
+        filters.status.map((status) => normalizeOrderStatus(status)),
+      );
+
       filtered = filtered.filter((order) =>
-        filters.status.includes(order.status),
+        selectedStatuses.has(normalizeOrderStatus(order.status)),
       );
     }
 
@@ -168,9 +173,7 @@ export default function OrdersPage() {
             <h1 className="font-calistoga text-3xl sm:text-4xl text-elite-cream">
               {t("title")}
             </h1>
-            <p className="font-cabin text-elite-cream/80">
-              {t("subtitle")}
-            </p>
+            <p className="font-cabin text-elite-cream/80">{t("subtitle")}</p>
           </div>
 
           {/* Analytics Overview */}

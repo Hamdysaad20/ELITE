@@ -3,6 +3,7 @@
  */
 
 import { extractBaseName, slugify } from "@/lib/utils";
+import { hasOldItemImageFile } from "@/server/utils/oldItemsMapping";
 
 /**
  * Marker used when images are stripped from list view for performance
@@ -46,9 +47,9 @@ export function getFallbackImage(
   type: "product" | "category" | "user" = "product",
 ): string {
   const fallbacks = {
-    product: "/images/placeholder.svg",
-    category: "/images/placeholder.svg",
-    user: "/images/placeholder.svg",
+    product: "/images/PRINTING_CUP.png",
+    category: "/images/PRINTING_CUP.png",
+    user: "/images/PRINTING_CUP.png",
   };
 
   return fallbacks[type];
@@ -168,10 +169,20 @@ export function getLocalProductImageCandidates(
 ): string[] {
   if (!name) return [];
   const base = extractBaseName(name);
-  // Try both base name and full name with -1.png suffix
-  const candidates = [base, name]
+  const names = [base, name].filter(Boolean);
+
+  // Strict candidates that are known to exist in the Old Items manifest.
+  const strictCandidates = names
     .filter(Boolean)
-    .map((n) => `${n}${filename}`);
-  const uniqueCandidates = Array.from(new Set(candidates));
+    .map((n) => `${n}${filename}`)
+    .filter((fileName) => hasOldItemImageFile(fileName));
+
+  // Heuristic fallbacks constrained to the same "-1" naming requirement only.
+  const heuristicCandidates = names.map((n) => `${n}${filename}`);
+
+  const uniqueCandidates = Array.from(
+    new Set([...strictCandidates, ...heuristicCandidates]),
+  );
+
   return uniqueCandidates.map((c) => `/Old Items/${c}`);
 }

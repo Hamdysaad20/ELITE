@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { normalizeEgyptianMobile } from "@/lib/phone";
 
 // Validation constants - shared between FE and BE
 export const ADDRESS_VALIDATION = {
@@ -14,22 +13,18 @@ export const ADDRESS_VALIDATION = {
   CITY_MIN_LENGTH: 2,
   STATE_MAX_LENGTH: 100,
   STATE_MIN_LENGTH: 2,
-  ZIP_CODE_MAX_LENGTH: 20,
-  ZIP_CODE_MIN_LENGTH: 3,
-  PHONE_MAX_LENGTH: 20,
-  PHONE_MIN_LENGTH: 8,
+  PHONE_MAX_LENGTH: 15,
+  PHONE_MIN_LENGTH: 10,
   NOTES_MAX_LENGTH: 500,
   NOTES_MIN_LENGTH: 1,
 
   // Regex patterns
-  PHONE_REGEX: /^[\+]?[1-9][\d\s\-\(\)]{7,19}$/,
-  PHONE_EGYPT_REGEX: /^(\+20|0)?1[0-9]{9}$/, // Egyptian phone format
-  ZIP_REGEX: /^[A-Za-z0-9\s\-]{3,20}$/,
-  ZIP_EGYPT_REGEX: /^\d{5}$/, // Egyptian postal code (5 digits)
-  CITY_REGEX: /^[A-Za-z\s\-\'\.]+$/,
-  STREET_REGEX: /^[A-Za-z0-9\s\-\'\.\,\#\/]+$/, // Allows numbers for street numbers
-  STATE_REGEX: /^[A-Za-z\s\-\'\.]+$/,
-  APARTMENT_REGEX: /^[A-Za-z0-9\s\-\#\/]+$/,
+  PHONE_REGEX: /^01\d{9}$/,
+  PHONE_EGYPT_REGEX: /^(01|201)\d{9}$/, // Egyptian mobile: 01XXXXXXXXX or 201XXXXXXXXX
+  CITY_REGEX: /^[\p{L}\p{M}\s\-'.]+$/u,
+  STREET_REGEX: /^[\p{L}\p{M}\p{N}\s\-'.#,\/،]+$/u, // Allows numbers and Arabic punctuation
+  STATE_REGEX: /^[\p{L}\p{M}\s\-'.]+$/u,
+  APARTMENT_REGEX: /^[\p{L}\p{M}\p{N}\s\-#\/.،,]+$/u,
 
   // Security patterns (prevent XSS, SQL injection attempts)
   XSS_PATTERN: /<script|javascript:|onerror=|onload=|eval\(|expression\(/i,
@@ -62,7 +57,7 @@ const validateNoSQLInjection = (value: string): boolean => {
 
 const validateStreetFormat = (value: string): boolean => {
   // Street should contain at least one letter (not just numbers)
-  const hasLetter = /[A-Za-z]/.test(value);
+  const hasLetter = /\p{L}/u.test(value);
   return hasLetter;
 };
 
@@ -71,34 +66,19 @@ const validatePhoneCountry = (
   country: string = "Egypt",
 ): boolean => {
   if (!phone) return true;
+  const cleaned = phone.replace(/\D/g, "");
 
   if (country === "Egypt" || country === "EG" || country === "EGY") {
-    // Egyptian phone: accept common variants and normalize to canonical local form.
-    return !!normalizeEgyptianMobile(phone);
+    // Egyptian mobile: 01XXXXXXXXX (11 digits) or 201XXXXXXXXX (12 digits with country code)
+    return ADDRESS_VALIDATION.PHONE_EGYPT_REGEX.test(cleaned);
   }
 
   // Default to international format
-  // Normalize common separators so the international regex can match reliably.
-  const cleaned = phone.replace(/[\s\-\(\)]/g, "");
-  return ADDRESS_VALIDATION.PHONE_REGEX.test(cleaned);
-};
-
-const validateZipCountry = (
-  zip: string,
-  country: string = "Egypt",
-): boolean => {
-  if (!zip) return true;
-
-  if (country === "Egypt" || country === "EG" || country === "EGY") {
-    // Egyptian postal codes are 5 digits
-    return (
-      ADDRESS_VALIDATION.ZIP_EGYPT_REGEX.test(zip) ||
-      ADDRESS_VALIDATION.ZIP_REGEX.test(zip)
-    );
+  if (cleaned.length < ADDRESS_VALIDATION.PHONE_MIN_LENGTH) {
+    return false;
   }
 
-  // Default to alphanumeric format
-  return ADDRESS_VALIDATION.ZIP_REGEX.test(zip);
+  return ADDRESS_VALIDATION.PHONE_REGEX.test(cleaned);
 };
 
 // Base address schema object (before superRefine)
@@ -132,7 +112,9 @@ const baseAddressSchema = z.object({
 
   apartment: z.preprocess(
     (val) =>
-      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+      typeof val === "string" && val.trim() === ""
+        ? undefined
+        : (val as unknown),
     z
       .string()
       .min(
@@ -180,7 +162,9 @@ const baseAddressSchema = z.object({
 
   state: z.preprocess(
     (val) =>
-      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+      typeof val === "string" && val.trim() === ""
+        ? undefined
+        : (val as unknown),
     z
       .string()
       .min(
@@ -220,36 +204,11 @@ const baseAddressSchema = z.object({
     )
     .optional(),
 
-  zipCode: z.preprocess(
-    (val) =>
-      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
-    z
-      .string()
-      .trim()
-      .min(
-        ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH,
-        `Zip code must be at least ${ADDRESS_VALIDATION.ZIP_CODE_MIN_LENGTH} characters if provided`,
-      )
-      .max(
-        ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH,
-        `Zip code must be less than ${ADDRESS_VALIDATION.ZIP_CODE_MAX_LENGTH} characters`,
-      )
-      .transform(sanitizeInput)
-      .refine(
-        (val: string) =>
-          !val || val === "" || ADDRESS_VALIDATION.ZIP_REGEX.test(val),
-        {
-          message:
-            "Please enter a valid zip/postal code (3-20 alphanumeric characters)",
-        },
-      )
-      .optional()
-      .nullable(),
-  ),
-
   phone: z.preprocess(
     (val) =>
-      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+      typeof val === "string" && val.trim() === ""
+        ? undefined
+        : (val as unknown),
     z
       .string()
       .trim()
@@ -263,10 +222,11 @@ const baseAddressSchema = z.object({
       )
       .transform(sanitizeInput)
       .refine(
-        (val: string) => !val || val === "" || validatePhoneCountry(val, "Egypt"),
+        (val: string) =>
+          !val || val === "" || validatePhoneCountry(val, "Egypt"),
         {
           message:
-            "Please enter a valid phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)",
+            "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)",
         },
       )
       .optional()
@@ -275,7 +235,9 @@ const baseAddressSchema = z.object({
 
   notes: z.preprocess(
     (val) =>
-      typeof val === "string" && val.trim() === "" ? undefined : (val as unknown),
+      typeof val === "string" && val.trim() === ""
+        ? undefined
+        : (val as unknown),
     z
       .string()
       .trim()
@@ -303,21 +265,6 @@ const baseAddressSchema = z.object({
 
 // Full address schema with superRefine validations
 export const addressSchema = baseAddressSchema.superRefine((data, ctx) => {
-  // Country-specific validation for zip code
-  if (data.zipCode && typeof data.zipCode === "string" && data.zipCode.trim()) {
-    const country = (data.country || "Egypt") as string;
-    if (!validateZipCountry(data.zipCode, country)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          country === "Egypt"
-            ? "Egyptian postal codes must be 5 digits (e.g., 12345)"
-            : "Please enter a valid zip/postal code",
-        path: ["zipCode"],
-      });
-    }
-  }
-
   // Country-specific validation for phone
   if (data.phone && typeof data.phone === "string" && data.phone.trim()) {
     const country = (data.country || "Egypt") as string;
@@ -326,8 +273,8 @@ export const addressSchema = baseAddressSchema.superRefine((data, ctx) => {
         code: z.ZodIssueCode.custom,
         message:
           country === "Egypt"
-            ? "Please enter a valid Egyptian phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)"
-            : "Please enter a valid phone number (e.g., +20 123 456 7890)",
+            ? "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)"
+            : "Please enter a valid phone number",
         path: ["phone"],
       });
     }
@@ -350,25 +297,6 @@ export const updateAddressSchema = baseAddressSchema
   })
   .superRefine((data, ctx) => {
     // Only validate if fields are provided (skip validation for undefined fields)
-    // Country-specific validation for zip code
-    if (
-      data.zipCode &&
-      typeof data.zipCode === "string" &&
-      data.zipCode.trim()
-    ) {
-      const country = (data.country || "Egypt") as string;
-      if (!validateZipCountry(data.zipCode, country)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            country === "Egypt"
-              ? "Egyptian postal codes must be 5 digits (e.g., 12345)"
-              : "Please enter a valid zip/postal code",
-          path: ["zipCode"],
-        });
-      }
-    }
-
     // Country-specific validation for phone
     if (data.phone && typeof data.phone === "string" && data.phone.trim()) {
       const country = (data.country || "Egypt") as string;
@@ -377,8 +305,8 @@ export const updateAddressSchema = baseAddressSchema
           code: z.ZodIssueCode.custom,
           message:
             country === "Egypt"
-              ? "Please enter a valid Egyptian phone number (e.g., +20 1XX XXX XXXX or 01XXXXXXXXX)"
-              : "Please enter a valid phone number (e.g., +20 123 456 7890)",
+              ? "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)"
+              : "Please enter a valid phone number",
           path: ["phone"],
         });
       }

@@ -32,6 +32,22 @@ interface OrderSyncFailureEmailParams {
   customerName?: string;
 }
 
+interface OrderStatusUpdateEmailParams {
+  to: string;
+  orderNumber: string;
+  previousStatus: string;
+  nextStatus: string;
+  customerName?: string;
+}
+
+function formatStatusLabel(status: string): string {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 /**
  * Send an apology email to customer when order sync to Odoo fails after retries
  */
@@ -166,6 +182,116 @@ This is an automated message from ${BRAND_NAME}
       error,
     );
     // Don't throw - email failure shouldn't break the sync retry flow
+  }
+}
+
+/**
+ * Send status change email when order status changes.
+ */
+export async function sendOrderStatusUpdateEmail(
+  params: OrderStatusUpdateEmailParams,
+): Promise<void> {
+  if (!transporter) {
+    console.warn(
+      "[emailService] Email not configured, skipping order status notification",
+    );
+    return;
+  }
+
+  const { to, orderNumber, previousStatus, nextStatus, customerName } = params;
+  const name = customerName || "Valued Customer";
+  const previousLabel = formatStatusLabel(previousStatus);
+  const nextLabel = formatStatusLabel(nextStatus);
+  const brandName = BRAND_NAME;
+
+  const subject = `Order ${orderNumber} is now ${nextLabel}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 0;">
+        <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="padding: 32px 40px 18px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 600;">${brandName}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 34px 40px;">
+              <h2 style="margin: 0 0 18px; color: #333333; font-size: 22px; font-weight: 600;">Hi ${name},</h2>
+              <p style="margin: 0 0 14px; color: #666666; font-size: 16px; line-height: 1.6;">
+                Your order <strong style="color: #333333;">#${orderNumber}</strong> has a new status.
+              </p>
+              <div style="margin: 20px 0; padding: 18px; background-color: #f8f9fa; border-left: 4px solid #667eea; border-radius: 4px;">
+                <p style="margin: 0 0 8px; color: #333333; font-size: 15px;">
+                  <strong>Previous:</strong> ${previousLabel}
+                </p>
+                <p style="margin: 0; color: #333333; font-size: 15px;">
+                  <strong>Current:</strong> ${nextLabel}
+                </p>
+              </div>
+              <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+                We will keep you updated as your order progresses.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 26px 40px; text-align: center; background-color: #f8f9fa; border-radius: 0 0 8px 8px;">
+              <p style="margin: 0; color: #999999; font-size: 14px;">
+                This is an automated message from ${brandName}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Hi ${name},
+
+Your order #${orderNumber} has a new status.
+
+Previous: ${previousLabel}
+Current: ${nextLabel}
+
+We will keep you updated as your order progresses.
+
+Best regards,
+The ${brandName} Team
+
+---
+This is an automated message from ${brandName}
+  `.trim();
+
+  try {
+    await transporter.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    console.log(
+      `[emailService] Order status notification sent to ${to} for order ${orderNumber}`,
+    );
+  } catch (error) {
+    console.error(
+      `[emailService] Failed to send order status email to ${to}:`,
+      error,
+    );
   }
 }
 

@@ -1,4 +1,6 @@
 const withNextIntl = require("next-intl/plugin")("./src/i18n/request.ts");
+const path = require("path");
+const webpack = require("webpack");
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
@@ -8,9 +10,29 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  devIndicators: false,
+  webpack: (config, { dev }) => {
+    if (dev) {
+      const shimPath = path.resolve(
+        __dirname,
+        "src/lib/nextSegmentExplorerShim.js",
+      );
+      config.resolve = config.resolve || {};
+      config.resolve.alias = config.resolve.alias || {};
+      config.plugins = config.plugins || [];
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /next-devtools[\\/]userspace[\\/]app[\\/]segment-explorer-node(\.js)?$/,
+          shimPath,
+        ),
+      );
+    }
+    return config;
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

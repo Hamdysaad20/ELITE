@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { sanitizeImages } from "@/lib/imageUtils";
@@ -31,6 +32,9 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const t = useTranslations("menuPage");
 
   // Enable swipe-back gesture
@@ -136,6 +140,64 @@ export default function MenuPage() {
     refetchCategories();
     refetchProducts();
   };
+
+  useEffect(() => {
+    const targetProductId = searchParams.get("productId")?.trim();
+    const targetProductName = searchParams.get("product")?.trim();
+
+    if (!targetProductId && !targetProductName) {
+      return;
+    }
+
+    if (loading || !Array.isArray(apiProducts) || apiProducts.length === 0) {
+      return;
+    }
+
+    const normalize = (value: string) =>
+      value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const queryTokens = targetProductName
+      ? normalize(targetProductName).split(" ").filter(Boolean)
+      : [];
+
+    const matchedProduct = apiProducts.find((product) => {
+      if (!product) return false;
+      if (targetProductId && product.id === targetProductId) return true;
+      if (!targetProductName || !product.name) return false;
+
+      const normalizedProductName = normalize(product.name);
+      const normalizedTargetName = normalize(targetProductName);
+
+      if (normalizedProductName === normalizedTargetName) {
+        return true;
+      }
+
+      // Allow deep-links like "Taro Matcha" to match variants such as
+      // "Iced Taro Matcha Latte", but avoid matching names missing tokens.
+      return queryTokens.length > 0
+        ? queryTokens.every((token) => normalizedProductName.includes(token))
+        : false;
+    });
+
+    if (matchedProduct) {
+      setSelectedProduct(matchedProduct);
+      setIsModalOpen(true);
+      setActiveCategory(matchedProduct.categoryId || null);
+    }
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete("product");
+    nextParams.delete("productId");
+
+    const nextQuery = nextParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [apiProducts, loading, pathname, router, searchParams]);
 
   return (
     <>
@@ -513,7 +575,9 @@ export default function MenuPage() {
                                                   menuItemId={item.id}
                                                   showAddToOrder={true}
                                                   categoryId={category.id}
-                                                  imageVersion={productsLastUpdate}
+                                                  imageVersion={
+                                                    productsLastUpdate
+                                                  }
                                                   animationDelay={idx * 30}
                                                   onQuickAdd={() => {
                                                     const product =

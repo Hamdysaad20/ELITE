@@ -295,7 +295,7 @@ npm run lint
 ### Future Enhancements
 - [ ] Points redemption system
 - [ ] Tier benefits and perks
-- [ ] Email notifications for milestones
+- [ ] System/in-app notifications for milestones
 - [ ] Social sharing of achievements
 - [ ] Export analytics as PDF
 - [ ] Predictive savings suggestions

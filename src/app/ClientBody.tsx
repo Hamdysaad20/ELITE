@@ -6,8 +6,7 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import NetworkStatus from "@/components/NetworkStatus";
 import CartButton from "@/components/Cart/CartButton";
-import Navigation from "@/components/Navigation";
-import MobileNavigation from "@/components/MobileNavigation";
+import Nav from "@/components/Nav";
 import OrderingBanner from "@/components/OrderingBanner";
 import { OrderingProvider } from "@/context/OrderingContext";
 import {
@@ -31,6 +30,8 @@ export default function ClientBody({
   const isAuthPage =
     normalizedPath.startsWith("/auth") || normalizedPath.includes("verify");
   const isOrderPage = normalizedPath === "/order";
+  // Landing page has no bottom bar — skip body offset padding
+  const isLandingPage = normalizedPath === "/" || normalizedPath === "/about";
 
   // Handle initialization after hydration is complete
   useEffect(() => {
@@ -104,19 +105,20 @@ export default function ClientBody({
 
   return (
     <AuthProvider>
-      <OrderingProvider>
+      <OrderingProvider lazy={isLandingPage || isAuthPage}>
         <NetworkStatus />
         {!isAuthPage && (
           <>
-            <Navigation />
+            <Nav />
             {!isOrderPage && <CartButton />}
           </>
         )}
         <ToastProvider>
           {!isAuthPage && <OrderingBanner />}
-          <main className="md:pb-0 pb-[88px]">{children}</main>
+          <main className={isLandingPage ? "" : "nav-body-offset"}>
+            {children}
+          </main>
         </ToastProvider>
-        {!isAuthPage && <MobileNavigation />}
       </OrderingProvider>
     </AuthProvider>
   );

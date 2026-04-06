@@ -127,12 +127,12 @@ If Odoo sync fails during order creation:
 
 1. **Immediate Retry Tracking**: Error and attempt count stored in database
 2. **Cron-Based Retries**: Every 5 minutes for up to 30 minutes
-3. **Customer Notification**: Apology email sent if sync fails within 30-min window
+3. **System Notification**: Order note is appended if sync remains failed near deadline
 4. **Manual Intervention**: Orders marked as `failed_permanent` after 30 minutes
 
 **Key Features**:
 - Max 5 retry attempts
-- Customer notified before 30-min deadline
+- Order is system-notified before 30-min deadline
 - Orders always saved (even if sync fails)
 - Graceful degradation
 
@@ -149,13 +149,6 @@ ODOO_DB=your_database_name
 ODOO_USERNAME=admin@yourdomain.com
 ODOO_API_KEY=your-secure-api-key
 ODOO_TIMEOUT_MS=60000  # 60 seconds (default)
-
-# Email (for customer notifications on sync failures)
-EMAIL_SERVER_HOST=smtp.example.com
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER=your_smtp_username
-EMAIL_SERVER_PASSWORD=your_smtp_password
-EMAIL_FROM=noreply@yourdomain.com
 
 # Cron Security (auto-set by Vercel)
 CRON_SECRET=your-vercel-cron-secret

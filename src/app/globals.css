@@ -15,6 +15,31 @@
   --elite-dark-burgundy: #8b2635;
   --elite-light-burgundy: #8b2635;
   --elite-black: #2c2c2c;
+
+  /* Navigation — Elite Brand: Burgundy & Warm Cream */
+  --nav-height-desktop: 64px;
+  --nav-height-mobile: 56px;
+  --bottom-bar-height: 68px;
+  --nav-bg: #F8F0D2;
+  --nav-bg-glass: rgba(248, 240, 210, 0.92);
+  --nav-border: rgba(221, 208, 184, 0.6);
+  --nav-logo-color: #5C3D2E;
+  --nav-link-default: #9C8878;
+  --nav-link-hover: #5C3D2E;
+  --nav-link-active: #8B2635;
+  --nav-deals-color: #C4683C;
+  --nav-ar-bg: rgba(139, 38, 53, 0.06);
+  --nav-ar-color: #8B2635;
+  --nav-ar-border: rgba(139, 38, 53, 0.18);
+  --nav-drawer-overlay: rgba(44, 22, 28, 0.5);
+  --nav-drawer-width: 300px;
+  --nav-shadow-subtle: 0 1px 12px rgba(139, 38, 53, 0.05), 0 1px 3px rgba(0,0,0,0.04);
+  --nav-shadow-elevated: 0 8px 32px rgba(139, 38, 53, 0.14);
+  --nav-pill-hover: rgba(221, 208, 184, 0.55);
+  --nav-pill-active: rgba(139, 38, 53, 0.08);
+  --nav-radius: 9999px;
+  --nav-radius-lg: 20px;
+  --nav-radius-xl: 24px;
 }
 
 @layer base {
@@ -39,6 +64,12 @@
   html[dir="rtl"] h5,
   html[dir="rtl"] h6 {
     font-family: var(--font-cairo);
+  }
+
+  /* Cairo for all Arabic text regardless of locale */
+  :lang(ar),
+  [lang="ar"] {
+    font-family: var(--font-cairo), sans-serif;
   }
 
   /* Prevent layout shifts during navigation */
@@ -156,7 +187,7 @@
 
   .marquee-item {
     flex-shrink: 0;
-    margin-right: 2rem;
+    margin-inline-end: 2rem;
     color: var(--elite-black);
     font-family: var(--font-cabin-condensed);
     font-size: 1.125rem;
@@ -183,7 +214,7 @@
     }
     
     .marquee-item {
-      margin-right: 1.5rem;
+      margin-inline-end: 1.5rem;
       font-size: 1rem;
     }
   }
@@ -405,6 +436,207 @@ img[loading="lazy"] {
 
 .safe-area-inset-top {
   padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* =====================================================
+   NAVIGATION — Elite Brand: Burgundy & Warm Cream
+   ===================================================== */
+
+/* Drawer slide — smooth, fluid (mobile only) */
+.nav-drawer {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--nav-drawer-width);
+  transform: translateX(-100%);
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 101;
+  box-shadow: var(--nav-shadow-elevated);
+  border-start-end-radius: var(--nav-radius-xl);
+  border-end-end-radius: var(--nav-radius-xl);
+}
+/* Hide drawer + overlay on desktop — desktop has its own header nav */
+@media (min-width: 641px) {
+  .nav-drawer,
+  .nav-drawer-overlay {
+    display: none !important;
+  }
+}
+.nav-drawer[dir="rtl"] {
+  /* inset-inline-start: 0 resolves to right: 0 when dir=rtl on the element */
+  transform: translateX(100%);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  border-start-start-radius: var(--nav-radius-xl);
+  border-end-start-radius: var(--nav-radius-xl);
+}
+.nav-drawer[data-open="true"] {
+  transform: translateX(0);
+}
+
+/* Drawer overlay */
+.nav-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--nav-drawer-overlay);
+  z-index: 100;
+  animation: nav-overlay-in 250ms ease forwards;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+@keyframes nav-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Bottom nav — mobile only */
+.nav-bottom-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  height: var(--bottom-bar-height);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--nav-bg-glass);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border-top: 1px solid var(--nav-border);
+  display: flex;
+  align-items: stretch;
+  z-index: 100;
+  box-shadow: 0 -1px 16px rgba(139, 38, 53, 0.06);
+}
+@media (min-width: 641px) {
+  .nav-bottom-bar { display: none !important; }
+}
+
+/* Mobile body padding — offset for fixed top bar + bottom bar */
+@media (max-width: 640px) {
+  .nav-body-offset {
+    padding-top: var(--nav-height-mobile);
+    padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Focus ring — accessible, burgundy branded */
+.nav-focus-ring:focus-visible {
+  outline: 2px solid var(--nav-link-active);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+/* ── Nav link pill styles ───────────────────────── */
+.nav-link-pill {
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.nav-link-pill:hover {
+  background-color: var(--nav-pill-hover);
+}
+
+.nav-link-default {
+  color: var(--nav-link-default);
+}
+.nav-link-default:hover {
+  color: var(--nav-link-hover);
+}
+
+.nav-link-active-pill {
+  background-color: var(--nav-pill-active);
+  color: var(--nav-link-active);
+}
+.nav-link-active-pill:hover {
+  background-color: rgba(139, 38, 53, 0.13);
+}
+
+.nav-link-active-color {
+  color: var(--nav-link-active);
+}
+
+.nav-link-accent {
+  color: var(--nav-deals-color);
+}
+.nav-link-accent.nav-link-pill:hover {
+  background-color: rgba(196, 104, 60, 0.1);
+}
+
+/* ── Join Free button ───────────────────────────── */
+.nav-join-btn {
+  background: linear-gradient(135deg, #8B2635 0%, #A03040 100%);
+  color: #FBF4E0;
+  box-shadow: 0 2px 8px rgba(139, 38, 53, 0.25), 0 1px 2px rgba(139, 38, 53, 0.15);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--nav-radius);
+}
+.nav-join-btn:hover {
+  background: linear-gradient(135deg, #7A1F2D 0%, #932838 100%);
+  box-shadow: 0 4px 14px rgba(139, 38, 53, 0.35), 0 2px 4px rgba(139, 38, 53, 0.18);
+  transform: translateY(-1px);
+}
+.nav-join-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 4px rgba(139, 38, 53, 0.2);
+}
+
+/* ── Language toggle ────────────────────────────── */
+.nav-lang-btn {
+  background-color: var(--nav-ar-bg);
+  color: var(--nav-ar-color);
+  border: 1px solid var(--nav-ar-border);
+  transition: all 0.18s ease;
+}
+.nav-lang-btn:hover {
+  background-color: rgba(139, 38, 53, 0.13);
+  border-color: rgba(139, 38, 53, 0.32);
+}
+
+/* ── Drawer link styles ─────────────────────────── */
+.nav-drawer-link {
+  color: var(--nav-logo-color);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.nav-drawer-link:hover {
+  background-color: var(--nav-pill-hover);
+  color: var(--nav-link-hover);
+}
+.nav-drawer-link-active {
+  background-color: var(--nav-pill-active);
+  color: var(--nav-link-active);
+}
+.nav-drawer-link-active:hover {
+  background-color: rgba(139, 38, 53, 0.13);
+}
+.nav-drawer-link-accent {
+  color: var(--nav-deals-color);
+}
+.nav-drawer-link-accent:hover {
+  background-color: rgba(196, 104, 60, 0.09);
+}
+
+/* ── Drawer CTA ─────────────────────────────────── */
+.nav-drawer-signin-cta {
+  background: linear-gradient(135deg, #8B2635 0%, #A03040 100%);
+  color: #FBF4E0;
+  box-shadow: 0 2px 10px rgba(139, 38, 53, 0.25);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--nav-radius);
+}
+.nav-drawer-signin-cta:hover {
+  background: linear-gradient(135deg, #7A1F2D 0%, #932838 100%);
+  box-shadow: 0 4px 16px rgba(139, 38, 53, 0.35);
+}
+.nav-drawer-signin-cta:active {
+  transform: scale(0.98);
+}
+
+/* ── Bottom nav tab active indicator ───────────── */
+.nav-tab-pip {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--nav-link-active);
 }
 
 /* Enhanced drink card effects with circular base */
@@ -901,4 +1133,250 @@ img[loading="lazy"] {
   :root {
     --desktop-scale: 0.8;
   }
+}
+
+/* =====================================================
+   LANDING PAGE PREMIUM ANIMATIONS
+   ===================================================== */
+
+/* Gentle floating bob for hero cups */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+.animate-float-reverse {
+  animation: float-reverse 3.5s ease-in-out infinite;
+}
+
+/* Shimmer sweep across CTA buttons */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: shimmer-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Pulsing map pin */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.pin-pulse {
+  position: relative;
+}
+.pin-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background: rgba(139, 38, 53, 0.2);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* Gradient border glow for cards on hover */
+.glow-card {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(139,38,53,0.15), rgba(196,104,60,0.15));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+/* Floating decorative shapes */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(10px, -15px) rotate(5deg); }
+  50% { transform: translate(-5px, -25px) rotate(-3deg); }
+  75% { transform: translate(15px, -10px) rotate(4deg); }
+}
+@keyframes drift-reverse {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-12px, 10px) rotate(-4deg); }
+  50% { transform: translate(8px, 20px) rotate(3deg); }
+  75% { transform: translate(-15px, 5px) rotate(-5deg); }
+}
+
+.animate-drift {
+  animation: drift 8s ease-in-out infinite;
+}
+.animate-drift-reverse {
+  animation: drift-reverse 10s ease-in-out infinite;
+}
+
+/* 3D perspective tilt for menu cards */
+.tilt-card {
+  transform-style: preserve-3d;
+  perspective: 800px;
+  transition: transform 0.3s ease;
+}
+.tilt-card:hover {
+  transform: perspective(800px) rotateX(-2deg) rotateY(3deg) translateY(-4px);
+}
+
+/* Section wave dividers */
+.wave-divider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+.wave-divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: auto;
+}
+
+/* Star twinkle */
+@keyframes twinkle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+.animate-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+.animate-twinkle:nth-child(2) { animation-delay: 0.3s; }
+.animate-twinkle:nth-child(3) { animation-delay: 0.6s; }
+.animate-twinkle:nth-child(4) { animation-delay: 0.9s; }
+.animate-twinkle:nth-child(5) { animation-delay: 1.2s; }
+
+/* CTA pulse ring */
+@keyframes cta-pulse {
+  0% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.animate-cta-pulse {
+  animation: cta-pulse 2.5s ease-out infinite;
+}
+
+/* Hero section — allow cups to overflow */
+.hero-section {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Arabic hero display text — crisp rendering + proper ligatures */
+.hero-arabic-display {
+  direction: rtl;
+  text-align: center;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-reverse,
+  .animate-drift,
+  .animate-drift-reverse,
+  .animate-twinkle,
+  .animate-cta-pulse {
+    animation: none !important;
+  }
+  .btn-shimmer::after {
+    animation: none !important;
+  }
+  .pin-pulse::before {
+    animation: none !important;
+  }
+  .tilt-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* =====================================================
+   LOYALTY TEASER — Tier card animations
+   ===================================================== */
+
+/* Gold card: soft ambient glow pulse */
+@keyframes loyaltyGoldGlow {
+  0%, 100% {
+    box-shadow:
+      0 4px 20px rgba(168, 131, 26, 0.10),
+      0 1px 4px  rgba(168, 131, 26, 0.07);
+  }
+  50% {
+    box-shadow:
+      0 8px 38px rgba(168, 131, 26, 0.24),
+      0 2px 10px rgba(168, 131, 26, 0.14);
+  }
+}
+.loyalty-gold-glow {
+  animation: loyaltyGoldGlow 2.8s ease-in-out infinite;
+}
+
+/* Platinum card: very subtle shimmer sweep */
+@keyframes loyaltyPlatinumShimmer {
+  0%   { transform: translateX(-200%) skewX(-18deg); }
+  100% { transform: translateX(320%)  skewX(-18deg); }
+}
+.loyalty-platinum-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.loyalty-platinum-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent                   0%,
+    rgba(237, 213, 216, 0.04)    40%,
+    rgba(237, 213, 216, 0.09)    50%,
+    rgba(237, 213, 216, 0.04)    60%,
+    transparent                  100%
+  );
+  animation: loyaltyPlatinumShimmer 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loyalty-gold-glow          { animation: none !important; }
+  .loyalty-platinum-shimmer::after { animation: none !important; }
 }

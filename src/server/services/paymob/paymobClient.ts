@@ -42,6 +42,7 @@ export class PaymobClient {
   private authToken: string | null = null;
   private authTokenExpiry: number = 0;
   private readonly TOKEN_CACHE_MS = 55 * 60 * 1000; // 55 minutes (tokens expire in 1 hour)
+  private readonly MAX_RETRY_ATTEMPTS = 3;
 
   constructor(config: PaymobConfig) {
     this.config = config;
@@ -54,6 +55,90 @@ export class PaymobClient {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  private isRetriableError(error: unknown): boolean {
+    const responseStatus =
+      (
+        error as {
+          response?: { status?: number };
+        }
+      )?.response?.status ?? 0;
+    const code = (error as { code?: string })?.code;
+
+    if (responseStatus === 429 || responseStatus >= 500) {
+      return true;
+    }
+
+    return (
+      code === "ETIMEDOUT" ||
+      code === "ECONNABORTED" ||
+      code === "ECONNRESET" ||
+      code === "ECONNREFUSED" ||
+      code === "EAI_AGAIN" ||
+      code === "ENOTFOUND"
+    );
+  }
+
+  private isUnauthorizedError(error: unknown): boolean {
+    return (
+      (
+        error as {
+          response?: { status?: number };
+        }
+      )?.response?.status === 401
+    );
+  }
+
+  private getRetryDelayMs(attempt: number): number {
+    const baseDelay = 500;
+    const maxDelay = 4000;
+    const jitter = Math.floor(Math.random() * 250);
+    return Math.min(baseDelay * 2 ** (attempt - 1), maxDelay) + jitter;
+  }
+
+  private async withRetry<T>(operation: () => Promise<T>): Promise<T> {
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= this.MAX_RETRY_ATTEMPTS; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+
+        if (
+          !this.isRetriableError(error) ||
+          attempt === this.MAX_RETRY_ATTEMPTS
+        ) {
+          throw error;
+        }
+
+        const delayMs = this.getRetryDelayMs(attempt);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    throw lastError;
+  }
+
+  private async executeWithAuthRetry<T>(
+    request: (authToken: string) => Promise<T>,
+  ): Promise<T> {
+    let authToken = await this.authenticate();
+
+    try {
+      return await request(authToken);
+    } catch (error) {
+      if (!this.isUnauthorizedError(error)) {
+        throw error;
+      }
+
+      // Refresh token once on auth failures and retry.
+      this.authToken = null;
+      this.authTokenExpiry = 0;
+      authToken = await this.authenticate();
+      return request(authToken);
+    }
   }
 
   /**
@@ -73,9 +158,8 @@ export class PaymobClient {
         api_key: this.config.apiKey,
       };
 
-      const response = await this.axios.post<PaymobAuthResponse>(
-        "/auth/tokens",
-        payload,
+      const response = await this.withRetry(() =>
+        this.axios.post<PaymobAuthResponse>("/auth/tokens", payload),
       );
 
       if (!response.data?.token) {
@@ -117,20 +201,22 @@ export class PaymobClient {
     deliveryNeeded: boolean = false,
   ): Promise<PaymobOrderResponse> {
     try {
-      const authToken = await this.authenticate();
+      const response = await this.withRetry(() =>
+        this.executeWithAuthRetry((authToken) => {
+          const payload: PaymobOrderRequest = {
+            auth_token: authToken,
+            delivery_needed: deliveryNeeded,
+            amount_cents: amountCents,
+            currency: "EGP",
+            items,
+            merchant_order_id: merchantOrderId,
+          };
 
-      const payload: PaymobOrderRequest = {
-        auth_token: authToken,
-        delivery_needed: deliveryNeeded,
-        amount_cents: amountCents,
-        currency: "EGP",
-        items,
-        merchant_order_id: merchantOrderId,
-      };
-
-      const response = await this.axios.post<PaymobOrderResponse>(
-        "/ecommerce/orders",
-        payload,
+          return this.axios.post<PaymobOrderResponse>(
+            "/ecommerce/orders",
+            payload,
+          );
+        }),
       );
 
       if (!response.data?.id) {
@@ -142,7 +228,8 @@ export class PaymobClient {
       const resp = (error as { response?: { status?: number; data?: unknown } })
         ?.response;
       const message =
-        (resp as { data?: { detail?: string; message?: string } })?.data?.detail ||
+        (resp as { data?: { detail?: string; message?: string } })?.data
+          ?.detail ||
         (resp as { data?: { message?: string } })?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to create Paymob order";
@@ -168,25 +255,27 @@ export class PaymobClient {
     integrationId?: number,
   ): Promise<string> {
     try {
-      const authToken = await this.authenticate();
-
       // Use provided integration ID or default
       const integrationIdToUse = integrationId || this.config.integrationId;
 
-      const payload: PaymobPaymentKeyRequest = {
-        auth_token: authToken,
-        amount_cents: amountCents,
-        expiration: 3600, // 1 hour
-        order_id: orderId,
-        billing_data: billingData,
-        currency: "EGP",
-        integration_id: integrationIdToUse,
-        lock_order_when_paid: true,
-      };
+      const response = await this.withRetry(() =>
+        this.executeWithAuthRetry((authToken) => {
+          const payload: PaymobPaymentKeyRequest = {
+            auth_token: authToken,
+            amount_cents: amountCents,
+            expiration: 3600, // 1 hour
+            order_id: orderId,
+            billing_data: billingData,
+            currency: "EGP",
+            integration_id: integrationIdToUse,
+            lock_order_when_paid: true,
+          };
 
-      const response = await this.axios.post<PaymobPaymentKeyResponse>(
-        "/acceptance/payment_keys",
-        payload,
+          return this.axios.post<PaymobPaymentKeyResponse>(
+            "/acceptance/payment_keys",
+            payload,
+          );
+        }),
       );
 
       if (!response.data?.token) {
@@ -198,7 +287,8 @@ export class PaymobClient {
       const resp = (error as { response?: { status?: number; data?: unknown } })
         ?.response;
       const message =
-        (resp as { data?: { detail?: string; message?: string } })?.data?.detail ||
+        (resp as { data?: { detail?: string; message?: string } })?.data
+          ?.detail ||
         (resp as { data?: { message?: string } })?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to get payment key";
@@ -221,15 +311,17 @@ export class PaymobClient {
     transactionId: number,
   ): Promise<PaymobTransactionResponse> {
     try {
-      const authToken = await this.authenticate();
-
-      const response = await this.axios.get<PaymobTransactionResponse>(
-        `/acceptance/transactions/${transactionId}`,
-        {
-          params: {
-            token: authToken,
-          },
-        },
+      const response = await this.withRetry(() =>
+        this.executeWithAuthRetry((authToken) =>
+          this.axios.get<PaymobTransactionResponse>(
+            `/acceptance/transactions/${transactionId}`,
+            {
+              params: {
+                token: authToken,
+              },
+            },
+          ),
+        ),
       );
 
       return response.data;
@@ -358,12 +450,18 @@ export class PaymobClient {
     const method = paymentMethod.toLowerCase();
 
     // Wallet integration
-    if ((method === "wallet" || method === "w") && this.config.walletIntegrationId) {
+    if (
+      (method === "wallet" || method === "w") &&
+      this.config.walletIntegrationId
+    ) {
       return this.config.walletIntegrationId;
     }
 
     // Subscription integration
-    if ((method === "subscription" || method === "sub") && this.config.subscriptionIntegrationId) {
+    if (
+      (method === "subscription" || method === "sub") &&
+      this.config.subscriptionIntegrationId
+    ) {
       return this.config.subscriptionIntegrationId;
     }
 
@@ -373,17 +471,26 @@ export class PaymobClient {
     }
 
     // Balance transfer
-    if ((method === "balance_transfer" || method === "balance") && this.config.balanceTransferIntegrationId) {
+    if (
+      (method === "balance_transfer" || method === "balance") &&
+      this.config.balanceTransferIntegrationId
+    ) {
       return this.config.balanceTransferIntegrationId;
     }
 
     // Cash collection / deposit
-    if ((method === "cash_collection" || method === "deposit") && this.config.cashCollectionIntegrationId) {
+    if (
+      (method === "cash_collection" || method === "deposit") &&
+      this.config.cashCollectionIntegrationId
+    ) {
       return this.config.cashCollectionIntegrationId;
     }
 
     // Bill payment
-    if ((method === "bill_payment" || method === "bill") && this.config.billPaymentIntegrationId) {
+    if (
+      (method === "bill_payment" || method === "bill") &&
+      this.config.billPaymentIntegrationId
+    ) {
       return this.config.billPaymentIntegrationId;
     }
 
@@ -426,8 +533,10 @@ export function createPaymobClient(): PaymobClient | null {
   const walletIntegrationId = process.env.PAYMOB_WALLET_INTEGRATION_ID;
   const subscriptionIntegrationId = process.env.PAYMOB_INTEGRATION_SUBSCRIPTION;
   const hostIntegrationId = process.env.PAYMOB_INTEGRATION_HOST;
-  const balanceTransferIntegrationId = process.env.PAYMOB_INTEGRATION_BALANCE_TRANSFER;
-  const cashCollectionIntegrationId = process.env.PAYMOB_INTEGRATION_CASH_COLLECTION;
+  const balanceTransferIntegrationId =
+    process.env.PAYMOB_INTEGRATION_BALANCE_TRANSFER;
+  const cashCollectionIntegrationId =
+    process.env.PAYMOB_INTEGRATION_CASH_COLLECTION;
   const billPaymentIntegrationId = process.env.PAYMOB_INTEGRATION_BILL_PAYMENT;
   const environment = (process.env.PAYMOB_ENVIRONMENT || "sandbox") as
     | "sandbox"

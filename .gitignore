@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 
 # production
@@ -35,6 +36,12 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+.playwright-test/
+.playwright-mcp
+.playwright-screenshots/*
+!.playwright-screenshots/.gitkeep
+
 
 # typescript
 *.tsbuildinfo

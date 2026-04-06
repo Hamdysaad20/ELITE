@@ -28,6 +28,17 @@ export async function generateStaticParams() {
   // This ensures all subcategory pages are generated at build time
   for (const category of categories) {
     for (const subCategory of category.subCategories) {
+      if (
+        category.id === "special-drinks" &&
+        subCategory.id === "milkshakes-smoothies"
+      ) {
+        continue;
+      }
+
+      if (category.id === "special-drinks" && subCategory.id === "boba") {
+        continue;
+      }
+
       params.push({
         category: category.id,
         subcategory: subCategory.id,
@@ -52,6 +63,17 @@ export default async function SubCategoryPage({
   const category = getCategoryById(categoryId);
   const subCategory = getSubCategoryById(categoryId, subCategoryId);
   const allCategories = getAllCategories();
+
+  if (
+    categoryId === "special-drinks" &&
+    subCategoryId === "milkshakes-smoothies"
+  ) {
+    notFound();
+  }
+
+  if (categoryId === "special-drinks" && subCategoryId === "boba") {
+    notFound();
+  }
 
   if (!category || !subCategory) {
     notFound();
@@ -85,9 +107,7 @@ export default async function SubCategoryPage({
               >
                 {t("menu")}
               </LocalizedLink>
-              <ChevronRight
-                className={cn("w-4 h-4", isRTL && "rotate-180")}
-              />
+              <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
               <LocalizedLink
                 href={`/menu/${category.id}`}
                 className="hover:text-elite-light-cream transition-colors duration-200"
@@ -95,9 +115,7 @@ export default async function SubCategoryPage({
               >
                 {category.name}
               </LocalizedLink>
-              <ChevronRight
-                className={cn("w-4 h-4", isRTL && "rotate-180")}
-              />
+              <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
               <span className="font-semibold">{subCategory.name}</span>
             </div>
 
@@ -120,9 +138,7 @@ export default async function SubCategoryPage({
               className="inline-flex items-center gap-2 bg-elite-cream text-elite-burgundy px-6 py-3 rounded-full font-cabin font-semibold transition-all duration-300 hover:bg-elite-light-cream hover:scale-105"
               prefetch={true}
             >
-              <ChevronLeft
-                className={cn("w-4 h-4", isRTL && "rotate-180")}
-              />
+              <ChevronLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
               {t("backToCategory", { category: category.name })}
             </LocalizedLink>
           </div>
@@ -273,23 +289,23 @@ export default async function SubCategoryPage({
                   <div className="bg-white rounded-2xl shadow-xl p-12">
                     <div className="text-6xl mb-6">☕</div>
                     <h3 className="font-calistoga text-elite-burgundy text-2xl mb-4">
-                        {t("empty.title")}
+                      {t("empty.title")}
                     </h3>
                     <p className="font-cabin text-elite-black text-lg mb-8">
-                        {t("empty.description", {
-                          subcategory: subCategory.name.toLowerCase(),
-                        })}
+                      {t("empty.description", {
+                        subcategory: subCategory.name.toLowerCase(),
+                      })}
                     </p>
-                      <LocalizedLink
+                    <LocalizedLink
                       href={`/menu/${category.id}`}
                       className="inline-flex items-center gap-2 bg-elite-burgundy text-elite-cream px-8 py-4 rounded-full font-cabin font-semibold transition-all duration-300 hover:opacity-90 hover:scale-105"
                       prefetch={true}
                     >
-                        <ChevronLeft
-                          className={cn("w-4 h-4", isRTL && "rotate-180")}
-                        />
-                        {t("backToCategory", { category: category.name })}
-                      </LocalizedLink>
+                      <ChevronLeft
+                        className={cn("w-4 h-4", isRTL && "rotate-180")}
+                      />
+                      {t("backToCategory", { category: category.name })}
+                    </LocalizedLink>
                   </div>
                 </div>
               )}

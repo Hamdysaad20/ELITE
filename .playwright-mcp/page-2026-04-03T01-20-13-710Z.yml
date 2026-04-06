@@ -1,0 +1,556 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Elite Coffee — Home" [ref=e4] [cursor=pointer]:
+        - /url: /en
+        - img "Elite Coffee — Home" [ref=e5]
+      - navigation "Navigation" [ref=e6]:
+        - link "Menu" [ref=e7] [cursor=pointer]:
+          - /url: /en/menu
+        - link "Location" [ref=e8] [cursor=pointer]:
+          - /url: /en#location
+        - generic [ref=e10]:
+          - text: Deals
+          - generic [ref=e11]: soon
+        - generic [ref=e13]:
+          - text: Shop
+          - generic [ref=e14]: soon
+      - generic [ref=e15]:
+        - button "Switch to Arabic" [ref=e16] [cursor=pointer]: عربي
+        - generic [ref=e17]:
+          - link "Sign In" [ref=e18] [cursor=pointer]:
+            - /url: /en/auth/signin
+          - link "Explore Menu" [ref=e19] [cursor=pointer]:
+            - /url: /en/menu
+  - button "Open cart" [ref=e20] [cursor=pointer]:
+    - img [ref=e23]
+  - dialog "Shopping cart" [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - img [ref=e33]
+          - generic [ref=e37]:
+            - heading "Shopping Cart" [level=2] [ref=e38]
+            - paragraph [ref=e39]: 0 items
+        - button "Close cart" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+      - generic [ref=e45]:
+        - img [ref=e47]
+        - heading "Your cart is empty" [level=3] [ref=e51]
+        - paragraph [ref=e52]: Start adding some delicious items to your order!
+        - button "Continue Shopping" [ref=e53] [cursor=pointer]
+  - main [ref=e54]:
+    - main [ref=e55]:
+      - region "Homepage hero" [ref=e56]:
+        - generic [ref=e57]:
+          - img "Elite Coffee — Faiyum, Egypt" [ref=e59]
+          - img "Elite Coffee — Spanish Boba" [ref=e61]
+          - img "Elite Coffee — Signature Drinks" [ref=e63]
+        - generic [ref=e64]:
+          - generic [ref=e67]: Premium Coffee · Faiyum, Egypt
+          - generic "ELITE COFFEE" [ref=e70]:
+            - generic [ref=e72]: ELITE
+            - generic [ref=e74]: COFFEE
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - paragraph [ref=e79]: Crafted in Faiyum for slow mornings, quick resets, and the kind of coffee worth coming back for.
+              - generic [ref=e80]:
+                - generic [ref=e81]: ★★★★★
+                - generic [ref=e82]: 4.9 · Loved by locals
+              - generic [ref=e83]:
+                - link "Explore Menu" [ref=e85] [cursor=pointer]:
+                  - /url: /en/menu
+                - link "Join Free" [ref=e86] [cursor=pointer]:
+                  - /url: /en/auth/signin
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - generic [ref=e98]:
+                  - paragraph [ref=e99]: Now pouring
+                  - paragraph [ref=e100]: Two fan favourites, ready when you are.
+                - link "See full menu →" [ref=e101] [cursor=pointer]:
+                  - /url: /en/menu
+              - generic [ref=e102]:
+                - link [ref=e103] [cursor=pointer]:
+                  - /url: /en/menu
+                  - article [ref=e104]:
+                    - generic [ref=e105]:
+                      - img "Taro Boba" [ref=e106]
+                      - generic [ref=e109]: Boba · Iced
+                      - img [ref=e111]
+                      - generic [ref=e113]:
+                        - paragraph [ref=e114]: Taro Boba
+                        - paragraph [ref=e115]: Purple taro · boba pearls · iced
+                        - paragraph [ref=e116]: Tap to order →
+                - link [ref=e117] [cursor=pointer]:
+                  - /url: /en/menu
+                  - article [ref=e118]:
+                    - generic [ref=e119]:
+                      - img "Spanish Boba" [ref=e120]
+                      - generic [ref=e123]: Boba · Iced
+                      - img [ref=e125]
+                      - generic [ref=e127]:
+                        - paragraph [ref=e128]: Spanish Boba
+                        - paragraph [ref=e129]: Espresso · caramel · boba pearls
+                        - paragraph [ref=e130]: Tap to order →
+        - generic [ref=e133]:
+          - generic [ref=e135]:
+            - generic [ref=e136]: 🌎
+            - generic [ref=e137]: Global Flavor
+          - generic [ref=e139]:
+            - generic [ref=e140]: 🌎
+            - generic [ref=e141]: Global Flavor
+          - generic [ref=e143]:
+            - generic [ref=e144]: 🌎
+            - generic [ref=e145]: Global Flavor
+          - generic [ref=e147]:
+            - generic [ref=e148]: ☕
+            - generic [ref=e149]: Friendly Baristas
+          - generic [ref=e151]:
+            - generic [ref=e152]: ☕
+            - generic [ref=e153]: Friendly Baristas
+          - generic [ref=e155]:
+            - generic [ref=e156]: ☕
+            - generic [ref=e157]: Friendly Baristas
+          - generic [ref=e159]:
+            - generic [ref=e160]: ⭐
+            - generic [ref=e161]: Great Coffee
+          - generic [ref=e163]:
+            - generic [ref=e164]: ⭐
+            - generic [ref=e165]: Great Coffee
+          - generic [ref=e167]:
+            - generic [ref=e168]: ⭐
+            - generic [ref=e169]: Great Coffee
+          - generic [ref=e171]:
+            - generic [ref=e172]: ⚡
+            - generic [ref=e173]: Fast Service
+          - generic [ref=e175]:
+            - generic [ref=e176]: ⚡
+            - generic [ref=e177]: Fast Service
+          - generic [ref=e179]:
+            - generic [ref=e180]: ⚡
+            - generic [ref=e181]: Fast Service
+          - generic [ref=e183]:
+            - generic [ref=e184]: 🏠
+            - generic [ref=e185]: Cozy Space
+          - generic [ref=e187]:
+            - generic [ref=e188]: 🏠
+            - generic [ref=e189]: Cozy Space
+          - generic [ref=e191]:
+            - generic [ref=e192]: 🏠
+            - generic [ref=e193]: Cozy Space
+          - generic [ref=e195]:
+            - generic [ref=e196]: 📸
+            - generic [ref=e197]: Handcrafted Drinks
+          - generic [ref=e199]:
+            - generic [ref=e200]: 📸
+            - generic [ref=e201]: Handcrafted Drinks
+          - generic [ref=e203]:
+            - generic [ref=e204]: 📸
+            - generic [ref=e205]: Handcrafted Drinks
+          - generic [ref=e207]:
+            - generic [ref=e208]: 🏆
+            - generic [ref=e209]: Local Roasts
+          - generic [ref=e211]:
+            - generic [ref=e212]: 🏆
+            - generic [ref=e213]: Local Roasts
+          - generic [ref=e215]:
+            - generic [ref=e216]: 🏆
+            - generic [ref=e217]: Local Roasts
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - generic [ref=e222]:
+            - img [ref=e223]
+            - text: Start here
+          - heading "What Are You Craving?" [level=2] [ref=e225]
+          - paragraph [ref=e226]: Jump straight to the side of the menu that fits your mood right now.
+          - generic [ref=e227]:
+            - generic [ref=e228]: 6 signature categories
+            - link "View Full Menu" [ref=e229] [cursor=pointer]:
+              - /url: /en/menu
+              - text: View Full Menu
+              - img [ref=e230]
+        - generic [ref=e232]:
+          - link "Hot Drinks" [ref=e233] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e234]:
+              - img [ref=e237]
+              - generic [ref=e239]: Hot Drinks
+          - link "Iced Drinks" [ref=e240] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e241]:
+              - img [ref=e244]
+              - generic [ref=e246]: Iced Drinks
+          - link "Smoothies" [ref=e247] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e248]:
+              - img [ref=e251]
+              - generic [ref=e253]: Smoothies
+          - link "Milkshakes" [ref=e254] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e255]:
+              - img [ref=e258]
+              - generic [ref=e260]: Milkshakes
+          - link "Boba" [ref=e261] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e262]:
+              - img [ref=e265]
+              - generic [ref=e267]: Boba
+          - link "Kids Corner" [ref=e268] [cursor=pointer]:
+            - /url: /en/menu
+            - generic [ref=e269]:
+              - img [ref=e272]
+              - generic [ref=e274]: Kids Corner
+      - generic [ref=e275]:
+        - generic [ref=e277]:
+          - generic [ref=e278]:
+            - img [ref=e279]
+            - text: Getting Started
+          - heading "Explore How It Works" [level=2] [ref=e281]
+          - paragraph [ref=e282]: From craving to cup — easy as 1, 2, 3.
+        - generic [ref=e284]:
+          - generic [ref=e285]:
+            - generic [ref=e287]:
+              - generic: "01"
+              - generic [ref=e288]:
+                - generic [ref=e291]: Step 1 / 3
+                - generic [ref=e292]: ☕
+                - heading "Browse The Menu" [level=3] [ref=e293]
+                - paragraph [ref=e294]: تصفّح القائمة
+                - paragraph [ref=e296]: Explore our full range of handcrafted drinks, from classic coffee to specialty beverages.
+                - generic [ref=e297]:
+                  - generic [ref=e298]: 50+ drinks
+                  - generic [ref=e299]: Daily specials
+                  - generic [ref=e300]: Full menu
+                - link "View Menu" [ref=e301] [cursor=pointer]:
+                  - /url: /en/menu
+                  - text: View Menu
+                  - img [ref=e302]
+            - generic [ref=e309]:
+              - generic: "02"
+              - generic [ref=e310]:
+                - generic [ref=e313]: Step 2 / 3
+                - generic [ref=e314]: 🛒
+                - heading "Place Your Order" [level=3] [ref=e315]
+                - paragraph [ref=e316]: قدّم طلبك
+                - paragraph [ref=e318]: Order online for pickup or delivery in seconds — no wait, no hassle.
+                - generic [ref=e319]:
+                  - generic [ref=e320]: Pickup & delivery
+                  - generic [ref=e321]: Pay online
+                  - generic [ref=e322]: No hassle
+                - link "Order Now" [ref=e323] [cursor=pointer]:
+                  - /url: /en/menu
+                  - text: Order Now
+                  - img [ref=e324]
+            - generic [ref=e331]:
+              - generic: "03"
+              - generic [ref=e332]:
+                - generic [ref=e335]: Step 3 / 3
+                - generic [ref=e336]: ✨
+                - heading "Enjoy Every Sip" [level=3] [ref=e337]
+                - paragraph [ref=e338]: استمتع بكل رشفة
+                - paragraph [ref=e340]: Your drink is made fresh, exactly how you like it, every single time.
+                - generic [ref=e341]:
+                  - generic [ref=e342]: Made to order
+                  - generic [ref=e343]: Your way
+                  - generic [ref=e344]: Always fresh
+                - link "Try Today" [ref=e345] [cursor=pointer]:
+                  - /url: /en/menu
+                  - text: Try Today
+                  - img [ref=e346]
+          - generic [ref=e352]:
+            - img "Browse The Menu" [ref=e354]
+            - img "Place Your Order" [ref=e356]
+            - img "Enjoy Every Sip" [ref=e358]
+      - img [ref=e360]
+      - generic [ref=e363]:
+        - generic [ref=e364]:
+          - generic [ref=e365]:
+            - generic [ref=e366]:
+              - img [ref=e367]
+              - text: Signature Picks
+            - heading "Start With The Drinks We’re Known For" [level=2] [ref=e369]
+            - paragraph [ref=e370]: "Real campaign pours from the Elite counter: warm, tactile, and styled the way guests actually discover the brand."
+          - link "Explore Full Menu" [ref=e371] [cursor=pointer]:
+            - /url: /en/menu
+            - text: Explore Full Menu
+            - img [ref=e372]
+        - generic [ref=e375]:
+          - link [ref=e376] [cursor=pointer]:
+            - /url: /en/menu
+            - article [ref=e377]:
+              - img "Signature Milkshake" [ref=e378]
+              - paragraph [ref=e381]: Campaign favorite
+              - img [ref=e383]
+              - generic [ref=e386]:
+                - paragraph [ref=e387]: Dessert spotlight
+                - heading "Signature Milkshake" [level=3] [ref=e388]
+                - paragraph [ref=e389]: A richer hero pour with cream, berry contrast, and the kind of presentation that earns a second look before the first sip.
+                - generic [ref=e390]:
+                  - paragraph [ref=e391]: Built from Elite’s branded photography, not just catalog cutouts.
+                  - generic [ref=e392]:
+                    - text: See in menu
+                    - img [ref=e393]
+          - generic [ref=e396]:
+            - link [ref=e397] [cursor=pointer]:
+              - /url: /en/menu
+              - article [ref=e398]:
+                - img "Taro Boba" [ref=e399]
+                - img [ref=e402]
+                - generic [ref=e405]:
+                  - paragraph [ref=e406]: Velvet purple
+                  - heading "Taro Boba" [level=3] [ref=e407]
+            - link [ref=e408] [cursor=pointer]:
+              - /url: /en/menu
+              - article [ref=e409]:
+                - img "Spanish Boba" [ref=e410]
+                - img [ref=e413]
+                - generic [ref=e416]:
+                  - paragraph [ref=e417]: Creamy caramel
+                  - heading "Spanish Boba" [level=3] [ref=e418]
+            - link [ref=e419] [cursor=pointer]:
+              - /url: /en/menu
+              - article [ref=e420]:
+                - img "Golden Boba Latte" [ref=e421]
+                - img [ref=e424]
+                - generic [ref=e427]:
+                  - paragraph [ref=e428]: Sunlit pour
+                  - heading "Golden Boba Latte" [level=3] [ref=e429]
+      - img [ref=e431]
+      - generic [ref=e434]:
+        - generic [ref=e435]:
+          - heading "Why Elite?" [level=2] [ref=e436]
+          - paragraph [ref=e437]: More than just coffee
+        - generic [ref=e438]:
+          - generic [ref=e439]:
+            - generic [ref=e440]:
+              - generic [ref=e441]: ☕
+              - heading "Great Coffee, Tasty Sips" [level=3] [ref=e442]
+              - paragraph [ref=e443]: Expertly crafted beverages with premium beans
+            - generic [ref=e444]:
+              - generic [ref=e445]: 🏠
+              - heading "Warm, Cozy Atmosphere" [level=3] [ref=e446]
+              - paragraph [ref=e447]: A welcoming space that feels like home
+            - generic [ref=e448]:
+              - generic [ref=e449]: ⚡
+              - heading "Speedy Service with a Smile" [level=3] [ref=e450]
+              - paragraph [ref=e451]: Quick, friendly service every time
+            - generic [ref=e452]:
+              - generic [ref=e453]: 🌿
+              - heading "Local & Sustainable" [level=3] [ref=e454]
+              - paragraph [ref=e455]: Supporting local farmers and eco-friendly practices
+          - generic [ref=e456]:
+            - generic [ref=e457]: “
+            - blockquote [ref=e458]: The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.
+            - generic [ref=e459]:
+              - paragraph [ref=e460]: A Happy Customer
+              - paragraph [ref=e461]: Coffee Enthusiast
+            - generic [ref=e462]:
+              - img [ref=e463]
+              - img [ref=e465]
+              - img [ref=e467]
+              - img [ref=e469]
+              - img [ref=e471]
+            - paragraph [ref=e473]: 4.9/5 from local customers
+      - img [ref=e475]
+      - generic [ref=e478]:
+        - generic [ref=e479]:
+          - heading "Loved by Locals" [level=2] [ref=e480]
+          - paragraph [ref=e481]: Local go-to's everyone loves - handpicked and always fresh.
+        - link "Explore Menu" [ref=e496] [cursor=pointer]:
+          - /url: /en/menu
+      - img [ref=e498]
+      - generic [ref=e501]:
+        - generic [ref=e502]:
+          - paragraph [ref=e503]: Customer Stories
+          - heading "What People Love About Us" [level=2] [ref=e504]
+          - paragraph [ref=e505]: Real stories from real people who've made Elite their daily ritual
+        - generic [ref=e506]:
+          - generic [ref=e507]:
+            - generic [ref=e508]:
+              - img [ref=e509]
+              - img [ref=e511]
+              - img [ref=e513]
+              - img [ref=e515]
+              - img [ref=e517]
+            - generic [ref=e519]: “
+            - blockquote [ref=e520]: The coffee here is absolutely incredible. Every sip feels like a moment of pure joy. The baristas really know their craft and it shows in every cup.
+            - generic [ref=e522]:
+              - generic [ref=e524]: C
+              - paragraph [ref=e525]: Coffee Enthusiast
+          - generic [ref=e526]:
+            - generic [ref=e527]:
+              - img [ref=e528]
+              - img [ref=e530]
+              - img [ref=e532]
+              - img [ref=e534]
+              - img [ref=e536]
+            - generic [ref=e538]: “
+            - blockquote [ref=e539]: This place has become my second home. The atmosphere is so welcoming and the pastries are to die for. Perfect spot for working or catching up with friends.
+            - generic [ref=e541]:
+              - generic [ref=e543]: R
+              - paragraph [ref=e544]: Regular Customer
+          - generic [ref=e545]:
+            - generic [ref=e546]:
+              - img [ref=e547]
+              - img [ref=e549]
+              - img [ref=e551]
+              - img [ref=e553]
+              - img [ref=e555]
+            - generic [ref=e557]: “
+            - blockquote [ref=e558]: I love how they source everything locally. You can taste the difference in quality. Plus, the staff remembers your name and preferences.
+            - generic [ref=e560]:
+              - generic [ref=e562]: L
+              - paragraph [ref=e563]: Local Resident
+        - generic [ref=e565]:
+          - generic [ref=e566]:
+            - img [ref=e567]
+            - img [ref=e569]
+            - img [ref=e571]
+            - img [ref=e573]
+            - img [ref=e575]
+          - generic [ref=e577]: 4.9 / 5 from local customers
+      - img [ref=e579]
+      - generic [ref=e582]:
+        - generic [ref=e583]:
+          - paragraph [ref=e584]: Rewards & Membership
+          - heading "Join Once. Enjoy Every Visit More." [level=2] [ref=e585]
+          - paragraph [ref=e586]: Order. Earn points. Level up.
+        - generic [ref=e587]:
+          - generic [ref=e590]: Earn points on every order
+          - generic [ref=e594]: Faster checkout, every time
+          - generic [ref=e598]: Birthday rewards & surprises
+        - generic [ref=e599]:
+          - generic [ref=e600]:
+            - generic [ref=e602]:
+              - img "Bronze"
+            - generic [ref=e603]:
+              - paragraph [ref=e604]: Start Here
+              - paragraph [ref=e605]: Bronze
+              - generic [ref=e606]:
+                - paragraph [ref=e607]: 0 pts
+                - generic [ref=e608]: 1 pt / EGP
+          - generic [ref=e614]:
+            - generic [ref=e616]:
+              - img "Silver"
+            - generic [ref=e617]:
+              - paragraph [ref=e618]: Rising Fast
+              - paragraph [ref=e619]: Silver
+              - generic [ref=e620]:
+                - paragraph [ref=e621]: 500 pts
+                - generic [ref=e622]: 1 pt / EGP
+          - generic [ref=e628]:
+            - generic [ref=e630]:
+              - img "Gold"
+            - generic [ref=e631]:
+              - paragraph [ref=e632]: Most Popular
+              - paragraph [ref=e633]: Gold
+              - generic [ref=e634]:
+                - paragraph [ref=e635]: 2,000 pts
+                - generic [ref=e636]: 1.25 pts / EGP
+          - generic [ref=e642]:
+            - generic [ref=e644]:
+              - img "Platinum"
+            - generic [ref=e645]:
+              - paragraph [ref=e646]: Elite Status
+              - paragraph [ref=e647]: Platinum
+              - generic [ref=e648]:
+                - paragraph [ref=e649]: 5,000 pts
+                - generic [ref=e650]: 1.5 pts / EGP
+        - generic [ref=e656]:
+          - link "Join Free" [ref=e657] [cursor=pointer]:
+            - /url: /en/auth/signin
+          - paragraph [ref=e658]: Free to join — no credit card required
+      - img [ref=e660]
+      - generic [ref=e663]:
+        - generic [ref=e664]:
+          - heading "Visit Us" [level=2] [ref=e665]
+          - paragraph [ref=e666]: Easy to find, easy to settle into, and worth the stop whether you're meeting friends or resetting your day.
+        - generic [ref=e668]:
+          - generic [ref=e669]:
+            - img [ref=e671]
+            - generic [ref=e674]:
+              - heading "Elite Cafee" [level=3] [ref=e675]
+              - paragraph [ref=e676]: Faiyum, Governorate Club, next to the Governor's Villa
+              - generic [ref=e677]:
+                - img [ref=e678]
+                - paragraph [ref=e681]: 8 AM - 3 PM Daily
+          - generic [ref=e682]:
+            - link "Get Directions" [ref=e683] [cursor=pointer]:
+              - /url: https://maps.google.com/?q=Elite+Cafee+Faiyum+Governorate+Club
+              - img [ref=e684]
+              - text: Get Directions
+            - link "Message Us" [ref=e686] [cursor=pointer]:
+              - /url: https://www.facebook.com/elitecafee
+              - img [ref=e687]
+              - text: Message Us
+      - img [ref=e690]
+    - generic [ref=e692]:
+      - generic [ref=e693]:
+        - generic [ref=e694]:
+          - generic [ref=e696]:
+            - heading "Life Begins After Coffee" [level=3] [ref=e697]:
+              - text: Life Begins
+              - text: After Coffee
+            - paragraph [ref=e698]: Experience the perfect blend of tradition and innovation in every cup.
+          - generic [ref=e699]:
+            - generic [ref=e700]:
+              - heading "Navigation" [level=4] [ref=e701]
+              - paragraph [ref=e702]: Explore our world
+            - navigation [ref=e703]:
+              - link "Menu" [ref=e704] [cursor=pointer]:
+                - /url: /en/menu
+              - link "DealsSoon" [ref=e705] [cursor=pointer]:
+                - /url: /en/deals
+              - link "RewardsSoon" [ref=e706] [cursor=pointer]:
+                - /url: /en/rewards
+              - link "Shop Soon" [ref=e707] [cursor=pointer]:
+                - /url: /en/shop
+          - generic [ref=e708]:
+            - generic [ref=e709]:
+              - heading "Menu Categories" [level=4] [ref=e710]
+              - paragraph [ref=e711]: Our offerings
+            - navigation [ref=e712]:
+              - link "Classic Drinks" [ref=e713] [cursor=pointer]:
+                - /url: /en/menu
+              - link "Special Drinks" [ref=e714] [cursor=pointer]:
+                - /url: /en/menu/special-drinks
+              - link "Kids' Corner" [ref=e715] [cursor=pointer]:
+                - /url: /en/menu/special-drinks
+              - link "Food & TreatsSoon" [ref=e716] [cursor=pointer]:
+                - /url: /en/menu/food
+              - link "At Home CoffeeSoon" [ref=e717] [cursor=pointer]:
+                - /url: /en/menu/at-home-coffee
+          - generic [ref=e718]:
+            - generic [ref=e719]:
+              - heading "Location" [level=4] [ref=e720]
+              - paragraph [ref=e721]: Visit us
+            - generic [ref=e723]:
+              - img [ref=e724]
+              - generic [ref=e727]:
+                - generic [ref=e728]: Faiyum, Governorate Club, next to the Governor's Villa
+                - generic [ref=e729]: الفيوم، نادي المحافظة، بجوار فيلا المحافظ
+        - generic [ref=e730]:
+          - heading "Follow Us" [level=4] [ref=e731]
+          - generic [ref=e732]:
+            - link [ref=e733] [cursor=pointer]:
+              - /url: https://instagram.com/officieleliteeg
+              - img [ref=e734]
+            - link [ref=e737] [cursor=pointer]:
+              - /url: https://www.facebook.com/profile.php?id=61577901386334
+              - img [ref=e738]
+            - link [ref=e740] [cursor=pointer]:
+              - /url: https://tiktok.com/@officieleliteeg
+              - img [ref=e741]
+            - link [ref=e743] [cursor=pointer]:
+              - /url: https://officieleliteeg.com
+              - img [ref=e744]
+        - heading "ELITE COFFEE" [level=2] [ref=e748]
+      - generic [ref=e751]:
+        - paragraph [ref=e752]: © 2026 Elite Coffee. All rights reserved.
+        - generic [ref=e753]:
+          - link "Privacy Policy" [ref=e754] [cursor=pointer]:
+            - /url: /en/privacy-policy
+          - link "Terms of Service" [ref=e755] [cursor=pointer]:
+            - /url: /en/terms-of-service
+          - link "Cookie Policy" [ref=e756] [cursor=pointer]:
+            - /url: /en/cookie-policy

@@ -5,7 +5,11 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useTransition, useOptimistic } from "react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
-import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import {
+  getFallbackImage,
+  getLocalProductImageCandidates,
+  sanitizeImages,
+} from "@/lib/imageUtils";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { addLocaleToPathname } from "@/i18n/routing";
 import { useLocalizedRouter } from "@/hooks/useLocalizedRouter";
@@ -131,17 +135,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   };
 
   const handleUpdateQuantity = (id: string, quantity: number) => {
-    setPendingItems((prev) => new Set(prev).add(id));
     startTransition(() => {
       setOptimisticItems({ action: "update", id, quantity });
       updateQuantity(id, quantity);
-      setTimeout(() => {
-        setPendingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
-      }, 300);
     });
   };
 
@@ -268,6 +264,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="space-y-3 sm:space-y-4">
                 {optimisticItems.map((item) => {
                   const isItemPending = pendingItems.has(item.id);
+                  const imageCandidates = sanitizeImages([
+                    ...getLocalProductImageCandidates(item.name),
+                    item.image,
+                  ]);
 
                   return (
                     <div
@@ -285,13 +285,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {/* Image - Optimized sizing with aspect ratio */}
                         <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-xl lg:rounded-2xl overflow-hidden bg-elite-cream flex-shrink-0 ring-2 ring-elite-burgundy/5 aspect-square">
                           <ImageWithFallback
-                            src={
-                              [
-                                ...getLocalProductImageCandidates(item.name),
-                                item.image,
-                              ].filter(Boolean) as string[]
-                            }
+                            src={imageCandidates}
                             alt={item.name}
+                            fallbackSrc={getFallbackImage("product")}
                             width={112}
                             height={112}
                             objectFit="cover"

@@ -74,7 +74,7 @@ Add these secrets to your GitHub repository:
 
 ---
 
-## 🔵 NextAuth & Email (Optional - for future features)
+## 🔵 NextAuth & Email (Optional)
 
 12. **`NEXTAUTH_SECRET`**
     - Value: Secret for NextAuth session encryption
@@ -84,12 +84,12 @@ Add these secrets to your GitHub repository:
 13. **`EMAIL_SERVER_HOST`** (Optional)
     - Value: SMTP server hostname
     - Example: `smtp.gmail.com`
-    - Used by: Email notifications
+    - Used by: NextAuth magic-link emails
 
 14. **`EMAIL_SERVER_PORT`** (Optional)
     - Value: SMTP port
     - Example: `587`
-    - Used by: Email notifications
+    - Used by: NextAuth magic-link emails
 
 15. **`EMAIL_SERVER_USER`** (Optional)
     - Value: SMTP username

@@ -35,9 +35,30 @@ import { cn } from "@/lib/utils";
 import { useOrdering } from "@/context/OrderingContext";
 import { SUPPORT_MESSENGER_URL, openSupportMessenger } from "@/lib/support";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
+import { normalizeOrderStatus } from "@/lib/orderStatus";
 
 interface OrderDetailCardProps {
   orderId: string;
+}
+
+type ProgressState = "PENDING" | "CONFIRMED" | "DELIVERED" | "CANCELLED";
+
+function toProgressState(status: string): ProgressState {
+  const normalized = normalizeOrderStatus(status);
+
+  switch (normalized) {
+    case OrderStatus.DELIVERED:
+      return "DELIVERED";
+    case OrderStatus.CANCELLED:
+      return "CANCELLED";
+    case OrderStatus.CONFIRMED:
+    case OrderStatus.PREPARING:
+    case OrderStatus.READY:
+    case OrderStatus.OUT_FOR_DELIVERY:
+      return "CONFIRMED";
+    default:
+      return "PENDING";
+  }
 }
 
 /**
@@ -47,15 +68,15 @@ function getEstimatedDeliveryDate(
   orderDate: Date,
   status: string,
 ): Date | null {
-  const daysToAdd: Record<string, number> = {
-    [OrderStatus.PENDING]: 3,
-    [OrderStatus.CONFIRMED]: 3,
-    [OrderStatus.PREPARING]: 2,
-    [OrderStatus.READY]: 1,
-    [OrderStatus.OUT_FOR_DELIVERY]: 1,
+  const state = toProgressState(status);
+  const daysToAdd: Record<ProgressState, number> = {
+    PENDING: 2,
+    CONFIRMED: 1,
+    DELIVERED: 0,
+    CANCELLED: 0,
   };
 
-  const days = daysToAdd[status];
+  const days = daysToAdd[state];
   if (!days) return null;
 
   const estimated = new Date(orderDate);
@@ -79,8 +100,10 @@ function getStatusInfo(
   progressBarBg: string;
   progressBarFill: string;
 } {
+  const state = toProgressState(status);
+
   const statusMap: Record<
-    string,
+    ProgressState,
     {
       text: string;
       color: string;
@@ -91,7 +114,7 @@ function getStatusInfo(
       progressBarFill: string;
     }
   > = {
-    [OrderStatus.PENDING]: {
+    PENDING: {
       text: t("status.pending.title"),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
@@ -100,7 +123,7 @@ function getStatusInfo(
       progressBarBg: "bg-elite-black/10",
       progressBarFill: "bg-elite-burgundy",
     },
-    [OrderStatus.CONFIRMED]: {
+    CONFIRMED: {
       text: t("status.confirmed.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
@@ -109,34 +132,7 @@ function getStatusInfo(
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
-    [OrderStatus.PREPARING]: {
-      text: t("status.preparing.title"),
-      color: "text-elite-cream",
-      bgColor: "bg-elite-burgundy",
-      icon: <Package className="w-5 h-5" />,
-      description: t("status.preparing.description"),
-      progressBarBg: "bg-elite-cream/20",
-      progressBarFill: "bg-elite-cream",
-    },
-    [OrderStatus.READY]: {
-      text: t("status.ready.title"),
-      color: "text-elite-cream",
-      bgColor: "bg-elite-burgundy",
-      icon: <CheckCircle2 className="w-5 h-5" />,
-      description: t("status.ready.description"),
-      progressBarBg: "bg-elite-cream/20",
-      progressBarFill: "bg-elite-cream",
-    },
-    [OrderStatus.OUT_FOR_DELIVERY]: {
-      text: t("status.outForDelivery.title"),
-      color: "text-elite-cream",
-      bgColor: "bg-elite-burgundy",
-      icon: <Truck className="w-5 h-5" />,
-      description: t("status.outForDelivery.description"),
-      progressBarBg: "bg-elite-cream/20",
-      progressBarFill: "bg-elite-cream",
-    },
-    [OrderStatus.DELIVERED]: {
+    DELIVERED: {
       text: t("status.delivered.title"),
       color: "text-elite-cream",
       bgColor: "bg-elite-burgundy",
@@ -145,7 +141,7 @@ function getStatusInfo(
       progressBarBg: "bg-elite-cream/20",
       progressBarFill: "bg-elite-cream",
     },
-    [OrderStatus.CANCELLED]: {
+    CANCELLED: {
       text: t("status.cancelled.title"),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
@@ -157,7 +153,7 @@ function getStatusInfo(
   };
 
   return (
-    statusMap[status] || {
+    statusMap[state] || {
       text: t("status.unknown.title", { status }),
       color: "text-elite-black",
       bgColor: "bg-elite-cream",
@@ -348,15 +344,21 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
 
   // Calculate delivery progress (0-100%)
   const getDeliveryProgress = () => {
-    const progressMap: Record<string, number> = {
-      [OrderStatus.PENDING]: 10,
-      [OrderStatus.CONFIRMED]: 25,
-      [OrderStatus.PREPARING]: 50,
-      [OrderStatus.READY]: 75,
-      [OrderStatus.OUT_FOR_DELIVERY]: 90,
-      [OrderStatus.DELIVERED]: 100,
-    };
-    return progressMap[order.status] || 0;
+    const state = toProgressState(order.status);
+
+    if (state === "DELIVERED") {
+      return 100;
+    }
+
+    if (state === "CANCELLED") {
+      return 0;
+    }
+
+    if (state === "PENDING") {
+      return 33.33;
+    }
+
+    return 66.67;
   };
 
   const copyTrackingNumber = () => {
@@ -372,10 +374,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
     if (!order || isReordering) return;
     if (!orderingEnabled) {
       openSupportMessenger();
-      info(
-        orderingMessage ||
-        ORDERING_DISABLED_MESSAGE,
-      );
+      info(orderingMessage || ORDERING_DISABLED_MESSAGE);
       return;
     }
 
@@ -594,12 +593,14 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               </div>
               <span
                 className={cn(
-                  `px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${statusInfo.color === "text-elite-cream"
-                    ? "text-elite-burgundy"
-                    : "text-elite-black"
-                  } border-2 ${statusInfo.color === "text-elite-cream"
-                    ? "border-elite-cream/30"
-                    : "border-elite-burgundy"
+                  `px-3 sm:px-4 py-2 rounded-2xl text-xs sm:text-sm font-cabin font-bold bg-white/90 backdrop-blur-sm ${
+                    statusInfo.color === "text-elite-cream"
+                      ? "text-elite-burgundy"
+                      : "text-elite-black"
+                  } border-2 ${
+                    statusInfo.color === "text-elite-cream"
+                      ? "border-elite-cream/30"
+                      : "border-elite-burgundy"
                   } shadow-md`,
                   isRTL ? "mr-auto" : "ml-auto",
                 )}
@@ -637,11 +638,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                     className={`font-cabin text-xs sm:text-sm font-bold uppercase tracking-wider ${statusInfo.color}`}
                   >
                     {t("progress.label")}
-                  </span>
-                  <span
-                    className={`font-calistoga text-base sm:text-lg ${statusInfo.color}`}
-                  >
-                    {getDeliveryProgress()}%
                   </span>
                 </div>
                 <div
@@ -711,13 +707,13 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                       {t("delivery.days", {
                         count: estimatedDelivery
                           ? Math.max(
-                            1,
-                            Math.ceil(
-                              (estimatedDelivery.getTime() -
-                                new Date().getTime()) /
-                              (1000 * 60 * 60 * 24),
-                            ),
-                          )
+                              1,
+                              Math.ceil(
+                                (estimatedDelivery.getTime() -
+                                  new Date().getTime()) /
+                                  (1000 * 60 * 60 * 24),
+                              ),
+                            )
                           : 3,
                       })}
                     </p>
@@ -770,7 +766,6 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   <br />
                   {order.address.city}
                   {order.address.state && `, ${order.address.state}`}
-                  {order.address.zipCode && ` ${order.address.zipCode}`}
                 </p>
               </div>
 
@@ -888,7 +883,9 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
           <div className="mt-6 pt-6 border-t-2 border-elite-burgundy/10 space-y-3">
             <div className="flex justify-between items-center font-cabin text-sm sm:text-base text-elite-black/70">
               <span>{t("summary.subtotal")}</span>
-              <span className="font-semibold">{formatPrice(order.subtotal)}</span>
+              <span className="font-semibold">
+                {formatPrice(order.subtotal)}
+              </span>
             </div>
 
             {order.deliveryFee > 0 && (
@@ -909,7 +906,9 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                   <CreditCard className="w-4 h-4" />
                   {t("summary.codFee")}
                 </span>
-                <span className="font-semibold">{formatPrice(order.codFee)}</span>
+                <span className="font-semibold">
+                  {formatPrice(order.codFee)}
+                </span>
               </div>
             )}
 
@@ -975,11 +974,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
               </p>
               <button
                 onClick={handleReorderClick}
-                disabled={
-                  isReordering ||
-                  !order ||
-                  order.items.length === 0
-                }
+                disabled={isReordering || !order || order.items.length === 0}
                 className="w-full px-6 py-3 sm:py-3.5 bg-elite-burgundy text-elite-cream rounded-2xl font-cabin font-bold text-base hover:bg-elite-burgundy/90 hover:shadow-lg transition-all duration-300 active:scale-95 touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 min-h-[48px]"
                 aria-busy={isReordering}
                 aria-label={

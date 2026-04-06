@@ -8,6 +8,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { normalizeOrderStatus } from "@/lib/orderStatus";
 
 export interface OrderStatusBadgeProps {
   status: string;
@@ -26,7 +27,9 @@ export function OrderStatusBadge({
   const t = useTranslations("orderStatus");
 
   const getStatusConfig = (status: string) => {
-    switch (status.toLowerCase()) {
+    const normalized = normalizeOrderStatus(status).toLowerCase();
+
+    switch (normalized) {
       case "confirmed":
       case "synced":
       case "preparing":
@@ -61,7 +64,6 @@ export function OrderStatusBadge({
           animate: true,
         };
 
-      case "completed":
       case "delivered":
         return {
           icon: CheckCircle,

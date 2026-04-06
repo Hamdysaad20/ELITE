@@ -38,6 +38,19 @@ export type Category = {
 const SOFT_TTL = 30 * 60 * 1000;
 const HARD_TTL = 2 * 60 * 60; // seconds for Redis
 
+// Product names that should never be exposed in website catalog endpoints.
+const EXCLUDED_PRODUCT_NAME_PATTERNS = [/^open\s*register$/i];
+
+function isExcludedWebsiteProduct(product: Product): boolean {
+  const name = product.name?.trim();
+  if (!name) return false;
+  return EXCLUDED_PRODUCT_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+function filterWebsiteProducts(products: Product[]): Product[] {
+  return products.filter((product) => !isExcludedWebsiteProduct(product));
+}
+
 async function ensureFreshness(lastUpdate: string | null) {
   const now = Date.now();
   const lastSyncTime = lastUpdate ? new Date(lastUpdate).getTime() : 0;
@@ -104,8 +117,9 @@ export async function getCatalogSafe(): Promise<{
     lastUpdate = null;
   }
 
-  // Only trigger freshness check if we successfully read from Redis
-  if (lastUpdate !== null) {
+  // Trigger freshness check whenever we have catalog data.
+  // This also recovers from the webhook path where timestamp is intentionally deleted.
+  if (products && categories) {
     try {
       await ensureFreshness(lastUpdate);
     } catch (err) {
@@ -119,7 +133,11 @@ export async function getCatalogSafe(): Promise<{
 
   // If we have cached data, return it (even if stale - better than error)
   if (products && categories) {
-    return { products, categories, lastUpdate };
+    return {
+      products: filterWebsiteProducts(products),
+      categories,
+      lastUpdate,
+    };
   }
 
   // Cache miss - try to sync, but handle failures gracefully
@@ -154,8 +172,25 @@ export async function getCatalogSafe(): Promise<{
       };
     }
 
+    const fallbackCatalog = result.data?.fallbackCatalog as
+      | {
+          products?: Product[];
+          categories?: Category[];
+          lastUpdate?: string | null;
+        }
+      | undefined;
+
+    // If Redis is down but Odoo returned data directly, use it immediately.
+    if (fallbackCatalog?.products && fallbackCatalog?.categories) {
+      return {
+        products: filterWebsiteProducts(fallbackCatalog.products),
+        categories: fallbackCatalog.categories,
+        lastUpdate: fallbackCatalog.lastUpdate || null,
+      };
+    }
+
     // No data at all - check if sync is in progress and wait a bit
-    const isLocked = await redisGet(CACHE_KEYS.LOCK);
+    const isLocked = await redisGet(CACHE_KEYS.LOCK).catch(() => null);
     if (isLocked) {
       console.log("[CACHE] Sync in progress, waiting briefly...");
       // Wait up to 3 seconds for sync to complete
@@ -168,7 +203,7 @@ export async function getCatalogSafe(): Promise<{
         ]);
         if (waitProducts && waitCategories) {
           return {
-            products: waitProducts,
+            products: filterWebsiteProducts(waitProducts),
             categories: waitCategories,
             lastUpdate: waitUpdate,
           };
@@ -182,15 +217,31 @@ export async function getCatalogSafe(): Promise<{
     );
   }
 
+  const fallbackCatalog = result.data?.fallbackCatalog as
+    | {
+        products?: Product[];
+        categories?: Category[];
+        lastUpdate?: string | null;
+      }
+    | undefined;
+
+  if (fallbackCatalog?.products && fallbackCatalog?.categories) {
+    return {
+      products: filterWebsiteProducts(fallbackCatalog.products),
+      categories: fallbackCatalog.categories,
+      lastUpdate: fallbackCatalog.lastUpdate || null,
+    };
+  }
+
   // Sync succeeded, fetch fresh data
   const [freshProducts, freshCategories, freshUpdate] = await Promise.all([
-    redisGet<Product[]>(CACHE_KEYS.DATA),
-    redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
-    redisGet<string>(CACHE_KEYS.TIMESTAMP),
+    redisGet<Product[]>(CACHE_KEYS.DATA).catch(() => null),
+    redisGet<Category[]>(CACHE_KEYS.CATEGORIES).catch(() => null),
+    redisGet<string>(CACHE_KEYS.TIMESTAMP).catch(() => null),
   ]);
 
   return {
-    products: freshProducts || [],
+    products: filterWebsiteProducts(freshProducts || []),
     categories: freshCategories || [],
     lastUpdate: freshUpdate,
   };
@@ -213,8 +264,12 @@ export async function invalidateCatalogCache(): Promise<{
   message: string;
 }> {
   try {
-    // Delete the timestamp to force a fresh sync
-    await redisDel(CACHE_KEYS.TIMESTAMP);
+    // Delete timestamp and catalog payload to prevent stale menu data after webhook invalidation.
+    await Promise.all([
+      redisDel(CACHE_KEYS.TIMESTAMP),
+      redisDel(CACHE_KEYS.DATA),
+      redisDel(CACHE_KEYS.CATEGORIES),
+    ]);
     // Increment version to bust client-side caches
     const version = Date.now().toString();
     await redisSet(CACHE_KEYS.VERSION, version, HARD_TTL);

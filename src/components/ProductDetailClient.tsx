@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import AttributeSelector from "./AttributeSelector";
 import QuantitySelector from "./QuantitySelector";
 import { useLocalCart, type LocalCartItem } from "@/hooks/useLocalCart";
@@ -20,7 +21,11 @@ import DrinkCard from "@/components/DrinkCard";
 import { ReviewCard } from "@/components/ReviewCard";
 import { useReviews } from "@/hooks/useReviews";
 import { cn } from "@/lib/utils";
-import { getLocalProductImageCandidates } from "@/lib/imageUtils";
+import {
+  getFallbackImage,
+  getLocalProductImageCandidates,
+  sanitizeImages,
+} from "@/lib/imageUtils";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { useOrdering } from "@/context/OrderingContext";
@@ -221,7 +226,8 @@ export default function ProductDetailClient({
       quantity,
       attributes: cartAttributes,
       totalPrice: unitPrice * quantity,
-      image: getLocalProductImageCandidates(product.name)[0] || product.images?.[0],
+      image:
+        getLocalProductImageCandidates(product.name)[0] || product.images?.[0],
     });
 
     // Show success feedback
@@ -229,7 +235,7 @@ export default function ProductDetailClient({
     toastSuccess(
       orderingEnabled
         ? t("toast.addedToCart", { name: product.name })
-        : t("toast.savedForLater", { name: product.name }) // Fallback key, or just use English: `${product.name} saved for later.`
+        : t("toast.savedForLater", { name: product.name }), // Fallback key, or just use English: `${product.name} saved for later.`
     );
     if (!orderingEnabled) {
       // If we want to fallback to English for non-existent keys, we'd handle that in i18n messages.
@@ -256,14 +262,20 @@ export default function ProductDetailClient({
     }
   };
 
-  // Fallback image if no images available
-  const displayImages =
-    product.images.length > 0
-      ? product.images
-      : ["/images/placeholder-product.jpg"];
+  // Local/cache-first image resolution: prefer mapped local assets over Odoo URLs.
+  const displayImages = sanitizeImages([
+    ...getLocalProductImageCandidates(product.name),
+    ...(product.images || []),
+  ]);
 
-  const hasImages = product.images.length > 0;
-  const hasMultipleImages = product.images.length > 1;
+  const hasImages = displayImages.length > 0;
+  const hasMultipleImages = displayImages.length > 1;
+  const selectedImageCandidates = hasImages
+    ? [
+        displayImages[currentImageIndex],
+        ...displayImages.filter((_, i) => i !== currentImageIndex),
+      ]
+    : [];
 
   // Render component
   return (
@@ -292,13 +304,16 @@ export default function ProductDetailClient({
                 <div className="absolute inset-0 flex items-center justify-center">
                   {hasImages ? (
                     <div className="relative w-full h-full">
-                      <Image
-                        src={displayImages[currentImageIndex]}
+                      <ImageWithFallback
+                        src={selectedImageCandidates}
                         alt={product.name}
                         fill
                         className="object-contain p-4 md:p-8"
+                        objectFit="contain"
                         priority
                         quality={95}
+                        showErrorIcon={false}
+                        fallbackSrc={getFallbackImage("product")}
                       />
                     </div>
                   ) : (
@@ -358,15 +373,18 @@ export default function ProductDetailClient({
                 {/* Image Indicators - Smaller on mobile */}
                 {hasMultipleImages && (
                   <div className="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-20">
-                    {product.images.map((_, index) => (
+                    {displayImages.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${index === currentImageIndex
+                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-200 touch-manipulation ${
+                          index === currentImageIndex
                             ? "bg-elite-burgundy scale-125"
                             : "bg-elite-burgundy/40"
-                          }`}
-                        aria-label={t("images.viewImage", { number: index + 1 })}
+                        }`}
+                        aria-label={t("images.viewImage", {
+                          number: index + 1,
+                        })}
                       />
                     ))}
                   </div>
@@ -376,24 +394,27 @@ export default function ProductDetailClient({
               {/* Thumbnail Gallery - Hidden on mobile for cleaner UX */}
               {hasMultipleImages && (
                 <div className="hidden md:grid mt-4 grid-cols-4 gap-3">
-                  {product.images.slice(0, 4).map((image, index) => (
+                  {displayImages.slice(0, 4).map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${index === currentImageIndex
+                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                        index === currentImageIndex
                           ? "border-elite-burgundy shadow-lg"
                           : "border-elite-burgundy/20 hover:border-elite-burgundy/50"
-                        }`}
+                      }`}
                     >
-                      <Image
-                        src={image}
+                      <ImageWithFallback
+                        src={[image]}
                         alt={t("images.thumbnailAlt", {
                           name: product.name,
                           number: index + 1,
                         })}
-                        width={100}
-                        height={100}
+                        fill
                         className="w-full h-full object-cover"
+                        objectFit="cover"
+                        showErrorIcon={false}
+                        fallbackSrc={getFallbackImage("product")}
                       />
                     </button>
                   ))}
@@ -543,10 +564,11 @@ export default function ProductDetailClient({
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${star <= Math.round(stats.averageRating)
+                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
+                            star <= Math.round(stats.averageRating)
                               ? "fill-elite-burgundy text-elite-burgundy"
                               : "text-elite-burgundy/20"
-                            }`}
+                          }`}
                         />
                       ))}
                     </div>
@@ -604,7 +626,8 @@ export default function ProductDetailClient({
                 </h2>
                 <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
                   {t("related.subtitle", {
-                    category: product.category?.name || t("related.thisCategory"),
+                    category:
+                      product.category?.name || t("related.thisCategory"),
                   })}
                 </p>
               </div>
