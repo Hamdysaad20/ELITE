@@ -206,21 +206,22 @@ export default function MenuPage() {
       <MobileHeader title={t("title")} showBack={true} transparent={true} />
 
       {/* Full-height background that flows behind content */}
-      <div className="min-h-screen bg-elite-burgundy pb-24 md:pb-0">
-        {/* Header - Matching shop page style */}
-        <div className="bg-elite-burgundy text-elite-cream py-20 relative overflow-hidden pt-14 md:pt-20">
-          {/* Decorative background elements */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 left-10 w-32 h-32 border border-elite-cream/30 rounded-full"></div>
-            <div className="absolute bottom-10 right-10 w-24 h-24 border border-elite-cream/30 rounded-full"></div>
-            <div className="absolute top-1/2 left-1/4 w-16 h-16 border border-elite-cream/20 rounded-full"></div>
+      <div className="min-h-screen bg-elite-cream pb-24 md:pb-0">
+        <div className="relative overflow-hidden bg-elite-cream pt-16 pb-10 md:pt-24 md:pb-14">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute top-0 left-0 h-44 w-44 rounded-full bg-white/70 blur-3xl sm:h-56 sm:w-56" />
+            <div className="absolute bottom-0 right-0 h-52 w-52 rounded-full bg-elite-burgundy/[0.05] blur-3xl sm:h-64 sm:w-64" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-            <h1 className="font-calistoga text-6xl md:text-7xl font-bold mb-6">
+          <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/10 bg-white/80 px-4 py-2 font-cabin text-[11px] font-bold uppercase tracking-[0.22em] text-elite-burgundy/72">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("title")}
+            </span>
+            <h1 className="mb-4 font-calistoga text-3xl text-elite-black sm:text-4xl md:text-5xl lg:text-6xl">
               {t("title")}
             </h1>
-            <p className="font-cabin text-xl md:text-2xl text-elite-cream/90 max-w-3xl mx-auto leading-relaxed">
+            <p className="mx-auto max-w-2xl font-cabin text-sm leading-relaxed text-elite-black/60 sm:text-base md:text-lg">
               {t("subtitle")}
             </p>
           </div>
@@ -229,8 +230,8 @@ export default function MenuPage() {
         {/* Content Section */}
         <div className="relative z-20">
           {/* Main content area */}
-          <div className="relative bg-elite-cream pt-8 md:pt-12 min-h-[60vh]">
-            <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
+          <div className="relative min-h-[60vh] bg-elite-cream pt-4 md:pt-8">
+            <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-10">
               {/* Loading State with Skeletons */}
               {loading && <MenuPageSkeleton />}
 
@@ -256,7 +257,7 @@ export default function MenuPage() {
               {!loading && !error && categories.length > 0 && (
                 <>
                   {/* Mobile Category Pills - Sticky + premium design */}
-                  <div className="lg:hidden sticky top-16 z-30 bg-elite-cream/92 backdrop-blur-md border-b border-elite-burgundy/8 -mx-4 px-4 mb-5">
+                  <div className="lg:hidden sticky top-16 z-30 -mx-4 mb-5 border-b border-elite-burgundy/8 bg-elite-cream/95 px-4 backdrop-blur-md">
                     <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
                       <div className="flex gap-2 py-2.5 min-w-max snap-x snap-mandatory">
                         {/* All categories button */}
@@ -321,7 +322,7 @@ export default function MenuPage() {
                   <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 min-w-0">
                     {/* Desktop Sidebar - Hidden on Mobile */}
                     <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
-                      <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto sidebar-scroll">
+                      <div className="sidebar-scroll sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-[1.75rem] border border-elite-burgundy/10 bg-white/90 p-6 shadow-lg shadow-elite-burgundy/5 backdrop-blur-sm">
                         {/* Sidebar Header */}
                         <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
                           <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
@@ -385,7 +386,7 @@ export default function MenuPage() {
                     </div>
 
                     {/* Main Content Area */}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       {/* Mobile: Native scrollable category sections */}
                       <div className="lg:hidden space-y-6">
                         {categories
@@ -505,7 +506,7 @@ export default function MenuPage() {
                       </div>
 
                       {/* Desktop: Grid layout */}
-                      <div className="hidden lg:block space-y-8">
+                      <div className="hidden space-y-8 lg:block">
                         {categories
                           .filter((cat) => cat !== null && cat !== undefined)
                           .filter(
@@ -514,7 +515,7 @@ export default function MenuPage() {
                           )
                           .map((category, index) => (
                             <div key={category.id} className="relative">
-                              <div className="bg-white/50 rounded-2xl p-6 lg:p-8 w-full">
+                              <div className="w-full rounded-[1.75rem] border border-elite-burgundy/10 bg-white/70 p-5 backdrop-blur-sm sm:p-6 lg:p-8">
                                 {category.comingSoon && (
                                   <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10" />
                                 )}
