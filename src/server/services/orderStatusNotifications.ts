@@ -3,7 +3,8 @@ import { prisma } from "@/server/db/client";
 
 interface NotifyOrderStatusChangeInput {
   orderId: string;
-  userId?: string | null;
+  existingNotes?: string | null;
+  clientOrderRef?: string | null;
   previousStatus: string;
   nextStatus: string;
   source: "odoo-sync" | "odoo-poll";
@@ -20,20 +21,11 @@ export async function notifyOrderStatusChange(
   }
 
   try {
-    const order = await prisma.order.findUnique({
-      where: { id: input.orderId },
-      select: { id: true, clientOrderRef: true, notes: true },
-    });
-
-    if (!order) {
-      return;
-    }
-
-    const systemLine = `[SYSTEM] Order ${order.clientOrderRef || order.id} status changed: ${previous} -> ${next} (${input.source}) at ${new Date().toISOString()}`;
-    const existing = order.notes?.trim();
+    const systemLine = `[SYSTEM] Order ${input.clientOrderRef || input.orderId} status changed: ${previous} -> ${next} (${input.source}) at ${new Date().toISOString()}`;
+    const existing = input.existingNotes?.trim();
 
     await prisma.order.update({
-      where: { id: order.id },
+      where: { id: input.orderId },
       data: {
         notes: existing ? `${existing}\n${systemLine}` : systemLine,
       },

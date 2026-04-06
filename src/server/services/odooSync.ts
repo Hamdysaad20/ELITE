@@ -308,7 +308,8 @@ async function processOrderSync(payload: OrderSyncPayload): Promise<void> {
 
     await notifyOrderStatusChange({
       orderId: order.id,
-      userId: order.userId,
+      existingNotes: order.notes,
+      clientOrderRef: order.clientOrderRef,
       previousStatus: order.status,
       nextStatus,
       source: "odoo-sync",

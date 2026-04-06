@@ -21,7 +21,6 @@ const FALLBACK_PRODUCTS: LovedByLocalProduct[] = [
     name: "Cappuccino",
     image: "/Old Items/Cappuccino-1.png",
     category: "Classics",
-    categoryId: "classics",
     reason: "Customer favorite",
   },
   {
@@ -29,7 +28,6 @@ const FALLBACK_PRODUCTS: LovedByLocalProduct[] = [
     name: "Matcha Latte",
     image: "/Old Items/Matcha Latte-1.png",
     category: "Specialty",
-    categoryId: "specialty",
     reason: "Trending now",
   },
   {
@@ -37,7 +35,6 @@ const FALLBACK_PRODUCTS: LovedByLocalProduct[] = [
     name: "Iced Latte",
     image: "/Old Items/Iced Latte-1.png",
     category: "Iced",
-    categoryId: "iced",
     reason: "Refreshing",
   },
   {
@@ -45,7 +42,6 @@ const FALLBACK_PRODUCTS: LovedByLocalProduct[] = [
     name: "Mocha",
     image: "/Old Items/Mocha-1.png",
     category: "Specialty",
-    categoryId: "specialty",
     reason: "Most loved",
   },
 ];
