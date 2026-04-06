@@ -22,12 +22,12 @@ const HERO_SLIDES = [
     src: "/images/HQ16by9/MenaCloseMatcha.png",
     alt: "Elite Coffee — Faiyum, Egypt",
     ltr: {
-      mobile: "object-[27%_38%]",
+      mobile: "object-[27%_18%]",
       tablet: "sm:object-[16%_32%]",
       desktop: "lg:object-[5%_28%]",
     },
     rtl: {
-      mobile: "object-[73%_38%]",
+      mobile: "object-[73%_18%]",
       tablet: "sm:object-[84%_32%]",
       desktop: "lg:object-[95%_28%]",
     },
@@ -37,12 +37,12 @@ const HERO_SLIDES = [
     src: "/images/HQ16by9/MICRO_LEFT_bobaspanish.png",
     alt: "Elite Coffee — Spanish Boba",
     ltr: {
-      mobile: "object-[2%_42%]",
+      mobile: "object-[2%_22%]",
       tablet: "sm:object-[2%_38%]",
       desktop: "lg:object-[0%_35%]",
     },
     rtl: {
-      mobile: "object-[98%_42%]",
+      mobile: "object-[98%_22%]",
       tablet: "sm:object-[98%_38%]",
       desktop: "lg:object-[100%_35%]",
     },
@@ -52,12 +52,12 @@ const HERO_SLIDES = [
     src: "/images/HQ16by9/ModelHolding.png",
     alt: "Elite Coffee — Signature Drinks",
     ltr: {
-      mobile: "object-[38%_38%]",
+      mobile: "object-[38%_18%]",
       tablet: "sm:object-[30%_34%]",
       desktop: "lg:object-[30%_30%]",
     },
     rtl: {
-      mobile: "object-[62%_38%]",
+      mobile: "object-[62%_18%]",
       tablet: "sm:object-[70%_34%]",
       desktop: "lg:object-[70%_30%]",
     },
@@ -222,13 +222,13 @@ export default function Hero() {
     <section
       ref={sectionRef}
       dir={isRtl ? "rtl" : "ltr"}
-      className="hero-section relative flex flex-col overflow-hidden bg-[#040203] min-h-[calc(68svh_-_var(--nav-height-mobile))] min-[641px]:min-h-[calc(100svh_-_var(--nav-height-desktop))]"
+      className="hero-section relative flex flex-col overflow-hidden bg-[#040203] min-h-[calc(75svh_-_var(--nav-height-mobile))] min-[641px]:min-h-[calc(100svh_-_var(--nav-height-desktop))]"
       aria-label="Homepage hero"
     >
       {/* ── Background carousel ── */}
       <div
         ref={photoRef}
-        className="absolute inset-x-0 z-0 will-change-transform [top:10%] [bottom:-2%] sm:[top:-4%] sm:[bottom:-18%]"
+        className="absolute inset-x-0 z-0 will-change-transform [top:0%] [bottom:-2%] sm:[top:-4%] sm:[bottom:-18%]"
       >
         {HERO_SLIDES.map((slide, i) => (
           <div
@@ -292,7 +292,7 @@ export default function Hero() {
       />
 
       {/* ── Content ── */}
-      <div className="relative z-[5] flex flex-1 flex-col px-5 pt-8 pb-0 sm:pt-6 sm:px-10 lg:px-14">
+      <div className="relative z-[5] flex flex-1 flex-col px-5 pt-16 pb-0 sm:pt-6 sm:px-10 lg:px-14">
         {/* ── Eyebrow pill ── */}
         <div
           ref={eyebrowRef}
@@ -315,7 +315,7 @@ export default function Hero() {
         </div>
 
         {/* ── Brand mega-title ── */}
-        <div className="mt-3 sm:mt-4">
+        <div className="mt-4 sm:mt-4">
           <div
             ref={titleRef}
             aria-label="ELITE COFFEE"
@@ -324,7 +324,7 @@ export default function Hero() {
             <span
               className="font-bebas text-white uppercase block"
               style={{
-                fontSize: "clamp(3.8rem, 18vw, 13.5rem)",
+                fontSize: "clamp(3.2rem, 16vw, 13.5rem)",
                 letterSpacing: "0.04em",
                 textShadow: "0 4px 32px rgba(0,0,0,0.55)",
               }}
@@ -334,7 +334,7 @@ export default function Hero() {
             <span
               className="font-bebas uppercase block"
               style={{
-                fontSize: "clamp(3.8rem, 18vw, 13.5rem)",
+                fontSize: "clamp(3.2rem, 16vw, 13.5rem)",
                 letterSpacing: "0.04em",
                 color: "rgba(248,228,196,0.97)",
                 textShadow: "0 4px 32px rgba(0,0,0,0.50)",
@@ -346,15 +346,18 @@ export default function Hero() {
         </div>
 
         {/* Spacer — subject shows through here */}
-        <div className="flex-1 min-h-[1.5rem]" aria-hidden="true" />
+        <div
+          className="flex-1 min-h-[1rem] sm:min-h-[3rem]"
+          aria-hidden="true"
+        />
 
         {/* ── Bottom block ── */}
         <div ref={bottomRef} className="pb-10 sm:pb-10 w-full">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             {/* ── Left: subtitle, rating, CTAs, indicators ── */}
-            <div className="max-w-md">
+            <div className="w-full sm:max-w-md">
               <p
-                className="mb-5 sm:mb-4 font-cabin text-[0.96rem] leading-relaxed text-white sm:text-[1.06rem] max-w-xs sm:max-w-sm"
+                className="mb-5 sm:mb-4 font-cabin text-[0.96rem] leading-relaxed text-white sm:text-[1.06rem] sm:max-w-sm"
                 style={{ textShadow: "0 2px 14px rgba(0,0,0,0.65)" }}
               >
                 {t("subtitle")}
@@ -533,32 +536,6 @@ export default function Hero() {
             fill="var(--elite-cream)"
           />
         </svg>
-      </div>
-
-      {/* ── Cream marquee band ── */}
-      <div className="bg-elite-cream py-3 md:py-4 overflow-hidden w-full flex-shrink-0 relative z-10">
-        <div className="marquee-container w-full">
-          <div className="marquee-content text-xs sm:text-sm md:text-[15px]">
-            {[
-              { icon: "🌎", text: t("marquee.globalFlavor") },
-              { icon: "☕", text: t("marquee.friendlyBaristas") },
-              { icon: "⭐", text: t("marquee.greatCoffee") },
-              { icon: "⚡", text: t("marquee.fastService") },
-              { icon: "🏠", text: t("marquee.cozySpace") },
-              { icon: "📸", text: t("marquee.handcraftedDrinks") },
-              { icon: "🏆", text: t("marquee.localRoasts") },
-            ]
-              .flatMap((item) => [item, item, item])
-              .map((item, index) => (
-                <div className="marquee-item" key={`${item.text}-${index}`}>
-                  <span className="flex items-center gap-2">
-                    <span>{item.icon}</span>
-                    <span>{item.text}</span>
-                  </span>
-                </div>
-              ))}
-          </div>
-        </div>
       </div>
     </section>
   );

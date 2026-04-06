@@ -102,17 +102,16 @@ export default function LandingPage() {
         {/* ① Hero */}
         <Hero />
 
-        {/* ── animated text marquee ── */}
-        <div className="bg-elite-burgundy py-2">
-          <CurvedLoop
-            marqueeText="Great Coffee ✦ Elite Vibes ✦ Faiyum ✦ Handcrafted Drinks ✦ Made With Love ✦"
-            speed={1.5}
-            curveAmount={60}
-            direction="left"
-            interactive={true}
-            className="font-bebas text-elite-cream text-[5rem] uppercase tracking-wider"
-          />
-        </div>
+        {/* ── curved text marquee — no background, rides the Hero wave curve ── */}
+        <CurvedLoop
+          marqueeText="Great Coffee ✦ Elite Vibes ✦ Faiyum ✦ Handcrafted Drinks ✦ Made With Love ✦"
+          speed={1.5}
+          curveAmount={90}
+          direction="left"
+          interactive={true}
+          svgHeight="clamp(80px, 12vw, 180px)"
+          className="fill-elite-burgundy/80 font-bebas text-[2.2rem] sm:text-[3rem] md:text-[4.5rem] uppercase tracking-wide"
+        />
 
         {/* ② What are you craving? */}
         <MenuPreview />

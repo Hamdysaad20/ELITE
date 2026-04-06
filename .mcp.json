@@ -2,7 +2,7 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
+      "args": ["-y", "@playwright/mcp@latest", "--output-dir", ".playwright-screenshots"],
       "description": "Browser automation via accessibility tree — visual testing, layout verification, RTL checks"
     },
     "memory": {

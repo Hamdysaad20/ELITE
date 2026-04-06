@@ -6,10 +6,20 @@ import { useReducedMotion } from "framer-motion";
 interface CurvedLoopProps {
   marqueeText?: string;
   speed?: number;
+  /** CSS class applied to the SVG <text> element — use fill-*, font-*, text-* utilities */
   className?: string;
+  /** How deep the arc bows (quadratic bezier control-point offset from baseline y=40) */
   curveAmount?: number;
   direction?: "left" | "right";
   interactive?: boolean;
+  /**
+   * Explicit CSS height for the SVG (e.g. "clamp(80px, 12vw, 180px)").
+   * When set, the SVG scales with preserveAspectRatio="xMidYMid slice" so the
+   * arc stays proportional and text clips cleanly at container edges — ideal for
+   * fixed-height marquee strips. When omitted the SVG keeps its natural 100:12
+   * aspect ratio with overflow visible.
+   */
+  svgHeight?: string;
 }
 
 export function CurvedLoop({
@@ -19,6 +29,7 @@ export function CurvedLoop({
   curveAmount = 400,
   direction = "left",
   interactive = true,
+  svgHeight,
 }: CurvedLoopProps) {
   const prefersReduced = useReducedMotion();
 
@@ -37,6 +48,7 @@ export function CurvedLoop({
 
   const uid = useId();
   const pathId = `curve-${uid}`;
+  // Quadratic bezier: baseline at y=40, control point bows down by curveAmount
   const pathD = `M-100,40 Q500,${40 + curveAmount} 1540,40`;
 
   const dragRef = useRef(false);
@@ -123,6 +135,25 @@ export function CurvedLoop({
       ? "grabbing"
       : "grab";
 
+  // When svgHeight is provided: SVG fills the explicit height using slice scaling
+  // so the arc is always proportional to the container. Edges clip cleanly.
+  // When omitted: natural 100:12 aspect ratio with overflow visible (original behaviour).
+  const svgStyle: React.CSSProperties = svgHeight
+    ? {
+        userSelect: "none",
+        width: "100%",
+        height: svgHeight,
+        overflow: "hidden",
+        display: "block",
+      }
+    : {
+        userSelect: "none",
+        width: "100%",
+        aspectRatio: "100 / 12",
+        overflow: "visible",
+        display: "block",
+      };
+
   return (
     <div
       style={{
@@ -136,19 +167,14 @@ export function CurvedLoop({
     >
       <svg
         viewBox="0 0 1440 120"
-        style={{
-          userSelect: "none",
-          width: "100%",
-          aspectRatio: "100 / 12",
-          overflow: "visible",
-          display: "block",
-        }}
+        preserveAspectRatio={svgHeight ? "xMidYMid slice" : "xMidYMid meet"}
+        style={svgStyle}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
       >
-        {/* hidden text used only to measure glyph length */}
+        {/* hidden — used only to measure text length */}
         <text
           ref={measureRef}
           xmlSpace="preserve"

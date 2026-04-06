@@ -38,8 +38,9 @@ yarn-error.log*
 .vercel
 
 .playwright-test/
-.playwright-*
 .playwright-mcp
+.playwright-screenshots/*
+!.playwright-screenshots/.gitkeep
 
 
 # typescript
