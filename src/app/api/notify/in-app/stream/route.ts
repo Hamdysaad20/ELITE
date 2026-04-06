@@ -7,24 +7,32 @@ const POLL_INTERVAL_MS = 5000;
 const STREAM_DURATION_MS = 1000 * 60 * 5;
 
 async function getPayload(userId: string) {
-  const notifications = await prisma.itemAvailabilityNotification.findMany({
-    where: {
-      userId,
-      notified: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 5,
-    select: {
-      id: true,
-      productId: true,
-      createdAt: true,
-    },
-  });
+  const [notifications, unreadCount] = await Promise.all([
+    prisma.itemAvailabilityNotification.findMany({
+      where: {
+        userId,
+        notified: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 5,
+      select: {
+        id: true,
+        productId: true,
+        createdAt: true,
+      },
+    }),
+    prisma.itemAvailabilityNotification.count({
+      where: {
+        userId,
+        notified: true,
+      },
+    }),
+  ]);
 
   return {
-    unreadCount: notifications.length,
+    unreadCount,
     latest: notifications,
     serverTime: new Date().toISOString(),
   };

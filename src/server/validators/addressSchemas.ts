@@ -13,14 +13,14 @@ export const ADDRESS_VALIDATION = {
   CITY_MIN_LENGTH: 2,
   STATE_MAX_LENGTH: 100,
   STATE_MIN_LENGTH: 2,
-  PHONE_MAX_LENGTH: 11,
-  PHONE_MIN_LENGTH: 11,
+  PHONE_MAX_LENGTH: 15,
+  PHONE_MIN_LENGTH: 10,
   NOTES_MAX_LENGTH: 500,
   NOTES_MIN_LENGTH: 1,
 
   // Regex patterns
   PHONE_REGEX: /^01\d{9}$/,
-  PHONE_EGYPT_REGEX: /^01\d{9}$/, // Egyptian mobile format: 01XXXXXXXXX
+  PHONE_EGYPT_REGEX: /^(01|201)\d{9}$/, // Egyptian mobile: 01XXXXXXXXX or 201XXXXXXXXX
   CITY_REGEX: /^[\p{L}\p{M}\s\-'.]+$/u,
   STREET_REGEX: /^[\p{L}\p{M}\p{N}\s\-'.#,\/،]+$/u, // Allows numbers and Arabic punctuation
   STATE_REGEX: /^[\p{L}\p{M}\s\-'.]+$/u,
@@ -69,7 +69,7 @@ const validatePhoneCountry = (
   const cleaned = phone.replace(/\D/g, "");
 
   if (country === "Egypt" || country === "EG" || country === "EGY") {
-    // Strict Egyptian mobile format: must start with 01 and be exactly 11 digits.
+    // Egyptian mobile: 01XXXXXXXXX (11 digits) or 201XXXXXXXXX (12 digits with country code)
     return ADDRESS_VALIDATION.PHONE_EGYPT_REGEX.test(cleaned);
   }
 
@@ -226,7 +226,7 @@ const baseAddressSchema = z.object({
           !val || val === "" || validatePhoneCountry(val, "Egypt"),
         {
           message:
-            "Please enter a valid phone number (must be 11 digits and start with 01)",
+            "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)",
         },
       )
       .optional()
@@ -273,7 +273,7 @@ export const addressSchema = baseAddressSchema.superRefine((data, ctx) => {
         code: z.ZodIssueCode.custom,
         message:
           country === "Egypt"
-            ? "Please enter a valid Egyptian phone number (must be 11 digits and start with 01)"
+            ? "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)"
             : "Please enter a valid phone number",
         path: ["phone"],
       });
@@ -305,7 +305,7 @@ export const updateAddressSchema = baseAddressSchema
           code: z.ZodIssueCode.custom,
           message:
             country === "Egypt"
-              ? "Please enter a valid Egyptian phone number (must be 11 digits and start with 01)"
+              ? "Please enter a valid Egyptian mobile number (e.g. 01XXXXXXXXX or +201XXXXXXXXX)"
               : "Please enter a valid phone number",
           path: ["phone"],
         });

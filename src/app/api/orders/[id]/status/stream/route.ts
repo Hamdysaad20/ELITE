@@ -100,7 +100,9 @@ export async function GET(
           const snapshot = await getOrderSnapshot(orderId, userId);
 
           if (!snapshot) {
-            writeEvent("error", { message: "Order not found" });
+            writeEvent("app_error", {
+              message: "Order not found or awaiting payment",
+            });
             closed = true;
             controller.close();
             return;
@@ -112,7 +114,7 @@ export async function GET(
             writeEvent("status", snapshot);
           }
         } catch (error) {
-          writeEvent("error", {
+          writeEvent("app_error", {
             message: error instanceof Error ? error.message : "Stream failure",
           });
         }

@@ -95,7 +95,7 @@ export const MENU_CONFIG = {
 // Canonical menu endpoints used across marketing and navigation surfaces
 export const MENU_ENDPOINTS = {
   SPECIAL: "/menu/special-drinks",
-  KIDS: "/menu/special-drinks",
+  KIDS: "/menu/kids-corner",
 } as const;
 
 // Validation Rules

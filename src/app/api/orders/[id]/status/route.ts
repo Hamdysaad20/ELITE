@@ -16,6 +16,7 @@ import {
   normalizeOrderStatus,
   resolveOrderStatusPriority,
   getAcceptedOrderStatusValues,
+  isFinalOrderStatus,
 } from "@/lib/orderStatus";
 
 export async function GET(
@@ -54,8 +55,12 @@ export async function GET(
       return jsonResponse(errorResponse("Order not found"), 404);
     }
 
-    // Auto-sync local status from Odoo whenever IDs are present.
-    if (isOdooConfigured() && (order.saleOrderId || order.posOrderId)) {
+    // Auto-sync local status from Odoo whenever IDs are present and order is not in a terminal state.
+    if (
+      isOdooConfigured() &&
+      (order.saleOrderId || order.posOrderId) &&
+      !isFinalOrderStatus(normalizeOrderStatus(order.status))
+    ) {
       try {
         const client = createOdooClient();
         if (client) {

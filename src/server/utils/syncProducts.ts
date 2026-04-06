@@ -708,8 +708,8 @@ async function performSync(
     console.error("[AUTO-SYNC] Error:", msg, err);
     return { success: false, error: msg };
   } finally {
-    // Release lock only when Redis is available.
-    if (redisAvailable) {
+    // Release lock only when it was actually acquired.
+    if (lockAcquired) {
       await redisDel(SYNC_LOCK_KEY).catch((err) => {
         console.error("[AUTO-SYNC] Failed to release lock:", err);
       });

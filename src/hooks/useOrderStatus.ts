@@ -144,10 +144,22 @@ export function useOrderStatus(
       }
     });
 
+    source.addEventListener("app_error", (event) => {
+      try {
+        const payload = JSON.parse((event as MessageEvent).data);
+        console.warn("Order stream app error:", payload?.message);
+      } catch {
+        // ignore parse failures
+      }
+      source.close();
+      streamRef.current = null;
+    });
+
     source.addEventListener("end", () => {
       source.close();
       streamRef.current = null;
       if (!isMountedRef.current || !enabled) return;
+      clearTimeout(reconnectTimerRef.current!);
       reconnectTimerRef.current = setTimeout(connectRealtime, 1500);
     });
 
@@ -155,6 +167,7 @@ export function useOrderStatus(
       source.close();
       streamRef.current = null;
       if (!isMountedRef.current || !enabled) return;
+      clearTimeout(reconnectTimerRef.current!);
       reconnectTimerRef.current = setTimeout(connectRealtime, 3000);
     });
   }, [orderId, enabled, stopWhen]);
