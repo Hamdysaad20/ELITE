@@ -462,9 +462,8 @@ img[loading="lazy"] {
     display: none !important;
   }
 }
-html[dir="rtl"] .nav-drawer {
-  inset-inline-start: auto;
-  inset-inline-end: 0;
+.nav-drawer[dir="rtl"] {
+  /* inset-inline-start: 0 resolves to right: 0 when dir=rtl on the element */
   transform: translateX(100%);
   border-start-end-radius: 0;
   border-end-end-radius: 0;

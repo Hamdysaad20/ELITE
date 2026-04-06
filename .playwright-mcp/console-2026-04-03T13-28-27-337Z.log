@@ -18,3 +18,5 @@ https://next-auth.js.org/errors#client_fetch_error Unexpected token '<', "<!DOCT
 [  499626ms] [LOG] [Fast Refresh] done in 2128ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
 [ 1579231ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
 [ 1592513ms] [LOG] [Fast Refresh] done in 13288ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[ 1647379ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:183
+[ 1689478ms] [LOG] [Fast Refresh] done in 42101ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13

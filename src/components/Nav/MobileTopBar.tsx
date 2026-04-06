@@ -2,7 +2,7 @@
 
 import { type Ref } from "react";
 import { ShoppingBag, Menu } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import LangToggle from "./LangToggle";
 import type { NavAuthState } from "./hooks/useNavState";
@@ -21,9 +21,12 @@ export default function MobileTopBar({
   hamburgerRef,
 }: MobileTopBarProps) {
   const t = useTranslations("globalNav");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
 
   return (
     <header
+      dir={isRtl ? "rtl" : "ltr"}
       className="fixed top-0 inset-x-0 z-[100] block min-[641px]:!hidden"
       style={{
         backgroundColor: "var(--nav-bg-glass)",

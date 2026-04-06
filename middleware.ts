@@ -274,8 +274,9 @@ async function runMiddleware(request: NextRequest) {
     matchesRoute(normalizedPath, PUBLIC_ROUTES) ||
     normalizedPath.startsWith("/api/auth")
   ) {
-    const response = NextResponse.next();
-    response.headers.set("x-locale", locale);
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-locale", locale);
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.cookies.set(localeCookieName, locale, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,

@@ -84,6 +84,7 @@ export default function BottomNav({ auth }: BottomNavProps) {
 
   return (
     <nav
+      dir={locale === "ar" ? "rtl" : "ltr"}
       className="nav-bottom-bar min-[641px]:!hidden"
       aria-label={t("navigation")}
     >

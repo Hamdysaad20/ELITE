@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 import type { LucideIcon } from "lucide-react";
 import { X, UtensilsCrossed, MapPin, Tag, ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import LangToggle from "./LangToggle";
 import { stripLocaleFromPathname } from "@/i18n/routing";
@@ -33,6 +33,8 @@ export default function Drawer({
   hamburgerRef,
 }: DrawerProps) {
   const t = useTranslations("globalNav");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
   const closeRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || "/";
@@ -108,6 +110,7 @@ export default function Drawer({
 
       <div
         ref={drawerRef}
+        dir={isRtl ? "rtl" : "ltr"}
         className="nav-drawer flex flex-col"
         data-open={open}
         role="dialog"

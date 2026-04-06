@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
+import { CurvedLoop } from "@/components/CurvedLoop";
 
 const MenuPreview = dynamic(() => import("@/components/MenuPreview"), {
   ssr: true,
@@ -100,6 +101,18 @@ export default function LandingPage() {
       <main>
         {/* ① Hero */}
         <Hero />
+
+        {/* ── animated text marquee ── */}
+        <div className="bg-elite-burgundy py-2">
+          <CurvedLoop
+            marqueeText="Great Coffee ✦ Elite Vibes ✦ Faiyum ✦ Handcrafted Drinks ✦ Made With Love ✦"
+            speed={1.5}
+            curveAmount={60}
+            direction="left"
+            interactive={true}
+            className="font-bebas text-elite-cream text-[5rem] uppercase tracking-wider"
+          />
+        </div>
 
         {/* ② What are you craving? */}
         <MenuPreview />

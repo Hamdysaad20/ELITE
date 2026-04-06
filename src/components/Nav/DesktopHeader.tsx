@@ -58,7 +58,6 @@ export default function DesktopHeader({ auth }: DesktopHeaderProps) {
     >
       <div
         className="mx-auto relative flex items-center px-5 min-[768px]:px-6 min-[1024px]:px-8 min-[1280px]:px-10"
-        dir="ltr"
         style={{ maxWidth: "1280px", height: "var(--nav-height-desktop)" }}
       >
         {/* ── Logo ─────────────────────────────────────── */}

@@ -57,6 +57,11 @@
       "command": "npx",
       "args": ["-y", "a11ymcp"],
       "description": "WCAG 2.0/2.1/2.2 (A/AA/AAA) audits via axe-core — color contrast, ARIA, keyboard nav"
+    },
+    "react-bits": {
+      "command": "npx",
+      "args": ["-y", "@reactbits/mcp@latest"],
+      "description": "React Bits animated components library — access high-quality, customizable React components for UI"
     }
   }
 }

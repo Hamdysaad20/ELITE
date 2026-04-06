@@ -22,7 +22,8 @@
       "MCP(accessibility:*)",
       "MCP(context7:*)",
       "MCP(fetch:*)",
-      "MCP(shadcn:*)"
+      "MCP(shadcn:*)",
+      "MCP(react-bits:*)"
     ],
     "ask": [
       "Bash(git push*)",
