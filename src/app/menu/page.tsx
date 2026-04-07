@@ -15,7 +15,6 @@ import {
   Home,
   RefreshCw,
 } from "lucide-react";
-import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
@@ -118,6 +117,16 @@ export default function MenuPage() {
       .filter(Boolean);
   }, [apiCategories, apiProducts, t]);
 
+  const visibleCategories = useMemo(
+    () =>
+      categories
+        .filter((cat) => cat !== null && cat !== undefined)
+        .filter(
+          (category) => !activeCategory || category.id === activeCategory,
+        ),
+    [categories, activeCategory],
+  );
+
   const renderIcon = (iconName: string) => {
     const iconProps = { className: "w-5 h-5" };
     switch (iconName) {
@@ -202,36 +211,48 @@ export default function MenuPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block"></div>
-      <MobileHeader title={t("title")} showBack={true} transparent={true} />
 
       {/* Full-height background that flows behind content */}
-      <div className="min-h-screen bg-elite-cream pb-24 md:pb-0">
-        <div className="relative overflow-hidden bg-elite-cream pt-16 pb-10 md:pt-24 md:pb-14">
+      <div className="relative min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pb-24 md:pb-0">
+        {/* Hero — premium heading with soft atmospheric gradients */}
+        <div className="relative overflow-hidden bg-transparent pt-6 pb-8 md:pt-16 md:pb-14 lg:pb-10">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute top-0 left-0 h-44 w-44 rounded-full bg-white/70 blur-3xl sm:h-56 sm:w-56" />
-            <div className="absolute bottom-0 right-0 h-52 w-52 rounded-full bg-elite-burgundy/[0.05] blur-3xl sm:h-64 sm:w-64" />
+            <div className="absolute -top-10 start-0 h-52 w-52 rounded-full bg-white/75 blur-3xl sm:h-64 sm:w-64" />
+            <div className="absolute -bottom-12 end-0 h-60 w-60 rounded-full bg-elite-burgundy/[0.07] blur-3xl sm:h-72 sm:w-72" />
+            <div className="absolute inset-x-0 top-1/2 h-28 -translate-y-1/2 bg-gradient-to-r from-transparent via-white/35 to-transparent blur-2xl" />
           </div>
 
-          <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-elite-burgundy/10 bg-white/80 px-4 py-2 font-cabin text-xs font-bold uppercase tracking-[0.22em] text-elite-burgundy/72">
-              <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
-              {t("sidebar.title")}
-            </span>
-            <h1 className="mb-4 font-calistoga text-[2.5rem] leading-[1.1] tracking-[-0.02em] text-elite-black sm:text-5xl md:text-5xl lg:text-6xl">
-              {t("title")}
-            </h1>
-            <p className="mx-auto max-w-2xl font-cabin text-sm leading-relaxed text-elite-black/60 sm:text-base md:text-lg">
-              {t("subtitle")}
-            </p>
+          <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="pointer-events-none absolute inset-x-8 top-6 h-24 bg-gradient-to-r from-transparent via-white/55 to-transparent blur-3xl" />
+
+            <div className="relative flex flex-col items-center text-center">
+              <div className="mb-4 inline-flex items-center gap-3">
+                <span className="h-px w-8 bg-gradient-to-r from-transparent to-elite-burgundy/35 sm:w-12" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-elite-burgundy/15 bg-white/75 px-4 py-2 font-cabin text-[11px] font-bold uppercase tracking-[0.24em] text-elite-burgundy/75 sm:text-xs">
+                  <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+                  {t("sidebar.title")}
+                </span>
+                <span className="h-px w-8 bg-gradient-to-l from-transparent to-elite-burgundy/35 sm:w-12" />
+              </div>
+
+              <h1 className="max-w-4xl font-calistoga text-[2.4rem] leading-[1.05] tracking-[-0.02em] text-elite-black drop-shadow-[0_2px_6px_rgba(255,255,255,0.35)] sm:text-5xl md:text-[3.45rem] lg:text-[4rem]">
+                {t("title")}
+              </h1>
+
+              <div className="my-4 h-px w-28 bg-gradient-to-r from-transparent via-elite-burgundy/45 to-transparent" />
+
+              <p className="mx-auto max-w-2xl font-cabin text-sm leading-relaxed text-elite-black/62 sm:text-base md:text-lg">
+                {t("subtitle")}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Content Section */}
         <div className="relative z-20">
-          {/* Main content area */}
-          <div className="relative min-h-[60vh] bg-elite-cream pt-4 md:pt-8">
-            <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-10">
+          {/* Main content area — mobile only (desktop uses two-panel below) */}
+          <div className="relative min-h-[60vh] lg:min-h-0 bg-transparent pt-2 md:pt-8 lg:pt-0">
+            <div className="mx-auto max-w-[1520px] px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
               {/* Loading State with Skeletons */}
               {loading && <MenuPageSkeleton />}
 
@@ -257,7 +278,7 @@ export default function MenuPage() {
               {!loading && !error && categories.length > 0 && (
                 <>
                   {/* Mobile Category Pills - Sticky + premium design */}
-                  <div className="lg:hidden sticky top-16 z-30 -mx-4 mb-5 border-b border-elite-burgundy/8 bg-elite-cream/95 px-4 backdrop-blur-md">
+                  <div className="lg:hidden sticky top-14 z-30 -mx-4 mb-5 border-b border-elite-burgundy/8 bg-elite-cream/85 px-4 backdrop-blur-md">
                     <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
                       <div className="flex gap-2 py-2.5 min-w-max snap-x snap-mandatory">
                         {/* All categories button */}
@@ -265,8 +286,8 @@ export default function MenuPage() {
                           onClick={() => setActiveCategory(null)}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
                             activeCategory === null
-                              ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-elite-cream"
-                              : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
+                              ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-white"
+                              : "bg-elite-cream text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
                           }`}
                         >
                           <span
@@ -288,10 +309,10 @@ export default function MenuPage() {
                                 }
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap touch-manipulation active:scale-95 snap-start ${
                                   isActive
-                                    ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-elite-cream"
+                                    ? "bg-elite-burgundy text-elite-cream shadow-md shadow-elite-burgundy/20 ring-2 ring-elite-burgundy/20 ring-offset-1 ring-offset-white"
                                     : cat.comingSoon
                                       ? "bg-elite-dark-cream/60 text-elite-black/40 cursor-not-allowed"
-                                      : "bg-white text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
+                                      : "bg-elite-cream text-elite-black/70 border border-elite-burgundy/12 active:bg-elite-burgundy/5"
                                 }`}
                                 disabled={cat.comingSoon}
                               >
@@ -319,299 +340,143 @@ export default function MenuPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 min-w-0">
-                    {/* Desktop Sidebar - Hidden on Mobile */}
-                    <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
-                      <div className="sidebar-scroll sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-[1.75rem] border border-elite-burgundy/10 bg-white/90 p-6 shadow-lg shadow-elite-burgundy/5 backdrop-blur-sm">
-                        {/* Sidebar Header */}
-                        <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
-                          <h2 className="font-calistoga text-elite-burgundy text-2xl font-bold mb-2">
-                            {t("sidebar.title")}
-                          </h2>
-                          <p className="font-cabin text-elite-black/70 text-sm">
-                            {t("sidebar.subtitle")}
-                          </p>
-                        </div>
+                  <div className="min-w-0">
+                    {/* Main Content Area */}
+                    <div className="min-w-0">
+                      {/* Desktop filter pills — hidden, replaced by sidebar */}
 
-                        {/* Categories List */}
-                        <div className="space-y-1">
-                          {categories
-                            .filter((cat) => cat !== null && cat !== undefined)
-                            .map((cat, index) => (
-                              <div key={cat.id}>
-                                <LocalizedLink
-                                  href={
-                                    cat.comingSoon ? "#" : `/menu/${cat.id}`
-                                  }
-                                  className={`group sidebar-item flex items-center justify-between p-4 rounded-xl transition-all duration-300 border ${
-                                    cat.comingSoon
-                                      ? "bg-elite-dark-cream text-elite-black/50 cursor-not-allowed border-elite-dark-cream"
-                                      : "bg-white text-elite-black hover:bg-elite-burgundy hover:text-elite-cream hover:shadow-lg hover:scale-102 border-elite-burgundy/20 hover:border-elite-burgundy"
+                      {/* Mobile: Category sections on unified page background */}
+                      <div className="lg:hidden -mx-3 sm:-mx-6">
+                        {visibleCategories.map((category, catIndex) => {
+                          const isEven = catIndex % 2 === 0;
+                          const bgClass = isEven
+                            ? "bg-white"
+                            : "bg-elite-cream";
+
+                          return (
+                            <div key={category.id}>
+                              {/* Wave transition between sections */}
+                              {catIndex > 0 && (
+                                <div
+                                  className={`wave-divider -mb-px ${catIndex % 2 === 0 ? "bg-elite-cream" : "bg-white"}`}
+                                  aria-hidden="true"
+                                >
+                                  <svg
+                                    viewBox="0 0 1440 48"
+                                    preserveAspectRatio="none"
+                                    className="w-full h-5 sm:h-8"
+                                  >
+                                    <path
+                                      d="M0,0 C480,48 960,48 1440,0 L1440,48 L0,48 Z"
+                                      fill={
+                                        isEven ? "white" : "var(--elite-cream)"
+                                      }
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+
+                              <section
+                                className={`relative px-4 sm:px-6 ${catIndex === 0 ? "pt-2" : "pt-4"} pb-6 ${bgClass}`}
+                              >
+                                {/* Category Header */}
+                                <div
+                                  className={`mb-5 px-4 py-4 ${
+                                    catIndex === 0
+                                      ? ""
+                                      : "rounded-2xl bg-gradient-to-b from-elite-burgundy/[0.04] to-transparent border border-elite-burgundy/6"
                                   }`}
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <div
-                                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                        cat.comingSoon
-                                          ? "bg-elite-black/20"
-                                          : "bg-elite-burgundy group-hover:bg-elite-cream"
-                                      }`}
-                                    ></div>
-                                    <span className="font-cabin font-semibold text-base">
-                                      {cat.name}
-                                    </span>
-                                  </div>
-                                  {cat.comingSoon && (
-                                    <span className="text-xs bg-elite-burgundy/40 text-elite-cream/90 px-2 py-0.5 rounded-full font-medium">
-                                      {t("actions.soon")}
-                                    </span>
-                                  )}
-                                </LocalizedLink>
-                                {index < categories.length - 1 && (
-                                  <div className="h-px bg-elite-burgundy/10 my-3"></div>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-
-                        {/* Sidebar Footer */}
-                        <div className="mt-6 pt-4 border-t border-elite-burgundy/20">
-                          <div className="text-center">
-                            <p className="font-cabin text-elite-black/40 text-xs">
-                              {t("sidebar.footer")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Main Content Area */}
-                    <div className="min-w-0 flex-1">
-                      {/* Mobile: Native scrollable category sections */}
-                      <div className="lg:hidden space-y-6">
-                        {categories
-                          .filter((cat) => cat !== null && cat !== undefined)
-                          .filter(
-                            (category) =>
-                              !activeCategory || category.id === activeCategory,
-                          )
-                          .map((category, catIndex) => (
-                            <section key={category.id} className="relative">
-                              {/* Category Header */}
-                              <div className="mb-5 rounded-2xl bg-gradient-to-b from-white/80 to-white/40 border border-elite-burgundy/6 px-4 py-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    <div
-                                      className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                                        category.comingSoon
-                                          ? "bg-elite-dark-cream text-elite-burgundy/50"
-                                          : "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25"
-                                      }`}
-                                    >
-                                      {renderIcon(category.icon)}
-                                    </div>
-                                    <div>
-                                      <h3 className="font-calistoga text-elite-black text-[1.25rem] font-bold leading-tight tracking-[-0.01em]">
-                                        {category.name}
-                                      </h3>
-                                      <span className="inline-flex items-center mt-1 font-cabin text-elite-black/45 text-[11px] font-medium">
-                                        {t("itemsCount", {
-                                          count:
-                                            category.subCategories[0]?.items
-                                              .length || 0,
-                                        })}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {!category.comingSoon && (
-                                    <LocalizedLink
-                                      href={`/menu/${category.id}`}
-                                      className="flex items-center gap-1 font-cabin text-sm text-elite-cream font-semibold px-4 py-2 rounded-full bg-elite-burgundy shadow-md shadow-elite-burgundy/15 active:scale-95 transition-all touch-manipulation"
-                                    >
-                                      {t("actions.seeAll")}
-                                      <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
-                                    </LocalizedLink>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Products - 2-column grid for browsable layout */}
-                              {!category.comingSoon &&
-                                category.subCategories.length > 0 && (
-                                  <div className="grid grid-cols-2 gap-3 px-1">
-                                    {category.subCategories[0]?.items
-                                      .filter(
-                                        (item) =>
-                                          item !== null && item !== undefined,
-                                      )
-                                      .slice(0, 10)
-                                      .map((item, idx) => (
-                                        <DrinkCard
-                                          key={item.id}
-                                          id={item.id}
-                                          images={item.images}
-                                          name={item.name}
-                                          price={item.price}
-                                          description={item.description}
-                                          available={item.available}
-                                          size="small"
-                                          href={`/products/${item.id}`}
-                                          menuItemId={item.id}
-                                          showAddToOrder={true}
-                                          categoryId={category.id}
-                                          imageVersion={productsLastUpdate}
-                                          animationDelay={
-                                            catIndex * 80 + idx * 40
-                                          }
-                                          onQuickAdd={() => {
-                                            const product = apiProducts.find(
-                                              (p) => p.id === item.id,
-                                            );
-                                            if (product) {
-                                              setSelectedProduct(product);
-                                              setIsModalOpen(true);
-                                            }
-                                          }}
-                                        />
-                                      ))}
-                                  </div>
-                                )}
-
-                              {/* Coming Soon State */}
-                              {category.comingSoon && (
-                                <div className="bg-elite-dark-cream/30 rounded-2xl p-6 text-center">
-                                  <span className="font-cabin text-elite-black/40 text-sm">
-                                    {t("actions.comingSoon")}
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Decorative divider */}
-                              {catIndex <
-                                categories.filter(
-                                  (c) =>
-                                    c !== null &&
-                                    (!activeCategory ||
-                                      c.id === activeCategory),
-                                ).length -
-                                  1 && (
-                                <div className="flex items-center gap-3 mt-8 mb-2 px-4">
-                                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-elite-burgundy/10" />
-                                  <div className="h-1.5 w-1.5 rounded-full bg-elite-burgundy/20" />
-                                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-elite-burgundy/10" />
-                                </div>
-                              )}
-                            </section>
-                          ))}
-                      </div>
-
-                      {/* Desktop: Grid layout */}
-                      <div className="hidden space-y-8 lg:block">
-                        {categories
-                          .filter((cat) => cat !== null && cat !== undefined)
-                          .filter(
-                            (category) =>
-                              !activeCategory || category.id === activeCategory,
-                          )
-                          .map((category, index) => (
-                            <div key={category.id} className="relative">
-                              <div className="w-full rounded-[1.75rem] border border-elite-burgundy/10 bg-white/70 p-5 backdrop-blur-sm sm:p-6 lg:p-8">
-                                {category.comingSoon && (
-                                  <div className="absolute inset-0 bg-elite-cream/80 rounded-2xl z-10" />
-                                )}
-
-                                <div
-                                  className={
-                                    category.comingSoon ? "opacity-40" : ""
-                                  }
-                                >
-                                  {/* Category Header */}
-                                  <div className="flex items-center gap-4 mb-6">
-                                    <div
-                                      className={`p-4 rounded-xl ${
-                                        category.comingSoon
-                                          ? "bg-elite-dark-cream text-elite-burgundy"
-                                          : "bg-elite-burgundy text-elite-cream"
-                                      }`}
-                                    >
-                                      {renderIcon(category.icon)}
-                                    </div>
-                                    <div>
-                                      <h3 className="font-calistoga text-elite-black text-3xl font-bold">
-                                        {category.name}
-                                      </h3>
-                                      {category.comingSoon && (
-                                        <span className="bg-elite-burgundy/60 text-elite-cream/80 px-3 py-1 rounded-full text-sm font-cabin font-bold">
-                                          {t("actions.comingSoon")}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Products - Horizontal scroll */}
-                                  {!category.comingSoon &&
-                                    category.subCategories.length > 0 && (
-                                      <div className="overflow-x-auto menu-items-scroll scrollbar-hide -mx-8 px-8 py-4">
-                                        <div className="flex gap-5 pb-4">
-                                          {category.subCategories[0]?.items
-                                            .filter(
-                                              (item) =>
-                                                item !== null &&
-                                                item !== undefined,
-                                            )
-                                            .map((item, idx) => (
-                                              <div
-                                                key={item.id}
-                                                className="w-72 flex-shrink-0 snap-start"
-                                              >
-                                                <DrinkCard
-                                                  id={item.id}
-                                                  images={item.images}
-                                                  name={item.name}
-                                                  price={item.price}
-                                                  description={item.description}
-                                                  available={item.available}
-                                                  size="small"
-                                                  href={`/products/${item.id}`}
-                                                  menuItemId={item.id}
-                                                  showAddToOrder={true}
-                                                  categoryId={category.id}
-                                                  imageVersion={
-                                                    productsLastUpdate
-                                                  }
-                                                  animationDelay={idx * 30}
-                                                  onQuickAdd={() => {
-                                                    const product =
-                                                      apiProducts.find(
-                                                        (p) => p.id === item.id,
-                                                      );
-                                                    if (product) {
-                                                      setSelectedProduct(
-                                                        product,
-                                                      );
-                                                      setIsModalOpen(true);
-                                                    }
-                                                  }}
-                                                />
-                                              </div>
-                                            ))}
-                                        </div>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <div
+                                        className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                                          category.comingSoon
+                                            ? "bg-elite-dark-cream text-elite-burgundy/50"
+                                            : "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25"
+                                        }`}
+                                      >
+                                        {renderIcon(category.icon)}
                                       </div>
+                                      <div>
+                                        <h3 className="font-calistoga text-elite-black text-[1.25rem] font-bold leading-tight tracking-[-0.01em]">
+                                          {category.name}
+                                        </h3>
+                                        <span className="inline-flex items-center mt-1 font-cabin text-elite-black/45 text-[11px] font-medium">
+                                          {t("itemsCount", {
+                                            count:
+                                              category.subCategories[0]?.items
+                                                .length || 0,
+                                          })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    {!category.comingSoon && (
+                                      <LocalizedLink
+                                        href={`/menu/${category.id}`}
+                                        className="flex items-center gap-1 font-cabin text-sm text-elite-cream font-semibold px-4 py-2 rounded-full bg-elite-burgundy shadow-md shadow-elite-burgundy/15 active:scale-95 transition-all touch-manipulation"
+                                      >
+                                        {t("actions.seeAll")}
+                                        <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                                      </LocalizedLink>
                                     )}
+                                  </div>
                                 </div>
-                              </div>
-                              {index <
-                                categories.filter(
-                                  (c) =>
-                                    c !== null &&
-                                    (!activeCategory ||
-                                      c.id === activeCategory),
-                                ).length -
-                                  1 && (
-                                <div className="h-px bg-elite-burgundy/10 mt-8" />
-                              )}
+
+                                {/* Products - 2-column grid for browsable layout */}
+                                {!category.comingSoon &&
+                                  category.subCategories.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-3 px-1">
+                                      {category.subCategories[0]?.items
+                                        .filter(
+                                          (item) =>
+                                            item !== null && item !== undefined,
+                                        )
+                                        .slice(0, 10)
+                                        .map((item, idx) => (
+                                          <DrinkCard
+                                            key={item.id}
+                                            id={item.id}
+                                            images={item.images}
+                                            name={item.name}
+                                            price={item.price}
+                                            description={item.description}
+                                            available={item.available}
+                                            size="small"
+                                            href={`/products/${item.id}`}
+                                            menuItemId={item.id}
+                                            showAddToOrder={true}
+                                            categoryId={category.id}
+                                            imageVersion={productsLastUpdate}
+                                            animationDelay={
+                                              catIndex * 80 + idx * 40
+                                            }
+                                            onQuickAdd={() => {
+                                              const product = apiProducts.find(
+                                                (p) => p.id === item.id,
+                                              );
+                                              if (product) {
+                                                setSelectedProduct(product);
+                                                setIsModalOpen(true);
+                                              }
+                                            }}
+                                          />
+                                        ))}
+                                    </div>
+                                  )}
+
+                                {/* Coming Soon State */}
+                                {category.comingSoon && (
+                                  <div className="bg-elite-dark-cream/30 rounded-2xl p-6 text-center">
+                                    <span className="font-cabin text-elite-black/40 text-sm">
+                                      {t("actions.comingSoon")}
+                                    </span>
+                                  </div>
+                                )}
+                              </section>
                             </div>
-                          ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -639,6 +504,253 @@ export default function MenuPage() {
               )}
             </div>
           </div>
+
+          {/* Desktop: Two-panel layout — sidebar + flowing sections */}
+          {!loading && !error && categories.length > 0 && (
+            <div className="hidden lg:block">
+              <div className="mx-auto max-w-[1520px] px-8 xl:px-10 2xl:px-12 pt-6 pb-10">
+                <div className="flex gap-7 xl:gap-9 items-start">
+                  {/* ── Sticky Sidebar — scrollable ── */}
+                  <aside className="w-[230px] xl:w-[250px] flex-shrink-0 sticky top-20 self-start">
+                    <div className="rounded-2xl border border-elite-burgundy/8 bg-elite-cream/65 shadow-[0_8px_30px_rgba(139,38,53,0.06)] backdrop-blur-sm overflow-hidden">
+                      <div className="px-5 pt-5 pb-3">
+                        <h2 className="font-calistoga text-lg text-elite-black tracking-[-0.01em]">
+                          {t("sidebar.title")}
+                        </h2>
+                        <p className="font-cabin text-xs text-elite-black/45 mt-0.5">
+                          {t("sidebar.subtitle")}
+                        </p>
+                      </div>
+
+                      {/* Scrollable nav */}
+                      <nav className="flex flex-col gap-0.5 px-3 pb-3 max-h-[calc(100vh-14rem)] overflow-y-auto scrollbar-hide">
+                        <button
+                          onClick={() => setActiveCategory(null)}
+                          className={`flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-start font-cabin text-sm transition-all duration-200 ${
+                            activeCategory === null
+                              ? "bg-elite-burgundy text-elite-cream font-semibold shadow-md shadow-elite-burgundy/20"
+                              : "text-elite-black/70 hover:bg-elite-cream/80 font-medium"
+                          }`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                              activeCategory === null
+                                ? "bg-elite-cream"
+                                : "bg-elite-burgundy/40"
+                            }`}
+                          />
+                          {t("actions.all")}
+                        </button>
+
+                        {categories
+                          .filter((cat) => cat !== null && cat !== undefined)
+                          .map((cat) => {
+                            const isActive = activeCategory === cat.id;
+                            const itemCount =
+                              cat.subCategories?.[0]?.items?.length || 0;
+
+                            return (
+                              <button
+                                key={`sidebar-${cat.id}`}
+                                onClick={() =>
+                                  setActiveCategory(isActive ? null : cat.id)
+                                }
+                                className={`flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-start font-cabin text-sm transition-all duration-200 group ${
+                                  isActive
+                                    ? "bg-elite-burgundy text-elite-cream font-semibold shadow-md shadow-elite-burgundy/20"
+                                    : cat.comingSoon
+                                      ? "text-elite-black/35 cursor-not-allowed"
+                                      : "text-elite-black/70 hover:bg-elite-cream/80 font-medium"
+                                }`}
+                                disabled={cat.comingSoon}
+                              >
+                                <div
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                                    isActive
+                                      ? "bg-elite-cream/20"
+                                      : cat.comingSoon
+                                        ? "bg-elite-dark-cream/50"
+                                        : "bg-elite-burgundy/8 group-hover:bg-elite-burgundy/12"
+                                  }`}
+                                >
+                                  <span className="text-[14px]">
+                                    {renderIcon(cat.icon)}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <span className="block truncate">
+                                    {cat.name}
+                                  </span>
+                                  {!cat.comingSoon && (
+                                    <span
+                                      className={`text-[11px] ${
+                                        isActive
+                                          ? "text-elite-cream/70"
+                                          : "text-elite-black/40"
+                                      }`}
+                                    >
+                                      {t("itemsCount", {
+                                        count: itemCount,
+                                      })}
+                                    </span>
+                                  )}
+                                  {cat.comingSoon && (
+                                    <span className="text-[10px] text-elite-burgundy/50 font-semibold uppercase tracking-wider">
+                                      {t("actions.soon")}
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                      </nav>
+
+                      <div className="px-5 py-3 border-t border-elite-burgundy/8 bg-transparent">
+                        <p className="font-cabin text-[11px] text-elite-black/35 leading-relaxed">
+                          {t("sidebar.footer")}
+                        </p>
+                      </div>
+                    </div>
+                  </aside>
+
+                  {/* ── Main Content — flowing sections with wave transitions ── */}
+                  <div className="flex-1 min-w-0 rounded-[1.75rem] overflow-hidden shadow-[0_4px_24px_rgba(139,38,53,0.05)]">
+                    {visibleCategories.map((category, catIndex) => {
+                      const isEven = catIndex % 2 === 0;
+                      const bgClass = isEven ? "bg-white" : "bg-elite-cream";
+
+                      return (
+                        <div key={category.id}>
+                          {/* Wave transition between sections */}
+                          {catIndex > 0 && (
+                            <div
+                              className={`wave-divider -mb-px ${isEven ? "bg-elite-cream" : "bg-white"}`}
+                              aria-hidden="true"
+                            >
+                              <svg
+                                viewBox="0 0 1200 40"
+                                preserveAspectRatio="none"
+                                className="w-full h-6 xl:h-8"
+                              >
+                                <path
+                                  d="M0,0 C400,40 800,40 1200,0 L1200,40 L0,40 Z"
+                                  fill={isEven ? "white" : "var(--elite-cream)"}
+                                />
+                              </svg>
+                            </div>
+                          )}
+
+                          <section
+                            className={`relative ${bgClass} ${catIndex === 0 ? "pt-5" : "pt-4"} pb-6 xl:pb-8`}
+                          >
+                            {/* Category Header — premium banner */}
+                            <div
+                              className={`relative mx-5 xl:mx-7 mb-5 px-5 py-4 xl:px-6 xl:py-5 ${
+                                catIndex === 0
+                                  ? ""
+                                  : "rounded-2xl border border-elite-burgundy/8 bg-transparent"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                  <div
+                                    className={`w-12 h-12 xl:w-13 xl:h-13 rounded-2xl flex items-center justify-center transition-transform duration-300 hover:scale-105 ${
+                                      category.comingSoon
+                                        ? "bg-elite-dark-cream text-elite-burgundy/50"
+                                        : "bg-elite-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25"
+                                    }`}
+                                  >
+                                    {renderIcon(category.icon)}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-3">
+                                      <h3 className="font-calistoga text-elite-black text-xl xl:text-[1.45rem] font-bold leading-tight tracking-[-0.01em]">
+                                        {category.name}
+                                      </h3>
+                                      <span className="inline-flex rounded-full bg-elite-burgundy/8 px-2.5 py-0.5 font-cabin text-[11px] font-semibold text-elite-burgundy">
+                                        {t("itemsCount", {
+                                          count:
+                                            category.subCategories[0]?.items
+                                              .length || 0,
+                                        })}
+                                      </span>
+                                    </div>
+                                    <p className="mt-1 font-cabin text-[13px] text-elite-black/45 max-w-md xl:max-w-lg line-clamp-1">
+                                      {category.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                {!category.comingSoon && (
+                                  <LocalizedLink
+                                    href={`/menu/${category.id}`}
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-elite-burgundy px-5 py-2.5 font-cabin text-sm font-semibold text-elite-cream shadow-md shadow-elite-burgundy/15 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-elite-burgundy/25"
+                                  >
+                                    {t("actions.seeAll")}
+                                    <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                                  </LocalizedLink>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Products Grid */}
+                            {!category.comingSoon &&
+                              category.subCategories.length > 0 && (
+                                <div className="px-5 xl:px-7">
+                                  <div className="grid grid-cols-3 gap-4 xl:grid-cols-4 xl:gap-5">
+                                    {category.subCategories[0]?.items
+                                      .filter(
+                                        (item) =>
+                                          item !== null && item !== undefined,
+                                      )
+                                      .map((item, idx) => (
+                                        <DrinkCard
+                                          key={item.id}
+                                          id={item.id}
+                                          images={item.images}
+                                          name={item.name}
+                                          price={item.price}
+                                          description={item.description}
+                                          available={item.available}
+                                          size="small"
+                                          href={`/products/${item.id}`}
+                                          menuItemId={item.id}
+                                          showAddToOrder={true}
+                                          categoryId={category.id}
+                                          imageVersion={productsLastUpdate}
+                                          animationDelay={idx * 25}
+                                          onQuickAdd={() => {
+                                            const product = apiProducts.find(
+                                              (p) => p.id === item.id,
+                                            );
+                                            if (product) {
+                                              setSelectedProduct(product);
+                                              setIsModalOpen(true);
+                                            }
+                                          }}
+                                        />
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
+
+                            {/* Coming Soon State */}
+                            {category.comingSoon && (
+                              <div className="px-5 xl:px-7 text-center py-4">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-elite-dark-cream/40 px-5 py-2.5 font-cabin text-sm text-elite-black/40 font-medium">
+                                  <Sparkles className="h-3.5 w-3.5" />
+                                  {t("actions.comingSoon")}
+                                </div>
+                              </div>
+                            )}
+                          </section>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
