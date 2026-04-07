@@ -130,10 +130,10 @@ export default function Drawer({
           <img
             src="/images/logo_noBG.png"
             alt={t("logoAlt")}
-            className="w-auto object-contain"
+            className="w-auto object-contain flex-shrink-0"
             style={{
-              height: "30px",
-              maxWidth: "120px",
+              height: "40px",
+              maxWidth: "155px",
             }}
           />
           <button

@@ -26,39 +26,19 @@ export default function MenuPageSkeleton() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 min-w-0">
-        {/* Desktop Sidebar Skeleton - Hidden on Mobile */}
-        <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
-          <div className="bg-white rounded-3xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-hidden">
-            {/* Sidebar Header */}
-            <div className="mb-6 pb-4 border-b border-elite-burgundy/20">
-              <Skeleton className="h-8 w-32 mb-2" rounded="lg" />
-              <Skeleton className="h-4 w-24" rounded="md" />
-            </div>
-
-            {/* Categories List - matches actual spacing (space-y-1) */}
-            <div className="space-y-1">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between p-4 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-2 h-2" rounded="full" />
-                      <Skeleton className="h-5 w-32" rounded="lg" />
-                    </div>
-                  </div>
-                  {i < 5 && <div className="h-px bg-elite-burgundy/10 my-3" />}
-                </div>
-              ))}
-            </div>
-
-            {/* Sidebar Footer */}
-            <div className="mt-6 pt-4 border-t border-elite-burgundy/20 flex justify-center">
-              <Skeleton className="h-3 w-32" rounded="md" />
+      <div className="min-w-0">
+        <div className="min-w-0">
+          <div className="mb-6 hidden lg:block">
+            <div className="rounded-2xl border border-elite-burgundy/10 bg-white/80 px-4 py-4 shadow-sm shadow-elite-burgundy/5">
+              <div className="flex flex-wrap gap-2.5">
+                <Skeleton className="h-9 w-14" rounded="full" />
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-9 w-24" rounded="full" />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 min-w-0">
           {/* Mobile: Category sections */}
           <div className="lg:hidden space-y-6">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -101,22 +81,26 @@ export default function MenuPageSkeleton() {
           <div className="hidden lg:block space-y-8">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="relative">
-                <div className="bg-white/50 rounded-2xl p-6 lg:p-8 w-full">
+                <div className="w-full rounded-[2rem] border border-elite-burgundy/10 bg-white/80 p-6 shadow-[0_16px_34px_rgba(139,38,53,0.08)] lg:p-8">
                   {/* Category Header */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <Skeleton className="w-16 h-16" rounded="xl" />
-                    <Skeleton className="h-9 w-48" rounded="xl" />
+                  <div className="mb-6 flex items-start justify-between gap-4 border-b border-elite-burgundy/10 pb-6">
+                    <div className="flex items-start gap-4">
+                      <Skeleton className="h-16 w-16" rounded="xl" />
+                      <div>
+                        <Skeleton className="h-9 w-48" rounded="xl" />
+                        <Skeleton className="mt-2 h-4 w-72" rounded="md" />
+                        <Skeleton className="mt-3 h-6 w-20" rounded="full" />
+                      </div>
+                    </div>
+
+                    <Skeleton className="h-10 w-24" rounded="full" />
                   </div>
 
-                  {/* Horizontal Product Scroll */}
-                  <div className="overflow-x-auto menu-items-scroll scrollbar-hide -mx-8 px-8 py-4">
-                    <div className="flex gap-5 pb-4">
-                      {Array.from({ length: 4 }).map((_, j) => (
-                        <div key={j} className="w-72 flex-shrink-0 snap-start">
-                          <ProductCardSkeleton size="small" />
-                        </div>
-                      ))}
-                    </div>
+                  {/* Desktop Product Grid */}
+                  <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 xl:gap-5 2xl:gap-6">
+                    {Array.from({ length: 10 }).map((_, j) => (
+                      <ProductCardSkeleton key={j} size="small" />
+                    ))}
                   </div>
                 </div>
                 {i < 2 && <div className="h-px bg-elite-burgundy/10 mt-8" />}

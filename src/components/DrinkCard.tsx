@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, ChevronRight, Plus } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages } from "@/lib/imageUtils";
 import { cn, slugify, extractBaseName } from "@/lib/utils";
@@ -9,8 +9,6 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useFormatter, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { useOrdering } from "@/context/OrderingContext";
-import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
-import { openSupportMessenger } from "@/lib/support";
 
 interface DealInfo {
   originalPrice: number;
@@ -91,8 +89,7 @@ export default function DrinkCard({
   const t = useTranslations("drinkCard");
   const format = useFormatter();
   const { addItem } = useLocalCart();
-  const { orderingEnabled, orderingMessage } = useOrdering();
-  const disabledMessage = orderingMessage || ORDERING_DISABLED_MESSAGE;
+  const { orderingEnabled } = useOrdering();
   const [addToOrderState, setAddToOrderState] = useState({
     adding: false,
     added: false,
@@ -145,24 +142,22 @@ export default function DrinkCard({
 
   const handleAddToOrder = useCallback(
     async (e: React.MouseEvent) => {
+      if (!orderingEnabled) {
+        // In paused-ordering mode, list cards should funnel users to details.
+        if (onQuickAdd) {
+          e.preventDefault();
+          e.stopPropagation();
+          onQuickAdd();
+        }
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
 
       const productId = menuItemId || id;
       if (!productId) {
         console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
-        return;
-      }
-
-      if (!orderingEnabled) {
-        setAddToOrderState({ adding: true, added: false });
-        openSupportMessenger();
-        setTimeout(() => {
-          setAddToOrderState({ adding: false, added: true });
-        }, 300);
-        setTimeout(() => {
-          setAddToOrderState({ adding: false, added: false });
-        }, 2300);
         return;
       }
 
@@ -407,23 +402,29 @@ export default function DrinkCard({
           <div className="mt-auto pt-3 sm:pt-4">
             <button
               onClick={handleAddToOrder}
-              disabled={addToOrderState.adding}
+              disabled={orderingEnabled ? addToOrderState.adding : false}
               className={cn(
                 "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-cabin font-bold",
                 "transition-all touch-manipulation active:scale-[0.97]",
                 "min-h-[44px] sm:min-h-[48px]",
                 animDuration,
-                addToOrderState.added
-                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
-                  : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
+                !orderingEnabled
+                  ? "bg-gradient-to-r from-white to-elite-cream text-elite-burgundy border border-elite-burgundy/20 shadow-sm hover:shadow-md"
+                  : addToOrderState.added
+                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
+                    : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
               )}
               aria-live="polite"
-              title={orderingEnabled ? undefined : disabledMessage}
             >
-              {addToOrderState.added ? (
+              {!orderingEnabled ? (
+                <>
+                  <span>{t("seeMore")}</span>
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 rtl:rotate-180" />
+                </>
+              ) : addToOrderState.added ? (
                 <>
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span>{orderingEnabled ? "Added!" : "Notified!"}</span>
+                  <span>{t("added")}</span>
                 </>
               ) : addToOrderState.adding ? (
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
@@ -433,7 +434,7 @@ export default function DrinkCard({
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                     strokeWidth={2.5}
                   />
-                  <span>{orderingEnabled ? "Add" : "Notify"}</span>
+                  <span>{t("add")}</span>
                 </>
               )}
             </button>

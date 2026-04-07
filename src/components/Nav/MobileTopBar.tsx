@@ -48,8 +48,8 @@ export default function MobileTopBar({
             alt={t("logoAlt")}
             className="w-auto object-contain transition-all duration-300 group-hover:opacity-80"
             style={{
-              height: "34px",
-              maxWidth: "130px",
+              height: "40px",
+              maxWidth: "155px",
             }}
           />
         </LocalizedLink>

@@ -293,7 +293,8 @@
     "savePercent": "Save {percent}%",
     "dealInactive": "Deal not currently active",
     "added": "Added!",
-    "add": "Add"
+    "add": "Add",
+    "seeMore": "See more"
   },
   "productModal": {
     "title": "Customize Your Order",
@@ -303,7 +304,8 @@
     "increaseQuantity": "Increase quantity",
     "added": "Added!",
     "adding": "Adding...",
-    "addToOrder": "Add to Order • {total}"
+    "addToOrder": "Add to Order • {total}",
+    "seeDetails": "See full details"
   },
   "menuPage": {
     "title": "Menu",
@@ -1217,7 +1219,10 @@
     "actions": {
       "backToMenu": "Back to Menu",
       "added": "Added",
-      "addToCart": "Add to cart"
+      "addToCart": "Add to cart",
+      "notifyMe": "Notify me",
+      "notified": "Notified!",
+      "notifyHint": "{message} Tap Notify me on this page to get updates."
     },
     "images": {
       "noImage": "No image available",
