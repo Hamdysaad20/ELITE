@@ -1,14 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import MobileHeader from "@/components/MobileHeader";
+import { motion, useReducedMotion } from "framer-motion";
 import Footer from "@/components/Footer";
 import ProductDetailClient from "@/components/ProductDetailClient";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import SwipeIndicator from "@/components/SwipeIndicator";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import { ArrowLeft } from "lucide-react";
 
 interface Product {
   id: string;
@@ -27,15 +28,17 @@ interface Product {
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const locale = useLocale();
   const productId = params?.id as string;
   const t = useTranslations("productPage");
+  const prefersReduced = useReducedMotion();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Enable swipe-back gesture
   const { swipeProgress, isSwipingBack } = useSwipeBack({ enabled: true });
 
   useEffect(() => {
@@ -46,7 +49,6 @@ export default function ProductDetailPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch single product using dedicated endpoint
         const productRes = await fetch(`/api/products/${productId}`);
         if (!productRes.ok) throw new Error(t("errors.fetch"));
 
@@ -61,14 +63,12 @@ export default function ProductDetailPage() {
 
         setProduct(foundProduct);
 
-        // Fetch related products from same category
         if (foundProduct.category?.id) {
           const relatedRes = await fetch(
             `/api/products?categoryId=${foundProduct.category.id}&limit=4`,
           );
           if (relatedRes.ok) {
             const relatedData = await relatedRes.json();
-            // Filter out current product
             const filtered = (relatedData.data || []).filter(
               (p: Product) => p.id !== productId,
             );
@@ -91,21 +91,31 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title={t("title")} showBack={true} transparent={true} />
-        <main className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="min-h-[calc(100vh-5rem)] rounded-[1.75rem] border border-elite-burgundy/10 bg-elite-cream/90 shadow-[0_18px_40px_rgba(139,38,53,0.08)] backdrop-blur-sm flex items-center justify-center md:rounded-none md:border-0 md:bg-transparent md:shadow-none">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
-                <p className="mt-4 font-cabin text-elite-burgundy">
-                  {t("loading")}
-                </p>
-              </div>
+        <div className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8]">
+          {/* Floating back button while loading */}
+          <button
+            onClick={() => router.back()}
+            className="fixed z-40 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-lg active:scale-95 transition-transform"
+            style={{
+              top: "calc(max(env(safe-area-inset-top), 8px) + 12px)",
+              insetInlineStart: "16px",
+            }}
+            aria-label="Go back"
+          >
+            <ArrowLeft
+              className="w-5 h-5 text-elite-burgundy"
+              strokeWidth={2.5}
+              style={locale === "ar" ? { transform: "rotate(180deg)" } : {}}
+            />
+          </button>
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full border-2 border-elite-burgundy border-t-transparent animate-spin mx-auto" />
+              <p className="mt-4 font-cabin text-elite-burgundy/70">
+                {t("loading")}
+              </p>
             </div>
           </div>
-        </main>
-        <div className="hidden md:block">
-          <Footer />
         </div>
       </>
     );
@@ -115,29 +125,36 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title={t("title")} showBack={true} transparent={true} />
-        <main className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="min-h-[calc(100vh-5rem)] rounded-[1.75rem] border border-elite-burgundy/10 bg-elite-cream/90 shadow-[0_18px_40px_rgba(139,38,53,0.08)] backdrop-blur-sm flex items-center justify-center md:rounded-none md:border-0 md:bg-transparent md:shadow-none">
-              <div className="text-center max-w-md px-4">
-                <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
-                  {t("notFound.title")}
-                </h1>
-                <p className="font-cabin text-elite-black/70 mb-6">
-                  {error || t("notFound.description")}
-                </p>
-                <LocalizedLink
-                  href="/menu"
-                  className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:opacity-90 transition-colors"
-                >
-                  {t("notFound.browseMenu")}
-                </LocalizedLink>
-              </div>
-            </div>
+        <div className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] flex items-center justify-center px-4">
+          <button
+            onClick={() => router.back()}
+            className="fixed z-40 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-lg active:scale-95 transition-transform"
+            style={{
+              top: "calc(max(env(safe-area-inset-top), 8px) + 12px)",
+              insetInlineStart: "16px",
+            }}
+            aria-label="Go back"
+          >
+            <ArrowLeft
+              className="w-5 h-5 text-elite-burgundy"
+              strokeWidth={2.5}
+              style={locale === "ar" ? { transform: "rotate(180deg)" } : {}}
+            />
+          </button>
+          <div className="text-center max-w-md">
+            <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
+              {t("notFound.title")}
+            </h1>
+            <p className="font-cabin text-elite-black/70 mb-6">
+              {error || t("notFound.description")}
+            </p>
+            <LocalizedLink
+              href="/menu"
+              className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-semibold hover:opacity-90 transition-opacity"
+            >
+              {t("notFound.browseMenu")}
+            </LocalizedLink>
           </div>
-        </main>
-        <div className="hidden md:block">
-          <Footer />
         </div>
       </>
     );
@@ -146,16 +163,21 @@ export default function ProductDetailPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <MobileHeader title={product.name} showBack={true} transparent={true} />
-      <main className="page-transition loaded min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
+
+      <motion.div
+        initial={prefersReduced ? false : { x: 24, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1.0] }}
+      >
         <ProductDetailClient
           product={product}
           relatedProducts={relatedProducts}
+          onBack={() => router.back()}
         />
-      </main>
-      <div className="hidden md:block">
-        <Footer />
-      </div>
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+      </motion.div>
     </>
   );
 }

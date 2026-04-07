@@ -6,18 +6,20 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import CartDrawer from "./CartDrawer";
 import { useOrdering } from "@/context/OrderingContext";
 import { openSupportMessenger } from "@/lib/support";
+import { useTranslations } from "next-intl";
 
 export default function CartButton() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { itemCount } = useLocalCart();
   const { orderingEnabled } = useOrdering();
+  const t = useTranslations("cartDrawer");
 
   if (!orderingEnabled) {
     return (
       <button
         onClick={openSupportMessenger}
-        className="hidden md:flex fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
-        aria-label="Get updates about ordering"
+        className="hidden md:flex fixed bottom-6 end-6 sm:bottom-10 sm:end-10 z-40 group"
+        aria-label={t("aria.openUpdates")}
       >
         <div className="relative">
           <span className="absolute -inset-2 rounded-full bg-elite-burgundy/20 animate-ping duration-1000" />
@@ -34,8 +36,8 @@ export default function CartButton() {
       {/* Floating Cart Button - Desktop Only */}
       <button
         onClick={() => setIsDrawerOpen(true)}
-        className="hidden md:flex fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-40 group"
-        aria-label={orderingEnabled ? "Open cart" : "Open saved items"}
+        className="hidden md:flex fixed bottom-6 end-6 sm:bottom-10 sm:end-10 z-40 group"
+        aria-label={t("aria.openCart")}
       >
         <div className="relative">
           {/* Ping animation for active state */}
@@ -50,7 +52,7 @@ export default function CartButton() {
 
           {/* Badge */}
           {itemCount > 0 && (
-            <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-white text-elite-burgundy text-xs sm:text-sm font-bold font-calistoga rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow-lg border-2 border-elite-burgundy animate-in zoom-in duration-300">
+            <span className="absolute -top-1 -end-1 sm:-top-2 sm:-end-2 bg-white text-elite-burgundy text-xs sm:text-sm font-bold font-calistoga rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow-lg border-2 border-elite-burgundy animate-in zoom-in duration-300">
               {itemCount > 99 ? "99+" : itemCount}
             </span>
           )}

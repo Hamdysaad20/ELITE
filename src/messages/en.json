@@ -520,7 +520,9 @@
       "close": "Close cart",
       "removeItem": "Remove item",
       "decrease": "Decrease quantity",
-      "increase": "Increase quantity"
+      "increase": "Increase quantity",
+      "openCart": "Open cart",
+      "openUpdates": "Get updates about ordering"
     },
     "items": "{count} item{count, plural, one {} other {s}}",
     "title": "Shopping Cart",
@@ -1209,6 +1211,7 @@
     }
   },
   "productDetail": {
+    "quantity": "Quantity",
     "validation": {
       "selectSize": "Please select a size.",
       "selectAllRequired": "Please select all required options."
@@ -2013,5 +2016,13 @@
     "followPrompt": "Join us on Instagram",
     "cta": "Follow @officieleliteeg",
     "handle": "@officieleliteeg on Instagram"
+  },
+  "notifications": {
+    "ariaLabel": "Notifications",
+    "title": "Status Updates",
+    "markAllRead": "Mark all read",
+    "loading": "Loading updates...",
+    "empty": "No new status updates.",
+    "viewMenu": "View menu"
   }
 }

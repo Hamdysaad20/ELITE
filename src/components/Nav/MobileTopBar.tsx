@@ -3,9 +3,11 @@
 import { type Ref } from "react";
 import { ShoppingBag, Menu } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import LocalizedLink from "@/components/LocalizedLink";
 import LangToggle from "./LangToggle";
 import type { NavAuthState } from "./hooks/useNavState";
+import { stripLocaleFromPathname } from "@/i18n/routing";
 
 interface MobileTopBarProps {
   auth: NavAuthState;
@@ -23,6 +25,16 @@ export default function MobileTopBar({
   const t = useTranslations("globalNav");
   const locale = useLocale();
   const isRtl = locale === "ar";
+  const pathname = usePathname() ?? "";
+  const normalizedPath = stripLocaleFromPathname(pathname);
+
+  // On sub-pages, the page renders its own back-button header — hide the global top bar
+  const isOverlayPage =
+    /^\/menu\/.+/.test(normalizedPath) ||
+    /^\/products\/.+/.test(normalizedPath) ||
+    /^\/orders\/.+/.test(normalizedPath);
+
+  if (isOverlayPage) return null;
 
   return (
     <header

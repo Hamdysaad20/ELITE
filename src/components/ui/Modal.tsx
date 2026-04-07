@@ -116,22 +116,21 @@ export default function Modal({
       </div>
 
       {/* Desktop: Centered modal */}
-      <div className="hidden md:flex fixed inset-0 z-[80] items-center justify-center p-4 sm:p-6">
+      <div className="hidden md:flex fixed inset-0 z-[80] items-center justify-center p-6 lg:p-8">
         {/* Backdrop */}
         <div
           className={cn(
-            "absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200",
+            "absolute inset-0 bg-black/55 backdrop-blur-sm transition-opacity duration-200",
             isClosing ? "opacity-0" : "opacity-100",
           )}
           onClick={handleClose}
           aria-hidden="true"
         />
 
-        {/* Modal Content - Rounded design */}
+        {/* Modal Content */}
         <div
           className={cn(
-            // Slightly larger default on desktop; individual modals can override with className.
-            "relative w-full max-w-2xl lg:max-w-3xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-200",
+            "relative w-full max-w-2xl lg:max-w-3xl transform overflow-hidden rounded-3xl bg-white shadow-[0_32px_80px_rgba(0,0,0,0.22)] transition-all duration-200",
             isClosing ? "opacity-0 scale-95" : "opacity-100 scale-100",
             className,
           )}
@@ -139,19 +138,23 @@ export default function Modal({
           aria-modal="true"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-elite-burgundy/10">
-            <h3 className="font-calistoga text-xl text-elite-black">{title}</h3>
+          <div className="flex items-center justify-between px-7 py-5 border-b border-elite-burgundy/10">
+            <h3 className="font-calistoga text-2xl text-elite-black">
+              {title}
+            </h3>
             <button
               onClick={handleClose}
-              className="rounded-full w-10 h-10 flex items-center justify-center text-elite-black/50 hover:bg-elite-burgundy/5 hover:text-elite-burgundy transition-colors"
+              className="rounded-full w-10 h-10 flex items-center justify-center text-elite-black/40 hover:bg-elite-burgundy/6 hover:text-elite-burgundy transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Body */}
-          <div className="max-h-[80vh] overflow-y-auto">{children}</div>
+          {/* Body — max 86vh minus the ~73px header */}
+          <div className="max-h-[calc(86vh-73px)] overflow-y-auto overscroll-contain">
+            {children}
+          </div>
         </div>
       </div>
     </>,

@@ -162,7 +162,7 @@ export default function Drawer({
         </div>
 
         {/* ── Nav links ─────────────────────────────── */}
-        <nav className="flex-1 overflow-y-auto py-4 px-4">
+        <nav className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
           <div className="space-y-1">
             {items.map((item) => {
               const active = isActive(item.href);
@@ -234,10 +234,10 @@ export default function Drawer({
 
         {/* ── Drawer footer ─────────────────────────── */}
         <div
-          className="flex-shrink-0 px-5 pb-6 pt-4 space-y-3"
+          className="flex-shrink-0 px-5 pt-4 space-y-3"
           style={{
             borderTop: "1px solid var(--nav-border)",
-            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 2rem)",
           }}
         >
           <LangToggle variant="full" />

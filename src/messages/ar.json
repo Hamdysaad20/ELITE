@@ -520,7 +520,9 @@
       "close": "إغلاق السلة",
       "removeItem": "إزالة العنصر",
       "decrease": "تقليل الكمية",
-      "increase": "زيادة الكمية"
+      "increase": "زيادة الكمية",
+      "openCart": "فتح السلة",
+      "openUpdates": "احصل على تحديثات حول الطلبات"
     },
     "items": "{count} عنصر",
     "title": "سلة التسوق",
@@ -1209,6 +1211,7 @@
     }
   },
   "productDetail": {
+    "quantity": "الكمية",
     "validation": {
       "selectSize": "يرجى اختيار الحجم.",
       "selectAllRequired": "يرجى اختيار جميع الخيارات المطلوبة."
@@ -2013,5 +2016,13 @@
     "followPrompt": "انضم إلينا على إنستغرام",
     "cta": "تابع @officieleliteeg",
     "handle": "@officieleliteeg على إنستغرام"
+  },
+  "notifications": {
+    "ariaLabel": "الإشعارات",
+    "title": "تحديثات الحالة",
+    "markAllRead": "تحديد الكل كمقروء",
+    "loading": "جارٍ تحميل التحديثات...",
+    "empty": "لا توجد تحديثات جديدة.",
+    "viewMenu": "عرض القائمة"
   }
 }

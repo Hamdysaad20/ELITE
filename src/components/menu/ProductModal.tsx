@@ -154,54 +154,47 @@ export default function ProductModal({
       isOpen={isOpen}
       onClose={onClose}
       title={t("title")}
-      className="max-w-2xl md:max-w-4xl lg:max-w-5xl"
+      className="md:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
     >
       <div className="flex flex-col">
-        <div className="p-4 pt-6 sm:p-6 sm:pt-8 lg:p-8">
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {/* Image - Optimized for mobile with fixed aspect ratio */}
-            <div className="w-full md:w-2/5 flex-shrink-0">
-              <div className="relative w-full aspect-square">
-                <div className="absolute inset-0 p-2">
-                  <div
-                    className={cn(
-                      "bg-gradient-to-b from-elite-burgundy/8 to-elite-burgundy/15 rounded-2xl transition-transform duration-500 relative overflow-hidden flex items-center justify-center w-full h-full",
-                    )}
-                  >
-                    <ImageWithFallback
-                      src={[...validImages, ...localImages]}
-                      alt={product.name}
-                      className="w-full h-full object-contain sm:object-cover"
-                      objectFit="cover"
-                      showErrorIcon={true}
-                      fill={true}
-                      quality={95}
-                    />
-                  </div>
-                </div>
+        {/* ── Content ── */}
+        <div className="p-4 pt-5 sm:p-6 md:p-8 lg:p-10">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-10 lg:gap-12">
+            {/* Image */}
+            <div className="w-full md:w-[42%] lg:w-[38%] flex-shrink-0">
+              <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-elite-burgundy/6 to-elite-burgundy/14 shadow-[0_8px_32px_rgba(139,38,53,0.10)]">
+                <ImageWithFallback
+                  src={[...validImages, ...localImages]}
+                  alt={product.name}
+                  className="w-full h-full object-contain md:object-cover"
+                  objectFit="cover"
+                  showErrorIcon={true}
+                  fill={true}
+                  quality={95}
+                />
               </div>
             </div>
 
-            {/* Details - Enhanced mobile layout */}
-            <div className="flex-1 space-y-4 md:space-y-6">
+            {/* Details */}
+            <div className="flex-1 min-w-0 space-y-5 md:space-y-6">
               <div>
-                <h2 className="font-calistoga text-xl sm:text-2xl md:text-3xl text-elite-black mb-2">
+                <h2 className="font-calistoga text-2xl sm:text-3xl md:text-[1.9rem] text-elite-black leading-tight mb-2.5">
                   {product.name}
                 </h2>
-                <p className="font-cabin text-elite-black/70 text-sm sm:text-base leading-relaxed">
+                <p className="font-cabin text-elite-black/65 text-sm sm:text-base leading-relaxed">
                   {product.description || t("noDescription")}
                 </p>
               </div>
 
-              {/* Attributes / Options - Enhanced touch targets */}
+              {/* Attributes */}
               {product.attributes &&
                 Object.entries(product.attributes).map(
                   ([attrName, options]) => (
-                    <div key={attrName} className="space-y-2 md:space-y-3">
-                      <h3 className="font-cabin font-semibold text-elite-black text-xs sm:text-sm uppercase tracking-wider">
+                    <div key={attrName} className="space-y-2.5">
+                      <h3 className="font-cabin font-semibold text-elite-black text-[11px] uppercase tracking-[0.12em]">
                         {attrName}
                       </h3>
-                      <div className="flex flex-wrap gap-2 md:gap-2.5">
+                      <div className="flex flex-wrap gap-2">
                         {options.map((option) => (
                           <button
                             key={option.id}
@@ -209,15 +202,15 @@ export default function ProductModal({
                               handleOptionSelect(attrName, option.id)
                             }
                             className={cn(
-                              "px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all border min-w-[72px] sm:min-w-[80px] touch-manipulation active:scale-95",
+                              "px-4 py-2.5 rounded-xl text-sm font-medium transition-all border touch-manipulation active:scale-95",
                               selectedOptions[attrName] === option.id
-                                ? "bg-elite-burgundy text-elite-cream border-elite-burgundy shadow-lg scale-105"
-                                : "bg-white text-elite-black border-elite-burgundy/10 hover:border-elite-burgundy/30 hover:bg-elite-cream/20 active:bg-elite-cream/30",
+                                ? "bg-elite-burgundy text-elite-cream border-elite-burgundy shadow-md"
+                                : "bg-elite-cream/50 text-elite-black border-elite-burgundy/12 hover:border-elite-burgundy/35 hover:bg-elite-cream",
                             )}
                           >
                             {option.name}
                             {option.priceExtra > 0 && (
-                              <span className="ml-1 opacity-80 text-xs">
+                              <span className="ms-1 opacity-70 text-xs">
                                 (+{option.priceExtra})
                               </span>
                             )}
@@ -231,36 +224,38 @@ export default function ProductModal({
           </div>
         </div>
 
-        {/* Sticky Bottom Bar (price + quantity + action) */}
-        <div className="sticky bottom-0 flex-shrink-0 bg-white border-t border-elite-burgundy/10 p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
+        {/* ── Sticky bottom bar ── */}
+        <div className="sticky bottom-0 flex-shrink-0 bg-white/95 backdrop-blur-sm border-t border-elite-burgundy/10 px-4 py-4 sm:px-6 md:px-8 lg:px-10 md:py-5">
+          <div className="flex items-center justify-between gap-4 mb-3 md:mb-4">
+            {/* Price */}
             <div className="min-w-0">
-              <p className="font-cabin text-xs sm:text-sm text-elite-black/60">
+              <p className="font-cabin text-xs text-elite-black/50 mb-0.5">
                 {t("total")}
               </p>
-              <p className="font-calistoga text-elite-burgundy text-lg sm:text-xl tabular-nums truncate">
+              <p className="font-calistoga text-elite-burgundy text-xl md:text-2xl tabular-nums">
                 {formatPrice(totalPrice)}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 bg-elite-cream/50 rounded-xl p-1.5 flex-shrink-0">
+            {/* Quantity stepper */}
+            <div className="flex items-center gap-1 bg-elite-cream/60 rounded-2xl p-1 flex-shrink-0">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30 flex items-center justify-center"
+                className="w-10 h-10 md:w-11 md:h-11 hover:bg-white active:bg-white rounded-xl transition-colors text-elite-burgundy touch-manipulation active:scale-90 disabled:opacity-30 flex items-center justify-center"
                 disabled={quantity <= 1}
                 aria-label={t("decreaseQuantity")}
               >
-                <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Minus className="w-4 h-4" />
               </button>
-              <span className="font-calistoga text-base sm:text-lg w-10 text-center tabular-nums">
+              <span className="font-calistoga text-lg w-9 text-center tabular-nums text-elite-black">
                 {quantity}
               </span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-11 h-11 hover:bg-white active:bg-white rounded-lg transition-colors text-elite-burgundy touch-manipulation active:scale-90 flex items-center justify-center"
+                className="w-10 h-10 md:w-11 md:h-11 hover:bg-white active:bg-white rounded-xl transition-colors text-elite-burgundy touch-manipulation active:scale-90 flex items-center justify-center"
                 aria-label={t("increaseQuantity")}
               >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Plus className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -269,7 +264,7 @@ export default function ProductModal({
             onClick={handleAddToCart}
             disabled={isAdding || justAdded}
             className={cn(
-              "mt-3 w-full py-4 rounded-2xl font-cabin font-bold text-base shadow-lg transition-all flex items-center justify-center gap-3 touch-manipulation min-h-[56px] active:scale-[0.98]",
+              "w-full py-4 md:py-[1.1rem] rounded-2xl font-cabin font-bold text-base shadow-lg transition-all flex items-center justify-center gap-3 touch-manipulation min-h-[54px] active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-xl",
               justAdded
                 ? "bg-emerald-500 text-white shadow-emerald-500/25"
                 : "bg-elite-burgundy text-elite-cream shadow-elite-burgundy/25 disabled:opacity-70",
@@ -285,21 +280,17 @@ export default function ProductModal({
                 <div className="w-5 h-5 border-2 border-elite-cream border-t-transparent rounded-full animate-spin" />
                 <span>{t("adding")}</span>
               </div>
+            ) : orderingEnabled ? (
+              <>
+                <ShoppingBag className="w-5 h-5" />
+                <span>
+                  {t("addToOrder", { total: formatPrice(totalPrice) })}
+                </span>
+              </>
             ) : (
               <>
-                {orderingEnabled ? (
-                  <>
-                    <ShoppingBag className="w-5 h-5" />
-                    <span>
-                      {t("addToOrder", { total: formatPrice(totalPrice) })}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>{t("seeDetails")}</span>
-                    <ChevronRight className="w-5 h-5 rtl:rotate-180" />
-                  </>
-                )}
+                <span>{t("seeDetails")}</span>
+                <ChevronRight className="w-5 h-5 rtl:rotate-180" />
               </>
             )}
           </button>

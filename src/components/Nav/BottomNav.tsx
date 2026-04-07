@@ -41,6 +41,13 @@ export default function BottomNav({ auth }: BottomNavProps) {
     return null;
   }
 
+  // On overlay sub-pages the page provides its own navigation chrome
+  const isOverlayPage =
+    /^\/menu\/.+/.test(normalizedPath) ||
+    /^\/products\/.+/.test(normalizedPath) ||
+    /^\/orders\/.+/.test(normalizedPath);
+  if (isOverlayPage) return null;
+
   const anonTabs: TabItem[] = [
     { key: "home", label: t("home"), href: "/", Icon: Home },
     { key: "menu", label: t("menu"), href: "/menu", Icon: UtensilsCrossed },

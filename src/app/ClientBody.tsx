@@ -31,6 +31,11 @@ export default function ClientBody({
   const isOrderPage = normalizedPath === "/order";
   // Landing page has no bottom bar — skip body offset padding
   const isLandingPage = normalizedPath === "/" || normalizedPath === "/about";
+  // Sub-pages render their own back-button header — no global nav body offset needed
+  const isOverlayPage =
+    /^\/menu\/.+/.test(normalizedPath) ||
+    /^\/products\/.+/.test(normalizedPath) ||
+    /^\/orders\/.+/.test(normalizedPath);
 
   // Handle initialization after hydration is complete
   useEffect(() => {
@@ -113,7 +118,13 @@ export default function ClientBody({
           </>
         )}
         <ToastProvider>
-          <main className={isLandingPage ? "" : "nav-body-offset"}>
+          <main
+            className={
+              isLandingPage || isAuthPage || isOverlayPage
+                ? ""
+                : "nav-body-offset"
+            }
+          >
             {children}
           </main>
         </ToastProvider>

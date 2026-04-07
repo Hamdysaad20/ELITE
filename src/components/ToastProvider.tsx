@@ -60,7 +60,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       value={{ toasts, push, dismiss, success, error, info }}
     >
       {children}
-      <div className="fixed z-[100] top-4 left-0 right-0 md:top-20 md:right-4 md:left-auto flex flex-col gap-3 w-full md:max-w-sm pointer-events-none px-4 md:px-0">
+      <div className="fixed z-[100] top-4 start-0 end-0 md:top-20 md:end-4 md:start-auto flex flex-col gap-3 w-full md:max-w-sm pointer-events-none px-4 md:px-0">
         <AnimatePresence mode="popLayout">
           {toasts.map((t) => (
             <motion.div

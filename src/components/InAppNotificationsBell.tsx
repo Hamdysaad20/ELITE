@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import LocalizedLink from "@/components/LocalizedLink";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type InAppNotification = {
@@ -38,6 +38,7 @@ function formatRelative(isoDate: string): string {
 export default function InAppNotificationsBell() {
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const t = useTranslations("notifications");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -158,7 +159,7 @@ export default function InAppNotificationsBell() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="w-12 h-12 rounded-full bg-elite-burgundy/10 hover:bg-elite-burgundy/20 border-2 border-elite-burgundy/10 flex items-center justify-center transition-all duration-300 hover:scale-105"
-        aria-label="Notifications"
+        aria-label={t("ariaLabel")}
       >
         <Bell className="w-5 h-5 text-elite-burgundy" />
         {unreadCount > 0 && (
@@ -182,7 +183,7 @@ export default function InAppNotificationsBell() {
         >
           <div className="px-4 py-3 border-b border-elite-burgundy/10 flex items-center justify-between">
             <h4 className="font-cabin font-bold text-elite-black">
-              Status Updates
+              {t("title")}
             </h4>
             {unreadCount > 0 && (
               <button
@@ -190,7 +191,7 @@ export default function InAppNotificationsBell() {
                 className="inline-flex items-center gap-1 text-xs font-semibold text-elite-burgundy hover:underline"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
-                Mark all read
+                {t("markAllRead")}
               </button>
             )}
           </div>
@@ -198,11 +199,11 @@ export default function InAppNotificationsBell() {
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
               <p className="px-4 py-6 text-sm text-elite-black/60">
-                Loading updates...
+                {t("loading")}
               </p>
             ) : notifications.length === 0 ? (
               <p className="px-4 py-6 text-sm text-elite-black/60">
-                No new status updates.
+                {t("empty")}
               </p>
             ) : (
               notifications.map((notification) => (
@@ -224,7 +225,7 @@ export default function InAppNotificationsBell() {
                       href="/menu"
                       className="text-xs font-semibold text-elite-burgundy hover:underline"
                     >
-                      View menu
+                      {t("viewMenu")}
                     </LocalizedLink>
                   </div>
                 </div>
