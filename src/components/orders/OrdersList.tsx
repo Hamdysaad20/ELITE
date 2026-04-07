@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { OrderStatus, Order } from "@/types";
@@ -189,7 +190,7 @@ export function OrdersList({
                       {order.orderNumber}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <p className="text-xs text-elite-black/50 mb-1 font-cabin font-semibold uppercase tracking-wide">
                       {t("totalLabel")}
                     </p>
@@ -205,24 +206,14 @@ export function OrdersList({
                     <span className="font-cabin text-sm font-bold">
                       {t("viewDetails")}
                     </span>
-                    <svg
+                    <ChevronRight
                       className={cn(
-                        "w-5 h-5 transition-transform",
+                        "w-5 h-5 transition-transform rtl:rotate-180",
                         isRTL
-                          ? "rotate-180 group-hover:-translate-x-1"
+                          ? "group-hover:-translate-x-1"
                           : "group-hover:translate-x-1",
                       )}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    />
                   </div>
                 </div>
               </div>

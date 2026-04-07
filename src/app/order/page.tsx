@@ -512,7 +512,7 @@ function OrderPageContent() {
 
   if (loading)
     return (
-      <main className="page-transition loaded">
+      <div className="page-transition loaded">
         <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
           <LoadingState
             variant="spinner"
@@ -521,12 +521,12 @@ function OrderPageContent() {
           />
         </div>
         <Footer />
-      </main>
+      </div>
     );
 
   if (error)
     return (
-      <main className="page-transition loaded">
+      <div className="page-transition loaded">
         <div className="min-h-screen bg-elite-cream flex items-center justify-center py-20">
           <ErrorState
             error={error}
@@ -536,11 +536,11 @@ function OrderPageContent() {
           />
         </div>
         <Footer />
-      </main>
+      </div>
     );
 
   return (
-    <main className="page-transition loaded overflow-x-hidden">
+    <div className="page-transition loaded overflow-x-hidden">
       <div className="min-h-screen bg-elite-cream w-full overflow-x-hidden">
         {/* Header - Menu page style with big rounded elements */}
         <div className="bg-elite-burgundy text-elite-cream py-8 sm:py-12 md:py-16">
@@ -577,7 +577,7 @@ function OrderPageContent() {
         </div>
 
         {/* Main Content - Menu page spacing, prevent overflow on mobile */}
-        <div className="max-w-[1700px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 md:py-8 lg:py-12 lg:pt-32 overflow-x-hidden">
+        <div className="max-w-[1700px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 md:py-8 lg:py-12 overflow-x-hidden">
           {/* Checkout progress */}
           <div className="mb-4 sm:mb-6">
             <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
@@ -758,7 +758,7 @@ function OrderPageContent() {
                   </span>
                   {lastOrder.integrations.odoo.url && (
                     <a
-                      className="text-emerald-600 underline hover:text-emerald-800 ml-auto flex items-center gap-1"
+                      className="text-emerald-600 underline hover:text-emerald-800 ms-auto flex items-center gap-1"
                       href={lastOrder.integrations.odoo.url}
                       target="_blank"
                       rel="noreferrer"
@@ -869,7 +869,7 @@ function OrderPageContent() {
                             />
                           </div>
                           {/* Item Info */}
-                          <div className="flex-1 min-w-0 text-left">
+                          <div className="flex-1 min-w-0 text-start">
                             <h3 className="font-calistoga text-elite-black text-base sm:text-lg font-bold mb-1 line-clamp-2 break-words">
                               {item.name}
                             </h3>
@@ -934,7 +934,7 @@ function OrderPageContent() {
                           </div>
                           {/* Remove Button */}
                           <button
-                            className="ml-auto w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-100 active:scale-95 transition-all disabled:opacity-50"
+                            className="ms-auto w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-100 active:scale-95 transition-all disabled:opacity-50"
                             onClick={() => removeFromCart(item.id)}
                             disabled={isUpdating}
                           >
@@ -1311,7 +1311,7 @@ function OrderPageContent() {
                       <span className="font-calistoga text-elite-black text-lg sm:text-xl font-bold leading-tight">
                         {t("summary.total")}
                       </span>
-                      <span className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold tabular-nums text-right whitespace-nowrap leading-none">
+                      <span className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold tabular-nums text-end whitespace-nowrap leading-none">
                         {formatCurrency(totalAmount)}
                       </span>
                     </div>
@@ -1360,17 +1360,17 @@ function OrderPageContent() {
       </div>
       <Footer />
       {cartItems.length > 0 && (
-        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 p-4 bg-transparent">
-          <div className="flex gap-4">
+        <div className="md:hidden fixed inset-x-0 bottom-[calc(68px+env(safe-area-inset-bottom,0px))] z-40 px-4 py-2">
+          <div className="flex gap-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-elite-burgundy/10 p-3">
             <button
-              className="w-1/3 py-3 rounded-full bg-white/80 backdrop-blur-md text-red-600 font-bold shadow-lg"
+              className="w-1/3 py-3 rounded-full bg-elite-cream border border-elite-burgundy/20 text-red-600 font-cabin font-semibold text-sm shadow-sm active:scale-95 transition-all touch-manipulation"
               onClick={clearCart}
               disabled={isUpdating || submitting}
             >
               {t("actions.clearCart")}
             </button>
             <button
-              className="w-2/3 py-3 rounded-full bg-elite-burgundy text-white font-bold shadow-lg"
+              className="w-2/3 py-3 rounded-full bg-elite-burgundy text-elite-cream font-cabin font-semibold text-sm shadow-md active:scale-95 transition-all touch-manipulation disabled:opacity-50"
               onClick={placeOrder}
               disabled={isPlaceOrderDisabled}
             >
@@ -1383,7 +1383,7 @@ function OrderPageContent() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
 

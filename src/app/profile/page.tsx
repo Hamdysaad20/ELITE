@@ -16,7 +16,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
-import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import AddressManager from "@/components/AddressManager";
 import AvatarUpload from "@/components/AvatarUpload";
@@ -104,10 +103,8 @@ function ProfileContent() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block"></div>
-      <MobileHeader title={t("title")} showBack={true} />
 
-      <main className="min-h-screen bg-elite-cream pb-28 md:pb-8 pt-16 md:pt-0">
+      <div className="min-h-screen bg-elite-cream pb-28 md:pb-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-12 space-y-3 md:space-y-6">
           {/* Profile Header - Premium rounded design */}
           <div className="bg-white rounded-3xl shadow-lg border border-elite-burgundy/10 overflow-hidden">
@@ -115,7 +112,7 @@ function ProfileContent() {
               <div className="flex items-center gap-3 sm:gap-4">
                 {/* Avatar */}
                 <div className="relative group">
-                  <div className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center shadow-lg ring-2 ring-elite-cream/30 overflow-hidden">
+                  <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center shadow-lg ring-2 ring-elite-cream/30 overflow-hidden">
                     {session.user?.image ? (
                       <Image
                         src={session.user.image}
@@ -321,7 +318,7 @@ function ProfileContent() {
                 {t("aboutEliteDesc")}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-elite-black/30 group-hover:text-elite-burgundy transition-colors flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 text-elite-black/30 group-hover:text-elite-burgundy transition-colors flex-shrink-0 rtl:rotate-180" />
           </LocalizedLink>
 
           {/* Sign Out Button */}
@@ -333,7 +330,7 @@ function ProfileContent() {
             <span className="font-cabin font-semibold">{t("signOut")}</span>
           </button>
         </div>
-      </main>
+      </div>
 
       {/* Avatar Upload Modal */}
       {showAvatarUpload && (

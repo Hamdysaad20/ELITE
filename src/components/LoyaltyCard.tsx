@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, TrendingUp, Gift, Star, Crown, Gem } from "lucide-react";
+import { Award, TrendingUp, Gift, Star, Crown, Gem, Check } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
 interface LoyaltyCardProps {
@@ -81,11 +81,11 @@ export function LoyaltyCard({
     >
       {/* Decorative background pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
+        <div className="absolute top-0 end-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 start-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
       </div>
 
-      <div className="relative p-8">
+      <div className="relative p-6 sm:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -103,7 +103,7 @@ export function LoyaltyCard({
               </h2>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-end">
             <p className={`text-sm ${colors.text} opacity-80 font-cabin`}>
               {t("card.totalSpent")}
             </p>
@@ -179,12 +179,12 @@ export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
     TIER_COLORS[level as keyof typeof TIER_COLORS] || TIER_COLORS.bronze;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-      <div className="flex items-center gap-3 mb-4">
+    <div className="bg-white rounded-3xl shadow-lg p-6 border border-elite-burgundy/10">
+      <div className="flex items-center gap-3 mb-5">
         <div className={`p-2 rounded-xl bg-gradient-to-br ${colors.bg}`}>
           <Gift className="w-5 h-5 text-white" />
         </div>
-        <h3 className="text-xl font-calistoga text-gray-900">
+        <h3 className="text-xl font-calistoga text-elite-black">
           {t("benefits.title")}
         </h3>
       </div>
@@ -195,21 +195,11 @@ export function LoyaltyBenefits({ benefits, level }: LoyaltyBenefitsProps) {
             <div
               className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${colors.bg} flex items-center justify-center mt-0.5`}
             >
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="text-gray-700 font-cabin">{benefit}</span>
+            <span className="text-elite-black/80 font-cabin text-sm leading-relaxed">
+              {benefit}
+            </span>
           </li>
         ))}
       </ul>
@@ -247,10 +237,12 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
 
   if (activity.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200 text-center">
-        <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-gray-600 font-cabin">{t("activity.empty.title")}</p>
-        <p className="text-sm text-gray-500 font-cabin mt-1">
+      <div className="bg-white rounded-3xl shadow-lg p-8 border border-elite-burgundy/10 text-center">
+        <TrendingUp className="w-12 h-12 text-elite-burgundy/30 mx-auto mb-3" />
+        <p className="text-elite-black/60 font-cabin font-medium">
+          {t("activity.empty.title")}
+        </p>
+        <p className="text-sm text-elite-black/40 font-cabin mt-1">
           {t("activity.empty.description")}
         </p>
       </div>
@@ -258,10 +250,10 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="bg-white rounded-3xl shadow-lg p-6 border border-elite-burgundy/10">
+      <div className="flex items-center gap-3 mb-5">
         <TrendingUp className="w-5 h-5 text-elite-burgundy" />
-        <h3 className="text-xl font-calistoga text-gray-900">
+        <h3 className="text-xl font-calistoga text-elite-black">
           {t("activity.title")}
         </h3>
       </div>
@@ -270,14 +262,14 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
         {activity.map((item) => (
           <div
             key={item.id}
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-between p-4 bg-elite-cream/30 rounded-2xl hover:bg-elite-cream/50 transition-colors"
           >
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
                     item.deltaPoints > 0
-                      ? "bg-green-100 text-green-700"
+                      ? "bg-emerald-100 text-emerald-700"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
@@ -286,18 +278,18 @@ export function LoyaltyActivity({ activity }: LoyaltyActivityProps) {
                     count: Math.abs(item.deltaPoints),
                   })}
                 </span>
-                <span className="text-sm text-gray-600 font-cabin">
+                <span className="text-sm text-elite-black/70 font-cabin truncate">
                   {item.reason || t("activity.reasonFallback")}
                 </span>
               </div>
               {item.orderTotal && (
-                <p className="text-xs text-gray-500 mt-1 font-cabin">
+                <p className="text-xs text-elite-black/50 mt-1 font-cabin">
                   {t("activity.orderTotal", {
                     amount: formatCurrency(Number(item.orderTotal)),
                   })}
                 </p>
               )}
-              <p className="text-xs text-gray-400 mt-1 font-cabin">
+              <p className="text-xs text-elite-black/40 mt-1 font-cabin">
                 {format.dateTime(new Date(item.createdAt), {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -327,13 +319,13 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-      <h3 className="text-xl font-calistoga text-gray-900 mb-6">
+    <div className="bg-white rounded-3xl shadow-lg p-6 border border-elite-burgundy/10">
+      <h3 className="text-xl font-calistoga text-elite-black mb-6">
         {t("tiers.title")}
       </h3>
 
-      <div className="space-y-4">
-        {tiers.map((tier, index) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {tiers.map((tier) => {
           const Icon =
             TIER_ICONS[tier.level as keyof typeof TIER_ICONS] || Award;
           const colors =
@@ -344,15 +336,15 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
           return (
             <div
               key={tier.level}
-              className={`relative p-4 rounded-xl border-2 transition-all ${
+              className={`relative p-4 rounded-2xl border-2 transition-all ${
                 isCurrent
-                  ? `border-transparent bg-gradient-to-r ${colors.bg}`
-                  : "border-gray-200 bg-gray-50"
+                  ? `border-transparent bg-gradient-to-br ${colors.bg}`
+                  : "border-elite-burgundy/10 bg-elite-cream/20"
               }`}
             >
               {isCurrent && (
-                <div className="absolute top-2 right-2">
-                  <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded-full">
+                <div className="absolute top-2 end-2">
+                  <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold font-cabin px-2 py-1 rounded-full">
                     {t("tiers.current")}
                   </span>
                 </div>
@@ -360,31 +352,29 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
 
               <div className="flex items-start gap-3">
                 <div
-                  className={`p-2 rounded-lg ${
-                    isCurrent ? "bg-white/20" : "bg-gray-200"
+                  className={`p-2 rounded-xl flex-shrink-0 ${
+                    isCurrent ? "bg-white/20" : "bg-elite-cream"
                   }`}
                 >
                   <Icon
                     className={`w-6 h-6 ${
-                      isCurrent ? "text-white" : "text-gray-600"
+                      isCurrent ? "text-white" : "text-elite-burgundy"
                     }`}
                   />
                 </div>
 
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4
-                      className={`font-calistoga text-lg capitalize ${
-                        isCurrent ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {levelLabels[tier.level] || tier.level}
-                    </h4>
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <h4
+                    className={`font-calistoga text-lg capitalize mb-1 ${
+                      isCurrent ? "text-white" : "text-elite-black"
+                    }`}
+                  >
+                    {levelLabels[tier.level] || tier.level}
+                  </h4>
 
                   <p
                     className={`text-sm mb-2 font-cabin ${
-                      isCurrent ? "text-white/80" : "text-gray-600"
+                      isCurrent ? "text-white/80" : "text-elite-black/60"
                     }`}
                   >
                     {tier.minPoints === 0
@@ -399,12 +389,12 @@ export function LoyaltyTiers({ tiers, currentLevel }: LoyaltyTiersProps) {
                       <li
                         key={i}
                         className={`text-xs flex items-center gap-2 font-cabin ${
-                          isCurrent ? "text-white/90" : "text-gray-600"
+                          isCurrent ? "text-white/90" : "text-elite-black/60"
                         }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            isCurrent ? "bg-white/60" : "bg-gray-400"
+                          className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                            isCurrent ? "bg-white/60" : "bg-elite-burgundy/40"
                           }`}
                         ></span>
                         {benefit}

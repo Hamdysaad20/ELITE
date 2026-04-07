@@ -112,12 +112,12 @@ function SignInContent() {
             className="absolute inset-0 z-0 opacity-10 pointer-events-none"
             animate={{
               y: [0, -15, 0],
-              rotate: [0, 1, 0]
+              rotate: [0, 1, 0],
             }}
             transition={{
               duration: 8,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
             <Image
@@ -306,13 +306,13 @@ function SignInContent() {
                     <Info className="w-4 h-4" />
                   </button>
                   {showTooltip && (
-                    <div className="hidden lg:block absolute right-0 top-full mt-2 w-72 bg-elite-burgundy text-elite-cream text-sm p-4 rounded-2xl shadow-2xl z-20 font-cabin">
+                    <div className="hidden lg:block absolute end-0 top-full mt-2 w-72 bg-elite-burgundy text-elite-cream text-sm p-4 rounded-2xl shadow-2xl z-20 font-cabin">
                       {t("form.tooltip")}
                     </div>
                   )}
                 </div>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-elite-burgundy/40" />
+                  <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-elite-burgundy/40" />
                   <input
                     id="email"
                     name="email"
@@ -322,7 +322,7 @@ function SignInContent() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-5 py-4 bg-white border-2 border-elite-burgundy/15 rounded-2xl font-cabin text-base text-elite-black placeholder-elite-black/35 focus:outline-none focus:border-elite-burgundy focus:ring-4 focus:ring-elite-burgundy/10 transition-all hover:border-elite-burgundy/30 touch-manipulation"
+                    className="w-full ps-12 pe-5 py-[18px] bg-white border-2 border-elite-burgundy/15 rounded-2xl font-cabin text-base text-elite-black placeholder-elite-black/35 focus:outline-none focus:border-elite-burgundy focus:ring-4 focus:ring-elite-burgundy/10 transition-all hover:border-elite-burgundy/30 touch-manipulation"
                     placeholder={t("form.emailPlaceholder")}
                     disabled={loading}
                   />
@@ -355,7 +355,7 @@ function SignInContent() {
               <button
                 type="submit"
                 disabled={loading || !email}
-                className="w-full bg-elite-burgundy text-elite-cream font-cabin font-bold text-base py-4.5 rounded-full shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2.5 touch-manipulation min-h-[56px]"
+                className="w-full bg-elite-burgundy text-elite-cream font-cabin font-bold text-base py-[18px] rounded-full shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2.5 touch-manipulation min-h-[56px]"
               >
                 {loading ? (
                   <>
@@ -400,9 +400,7 @@ function SignInContent() {
                   <p className="font-semibold text-elite-burgundy mb-1">
                     {t("desktop.passwordlessTitle")}
                   </p>
-                  <p>
-                    {t("desktop.passwordlessDescription")}
-                  </p>
+                  <p>{t("desktop.passwordlessDescription")}</p>
                 </div>
               </div>
             </div>

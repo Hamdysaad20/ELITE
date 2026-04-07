@@ -602,7 +602,7 @@ export function OrderDetailCard({ orderId }: OrderDetailCardProps) {
                       ? "border-elite-cream/30"
                       : "border-elite-burgundy"
                   } shadow-md`,
-                  isRTL ? "mr-auto" : "ml-auto",
+                  "ms-auto",
                 )}
               >
                 {t("orderId", { id: displayOrderId })}

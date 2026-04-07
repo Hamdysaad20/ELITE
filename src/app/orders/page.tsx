@@ -3,10 +3,9 @@
 import { useState, useMemo } from "react";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { useOrders } from "@/hooks/useOrderStatus";
-import MobileHeader from "@/components/MobileHeader";
 import SwipeIndicator from "@/components/SwipeIndicator";
 import Footer from "@/components/Footer";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { OrdersAnalytics } from "@/components/orders/OrdersAnalytics";
 import { OrdersList } from "@/components/orders/OrdersList";
@@ -14,14 +13,17 @@ import {
   OrderFilters,
   type OrderFilters as OrderFiltersType,
 } from "@/components/orders/OrderFilters";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { normalizeOrderStatus } from "@/lib/orderStatus";
+import { cn } from "@/lib/utils";
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const { orders, loading, error, refetch } = useOrders();
   const t = useTranslations("ordersPage");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   // Filter state
   const [filters, setFilters] = useState<OrderFiltersType>({
@@ -102,15 +104,14 @@ export default function OrdersPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <MobileHeader title={t("title")} showBack={true} />
-        <main className="min-h-screen bg-elite-cream flex items-center justify-center pt-16 md:pt-0">
-          <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 text-elite-burgundy animate-spin mb-4" />
-            <p className="text-elite-black/70 font-cabin text-lg">
+        <div className="min-h-screen bg-elite-cream flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 text-elite-burgundy animate-spin" />
+            <p className="text-elite-black/70 font-cabin text-base">
               {t("loading")}
             </p>
           </div>
-        </main>
+        </div>
         <Footer />
       </>
     );
@@ -119,51 +120,49 @@ export default function OrdersPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <MobileHeader title={t("title")} showBack={true} />
 
-      <main className="min-h-screen bg-elite-cream pb-32 md:pb-8 pt-16 md:pt-0">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 md:pt-8 space-y-4 md:space-y-6">
-          {/* Page Header with Breadcrumbs */}
+      <div className="min-h-screen bg-elite-cream pb-24 md:pb-8">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 md:pt-8 space-y-4 md:space-y-6">
+          {/* Page Header */}
           <div className="bg-gradient-to-br from-elite-burgundy to-elite-burgundy/90 rounded-3xl p-4 sm:p-6 space-y-3">
-            {/* Back Button - Hidden on mobile */}
+            {/* Back to Profile — desktop only */}
             <LocalizedLink
               href="/profile"
               className="hidden md:inline-flex items-center gap-2 text-elite-cream/80 hover:text-elite-cream transition-colors group"
             >
-              <svg
-                className="w-5 h-5 group-hover:-translate-x-1 transition-transform"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ChevronLeft
+                className={cn(
+                  "w-5 h-5 transition-transform",
+                  isRTL
+                    ? "group-hover:translate-x-1 rotate-180"
+                    : "group-hover:-translate-x-1",
+                )}
+              />
               <span className="font-cabin text-sm font-semibold">
                 {t("backToProfile")}
               </span>
             </LocalizedLink>
 
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm font-cabin">
+            <div className="flex items-center gap-2 text-sm font-cabin flex-wrap">
               <LocalizedLink
                 href="/"
                 className="text-elite-cream/60 hover:text-elite-cream transition-colors"
               >
                 {t("breadcrumbs.home")}
               </LocalizedLink>
-              <span className="text-elite-cream/40">/</span>
+              <span className="text-elite-cream/40" aria-hidden="true">
+                ·
+              </span>
               <LocalizedLink
                 href="/profile"
                 className="text-elite-cream/60 hover:text-elite-cream transition-colors"
               >
                 {t("breadcrumbs.profile")}
               </LocalizedLink>
-              <span className="text-elite-cream/40">/</span>
+              <span className="text-elite-cream/40" aria-hidden="true">
+                ·
+              </span>
               <span className="text-elite-cream font-semibold">
                 {t("title")}
               </span>
@@ -173,7 +172,9 @@ export default function OrdersPage() {
             <h1 className="font-calistoga text-3xl sm:text-4xl text-elite-cream">
               {t("title")}
             </h1>
-            <p className="font-cabin text-elite-cream/80">{t("subtitle")}</p>
+            <p className="font-cabin text-elite-cream/80 text-sm sm:text-base">
+              {t("subtitle")}
+            </p>
           </div>
 
           {/* Analytics Overview */}
@@ -194,7 +195,7 @@ export default function OrdersPage() {
             onRetry={refetch}
           />
         </div>
-      </main>
+      </div>
 
       <Footer />
     </>
