@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
+import MobileHeader from "@/components/MobileHeader";
 import { getAllCategories } from "@/lib/menuData";
 import DrinkCard from "@/components/DrinkCard";
 import LocalizedLink from "@/components/LocalizedLink";
@@ -94,9 +95,15 @@ export default async function SubCategoryPage({
 
   return (
     <main className="page-transition loaded">
-      <div className="min-h-screen bg-elite-cream">
+      <div className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pb-24 md:pb-0">
+        <MobileHeader
+          title={subCategory.name}
+          showBack={true}
+          transparent={true}
+        />
+
         {/* Header */}
-        <div className="bg-elite-burgundy text-elite-cream py-8">
+        <div className="hidden md:block bg-elite-burgundy text-elite-cream py-8">
           <div className="max-w-7xl mx-auto px-6">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm mb-4">
@@ -145,10 +152,23 @@ export default async function SubCategoryPage({
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-12 pt-16 md:pt-12">
+          {/* Mobile Intro Card */}
+          <div className="md:hidden mb-4 rounded-[1.5rem] border border-elite-burgundy/10 bg-white/70 px-4 py-4 shadow-[0_12px_30px_rgba(139,38,53,0.08)] backdrop-blur-sm">
+            <p className="font-cabin text-xs uppercase tracking-[0.2em] text-elite-burgundy/70 mb-1">
+              {category.name}
+            </p>
+            <h1 className="font-calistoga text-elite-black text-2xl leading-tight">
+              {subCategory.name}
+            </h1>
+            <p className="font-cabin text-elite-black/60 text-sm mt-1 leading-relaxed">
+              {subCategory.description}
+            </p>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Side Navigation */}
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="hidden lg:block lg:w-64 flex-shrink-0">
               <div className="bg-white rounded-2xl shadow-xl border border-elite-burgundy/10 p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
                 {/* Sidebar Header */}
                 <div className="mb-6 pb-4 border-b border-elite-burgundy/20">

@@ -409,85 +409,89 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer (Totals and Checkout) - Enhanced mobile padding */}
           {items.length > 0 && (
-            <div className="border-t-2 border-elite-burgundy/10 bg-white p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0 safe-area-inset-bottom">
-              {(() => {
-                // Only show a detailed breakdown if we introduce additional pricing components in the future
-                // (e.g., taxes, fees, discounts). For now, customers pay the item price as-is.
-                const showBreakdown = tax > 0 || subtotal !== total;
-                return (
-                  <div className="space-y-2 sm:space-y-2.5 mb-5 sm:mb-6 lg:mb-8">
-                    {showBreakdown && (
-                      <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
-                        <span>{t("summary.subtotal")}</span>
-                        <span className="font-semibold">
-                          {formatCurrency(subtotal)}
-                        </span>
+            <div className="border-t-2 border-elite-burgundy/10 bg-white p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0">
+              <div
+                style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+              >
+                {(() => {
+                  // Only show a detailed breakdown if we introduce additional pricing components in the future
+                  // (e.g., taxes, fees, discounts). For now, customers pay the item price as-is.
+                  const showBreakdown = tax > 0 || subtotal !== total;
+                  return (
+                    <div className="space-y-2 sm:space-y-2.5 mb-5 sm:mb-6 lg:mb-8">
+                      {showBreakdown && (
+                        <div className="flex justify-between font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg">
+                          <span>{t("summary.subtotal")}</span>
+                          <span className="font-semibold">
+                            {formatCurrency(subtotal)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="border-t-2 border-elite-burgundy/20 pt-2 sm:pt-2.5 flex justify-between font-calistoga text-elite-burgundy text-xl sm:text-2xl lg:text-3xl">
+                        <span>{t("summary.total")}</span>
+                        <span>{formatCurrency(total)}</span>
                       </div>
-                    )}
-                    <div className="border-t-2 border-elite-burgundy/20 pt-2 sm:pt-2.5 flex justify-between font-calistoga text-elite-burgundy text-xl sm:text-2xl lg:text-3xl">
-                      <span>{t("summary.total")}</span>
-                      <span>{formatCurrency(total)}</span>
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
 
-              {orderingEnabled ? (
-                <>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={isCheckingOut}
-                    className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
-                  >
-                    {isCheckingOut ? (
-                      <>
-                        <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
-                        <span>{t("actions.processing")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>{t("actions.checkout")}</span>
-                        <ArrowRight
-                          className={cn(
-                            "w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300",
-                            isRTL
-                              ? "group-hover:-translate-x-1 rotate-180"
-                              : "group-hover:translate-x-1",
-                          )}
-                        />
-                      </>
+                {orderingEnabled ? (
+                  <>
+                    <button
+                      onClick={handleCheckout}
+                      disabled={isCheckingOut}
+                      className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
+                    >
+                      {isCheckingOut ? (
+                        <>
+                          <div className="w-5 h-5 border-3 border-elite-cream/30 border-t-elite-cream rounded-full animate-spin" />
+                          <span>{t("actions.processing")}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{t("actions.checkout")}</span>
+                          <ArrowRight
+                            className={cn(
+                              "w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300",
+                              isRTL
+                                ? "group-hover:-translate-x-1 rotate-180"
+                                : "group-hover:translate-x-1",
+                            )}
+                          />
+                        </>
+                      )}
+                    </button>
+                    {status === "unauthenticated" && (
+                      <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
+                        {t("actions.signInNotice")}
+                      </p>
                     )}
-                  </button>
-                  {status === "unauthenticated" && (
-                    <p className="text-center font-cabin text-elite-black/50 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                      {t("actions.signInNotice")}
+                  </>
+                ) : status === "authenticated" ? (
+                  <>
+                    <button
+                      onClick={handleNotify}
+                      className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group"
+                    >
+                      <span>Notify me when available</span>
+                    </button>
+                    <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
+                      Ordering is temporarily paused. We'll notify you as soon
+                      as your saved items are available again.
                     </p>
-                  )}
-                </>
-              ) : status === "authenticated" ? (
-                <>
-                  <button
-                    onClick={handleNotify}
-                    className="w-full bg-elite-burgundy text-elite-cream py-4.5 sm:py-5 lg:py-6 rounded-full font-cabin font-bold text-base sm:text-lg lg:text-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-300 shadow-xl shadow-elite-burgundy/30 hover:shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 touch-manipulation min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] group"
-                  >
-                    <span>Notify me when available</span>
-                  </button>
-                  <p className="text-center font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base mt-3 lg:mt-4">
-                    Ordering is temporarily paused. We'll notify you as soon as
-                    your saved items are available again.
-                  </p>
-                </>
-              ) : (
-                <div className="text-center">
-                  <p className="font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg mb-2">
-                    Online ordering is currently paused
-                  </p>
-                  <p className="font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base">
-                    We're putting the final touches on the experience. Ordering
-                    will be available very soon.
-                  </p>
-                </div>
-              )}
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <p className="font-cabin text-elite-black/70 text-sm sm:text-base lg:text-lg mb-2">
+                      Online ordering is currently paused
+                    </p>
+                    <p className="font-cabin text-elite-black/60 text-xs sm:text-sm lg:text-base">
+                      We're putting the final touches on the experience.
+                      Ordering will be available very soon.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

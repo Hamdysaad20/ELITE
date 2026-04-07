@@ -235,7 +235,10 @@ export default function Drawer({
         {/* ── Drawer footer ─────────────────────────── */}
         <div
           className="flex-shrink-0 px-5 pb-6 pt-4 space-y-3"
-          style={{ borderTop: "1px solid var(--nav-border)" }}
+          style={{
+            borderTop: "1px solid var(--nav-border)",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
+          }}
         >
           <LangToggle variant="full" />
 

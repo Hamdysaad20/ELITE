@@ -279,13 +279,17 @@ export default function ProductDetailClient({
 
   // Render component
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-full flex flex-col">
       {/* Header - Hidden on mobile (using MobileHeader) */}
-      <div className="hidden md:block bg-elite-burgundy text-elite-cream py-6 pb-14">
+      <div className="hidden md:block relative overflow-hidden bg-elite-burgundy text-elite-cream pt-8 pb-16">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-10 start-12 h-32 w-32 rounded-full bg-white/12 blur-2xl" />
+          <div className="absolute -bottom-12 end-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        </div>
         <div className="max-w-7xl mx-auto px-6">
           <LocalizedLink
             href="/menu"
-            className="inline-flex items-center gap-2 bg-elite-cream/20 text-elite-cream px-4 py-2 rounded-full font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30"
+            className="inline-flex items-center gap-2 rounded-full border border-elite-cream/30 bg-elite-cream/20 text-elite-cream px-4 py-2 font-cabin font-medium transition-all duration-300 hover:bg-elite-cream/30"
           >
             <ChevronLeft className={cn("w-4 h-4", isRTL && "rotate-180")} />
             {t("actions.backToMenu")}
@@ -294,12 +298,12 @@ export default function ProductDetailClient({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-elite-cream md:rounded-t-[2.5rem] md:-mt-8">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 md:py-12">
+      <div className="flex-1 bg-elite-cream rounded-t-[2rem] border border-elite-burgundy/10 shadow-[0_-16px_34px_rgba(139,38,53,0.12)] md:rounded-t-[2.5rem] md:-mt-8 md:border-0 md:shadow-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 md:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
             {/* Image Section - Compact on mobile */}
             <div className="relative lg:sticky lg:top-32 h-fit">
-              <div className="aspect-square bg-gradient-to-b from-elite-cream to-elite-burgundy/5 relative rounded-3xl overflow-hidden">
+              <div className="aspect-square bg-gradient-to-b from-white/85 via-elite-cream to-elite-burgundy/[0.09] border border-elite-burgundy/10 shadow-[0_12px_34px_rgba(139,38,53,0.12)] relative rounded-3xl overflow-hidden">
                 {/* Main Image Container */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   {hasImages ? (
@@ -423,7 +427,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Product Information - Compact mobile layout */}
-            <div className="space-y-5 md:space-y-8">
+            <div className="space-y-5 md:space-y-8 rounded-[1.5rem] border border-elite-burgundy/10 bg-white/45 p-4 sm:p-5 md:p-7 shadow-[0_8px_24px_rgba(139,38,53,0.08)]">
               {/* Header Section */}
               <div className="space-y-2 md:space-y-4">
                 {product.category && (
@@ -554,7 +558,7 @@ export default function ProductDetailClient({
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-8 sm:mt-12 lg:mt-16 bg-elite-cream rounded-2xl sm:rounded-3xl shadow-xl border-2 border-elite-burgundy/10 p-4 sm:p-6 lg:p-8 xl:p-10 w-full">
+          <div className="mt-8 sm:mt-12 lg:mt-16 bg-gradient-to-b from-white/85 to-elite-cream rounded-2xl sm:rounded-3xl shadow-xl border border-elite-burgundy/10 p-4 sm:p-6 lg:p-8 xl:p-10 w-full">
             <div className="mb-6 sm:mb-8">
               <div className="flex items-start sm:items-center justify-between mb-6 sm:mb-8 flex-col sm:flex-row gap-4">
                 <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl lg:text-4xl font-bold">
@@ -626,7 +630,7 @@ export default function ProductDetailClient({
                 <h2 className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold mb-2">
                   {t("related.title")}
                 </h2>
-                <p className="font-cabin text-elite-black/60 text-sm sm:text-base">
+                <p className="font-cabin text-elite-black/55 text-sm sm:text-base">
                   {t("related.subtitle", {
                     category:
                       product.category?.name || t("related.thisCategory"),

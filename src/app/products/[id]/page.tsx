@@ -91,15 +91,16 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <div className="hidden md:block"></div>
-        <MobileHeader title={t("title")} showBack={true} />
-        <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
-              <p className="mt-4 font-cabin text-elite-burgundy">
-                {t("loading")}
-              </p>
+        <MobileHeader title={t("title")} showBack={true} transparent={true} />
+        <main className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="min-h-[calc(100vh-5rem)] rounded-[1.75rem] border border-elite-burgundy/10 bg-elite-cream/90 shadow-[0_18px_40px_rgba(139,38,53,0.08)] backdrop-blur-sm flex items-center justify-center md:rounded-none md:border-0 md:bg-transparent md:shadow-none">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-elite-burgundy mx-auto"></div>
+                <p className="mt-4 font-cabin text-elite-burgundy">
+                  {t("loading")}
+                </p>
+              </div>
             </div>
           </div>
         </main>
@@ -114,23 +115,24 @@ export default function ProductDetailPage() {
     return (
       <>
         <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-        <div className="hidden md:block"></div>
-        <MobileHeader title={t("title")} showBack={true} />
-        <main className="min-h-screen bg-elite-cream pt-16 md:pt-0 pb-20 md:pb-0">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center max-w-md">
-              <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
-                {t("notFound.title")}
-              </h1>
-              <p className="font-cabin text-elite-black/70 mb-6">
-                {error || t("notFound.description")}
-              </p>
-              <LocalizedLink
-                href="/menu"
-                className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:opacity-90 transition-colors"
-              >
-                {t("notFound.browseMenu")}
-              </LocalizedLink>
+        <MobileHeader title={t("title")} showBack={true} transparent={true} />
+        <main className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="min-h-[calc(100vh-5rem)] rounded-[1.75rem] border border-elite-burgundy/10 bg-elite-cream/90 shadow-[0_18px_40px_rgba(139,38,53,0.08)] backdrop-blur-sm flex items-center justify-center md:rounded-none md:border-0 md:bg-transparent md:shadow-none">
+              <div className="text-center max-w-md px-4">
+                <h1 className="font-calistoga text-elite-burgundy text-4xl mb-4">
+                  {t("notFound.title")}
+                </h1>
+                <p className="font-cabin text-elite-black/70 mb-6">
+                  {error || t("notFound.description")}
+                </p>
+                <LocalizedLink
+                  href="/menu"
+                  className="inline-block bg-elite-burgundy text-elite-cream px-8 py-3 rounded-full font-cabin font-medium hover:opacity-90 transition-colors"
+                >
+                  {t("notFound.browseMenu")}
+                </LocalizedLink>
+              </div>
             </div>
           </div>
         </main>
@@ -144,9 +146,8 @@ export default function ProductDetailPage() {
   return (
     <>
       <SwipeIndicator progress={swipeProgress} isActive={isSwipingBack} />
-      <div className="hidden md:block"></div>
-      <MobileHeader title={product.name} showBack={true} />
-      <main className="page-transition loaded min-h-screen bg-elite-burgundy pt-16 md:pt-0 pb-20 md:pb-0">
+      <MobileHeader title={product.name} showBack={true} transparent={true} />
+      <main className="page-transition loaded min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-20 md:pb-0">
         <ProductDetailClient
           product={product}
           relatedProducts={relatedProducts}

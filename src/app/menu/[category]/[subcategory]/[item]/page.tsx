@@ -73,7 +73,9 @@ export default async function ItemDetailPage({
         recommendedItems={recommendedItems}
         recommendedItemsData={recommendedItemsData}
       />
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </main>
   );
 }

@@ -65,11 +65,11 @@ export default function MobileHeader({
   return (
     <header
       className={cn(
-        "md:hidden fixed top-0 left-0 right-0 z-40 touch-manipulation",
-        "px-3 pt-2 pb-1.5",
+        className,
+        "block md:hidden fixed top-0 left-0 right-0 z-40 touch-manipulation",
+        "px-3 pt-[max(env(safe-area-inset-top),0.5rem)] pb-1.5",
         "transition-all",
         animDuration,
-        className,
       )}
     >
       <div

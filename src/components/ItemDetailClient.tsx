@@ -18,6 +18,7 @@ import {
 } from "@/lib/menuData";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
+import MobileHeader from "@/components/MobileHeader";
 import { cn } from "@/lib/utils";
 
 interface ItemDetailClientProps {
@@ -157,9 +158,11 @@ export default function ItemDetailClient({
   const totalPrice = calculateTotalPrice();
 
   return (
-    <div className="min-h-screen bg-elite-cream">
+    <div className="min-h-screen bg-gradient-to-b from-elite-cream via-[#f8f0e4] to-[#f3e6d8] pt-14 md:pt-0 pb-24 md:pb-0">
+      <MobileHeader title={item.name} showBack={true} transparent={true} />
+
       {/* Clean Header */}
-      <div className="bg-elite-burgundy text-elite-cream py-8">
+      <div className="hidden md:block bg-elite-burgundy text-elite-cream py-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <LocalizedLink
@@ -181,7 +184,7 @@ export default function ItemDetailClient({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-5 md:py-12 rounded-[1.75rem] border border-elite-burgundy/10 bg-elite-cream/90 shadow-[0_18px_40px_rgba(139,38,53,0.08)] backdrop-blur-sm md:rounded-none md:border-0 md:bg-transparent md:shadow-none">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Section */}
           <div className="relative">
