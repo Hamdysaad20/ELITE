@@ -56,7 +56,8 @@
     "navigation": "Navigation",
     "logoAlt": "Elite Coffee — Home",
     "switchLang": "\u0639\u0631\u0628\u064a",
-    "switchLangLabel": "Switch to Arabic"
+    "switchLangLabel": "Switch to Arabic",
+    "plan": "Plan"
   },
   "hero": {
     "titleLine1": "ELITE",
@@ -294,10 +295,13 @@
     "dealInactive": "Deal not currently active",
     "added": "Added!",
     "add": "Add",
-    "seeMore": "See more"
+    "seeMore": "See more",
+    "addToPlan": "Add to Plan",
+    "inPlan": "In Plan"
   },
   "productModal": {
     "title": "Customize Your Order",
+    "planTitle": "Add to Your Plan",
     "noDescription": "No description available.",
     "total": "Total",
     "decreaseQuantity": "Decrease quantity",
@@ -305,6 +309,7 @@
     "added": "Added!",
     "adding": "Adding...",
     "addToOrder": "Add to Order • {total}",
+    "addToPlan": "Add to Plan • {total}",
     "seeDetails": "See full details"
   },
   "menuPage": {
@@ -522,7 +527,22 @@
       "decrease": "Decrease quantity",
       "increase": "Increase quantity",
       "openCart": "Open cart",
-      "openUpdates": "Get updates about ordering"
+      "openUpdates": "Get updates about ordering",
+      "openPlan": "Open your plan"
+    },
+    "plan": {
+      "title": "My Plan",
+      "items": "{count, plural, one {# item planned} other {# items planned}}",
+      "hint": "Add what you want, then show your total at the counter.",
+      "empty": {
+        "title": "Your plan is empty",
+        "description": "Browse the menu and add drinks to plan your visit.",
+        "cta": "Browse Menu"
+      },
+      "share": "Share Plan",
+      "copied": "Copied!",
+      "shareText": "My Elite Coffee Plan ☕",
+      "findUs": "Find Us"
     },
     "items": "{count} item{count, plural, one {} other {s}}",
     "title": "Shopping Cart",
@@ -1319,9 +1339,35 @@
       "description": "We're working on a new rewards experience."
     },
     "settings": {
-      "title": "Settings coming soon",
-      "description": "Account settings will be available here soon.",
-      "cta": "Go to Settings"
+      "accountSection": "Account Information",
+      "profilePicture": "Profile Picture",
+      "changePhoto": "Change Photo",
+      "uploadPhoto": "Upload Photo",
+      "photoHint": "JPG, PNG or WebP · Max 5MB",
+      "displayName": "Display Name",
+      "edit": "Edit",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "emailAddress": "Email Address",
+      "emailHint": "Used for sign-in and notifications",
+      "notificationsSection": "Notifications",
+      "emailNotifications": "Email Notifications",
+      "emailNotificationsDesc": "Master control for all email updates",
+      "orderUpdates": "Order Updates",
+      "orderUpdatesDesc": "Receive updates about your order status and delivery",
+      "promotions": "Promotions & Offers",
+      "promotionsDesc": "Get special deals, discounts and new menu announcements",
+      "active": "Active",
+      "subscribed": "Subscribed",
+      "preferencesSection": "Preferences",
+      "language": "Language",
+      "privacySection": "Privacy & Security",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDesc": "Permanently remove your account and data",
+      "deleteAccountConfirm": "Are you sure you want to delete your account? This will permanently remove your profile, order history, saved addresses, and all preferences. This action cannot be undone.",
+      "appInfo": "ELITE Coffee App",
+      "appVersion": "Version 1.0.0 · © {year} ELITE Coffee"
     },
     "signOut": "Sign Out",
     "aboutElite": "About Elite Coffee",
@@ -2024,5 +2070,11 @@
     "loading": "Loading updates...",
     "empty": "No new status updates.",
     "viewMenu": "View menu"
+  },
+  "orderingBanner": {
+    "message": "Online ordering is paused — browse the menu and come visit us in Faiyum.",
+    "getUpdates": "Follow us for updates",
+    "findUs": "Find us",
+    "dismiss": "Dismiss"
   }
 }

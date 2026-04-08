@@ -1,42 +1,55 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { X, MapPin } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useOrdering } from "@/context/OrderingContext";
-import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { SUPPORT_MESSENGER_URL } from "@/lib/support";
 
-export default function OrderingBanner() {
-  const { orderingEnabled, orderingMessage, loading } = useOrdering();
+export function OrderingBanner() {
+  const { orderingEnabled, loading } = useOrdering();
+  const [dismissed, setDismissed] = useState(false);
+  const t = useTranslations("orderingBanner");
 
-  if (loading || orderingEnabled) return null;
-
-  const message = orderingMessage || ORDERING_DISABLED_MESSAGE;
+  if (loading || orderingEnabled || dismissed) return null;
 
   return (
-    <div className="bg-amber-50 border-b border-amber-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="flex items-start gap-2 text-amber-900">
-          <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-          <p className="font-cabin text-sm sm:text-base">
-            {message}
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+    <div
+      role="status"
+      aria-live="polite"
+      className="bg-elite-burgundy text-elite-cream"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-3">
+        <MapPin className="w-4 h-4 flex-shrink-0 opacity-70" aria-hidden />
+
+        <p className="font-cabin text-sm flex-1 min-w-0">{t("message")}</p>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
           <a
             href={SUPPORT_MESSENGER_URL}
             target="_blank"
             rel="noreferrer noopener"
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-cabin font-semibold hover:bg-amber-200 transition-colors"
+            className="font-cabin text-xs font-semibold underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity whitespace-nowrap hidden sm:inline"
           >
-            Get updates
+            {t("getUpdates")}
           </a>
+
           <Link
             href="/#location"
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-cabin font-semibold hover:bg-amber-200 transition-colors"
+            className="font-cabin text-xs font-semibold underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity whitespace-nowrap"
           >
-            Find a location
+            {t("findUs")}
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            className="p-1 rounded-full hover:bg-white/15 transition-colors"
+            aria-label={t("dismiss")}
+          >
+            <X className="w-3.5 h-3.5" aria-hidden />
+          </button>
         </div>
       </div>
     </div>

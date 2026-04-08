@@ -1,57 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, ShoppingCart } from "lucide-react";
+import { ClipboardList, ShoppingCart } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import CartDrawer from "./CartDrawer";
 import { useOrdering } from "@/context/OrderingContext";
-import { openSupportMessenger } from "@/lib/support";
+import { useCartDrawer } from "@/context/CartDrawerContext";
 import { useTranslations } from "next-intl";
 
 export default function CartButton() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { itemCount } = useLocalCart();
   const { orderingEnabled } = useOrdering();
+  const { isOpen, open, close } = useCartDrawer();
   const t = useTranslations("cartDrawer");
 
-  if (!orderingEnabled) {
-    return (
-      <button
-        onClick={openSupportMessenger}
-        className="hidden md:flex fixed bottom-6 end-6 sm:bottom-10 sm:end-10 z-40 group"
-        aria-label={t("aria.openUpdates")}
-      >
-        <div className="relative">
-          <span className="absolute -inset-2 rounded-full bg-elite-burgundy/20 animate-ping duration-1000" />
-          <div className="relative bg-elite-burgundy text-elite-cream p-4 sm:p-5 rounded-full shadow-2xl border-[3px] border-elite-cream transition-all duration-300 group-hover:scale-110 group-hover:shadow-elite-burgundy/40 group-active:scale-95 flex items-center justify-center">
-            <Bell className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
-          </div>
-        </div>
-      </button>
-    );
-  }
+  const Icon = orderingEnabled ? ShoppingCart : ClipboardList;
+  const ariaLabel = orderingEnabled ? t("aria.openCart") : t("aria.openPlan");
+  const showBadge = itemCount > 0;
 
   return (
     <>
-      {/* Floating Cart Button - Desktop Only */}
       <button
-        onClick={() => setIsDrawerOpen(true)}
+        onClick={open}
         className="hidden md:flex fixed bottom-6 end-6 sm:bottom-10 sm:end-10 z-40 group"
-        aria-label={t("aria.openCart")}
+        aria-label={ariaLabel}
       >
         <div className="relative">
-          {/* Ping animation for active state */}
-          {itemCount > 0 && (
+          {showBadge && (
             <span className="absolute -inset-2 rounded-full bg-elite-burgundy/20 animate-ping duration-1000" />
           )}
-
-          {/* Button */}
           <div className="relative bg-elite-burgundy text-elite-cream p-4 sm:p-5 rounded-full shadow-2xl border-[3px] border-elite-cream transition-all duration-300 group-hover:scale-110 group-hover:shadow-elite-burgundy/40 group-active:scale-95 flex items-center justify-center">
-            <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
+            <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
           </div>
-
-          {/* Badge */}
-          {itemCount > 0 && (
+          {showBadge && (
             <span className="absolute -top-1 -end-1 sm:-top-2 sm:-end-2 bg-white text-elite-burgundy text-xs sm:text-sm font-bold font-calistoga rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow-lg border-2 border-elite-burgundy animate-in zoom-in duration-300">
               {itemCount > 99 ? "99+" : itemCount}
             </span>
@@ -59,11 +39,7 @@ export default function CartButton() {
         </div>
       </button>
 
-      {/* Cart Drawer */}
-      <CartDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-      />
+      <CartDrawer isOpen={isOpen} onClose={close} />
     </>
   );
 }

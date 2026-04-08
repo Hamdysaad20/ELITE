@@ -794,6 +794,176 @@ src/
 
 ---
 
+## 12. Z-Index Stack
+
+All fixed/absolute layers must respect this order. Never assign a z-index without checking this table first.
+
+| Layer | z-index | Notes |
+|---|---|---|
+| Page content | 0–10 | Normal flow |
+| Sticky category pills | `z-20` | Inside overlay pages |
+| MobileHeader (overlay) | `z-40` | Back-button bar on overlay pages |
+| Desktop CartButton FAB | `z-40` | Bottom-right float |
+| Nav overlay / backdrop | `z-100` | Drawer backdrop |
+| MobileTopBar | `z-[100]` | Fixed top bar |
+| BottomNav | `z-[100]` | Fixed bottom bar |
+| Drawer | `z-[101]` | Slides over TopBar |
+| **Modals / bottom sheets** | `z-[110]` | Must be above ALL nav chrome |
+| Toasts | `z-[100]` | Top-layer notifications |
+
+> **Rule**: Modals MUST use `z-[110]`. Using `z-[80]` (old value) caused the BottomNav to render on top of the sticky modal footer, hiding the Add to Cart button. Any modal-like overlay that renders inside `createPortal` must use `z-[110]` or higher.
+
+---
+
+## 13. Safe Area Insets
+
+iOS notch, Dynamic Island, and home indicator require explicit safe-area handling on every fixed element near screen edges. These patterns apply to ALL projects.
+
+### MobileTopBar / fixed top chrome
+
+```tsx
+// On the outer <header>: padding pushes content below the notch
+style={{
+  paddingTop: "env(safe-area-inset-top, 0px)",
+}}
+// On the inner content row: fixed height, no padding
+<div style={{ height: "var(--nav-height-mobile)" }}>
+```
+
+> **Why**: Using `height` alone on the outer wrapper clips content behind the notch. The two-layer approach (padding spacer + fixed-height content row) is correct.
+
+### Drawer header (same principle)
+
+```tsx
+// Spacer div at the very top of the drawer panel
+<div style={{ height: "env(safe-area-inset-top, 0px)" }} />
+// Then the normal-height content row
+<div style={{ height: "var(--nav-height-mobile)" }}>
+```
+
+### Drawer footer
+
+Since BottomNav hides when drawer is open, the drawer footer only needs safe-area clearance (not full BottomNav height):
+
+```tsx
+style={{
+  paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
+}}
+```
+
+### `nav-body-offset` (globals.css)
+
+```css
+@media (max-width: 640px) {
+  .nav-body-offset {
+    padding-top: calc(var(--nav-height-mobile) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+```
+
+> The safe-area-inset-top was missing here previously — pages had content starting behind the notch on PWA/standalone mode.
+
+### Overlay pages (MobileHeader + own content)
+
+```tsx
+// Content div directly below MobileHeader:
+style={{ paddingTop: "calc(max(env(safe-area-inset-top), 8px) + 62px)" }}
+```
+
+---
+
+## 14. Drawer & BottomNav Interaction
+
+The mobile Drawer (`z-[101]`) and BottomNav (`z-[100]`) coexist in the z-stack, but the BottomNav visually occupies the bottom of the drawer's own panel area, obscuring the footer CTA.
+
+**Solution**: BottomNav accepts `drawerOpen?: boolean` prop and returns `null` when `true`. This hides the nav entirely while the drawer is open — standard native mobile UX.
+
+```tsx
+// Nav/index.tsx
+<BottomNav auth={state.auth} drawerOpen={state.drawerOpen} />
+
+// BottomNav.tsx
+if (drawerOpen) return null;
+```
+
+> Do NOT try to solve this with z-index alone. The BottomNav is a sibling of the drawer, not a child, so `z-[101]` on the drawer panel does not clip the BottomNav. Hiding it is the correct approach.
+
+---
+
+## 15. Invalid Tailwind Classes (v3)
+
+Tailwind v3 does not generate every numeric scale. These classes silently produce no CSS:
+
+| ❌ Invalid | ✅ Use instead |
+|---|---|
+| `w-18`, `h-18` | `w-[72px]`, `h-[72px]` |
+| `py-4.5`, `px-4.5` | `py-[18px]`, `px-[18px]` |
+| `text-[0]` | `text-transparent` |
+
+> Always use arbitrary values `[Npx]` for sizes not on the standard Tailwind scale (4, 8, 12, 16, 20, 24... every 4px). The gap between `w-16` (64px) and `w-20` (80px) is the most common trap.
+
+---
+
+## 16. HTML Semantics — No Nested `<main>`
+
+`ClientBody` wraps page content in `<main class="nav-body-offset">`. Page components must **never** use `<main>` as their root element — this produces nested `<main>` which is invalid HTML (only one `<main>` per document).
+
+```tsx
+// ❌ Wrong — creates <main><main>
+return (
+  <main className="page-transition loaded">
+    ...
+  </main>
+);
+
+// ✅ Correct
+return (
+  <div className="page-transition loaded">
+    ...
+  </div>
+);
+```
+
+This applies to loading and error states too — they are all rendered inside the outer `<main>`.
+
+---
+
+## 17. Brand Color Enforcement
+
+All UI components must use brand tokens. `gray-*` Tailwind classes are banned from component interiors.
+
+| ❌ Never use | ✅ Use instead |
+|---|---|
+| `text-gray-*`, `bg-gray-*` | `text-elite-black/60`, `bg-elite-cream` |
+| `border-gray-*` | `border-elite-burgundy/10` |
+| `text-gray-900` | `text-elite-black` |
+| `text-gray-600` | `text-elite-black/70` |
+| `text-gray-400` | `text-elite-black/40` |
+| `bg-gray-50`, `bg-gray-100` | `bg-elite-cream/30`, `bg-elite-cream/50` |
+| `bg-gray-200` | `bg-elite-cream` |
+| `hover:bg-gray-100` | `hover:bg-elite-cream/50` |
+
+The only acceptable uses of gray are `emerald-*` for success states and `red-*` / `amber-*` for error/warning states.
+
+---
+
+## 18. Conditional RTL — Prefer Logical Properties
+
+When you find yourself writing `isRTL ? "mr-auto" : "ml-auto"` — stop. That pattern is always replaceable with a single logical property:
+
+```tsx
+// ❌ Conditional RTL pattern — verbose and error-prone
+className={cn(isRTL ? "mr-auto" : "ml-auto")}
+
+// ✅ Logical property — auto-flips in RTL
+className="ms-auto"
+```
+
+The `isRTL` conditional is only needed for things logical properties cannot express, like complex `absolute` positioning where `start-*`/`end-*` alone isn't enough.
+
+---
+
 ## Quick-Reference Checklist
 
 Before submitting any UI change:
@@ -801,8 +971,14 @@ Before submitting any UI change:
 - [ ] All user-facing strings use `useTranslations()` — zero hardcoded English
 - [ ] Both `en.json` and `ar.json` updated with matching keys
 - [ ] Positional classes use `start-*`/`end-*`/`ms-*`/`me-*` (not left/right/ml/mr)
+- [ ] No `isRTL ? "ml-X" : "mr-X"` — replace with `ms-*`/`me-*`
+- [ ] No `text-left`/`text-right` — replace with `text-start`/`text-end`
+- [ ] No `gray-*` colors inside components — use brand tokens
+- [ ] No nested `<main>` — page roots use `<div>`
+- [ ] All Tailwind size classes are valid v3 values (no `w-18`, `py-4.5`)
 - [ ] Overlay pages include `MobileHeader` + no `nav-body-offset`
 - [ ] Safe-area insets applied to any fixed element near screen edges
+- [ ] Modals use `z-[110]` — above nav chrome (`z-[100]`) and drawer (`z-[101]`)
 - [ ] Touch targets ≥ 44×44px on all interactive elements
 - [ ] `useReducedMotion()` checked before complex animations
 - [ ] `viewport={{ once: true }}` on all Framer Motion scroll reveals

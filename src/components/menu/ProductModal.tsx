@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Minus, Plus, ShoppingBag, Check, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Minus, Plus, ShoppingBag, Check, ClipboardList } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import Modal from "@/components/ui/Modal";
 import { useLocalCart, LocalCartItem } from "@/hooks/useLocalCart";
@@ -26,7 +25,6 @@ export default function ProductModal({
   isOpen,
   onClose,
 }: ProductModalProps) {
-  const router = useRouter();
   const t = useTranslations("productModal");
   const format = useFormatter();
   const { addItem } = useLocalCart();
@@ -92,12 +90,6 @@ export default function ProductModal({
   const handleAddToCart = async () => {
     if (!product) return;
 
-    if (!orderingEnabled) {
-      onClose();
-      router.push(`/products/${product.id}`);
-      return;
-    }
-
     setIsAdding(true);
     try {
       const attributes: LocalCartItem["attributes"] = {};
@@ -153,7 +145,7 @@ export default function ProductModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t("title")}
+      title={orderingEnabled ? t("title") : t("planTitle")}
       className="md:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
     >
       <div className="flex flex-col">
@@ -289,8 +281,10 @@ export default function ProductModal({
               </>
             ) : (
               <>
-                <span>{t("seeDetails")}</span>
-                <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+                <ClipboardList className="w-5 h-5" />
+                <span>
+                  {t("addToPlan", { total: formatPrice(totalPrice) })}
+                </span>
               </>
             )}
           </button>

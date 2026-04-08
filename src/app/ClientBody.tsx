@@ -8,6 +8,8 @@ import NetworkStatus from "@/components/NetworkStatus";
 import CartButton from "@/components/Cart/CartButton";
 import Nav from "@/components/Nav";
 import { OrderingProvider } from "@/context/OrderingContext";
+import { CartDrawerProvider } from "@/context/CartDrawerContext";
+import { OrderingBanner } from "@/components/OrderingBanner";
 import {
   createNavigationState,
   cleanupNavigationState,
@@ -110,24 +112,29 @@ export default function ClientBody({
   return (
     <AuthProvider>
       <OrderingProvider lazy={isLandingPage || isAuthPage}>
-        <NetworkStatus />
-        {!isAuthPage && (
-          <>
-            <Nav />
-            {!isOrderPage && <CartButton />}
-          </>
-        )}
-        <ToastProvider>
-          <main
-            className={
-              isLandingPage || isAuthPage || isOverlayPage
-                ? ""
-                : "nav-body-offset"
-            }
-          >
-            {children}
-          </main>
-        </ToastProvider>
+        <CartDrawerProvider>
+          <NetworkStatus />
+          {!isAuthPage && (
+            <>
+              <Nav />
+              {!isOrderPage && <CartButton />}
+            </>
+          )}
+          <ToastProvider>
+            <main
+              className={
+                isLandingPage || isAuthPage || isOverlayPage
+                  ? ""
+                  : "nav-body-offset"
+              }
+            >
+              {!isLandingPage && !isAuthPage && !isOverlayPage && (
+                <OrderingBanner />
+              )}
+              {children}
+            </main>
+          </ToastProvider>
+        </CartDrawerProvider>
       </OrderingProvider>
     </AuthProvider>
   );

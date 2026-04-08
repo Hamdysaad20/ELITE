@@ -512,7 +512,7 @@ img[loading="lazy"] {
 /* Mobile body padding — offset for fixed top bar + bottom bar */
 @media (max-width: 640px) {
   .nav-body-offset {
-    padding-top: var(--nav-height-mobile);
+    padding-top: calc(var(--nav-height-mobile) + env(safe-area-inset-top, 0px));
     padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px));
   }
 }

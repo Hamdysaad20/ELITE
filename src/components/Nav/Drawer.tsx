@@ -121,44 +121,48 @@ export default function Drawer({
       >
         {/* ── Drawer header ──────────────────────────── */}
         <div
-          className="flex items-center justify-between px-5 flex-shrink-0"
-          style={{
-            height: "var(--nav-height-mobile)",
-            borderBottom: "1px solid var(--nav-border)",
-          }}
+          className="flex-shrink-0"
+          style={{ borderBottom: "1px solid var(--nav-border)" }}
         >
-          <img
-            src="/images/logo_noBG.png"
-            alt={t("logoAlt")}
-            className="w-auto object-contain flex-shrink-0"
-            style={{
-              height: "40px",
-              maxWidth: "155px",
-            }}
-          />
-          <button
-            ref={closeRef}
-            onClick={() => {
-              onClose();
-              hamburgerRef.current?.focus();
-            }}
-            className="flex items-center justify-center rounded-full nav-focus-ring transition-all duration-200 active:scale-90"
-            style={{
-              width: "32px",
-              height: "32px",
-              backgroundColor: "var(--nav-ar-bg)",
-              border: "1.5px solid var(--nav-ar-border)",
-              borderRadius: "var(--nav-radius)",
-            }}
-            aria-label={t("closeMenu")}
-            type="button"
+          {/* Safe-area spacer — pushes content below notch / Dynamic Island */}
+          <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
+          <div
+            className="flex items-center justify-between px-5"
+            style={{ height: "var(--nav-height-mobile)" }}
           >
-            <X
-              className="w-[15px] h-[15px]"
-              style={{ color: "var(--nav-ar-color)" }}
-              strokeWidth={2.2}
+            <img
+              src="/images/logo_noBG.png"
+              alt={t("logoAlt")}
+              className="w-auto object-contain flex-shrink-0"
+              style={{
+                height: "40px",
+                maxWidth: "155px",
+              }}
             />
-          </button>
+            <button
+              ref={closeRef}
+              onClick={() => {
+                onClose();
+                hamburgerRef.current?.focus();
+              }}
+              className="flex items-center justify-center rounded-full nav-focus-ring transition-all duration-200 active:scale-90"
+              style={{
+                width: "32px",
+                height: "32px",
+                backgroundColor: "var(--nav-ar-bg)",
+                border: "1.5px solid var(--nav-ar-border)",
+                borderRadius: "var(--nav-radius)",
+              }}
+              aria-label={t("closeMenu")}
+              type="button"
+            >
+              <X
+                className="w-[15px] h-[15px]"
+                style={{ color: "var(--nav-ar-color)" }}
+                strokeWidth={2.2}
+              />
+            </button>
+          </div>
         </div>
 
         {/* ── Nav links ─────────────────────────────── */}
@@ -237,7 +241,7 @@ export default function Drawer({
           className="flex-shrink-0 px-5 pt-4 space-y-3"
           style={{
             borderTop: "1px solid var(--nav-border)",
-            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 2rem)",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
           }}
         >
           <LangToggle variant="full" />

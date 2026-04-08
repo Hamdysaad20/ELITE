@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Check, ChevronRight, Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { sanitizeImages } from "@/lib/imageUtils";
 import { cn, slugify, extractBaseName } from "@/lib/utils";
@@ -142,20 +142,41 @@ export default function DrinkCard({
 
   const handleAddToOrder = useCallback(
     async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const productId = menuItemId || id;
+
+      // Plan mode: add to plan directly
       if (!orderingEnabled) {
-        // In paused-ordering mode, list cards should funnel users to details.
-        if (onQuickAdd) {
-          e.preventDefault();
-          e.stopPropagation();
+        if (productId && displayPrice !== null) {
+          setAddToOrderState({ adding: true, added: false });
+          try {
+            addItem({
+              productId,
+              name: displayName,
+              basePrice: displayPrice,
+              quantity: 1,
+              attributes: {},
+              totalPrice: displayPrice,
+              image: displayImages[0],
+            });
+            setAddToOrderState({ adding: false, added: true });
+            setTimeout(
+              () => setAddToOrderState({ adding: false, added: false }),
+              2000,
+            );
+          } catch (err) {
+            console.error("Failed to add to plan:", err);
+            setAddToOrderState({ adding: false, added: false });
+          }
+        } else if (onQuickAdd) {
           onQuickAdd();
         }
         return;
       }
 
-      e.preventDefault();
-      e.stopPropagation();
-
-      const productId = menuItemId || id;
+      // Ordering mode: existing behaviour
       if (!productId) {
         console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
         return;
@@ -167,7 +188,6 @@ export default function DrinkCard({
       }
       setAddToOrderState({ adding: true, added: false });
       try {
-        // Add to local cart
         addItem({
           productId,
           name: displayName,
@@ -177,7 +197,6 @@ export default function DrinkCard({
           totalPrice: displayPrice || 0,
           image: displayImages[0],
         });
-
         setAddToOrderState({ adding: false, added: true });
         setTimeout(
           () => setAddToOrderState({ adding: false, added: false }),
@@ -191,7 +210,6 @@ export default function DrinkCard({
     [
       menuItemId,
       id,
-      name,
       onQuickAdd,
       addItem,
       displayName,
@@ -402,14 +420,16 @@ export default function DrinkCard({
           <div className="mt-auto pt-3 sm:pt-4">
             <button
               onClick={handleAddToOrder}
-              disabled={orderingEnabled ? addToOrderState.adding : false}
+              disabled={addToOrderState.adding}
               className={cn(
                 "w-full flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-cabin font-bold",
                 "transition-all touch-manipulation active:scale-[0.97]",
                 "min-h-[44px] sm:min-h-[48px]",
                 animDuration,
                 !orderingEnabled
-                  ? "bg-gradient-to-r from-white to-elite-cream text-elite-burgundy border border-elite-burgundy/20 shadow-sm hover:shadow-md"
+                  ? addToOrderState.added
+                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+                    : "bg-gradient-to-r from-white to-elite-cream text-elite-burgundy border border-elite-burgundy/20 shadow-sm hover:shadow-md hover:border-elite-burgundy/40 hover:scale-[1.02]"
                   : addToOrderState.added
                     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
                     : "bg-gradient-to-r from-elite-burgundy to-elite-dark-burgundy text-elite-cream shadow-lg shadow-elite-burgundy/25 hover:shadow-xl hover:shadow-elite-burgundy/35 hover:scale-[1.02]",
@@ -417,10 +437,22 @@ export default function DrinkCard({
               aria-live="polite"
             >
               {!orderingEnabled ? (
-                <>
-                  <span>{t("seeMore")}</span>
-                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 rtl:rotate-180" />
-                </>
+                addToOrderState.added ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>{t("inPlan")}</span>
+                  </>
+                ) : addToOrderState.adding ? (
+                  <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-elite-burgundy border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Plus
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                      strokeWidth={2.5}
+                    />
+                    <span>{t("addToPlan")}</span>
+                  </>
+                )
               ) : addToOrderState.added ? (
                 <>
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

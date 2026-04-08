@@ -45,11 +45,14 @@ export default function MobileTopBar({
         backdropFilter: "blur(28px) saturate(170%)",
         WebkitBackdropFilter: "blur(28px) saturate(170%)",
         borderBottom: "1px solid var(--nav-border)",
-        height: "var(--nav-height-mobile)",
         boxShadow: "var(--nav-shadow-subtle)",
+        paddingTop: "env(safe-area-inset-top, 0px)",
       }}
     >
-      <div className="flex items-center h-full px-4 gap-3">
+      <div
+        className="flex items-center px-4 gap-3"
+        style={{ height: "var(--nav-height-mobile)" }}
+      >
         {/* Logo — properly sized for mobile */}
         <LocalizedLink
           href="/"

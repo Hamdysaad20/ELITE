@@ -6,9 +6,11 @@ import MobileTopBar from "./MobileTopBar";
 import Drawer from "./Drawer";
 import BottomNav from "./BottomNav";
 import { useNavState } from "./hooks/useNavState";
+import { useCartDrawer } from "@/context/CartDrawerContext";
 
 export default function Nav() {
   const state = useNavState();
+  const { isOpen: cartDrawerOpen } = useCartDrawer();
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   return (
@@ -32,8 +34,11 @@ export default function Nav() {
         hamburgerRef={hamburgerRef}
       />
 
-      {/* Mobile bottom nav (≤640px) */}
-      <BottomNav auth={state.auth} />
+      {/* Mobile bottom nav (≤640px) — hidden while drawer is open */}
+      <BottomNav
+        auth={state.auth}
+        drawerOpen={state.drawerOpen || cartDrawerOpen}
+      />
     </>
   );
 }

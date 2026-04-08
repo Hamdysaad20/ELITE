@@ -44,7 +44,7 @@ export const ERROR_MESSAGES = {
 } as const;
 
 export const ORDERING_DISABLED_MESSAGE =
-  "Demo mode: online ordering is paused. We'll share updates when ordering resumes.";
+  "Online ordering is paused. Browse our menu and visit us in Faiyum.";
 
 // Success Messages
 export const SUCCESS_MESSAGES = {
