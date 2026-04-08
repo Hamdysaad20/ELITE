@@ -27,6 +27,8 @@ const prismaClient =
       })
     : null);
 
+// NOTE: This proxy throws on any access when DATABASE_URL is missing, so avoid
+// attempting to feature-detect Prisma in environments without a database.
 export const prisma: PrismaClient =
   prismaClient ??
   (new Proxy(
