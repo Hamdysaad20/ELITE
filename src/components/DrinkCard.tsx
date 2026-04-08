@@ -178,7 +178,11 @@ export default function DrinkCard({
 
       // Ordering mode: existing behaviour
       if (!productId) {
-        console.warn("DrinkCard: Missing product id", { id, menuItemId, name });
+        console.warn("DrinkCard: Missing product id", {
+          id,
+          menuItemId,
+          name: displayName,
+        });
         return;
       }
 

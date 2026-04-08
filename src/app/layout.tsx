@@ -1,50 +1,79 @@
 import type { Metadata } from "next";
-import {
-  Cabin_Condensed,
-  Calistoga,
-  Cairo,
-  Bebas_Neue,
-  Readex_Pro,
-} from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
 import { getDirection } from "@/i18n/config";
 import { getRequestLocale } from "@/i18n/server";
 
-const cabinCondensed = Cabin_Condensed({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+const cabinCondensed = localFont({
+  src: [
+    {
+      path: "../fonts/CabinCondensed-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/CabinCondensed-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../fonts/CabinCondensed-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-cabin-condensed",
   display: "swap",
 });
 
-const calistoga = Calistoga({
-  subsets: ["latin"],
-  weight: "400",
+const calistoga = localFont({
+  src: [
+    {
+      path: "../fonts/Calistoga-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
   variable: "--font-calistoga",
   display: "swap",
 });
 
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "600", "700", "800", "900"],
+const cairo = localFont({
+  src: [
+    {
+      path: "../fonts/Cairo-Variable.ttf",
+      weight: "200 1000",
+      style: "normal",
+    },
+  ],
   variable: "--font-cairo",
   display: "swap",
 });
 
-const bebasNeue = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
+const bebasNeue = localFont({
+  src: [
+    {
+      path: "../fonts/BebasNeue-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
   variable: "--font-bebas",
   display: "swap",
 });
 
 // Readex Pro — modern geometric Arabic display font
 // Sharp, bold, highly readable at large sizes (pairs with Bebas for EN/AR headings)
-const readexPro = Readex_Pro({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
+const readexPro = localFont({
+  src: [
+    {
+      path: "../fonts/ReadexPro-Variable.ttf",
+      weight: "160 700",
+      style: "normal",
+    },
+  ],
   variable: "--font-readex",
   display: "swap",
 });
