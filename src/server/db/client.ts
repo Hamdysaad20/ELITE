@@ -18,7 +18,8 @@ const prismaClient =
             url: databaseUrl,
           },
         },
-        // @ts-expect-error - Internal Prisma engine config for serverless connection pooling
+        // @ts-expect-error - Internal Prisma engine config (Prisma v5.22.0)
+        // for serverless connection pooling; may change in future Prisma releases.
         __internal: {
           engine: {
             connection_limit: 10, // Max connections per serverless invocation
