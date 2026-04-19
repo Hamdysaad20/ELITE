@@ -16,7 +16,7 @@ function getNextAuthSecret() {
   if (!secret && process.env.NODE_ENV === "production") {
     throw new Error("NEXTAUTH_SECRET must be set in production");
   }
-  return secret;
+  return secret || "placeholder-for-build";
 }
 
 /**

@@ -40,6 +40,15 @@ model User {
   // Ordering notifications
   itemAvailabilityNotifications ItemAvailabilityNotification[]
 
+  // Inventory system relations
+  staffProfile     StaffProfile?    @relation("StaffProfile")
+  shiftSessions    ShiftSession[]   @relation("ShiftSessions")
+  stockMovements   StockMovement[]  @relation("StockMovements")
+  inventoryCounts  InventoryCount[] @relation("InventoryCounts")
+  stockTransfers   StockTransfer[]  @relation("StockTransfers")
+  purchases        Purchase[]       @relation("Purchases")
+  wasteEntries     WasteEntry[]     @relation("WasteEntries")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -775,4 +784,286 @@ model ItemAvailabilityNotification {
   @@unique([userId, productId])
   @@index([notified])
   @@index([userId])
+}
+
+// ─── Inventory System ──────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id         String  @id @default(uuid())
+  name       String
+  nameAr     String
+  section    String
+  subsection String?
+  unit       String
+  unitAr     String
+
+  countMethod String  @default("direct")
+  packSize    Int     @default(1)
+
+  isDailyBarCounted Boolean @default(true)
+  isStorageCounted  Boolean @default(true)
+  isActive          Boolean @default(true)
+  sortOrder         Int     @default(0)
+
+  minimumStock Decimal @default(5)
+  alertLevel   Decimal @default(10)
+  maximumStock Decimal @default(50)
+
+  lastPurchasePrice Decimal?
+  avgCost           Decimal?
+
+  countEntries      InventoryCountEntry[]
+  purchaseEntries   PurchaseEntry[]
+  wasteEntries      WasteEntry[]
+  transfers         StockTransfer[]
+  stockMovements    StockMovement[]
+  recipeIngredients RecipeIngredient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([section, sortOrder])
+  @@index([isActive, isDailyBarCounted])
+  @@index([isActive, isStorageCounted])
+}
+
+model ShiftSession {
+  id             String   @id @default(uuid())
+  date           DateTime @db.Date
+  shiftSuggested String
+  shiftConfirmed String
+
+  baristaId String
+  barista   User   @relation("ShiftSessions", fields: [baristaId], references: [id])
+
+  openingCountId String?         @unique
+  openingCount   InventoryCount? @relation("OpeningCount", fields: [openingCountId], references: [id])
+  closingCountId String?         @unique
+  closingCount   InventoryCount? @relation("ClosingCount", fields: [closingCountId], references: [id])
+
+  consumptionConfidence String @default("unreliable")
+
+  status        String  @default("open")
+  handoverNotes String?
+
+  openedAt DateTime  @default(now())
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, shiftConfirmed])
+  @@index([baristaId])
+  @@index([date])
+  @@index([status])
+}
+
+model InventoryCount {
+  id             String   @id @default(uuid())
+  date           DateTime @db.Date
+  shiftSuggested String
+  shiftConfirmed String
+  location       String
+  countType      String   @default("regular")
+
+  countedById String
+  countedBy   User   @relation("InventoryCounts", fields: [countedById], references: [id])
+
+  status        String  @default("draft")
+  notes         String?
+  shortageNotes String?
+  wasteNotes    String?
+
+  hasVarianceAlert Boolean @default(false)
+  varianceNotes    String?
+
+  entries InventoryCountEntry[]
+
+  correctionOfId String?
+  correctionOf   InventoryCount?  @relation("Corrections", fields: [correctionOfId], references: [id])
+  corrections    InventoryCount[] @relation("Corrections")
+
+  openingForSession ShiftSession? @relation("OpeningCount")
+  closingForSession ShiftSession? @relation("ClosingCount")
+
+  submittedAt  DateTime?
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, shiftConfirmed, location, countedById, countType])
+  @@index([date, location])
+  @@index([countedById])
+  @@index([status])
+}
+
+model InventoryCountEntry {
+  id      String         @id @default(uuid())
+  countId String
+  count   InventoryCount @relation(fields: [countId], references: [id], onDelete: Cascade)
+  itemId  String
+  item    InventoryItem  @relation(fields: [itemId], references: [id])
+
+  packsCount   Int     @default(0)
+  looseSingles Int     @default(0)
+  quantity     Decimal @default(0)
+
+  totalQuantity Decimal @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([countId, itemId])
+  @@index([countId])
+  @@index([itemId])
+}
+
+model StockMovement {
+  id            String        @id @default(uuid())
+  itemId        String
+  item          InventoryItem @relation(fields: [itemId], references: [id])
+  location      String
+  type          String
+  quantity      Decimal
+  referenceType String?
+  referenceId   String?
+  note          String?
+  recordedById  String
+  recordedBy    User          @relation("StockMovements", fields: [recordedById], references: [id])
+  createdAt     DateTime      @default(now())
+
+  @@index([itemId, location, createdAt])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+}
+
+model StockTransfer {
+  id             String        @id @default(uuid())
+  date           DateTime      @db.Date
+  shiftSessionId String?
+  itemId         String
+  item           InventoryItem @relation(fields: [itemId], references: [id])
+
+  packsCount Int     @default(0)
+  quantity   Decimal @default(0)
+  totalUnits Decimal @default(0)
+  unitUsed   String
+
+  fromLocation String @default("storage")
+  toLocation   String @default("bar")
+  note         String?
+
+  transferredById String
+  transferredBy   User     @relation("StockTransfers", fields: [transferredById], references: [id])
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+  @@index([itemId])
+  @@index([shiftSessionId])
+}
+
+model Purchase {
+  id            String   @id @default(uuid())
+  date          DateTime @db.Date
+  supplierName  String
+  invoiceNumber String?
+  notes         String?
+  paymentMethod String
+
+  receiptStatus String    @default("pending")
+  receivedAt    DateTime?
+  receivedById  String?
+
+  totalAmount Decimal @default(0)
+  destination String  @default("storage")
+
+  recordedById String
+  recordedBy   User            @relation("Purchases", fields: [recordedById], references: [id])
+  entries      PurchaseEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([receiptStatus])
+}
+
+model PurchaseEntry {
+  id         String        @id @default(uuid())
+  purchaseId String
+  purchase   Purchase      @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  itemId     String
+  item       InventoryItem @relation(fields: [itemId], references: [id])
+  quantity   Decimal
+  unitPrice  Decimal
+  totalPrice Decimal
+  receivedQty Decimal?
+
+  createdAt DateTime @default(now())
+
+  @@unique([purchaseId, itemId])
+  @@index([purchaseId])
+  @@index([itemId])
+}
+
+model WasteEntry {
+  id             String        @id @default(uuid())
+  date           DateTime      @db.Date
+  shiftSessionId String?
+  location       String
+  itemId         String
+  item           InventoryItem @relation(fields: [itemId], references: [id])
+  quantity       Decimal
+  category       String
+  reason         String
+  recordedById   String
+  recordedBy     User          @relation("WasteEntries", fields: [recordedById], references: [id])
+  createdAt      DateTime      @default(now())
+
+  @@index([date])
+  @@index([itemId])
+  @@index([location])
+  @@index([category])
+}
+
+model StaffProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation("StaffProfile", fields: [userId], references: [id])
+  nameAr       String
+  phone        String?
+  pin          String?
+  defaultShift String?
+  isActive     Boolean  @default(true)
+  hiredAt      DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recipe {
+  id          String             @id @default(uuid())
+  productId   String
+  productName String
+  ingredients RecipeIngredient[]
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([productId])
+}
+
+model RecipeIngredient {
+  id       String        @id @default(uuid())
+  recipeId String
+  recipe   Recipe        @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  itemId   String
+  item     InventoryItem @relation(fields: [itemId], references: [id])
+  quantity Decimal
+  unit     String
+
+  @@unique([recipeId, itemId])
+  @@index([recipeId])
+  @@index([itemId])
 }
