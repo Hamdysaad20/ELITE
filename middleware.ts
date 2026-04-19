@@ -241,8 +241,9 @@ async function runMiddleware(request: NextRequest) {
   let normalizedPath: string;
 
   if (!pathnameLocale && !pathname.startsWith("/api")) {
-    // No locale in pathname - redirect to add locale
-    locale = getPreferredLocale(request);
+    // Admin routes default to Arabic locale
+    const isAdminRoute = pathname.startsWith("/admin");
+    locale = isAdminRoute ? "ar" : getPreferredLocale(request);
     const url = request.nextUrl.clone();
     url.pathname = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
     return NextResponse.redirect(url);
@@ -251,6 +252,13 @@ async function runMiddleware(request: NextRequest) {
   // For API routes lacking a locale prefix, assign the preferred locale without redirecting
   locale = pathnameLocale || getPreferredLocale(request);
   normalizedPath = stripLocaleFromPathname(pathname);
+
+  // Redirect /en/admin/* to /ar/admin/* (admin is Arabic-first)
+  if (pathnameLocale === "en" && normalizedPath.startsWith("/admin")) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/ar${normalizedPath}`;
+    return NextResponse.redirect(url);
+  }
 
   // Step 2: CSRF Protection for state-changing requests
   if (normalizedPath.startsWith("/api/") && !verifyCSRFToken(request)) {
@@ -340,9 +348,10 @@ async function runMiddleware(request: NextRequest) {
       return unauthorizedResponse(request, "Account not found", locale);
     }
 
-    // Check admin access
-    if (requiresAdmin && token.role !== "admin") {
-      return forbiddenResponse(request, "Admin access required", locale);
+    // Check admin access — allow barista, manager, and admin roles
+    const INVENTORY_ROLES = ["barista", "manager", "admin"];
+    if (requiresAdmin && (!token.role || !INVENTORY_ROLES.includes(token.role as string))) {
+      return forbiddenResponse(request, "Staff access required", locale);
     }
 
     // Authentication successful, proceed with locale headers

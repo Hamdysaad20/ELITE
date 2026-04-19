@@ -40,6 +40,7 @@ yarn-error.log*
 .playwright-test/
 .playwright-mcp
 .playwright-screenshots/*
+*.screenshot.png
 !.playwright-screenshots/.gitkeep
 
 

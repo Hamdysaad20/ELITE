@@ -31,6 +31,7 @@ export default function ClientBody({
   const isAuthPage =
     normalizedPath.startsWith("/auth") || normalizedPath.includes("verify");
   const isOrderPage = normalizedPath === "/order";
+  const isAdminPage = normalizedPath.startsWith("/admin");
   // Landing page has no bottom bar — skip body offset padding
   const isLandingPage = normalizedPath === "/" || normalizedPath === "/about";
   // Sub-pages render their own back-button header — no global nav body offset needed
@@ -114,7 +115,7 @@ export default function ClientBody({
       <OrderingProvider lazy={isLandingPage || isAuthPage}>
         <CartDrawerProvider>
           <NetworkStatus />
-          {!isAuthPage && (
+          {!isAuthPage && !isAdminPage && (
             <>
               <Nav />
               {!isOrderPage && <CartButton />}
@@ -123,14 +124,17 @@ export default function ClientBody({
           <ToastProvider>
             <main
               className={
-                isLandingPage || isAuthPage || isOverlayPage
-                  ? ""
-                  : "nav-body-offset"
+                isAdminPage
+                  ? "min-h-screen bg-elite-cream"
+                  : isLandingPage || isAuthPage || isOverlayPage
+                    ? ""
+                    : "nav-body-offset"
               }
             >
-              {!isLandingPage && !isAuthPage && !isOverlayPage && (
-                <OrderingBanner />
-              )}
+              {!isLandingPage &&
+                !isAuthPage &&
+                !isOverlayPage &&
+                !isAdminPage && <OrderingBanner />}
               {children}
             </main>
           </ToastProvider>
