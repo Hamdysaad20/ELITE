@@ -57,7 +57,8 @@
     "logoAlt": "Elite Coffee — Home",
     "switchLang": "\u0639\u0631\u0628\u064a",
     "switchLangLabel": "Switch to Arabic",
-    "plan": "Plan"
+    "plan": "Plan",
+    "aboutElite": "Our Story"
   },
   "hero": {
     "titleLine1": "ELITE",
@@ -1909,8 +1910,12 @@
       "OUT_FOR_DELIVERY": "On the way"
     },
     "items": "{count, plural, one {# item} other {# items}}",
+    "andMore": "+{count} more",
+    "viewRewards": "Rewards",
     "aboutElite": "About Elite Coffee",
-    "aboutEliteDesc": "Learn about our story and brand"
+    "aboutEliteDesc": "Learn about our story and brand",
+    "visitUsTitle": "Visit Us in Faiyum",
+    "visitUsHours": "8 AM – 3 PM Daily"
   },
   "howItWorks": {
     "badge": "Getting Started",

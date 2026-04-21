@@ -55,10 +55,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         {...props}
       >
-        {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-        {!loading && leftIcon && <span className="mr-2">{leftIcon}</span>}
+        {loading && <Loader2 className="w-4 h-4 animate-spin me-2" />}
+        {!loading && leftIcon && <span className="me-2">{leftIcon}</span>}
         {children}
-        {!loading && rightIcon && <span className="ml-2">{rightIcon}</span>}
+        {!loading && rightIcon && <span className="ms-2">{rightIcon}</span>}
       </button>
     );
   },

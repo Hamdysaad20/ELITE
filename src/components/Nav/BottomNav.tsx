@@ -115,7 +115,7 @@ export default function BottomNav({
 
   const signedInTabs: TabItem[] = orderingEnabled
     ? [
-        { key: "home", label: t("home"), href: "/", Icon: Home },
+        { key: "home", label: t("home"), href: "/home", Icon: Home },
         { key: "menu", label: t("menu"), href: "/menu", Icon: UtensilsCrossed },
         {
           key: "cart",
@@ -133,7 +133,7 @@ export default function BottomNav({
         { key: "profile", label: t("profile"), href: "/profile", Icon: User },
       ]
     : [
-        { key: "home", label: t("home"), href: "/", Icon: Home },
+        { key: "home", label: t("home"), href: "/home", Icon: Home },
         { key: "menu", label: t("menu"), href: "/menu", Icon: UtensilsCrossed },
         planTab,
         {
@@ -149,7 +149,8 @@ export default function BottomNav({
 
   const isActive = (href?: string) => {
     if (!href) return false;
-    if (href === "/") return normalizedPath === "/";
+    if (href === "/" || href === "/home")
+      return normalizedPath === "/" || normalizedPath === "/home";
     return normalizedPath.startsWith(href);
   };
 

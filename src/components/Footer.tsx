@@ -1,15 +1,13 @@
 "use client";
 
 import { Instagram, Facebook, Globe, MapPin } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
 import { MENU_ENDPOINTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export default function Footer() {
-  const locale = useLocale();
   const t = useTranslations("footer");
-  const isRTL = locale === "ar";
 
   return (
     <footer className="bg-elite-burgundy text-elite-white relative">
@@ -46,7 +44,7 @@ export default function Footer() {
                 href="/menu"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("navigation.menu")}
@@ -55,14 +53,14 @@ export default function Footer() {
                 href="/deals"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("navigation.deals")}
                 <span
                   className={cn(
                     "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
-                    isRTL ? "mr-1" : "ml-1",
+                    "ms-1",
                   )}
                 >
                   {t("soon")}
@@ -72,14 +70,14 @@ export default function Footer() {
                 href="/rewards"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("navigation.rewards")}
                 <span
                   className={cn(
                     "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
-                    isRTL ? "mr-1" : "ml-1",
+                    "ms-1",
                   )}
                 >
                   {t("soon")}
@@ -89,14 +87,14 @@ export default function Footer() {
                 href="/shop"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("navigation.shop")}{" "}
                 <span
                   className={cn(
                     "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
-                    isRTL ? "mr-1" : "ml-1",
+                    "ms-1",
                   )}
                 >
                   {t("soon")}
@@ -120,7 +118,7 @@ export default function Footer() {
                 href="/menu"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("menuCategories.classic")}
@@ -129,7 +127,7 @@ export default function Footer() {
                 href={MENU_ENDPOINTS.SPECIAL}
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("menuCategories.special")}
@@ -138,7 +136,7 @@ export default function Footer() {
                 href={MENU_ENDPOINTS.KIDS}
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("menuCategories.kids")}
@@ -147,14 +145,14 @@ export default function Footer() {
                 href="/menu/food"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("menuCategories.food")}
                 <span
                   className={cn(
                     "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
-                    isRTL ? "mr-1" : "ml-1",
+                    "ms-1",
                   )}
                 >
                   {t("soon")}
@@ -164,14 +162,14 @@ export default function Footer() {
                 href="/menu/at-home-coffee"
                 className={cn(
                   "block font-cabin text-elite-white hover:text-elite-cream transition-all duration-300 text-base font-semibold tracking-wide transform relative",
-                  isRTL ? "hover:-translate-x-2" : "hover:translate-x-2",
+                  "hover:translate-x-2 rtl:hover:-translate-x-2",
                 )}
               >
                 {t("menuCategories.home")}
                 <span
                   className={cn(
                     "text-xs bg-elite-cream text-elite-burgundy px-1.5 py-0.5 rounded-full",
-                    isRTL ? "mr-1" : "ml-1",
+                    "ms-1",
                   )}
                 >
                   {t("soon")}

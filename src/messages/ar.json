@@ -57,7 +57,8 @@
     "logoAlt": "إيليت كوفي — الرئيسية",
     "switchLang": "English",
     "switchLangLabel": "Switch to English",
-    "plan": "قائمتي"
+    "plan": "قائمتي",
+    "aboutElite": "قصتنا"
   },
   "hero": {
     "titleLine1": "ELITE",
@@ -1909,8 +1910,12 @@
       "OUT_FOR_DELIVERY": "في الطريق"
     },
     "items": "{count, plural, one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
+    "andMore": "+{count} كمان",
+    "viewRewards": "المكافآت",
     "aboutElite": "عن إيليت كوفي",
-    "aboutEliteDesc": "تعرّف على قصتنا وعلامتنا التجارية"
+    "aboutEliteDesc": "تعرّف على قصتنا وعلامتنا التجارية",
+    "visitUsTitle": "زورنا في الفيوم",
+    "visitUsHours": "٨ ص – ٣ م يوميًا"
   },
   "howItWorks": {
     "badge": "خطواتك",

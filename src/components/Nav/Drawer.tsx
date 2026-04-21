@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import type { LucideIcon } from "lucide-react";
-import { X, UtensilsCrossed, MapPin, Tag, ShoppingBag } from "lucide-react";
+import {
+  X,
+  UtensilsCrossed,
+  MapPin,
+  Tag,
+  ShoppingBag,
+  Coffee,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import LocalizedLink from "@/components/LocalizedLink";
@@ -57,6 +64,7 @@ export default function Drawer({
       Icon: ShoppingBag,
       comingSoon: true,
     },
+    { key: "about", label: t("aboutElite"), href: "/", Icon: Coffee },
   ];
 
   const isActive = (href: string) =>

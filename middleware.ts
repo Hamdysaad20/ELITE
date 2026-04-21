@@ -20,6 +20,7 @@ const PROTECTED_ROUTES = [
   "/dashboard",
   "/profile",
   "/orders",
+  "/home",
 ];
 
 // Routes that require admin role (without locale prefix)

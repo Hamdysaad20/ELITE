@@ -46,6 +46,7 @@ function serializeOrder(dbOrder: DbOrderWithItems) {
   return {
     id: dbOrder.id,
     orderNumber: dbOrder.id,
+    clientOrderRef: dbOrder.clientOrderRef,
     userId: dbOrder.userId || "demo-user",
     status: dbOrder.status as OrderStatus,
     paymentStatus: dbOrder.paymentStatus as PaymentStatus,

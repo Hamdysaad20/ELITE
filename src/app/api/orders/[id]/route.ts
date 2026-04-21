@@ -172,6 +172,7 @@ async function serializeOrder(dbOrder: DbOrderWithItems) {
   return {
     id: dbOrder.id,
     orderNumber: dbOrder.id,
+    clientOrderRef: dbOrder.clientOrderRef,
     userId: dbOrder.userId || "demo-user",
     status: dbOrder.status,
     paymentStatus: dbOrder.paymentStatus,

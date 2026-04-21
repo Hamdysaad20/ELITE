@@ -465,10 +465,8 @@ img[loading="lazy"] {
 .nav-drawer[dir="rtl"] {
   /* inset-inline-start: 0 resolves to right: 0 when dir=rtl on the element */
   transform: translateX(100%);
-  border-start-end-radius: 0;
-  border-end-end-radius: 0;
-  border-start-start-radius: var(--nav-radius-xl);
-  border-end-start-radius: var(--nav-radius-xl);
+  /* border-radius logical properties in the base rule already flip correctly in RTL:
+     border-start-end-radius → top-left, border-end-end-radius → bottom-left */
 }
 .nav-drawer[data-open="true"] {
   transform: translateX(0);

@@ -115,6 +115,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   orderNumber: string;
+  clientOrderRef?: string;
   userId: string;
   addressId?: string;
   address?: Address;
