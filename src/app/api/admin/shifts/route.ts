@@ -10,7 +10,12 @@ const openShiftSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
     const dateParam = req.nextUrl.searchParams.get("date");
     const date = dateParam ? new Date(dateParam) : new Date();
     const dateOnly = new Date(date.toISOString().split("T")[0]);
@@ -57,7 +62,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
     const body = await req.json();
     const parsed = openShiftSchema.safeParse(body);
 

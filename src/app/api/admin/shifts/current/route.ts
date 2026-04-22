@@ -4,7 +4,12 @@ import { requireRole } from "@/server/auth/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
     const today = new Date(new Date().toISOString().split("T")[0]);
 
     const session = await prisma.shiftSession.findFirst({

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   canAccessManagerRoutes,
   canAccessAdminRoutes,
+  canAccessStorageCount,
 } from "@/lib/inventory/constants";
 
 interface AdminSidebarProps {
@@ -21,7 +22,7 @@ interface NavItem {
   href: string;
   labelKey: string;
   icon: React.ReactNode;
-  requiredRole?: "manager" | "admin";
+  requiredRole?: "manager" | "admin" | "head_barista";
 }
 
 interface NavGroup {
@@ -78,7 +79,7 @@ const NAV_GROUPS: NavGroup[] = [
       {
         href: "/admin/inventory/storage",
         labelKey: "storageCount",
-        requiredRole: "manager",
+        requiredRole: "head_barista",
         icon: (
           <SvgIcon>
             <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
@@ -251,6 +252,8 @@ export function AdminSidebar({
           {NAV_GROUPS.map((group, gi) => {
             const visibleItems = group.items.filter((item) => {
               if (!item.requiredRole) return true;
+              if (item.requiredRole === "head_barista")
+                return canAccessStorageCount(role);
               if (item.requiredRole === "manager")
                 return canAccessManagerRoutes(role);
               if (item.requiredRole === "admin")

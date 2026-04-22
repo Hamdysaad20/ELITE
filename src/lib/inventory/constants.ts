@@ -1,4 +1,9 @@
-export const INVENTORY_ROLES = ["barista", "manager", "admin"] as const;
+export const INVENTORY_ROLES = [
+  "barista",
+  "head_barista",
+  "manager",
+  "admin",
+] as const;
 export type InventoryRole = (typeof INVENTORY_ROLES)[number];
 
 export const SHIFTS = ["morning", "evening"] as const;
@@ -119,7 +124,17 @@ export function suggestShift(): Shift {
 
 export function canAccessInventory(role: string | undefined): boolean {
   if (!role) return false;
-  return role === "admin" || role === "manager" || role === "barista";
+  return (
+    role === "admin" ||
+    role === "manager" ||
+    role === "barista" ||
+    role === "head_barista"
+  );
+}
+
+export function canAccessStorageCount(role: string | undefined): boolean {
+  if (!role) return false;
+  return role === "admin" || role === "manager" || role === "head_barista";
 }
 
 export function canAccessManagerRoutes(role: string | undefined): boolean {

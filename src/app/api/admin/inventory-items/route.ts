@@ -4,7 +4,12 @@ import { requireRole } from "@/server/auth/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
 
     const location = req.nextUrl.searchParams.get("location");
     const activeOnly = req.nextUrl.searchParams.get("active") !== "false";

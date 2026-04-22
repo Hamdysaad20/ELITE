@@ -24,7 +24,12 @@ const createCountSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
     const dateParam = req.nextUrl.searchParams.get("date");
     const location = req.nextUrl.searchParams.get("location") || "bar";
     const status = req.nextUrl.searchParams.get("status");
@@ -87,7 +92,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireRole(req, ["admin", "manager", "barista"]);
+    const user = await requireRole(req, [
+      "admin",
+      "manager",
+      "barista",
+      "head_barista",
+    ]);
     const body = await req.json();
     const parsed = createCountSchema.safeParse(body);
 
