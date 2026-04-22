@@ -58,12 +58,17 @@ export default function AdminHomePage() {
     Promise.all([
       stockFetch,
       purchasesFetch,
+      // All bar counts today (for hasBarCount — any submitted by anyone)
       fetch(`/api/admin/inventory?location=bar&date=${today}`).then((r) =>
         r.ok ? r.json() : { data: [] },
       ),
+      // Current user's drafts only (#12)
+      fetch(
+        `/api/admin/inventory?location=bar&date=${today}&status=draft`,
+      ).then((r) => (r.ok ? r.json() : { data: [] })),
       fetch("/api/admin/waste").then((r) => (r.ok ? r.json() : { data: [] })),
     ])
-      .then(([stockRes, purchasesRes, countsRes, wasteRes]) => {
+      .then(([stockRes, purchasesRes, countsRes, myDraftsRes, wasteRes]) => {
         const alerts: OrderNowItem[] =
           stockRes.success && stockRes.data?.alerts
             ? stockRes.data.alerts
@@ -82,9 +87,8 @@ export default function AdminHomePage() {
         const hasBarCount = counts.some(
           (c: { status: string }) => c.status === "submitted",
         );
-        const openDrafts = counts.filter(
-          (c: { status: string }) => c.status === "draft",
-        ).length;
+        // Only count current user's own drafts (#12)
+        const openDrafts = (myDraftsRes.data || []).length;
 
         setData({
           orderNow: alerts,
@@ -193,66 +197,100 @@ export default function AdminHomePage() {
         </p>
       </div>
 
-      {/* Order Now — the critical section */}
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-lg">🚨</span>
-          <h2 className="font-calistoga text-base text-elite-burgundy">
-            {t("orderNow")}
-          </h2>
-          {data && data.orderNow.length > 0 && (
-            <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-cabin font-medium">
-              {data.orderNow.length}
-            </span>
+      {/* Order Now — managers see stock alerts; baristas see shift status (#1) */}
+      {isManager ? (
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🚨</span>
+            <h2 className="font-calistoga text-base text-elite-burgundy">
+              {t("orderNow")}
+            </h2>
+            {data && data.orderNow.length > 0 && (
+              <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-cabin font-medium">
+                {data.orderNow.length}
+              </span>
+            )}
+          </div>
+          {data && data.orderNow.length === 0 ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
+              <span className="text-sm font-cabin text-emerald-700">
+                ✅ {t("noOrdersNeeded")}
+              </span>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {data?.orderNow.map((item) => (
+                <div
+                  key={item.itemId}
+                  className={cn(
+                    "flex items-center justify-between rounded-2xl px-4 py-3 border",
+                    item.totalStatus === "empty"
+                      ? "bg-red-50 border-red-200"
+                      : "bg-amber-50 border-amber-200",
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-base shrink-0">
+                      {item.totalStatus === "empty" ? "🚨" : "🟠"}
+                    </span>
+                    <span className="text-sm font-cabin font-medium text-elite-black truncate">
+                      {isAr ? item.nameAr : item.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={cn(
+                        "text-sm font-cabin font-bold",
+                        item.totalStatus === "empty"
+                          ? "text-red-700"
+                          : "text-amber-700",
+                      )}
+                    >
+                      {item.totalQty}
+                    </span>
+                    <span className="text-xs text-elite-black/40 font-cabin">
+                      {isAr ? item.unitAr : item.unit}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-
-        {data && data.orderNow.length === 0 ? (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
-            <span className="text-sm font-cabin text-emerald-700">
-              ✅ {t("noOrdersNeeded")}
-            </span>
+      ) : (
+        /* Barista / head_barista: show shift status instead */
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">📋</span>
+            <h2 className="font-calistoga text-base text-elite-burgundy">
+              {t("shiftStatus")}
+            </h2>
           </div>
-        ) : (
           <div className="space-y-2">
-            {data?.orderNow.map((item) => (
-              <div
-                key={item.itemId}
-                className={cn(
-                  "flex items-center justify-between rounded-2xl px-4 py-3 border",
-                  item.totalStatus === "empty"
-                    ? "bg-red-50 border-red-200"
-                    : "bg-amber-50 border-amber-200",
-                )}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-base shrink-0">
-                    {item.totalStatus === "empty" ? "🚨" : "🟠"}
-                  </span>
-                  <span className="text-sm font-cabin font-medium text-elite-black truncate">
-                    {isAr ? item.nameAr : item.name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span
-                    className={cn(
-                      "text-sm font-cabin font-bold",
-                      item.totalStatus === "empty"
-                        ? "text-red-700"
-                        : "text-amber-700",
-                    )}
-                  >
-                    {item.totalQty}
-                  </span>
-                  <span className="text-xs text-elite-black/40 font-cabin">
-                    {isAr ? item.unitAr : item.unit}
-                  </span>
-                </div>
-              </div>
-            ))}
+            <div
+              className={cn(
+                "flex items-center justify-between rounded-2xl px-4 py-3 border",
+                data?.hasBarCount
+                  ? "bg-emerald-50 border-emerald-200"
+                  : "bg-red-50 border-red-200",
+              )}
+            >
+              <span className="text-sm font-cabin font-medium text-elite-black">
+                {data?.hasBarCount ? t("barCountDone") : t("barCountPending")}
+              </span>
+              <span className="text-lg">{data?.hasBarCount ? "✅" : "⏳"}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl px-4 py-3 border bg-white border-elite-burgundy/10">
+              <span className="text-sm font-cabin text-elite-black/70">
+                {data && data.todayWaste > 0
+                  ? t("wasteEntries", { count: data.todayWaste })
+                  : t("noWasteToday")}
+              </span>
+              <span className="text-lg">🗑️</span>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Actions — things to do */}
       {actions.length > 0 && (

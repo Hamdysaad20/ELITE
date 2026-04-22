@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useEffect, useCallback } from "react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -16,12 +16,27 @@ const COLLAPSED_KEY = "admin-sidebar-collapsed";
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("admin");
+  const tNav = useTranslations("admin.nav");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const role = session?.user?.role as string | undefined;
+
+  const pageTitle = (() => {
+    if (pathname.endsWith("/admin/inventory/storage"))
+      return tNav("storageCount");
+    if (pathname.endsWith("/admin/inventory/transfer")) return tNav("transfer");
+    if (pathname.endsWith("/admin/inventory/history")) return tNav("history");
+    if (pathname.endsWith("/admin/inventory/items")) return tNav("items");
+    if (pathname.includes("/admin/inventory")) return tNav("barCount");
+    if (pathname.endsWith("/admin/waste")) return tNav("waste");
+    if (pathname.endsWith("/admin/purchases")) return tNav("purchases");
+    if (pathname.endsWith("/admin/dashboard")) return tNav("dashboard");
+    return tNav("pageHome");
+  })();
 
   useEffect(() => {
     try {
@@ -99,7 +114,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </svg>
           </button>
           <span className="ms-3 font-calistoga text-elite-burgundy text-base">
-            {t("nav.title")}
+            {pageTitle}
           </span>
         </header>
 

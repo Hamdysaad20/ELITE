@@ -2115,7 +2115,12 @@
       "transfer": "Transfer",
       "logWaste": "Log Waste",
       "viewDashboard": "Dashboard",
-      "storageCount": "Storage Count"
+      "storageCount": "Storage Count",
+      "shiftStatus": "Shift Status",
+      "barCountDone": "Bar count submitted",
+      "barCountPending": "Bar count not submitted yet",
+      "wasteEntries": "{count} waste entries today",
+      "noWasteToday": "No waste logged today"
     },
     "storageCount": {
       "title": "Storage Count",
@@ -2131,7 +2136,9 @@
       "draftSaved": "Draft saved",
       "submitted": "Count submitted successfully",
       "existingDraft": "Resuming your draft",
-      "noDraftChanges": "No changes to save"
+      "noDraftChanges": "No changes to save",
+      "noAccess": "You need head barista or manager access for storage counts",
+      "noAccessTitle": "Access Restricted"
     },
     "history": {
       "title": "History",
@@ -2192,7 +2199,9 @@
         "admin": "Admin",
         "head_barista": "Head Barista"
       },
-      "signOut": "Sign Out"
+      "signOut": "Sign Out",
+      "pageHome": "Home",
+      "backToStore": "Back to Store"
     },
     "sections": {
       "cups_packaging": "Cups & Packaging",
@@ -2236,7 +2245,9 @@
       "quantity": "Quantity",
       "pieces": "pieces",
       "expandSection": "Expand",
-      "collapseSection": "Collapse"
+      "collapseSection": "Collapse",
+      "goHome": "Back to Home",
+      "shiftOverrideWarning": "Overriding suggested shift"
     },
     "transfer": {
       "title": "Transfer from Storage",

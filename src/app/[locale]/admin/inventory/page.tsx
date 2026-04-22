@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useInventoryItems } from "@/hooks/useInventoryItems";
 import { suggestShift } from "@/lib/inventory/constants";
 import { cn } from "@/lib/utils";
@@ -14,13 +15,15 @@ interface EntryState {
 export default function BarCountPage() {
   const { data: session } = useSession();
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("admin.barCount");
   const tSections = useTranslations("admin.sections");
   const tShifts = useTranslations("admin.shifts");
   const isAr = locale === "ar";
 
+  const suggestedShift = suggestShift();
   const { grouped, loading: itemsLoading } = useInventoryItems("bar");
-  const [shift, setShift] = useState(suggestShift());
+  const [shift, setShift] = useState(suggestedShift);
   const [entries, setEntries] = useState<EntryState>({});
   const [notes, setNotes] = useState("");
   const [shortageNotes, setShortageNotes] = useState("");
@@ -192,9 +195,16 @@ export default function BarCountPage() {
         <h2 className="font-calistoga text-xl text-elite-burgundy mb-2">
           {t("submitted")}
         </h2>
-        <p className="text-sm text-elite-black/60 font-cabin">
+        <p className="text-sm text-elite-black/60 font-cabin mb-6">
           {t("submitWarning")}
         </p>
+        <button
+          type="button"
+          onClick={() => router.push(`/${locale}/admin`)}
+          className="h-12 px-6 rounded-2xl bg-elite-burgundy text-elite-cream font-cabin text-sm font-medium hover:bg-elite-burgundy/90 transition-colors"
+        >
+          {t("goHome")}
+        </button>
       </div>
     );
   }
@@ -215,16 +225,30 @@ export default function BarCountPage() {
           <span className="text-elite-black/50">{t("dateLabel")}:</span>
           <span className="font-medium text-elite-black">{today}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm font-cabin">
-          <span className="text-elite-black/50">{t("shiftLabel")}:</span>
-          <select
-            value={shift}
-            onChange={(e) => setShift(e.target.value as "morning" | "evening")}
-            className="h-12 bg-elite-cream/50 border border-elite-burgundy/15 rounded-2xl px-4 text-sm font-cabin focus:outline-none focus:ring-2 focus:ring-elite-burgundy/20"
-          >
-            <option value="morning">{tShifts("morning")}</option>
-            <option value="evening">{tShifts("evening")}</option>
-          </select>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-sm font-cabin">
+            <span className="text-elite-black/50">{t("shiftLabel")}:</span>
+            <select
+              value={shift}
+              onChange={(e) =>
+                setShift(e.target.value as "morning" | "evening")
+              }
+              className={cn(
+                "h-12 border rounded-2xl px-4 text-sm font-cabin focus:outline-none focus:ring-2",
+                shift !== suggestedShift
+                  ? "bg-amber-50 border-amber-300 focus:ring-amber-200"
+                  : "bg-elite-cream/50 border-elite-burgundy/15 focus:ring-elite-burgundy/20",
+              )}
+            >
+              <option value="morning">{tShifts("morning")}</option>
+              <option value="evening">{tShifts("evening")}</option>
+            </select>
+          </div>
+          {shift !== suggestedShift && (
+            <span className="text-xs font-cabin text-amber-600 flex items-center gap-1">
+              ⚠️ {t("shiftOverrideWarning")}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 text-sm font-cabin">
           <span className="text-elite-black/50">{t("responsibleLabel")}:</span>

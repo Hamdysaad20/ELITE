@@ -3,8 +3,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useInventoryItems } from "@/hooks/useInventoryItems";
-import { suggestShift } from "@/lib/inventory/constants";
+import { suggestShift, canAccessStorageCount } from "@/lib/inventory/constants";
 import { cn } from "@/lib/utils";
 
 interface EntryState {
@@ -14,10 +15,12 @@ interface EntryState {
 export default function StorageCountPage() {
   const { data: session } = useSession();
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("admin.storageCount");
   const tSections = useTranslations("admin.sections");
   const tShifts = useTranslations("admin.shifts");
   const isAr = locale === "ar";
+  const role = (session?.user as { role?: string } | undefined)?.role;
 
   const { grouped, loading: itemsLoading } = useInventoryItems("storage");
   const [shift, setShift] = useState(suggestShift());
@@ -177,6 +180,27 @@ export default function StorageCountPage() {
     month: "long",
     day: "numeric",
   });
+
+  if (role !== undefined && !canAccessStorageCount(role)) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-16 px-4">
+        <div className="text-5xl mb-4">🔒</div>
+        <h2 className="font-calistoga text-xl text-elite-burgundy mb-2">
+          {t("noAccessTitle")}
+        </h2>
+        <p className="text-sm text-elite-black/60 font-cabin mb-6">
+          {t("noAccess")}
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push(`/${locale}/admin`)}
+          className="h-12 px-6 rounded-2xl border border-elite-burgundy/20 text-elite-burgundy font-cabin text-sm font-medium hover:bg-elite-burgundy/5 transition-colors"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
   if (itemsLoading) {
     return (

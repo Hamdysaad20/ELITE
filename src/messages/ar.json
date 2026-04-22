@@ -2115,7 +2115,12 @@
       "transfer": "سحب",
       "logWaste": "هالك",
       "viewDashboard": "لوحة التحكم",
-      "storageCount": "جرد المخزن"
+      "storageCount": "جرد المخزن",
+      "shiftStatus": "حالة الوردية",
+      "barCountDone": "تم تسليم جرد البار",
+      "barCountPending": "لم يتم تسليم جرد البار بعد",
+      "wasteEntries": "{count} هالك مسجل اليوم",
+      "noWasteToday": "لا يوجد هالك مسجل اليوم"
     },
     "storageCount": {
       "title": "جرد المخزن",
@@ -2131,7 +2136,9 @@
       "draftSaved": "تم حفظ المسودة",
       "submitted": "تم تسليم الجرد بنجاح",
       "existingDraft": "تم استئناف المسودة",
-      "noDraftChanges": "مفيش تغييرات للحفظ"
+      "noDraftChanges": "مفيش تغييرات للحفظ",
+      "noAccess": "تحتاج صلاحية رئيس بار أو مدير للوصول لجرد المخزن",
+      "noAccessTitle": "الوصول مقيد"
     },
     "history": {
       "title": "السجل",
@@ -2192,7 +2199,9 @@
         "admin": "أدمن",
         "head_barista": "رئيس البار"
       },
-      "signOut": "تسجيل الخروج"
+      "signOut": "تسجيل الخروج",
+      "pageHome": "الرئيسية",
+      "backToStore": "العودة للمتجر"
     },
     "sections": {
       "cups_packaging": "أكواب وتغليف",
@@ -2236,7 +2245,9 @@
       "quantity": "الكمية",
       "pieces": "حبة",
       "expandSection": "فتح",
-      "collapseSection": "إغلاق"
+      "collapseSection": "إغلاق",
+      "goHome": "العودة للرئيسية",
+      "shiftOverrideWarning": "تغيير الوردية المقترحة"
     },
     "transfer": {
       "title": "سحب من المخزن",

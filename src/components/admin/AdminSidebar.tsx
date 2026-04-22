@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 import LocalizedLink from "@/components/LocalizedLink";
 import { cn } from "@/lib/utils";
 import {
@@ -168,6 +169,7 @@ export function AdminSidebar({
   const { data: session } = useSession();
   const userName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "";
+  const [signOutPending, setSignOutPending] = useState(false);
 
   const isActive = (href: string) => {
     const localizedPath = `/${locale}${href}`;
@@ -337,41 +339,18 @@ export function AdminSidebar({
 
         <div
           className={cn(
-            "border-t border-elite-burgundy/8 shrink-0",
+            "border-t border-elite-burgundy/8 shrink-0 space-y-0.5",
             collapsed
               ? "min-[769px]:px-1.5 min-[769px]:py-3 px-3 py-3"
               : "px-3 py-3",
           )}
         >
-          {/* User identity row */}
-          <div
-            className={cn(
-              "flex items-center gap-2.5 mb-2",
-              collapsed && "min-[769px]:hidden",
-            )}
-          >
-            <div className="w-7 h-7 rounded-full bg-elite-burgundy/10 flex items-center justify-center shrink-0">
-              <span className="text-xs font-cabin font-semibold text-elite-burgundy uppercase">
-                {userName.charAt(0) || "?"}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-cabin font-medium text-elite-black/80 truncate leading-none mb-0.5">
-                {userName}
-              </p>
-              <p className="text-[10px] font-cabin text-elite-black/35 leading-none">
-                {t(`roles.${role}`)}
-              </p>
-            </div>
-          </div>
-
-          {/* Sign-out button */}
+          {/* Back to store */}
           <div className="relative group">
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: `/${locale}/auth/signin` })}
+            <LocalizedLink
+              href="/"
               className={cn(
-                "w-full flex items-center gap-2.5 rounded-xl text-sm font-cabin text-elite-black/45 hover:text-red-600 hover:bg-red-50 transition-colors",
+                "flex items-center gap-2.5 rounded-xl text-sm font-cabin text-elite-black/40 hover:text-elite-burgundy hover:bg-elite-burgundy/5 transition-colors",
                 collapsed
                   ? "min-[769px]:justify-center min-[769px]:px-0 min-[769px]:py-2.5 px-2.5 py-2"
                   : "px-2.5 py-2",
@@ -386,24 +365,115 @@ export function AdminSidebar({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
               <span className={cn(collapsed && "min-[769px]:hidden")}>
-                {t("signOut")}
+                {t("backToStore")}
               </span>
-            </button>
-
+            </LocalizedLink>
             {collapsed && (
-              <span
+              <span className="absolute start-full ms-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 rounded-lg bg-elite-black/90 text-white text-xs font-cabin whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none hidden min-[769px]:block">
+                {t("backToStore")}
+              </span>
+            )}
+          </div>
+
+          {/* User identity — avatar visible when collapsed (#11) */}
+          <div className="relative group">
+            <div
+              className={cn(
+                "flex items-center gap-2.5 rounded-xl px-2.5 py-2",
+                collapsed &&
+                  "min-[769px]:justify-center min-[769px]:px-0 min-[769px]:py-2.5",
+              )}
+            >
+              <div className="w-6 h-6 rounded-full bg-elite-burgundy/10 flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-cabin font-bold text-elite-burgundy uppercase">
+                  {userName.charAt(0) || "?"}
+                </span>
+              </div>
+              <div className={cn("min-w-0", collapsed && "min-[769px]:hidden")}>
+                <p className="text-xs font-cabin font-medium text-elite-black/70 truncate leading-none mb-0.5">
+                  {userName}
+                </p>
+                <p className="text-[10px] font-cabin text-elite-black/35 leading-none">
+                  {t(`roles.${role}`)}
+                </p>
+              </div>
+            </div>
+            {collapsed && (
+              <span className="absolute start-full ms-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 rounded-lg bg-elite-black/90 text-white text-xs font-cabin whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none hidden min-[769px]:block">
+                {userName} · {t(`roles.${role}`)}
+              </span>
+            )}
+          </div>
+
+          {/* Sign-out — with confirmation (#4) */}
+          <div className="relative group">
+            {signOutPending ? (
+              <div
                 className={cn(
-                  "absolute start-full ms-2 top-1/2 -translate-y-1/2 z-50",
-                  "px-2.5 py-1.5 rounded-lg bg-elite-black/90 text-white text-xs font-cabin whitespace-nowrap",
-                  "opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none",
-                  "hidden min-[769px]:block",
+                  "flex items-center gap-1.5 rounded-xl px-2.5 py-1.5",
+                  collapsed && "min-[769px]:flex-col min-[769px]:px-0",
                 )}
               >
+                <span
+                  className={cn(
+                    "text-xs font-cabin text-red-600 shrink-0",
+                    collapsed && "min-[769px]:hidden",
+                  )}
+                >
+                  Sure?
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    signOut({ callbackUrl: `/${locale}/auth/signin` })
+                  }
+                  className="text-xs font-cabin font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg px-2.5 py-1 transition-colors shrink-0"
+                >
+                  {t("signOut")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignOutPending(false)}
+                  className="text-xs font-cabin text-elite-black/40 hover:text-elite-black/70 px-1.5 py-1 transition-colors shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSignOutPending(true)}
+                className={cn(
+                  "w-full flex items-center gap-2.5 rounded-xl text-sm font-cabin text-elite-black/40 hover:text-red-600 hover:bg-red-50 transition-colors",
+                  collapsed
+                    ? "min-[769px]:justify-center min-[769px]:px-0 min-[769px]:py-2.5 px-2.5 py-2"
+                    : "px-2.5 py-2",
+                )}
+              >
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span className={cn(collapsed && "min-[769px]:hidden")}>
+                  {t("signOut")}
+                </span>
+              </button>
+            )}
+            {collapsed && !signOutPending && (
+              <span className="absolute start-full ms-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 rounded-lg bg-elite-black/90 text-white text-xs font-cabin whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none hidden min-[769px]:block">
                 {t("signOut")}
               </span>
             )}
