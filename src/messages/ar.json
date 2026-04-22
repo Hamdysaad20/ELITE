@@ -1985,10 +1985,18 @@
     "perk2": "طلب أسرع في كل مرة",
     "perk3": "مكافآت ومفاجآت عيد الميلاد",
     "tiers": {
-      "bronze":   { "tagline": "ابدأ من هنا" },
-      "silver":   { "tagline": "في الطريق" },
-      "gold":     { "tagline": "الأكثر شيوعاً" },
-      "platinum": { "tagline": "مكانة النخبة" }
+      "bronze": {
+        "tagline": "ابدأ من هنا"
+      },
+      "silver": {
+        "tagline": "في الطريق"
+      },
+      "gold": {
+        "tagline": "الأكثر شيوعاً"
+      },
+      "platinum": {
+        "tagline": "مكانة النخبة"
+      }
     }
   },
   "menuPreview": {
@@ -2106,7 +2114,8 @@
       "barCount": "جرد البار",
       "transfer": "سحب",
       "logWaste": "هالك",
-      "viewDashboard": "لوحة التحكم"
+      "viewDashboard": "لوحة التحكم",
+      "storageCount": "جرد المخزن"
     },
     "storageCount": {
       "title": "جرد المخزن",
@@ -2180,8 +2189,10 @@
       "roles": {
         "barista": "باريستا",
         "manager": "مدير",
-        "admin": "أدمن"
-      }
+        "admin": "أدمن",
+        "head_barista": "رئيس البار"
+      },
+      "signOut": "تسجيل الخروج"
     },
     "sections": {
       "cups_packaging": "أكواب وتغليف",

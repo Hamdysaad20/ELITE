@@ -55,7 +55,7 @@
     "closeMenu": "Close menu",
     "navigation": "Navigation",
     "logoAlt": "Elite Coffee — Home",
-    "switchLang": "\u0639\u0631\u0628\u064a",
+    "switchLang": "عربي",
     "switchLangLabel": "Switch to Arabic",
     "plan": "Plan",
     "aboutElite": "Our Story"
@@ -1985,10 +1985,18 @@
     "perk2": "Faster checkout, every time",
     "perk3": "Birthday rewards & surprises",
     "tiers": {
-      "bronze":   { "tagline": "Start Here" },
-      "silver":   { "tagline": "Rising Fast" },
-      "gold":     { "tagline": "Most Popular" },
-      "platinum": { "tagline": "Elite Status" }
+      "bronze": {
+        "tagline": "Start Here"
+      },
+      "silver": {
+        "tagline": "Rising Fast"
+      },
+      "gold": {
+        "tagline": "Most Popular"
+      },
+      "platinum": {
+        "tagline": "Elite Status"
+      }
     }
   },
   "menuPreview": {
@@ -2106,7 +2114,8 @@
       "barCount": "Bar Count",
       "transfer": "Transfer",
       "logWaste": "Log Waste",
-      "viewDashboard": "Dashboard"
+      "viewDashboard": "Dashboard",
+      "storageCount": "Storage Count"
     },
     "storageCount": {
       "title": "Storage Count",
@@ -2180,8 +2189,10 @@
       "roles": {
         "barista": "Barista",
         "manager": "Manager",
-        "admin": "Admin"
-      }
+        "admin": "Admin",
+        "head_barista": "Head Barista"
+      },
+      "signOut": "Sign Out"
     },
     "sections": {
       "cups_packaging": "Cups & Packaging",

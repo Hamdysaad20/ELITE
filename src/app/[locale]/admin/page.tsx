@@ -31,6 +31,8 @@ export default function AdminHomePage() {
   const t = useTranslations("admin.home");
   const router = useRouter();
   const isAr = locale === "ar";
+  const role = (session?.user as { role?: string } | undefined)?.role ?? "";
+  const isManager = role === "admin" || role === "manager";
 
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,15 +41,23 @@ export default function AdminHomePage() {
     session?.user?.name || session?.user?.email?.split("@")[0] || "";
 
   useEffect(() => {
+    if (!role) return;
     const today = new Date().toISOString().split("T")[0];
 
+    const stockFetch = isManager
+      ? fetch("/api/admin/stock").then((r) =>
+          r.ok ? r.json() : { success: false },
+        )
+      : Promise.resolve({ success: false });
+    const purchasesFetch = isManager
+      ? fetch("/api/admin/purchases").then((r) =>
+          r.ok ? r.json() : { data: [] },
+        )
+      : Promise.resolve({ data: [] });
+
     Promise.all([
-      fetch("/api/admin/stock").then((r) =>
-        r.ok ? r.json() : { success: false },
-      ),
-      fetch("/api/admin/purchases").then((r) =>
-        r.ok ? r.json() : { data: [] },
-      ),
+      stockFetch,
+      purchasesFetch,
       fetch(`/api/admin/inventory?location=bar&date=${today}`).then((r) =>
         r.ok ? r.json() : { data: [] },
       ),
@@ -86,7 +96,7 @@ export default function AdminHomePage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [role, isManager]);
 
   if (loading) {
     return (
@@ -113,7 +123,7 @@ export default function AdminHomePage() {
       urgent: true,
     });
   }
-  if (data && data.pendingReceipts > 0) {
+  if (isManager && data && data.pendingReceipts > 0) {
     actions.push({
       key: "receipts",
       icon: "📦",
@@ -148,11 +158,23 @@ export default function AdminHomePage() {
       icon: "🗑️",
       href: `/${locale}/admin/waste`,
     },
-    {
-      label: t("viewDashboard"),
-      icon: "📊",
-      href: `/${locale}/admin/dashboard`,
-    },
+    ...(role === "head_barista"
+      ? [
+          {
+            label: t("storageCount"),
+            icon: "📦",
+            href: `/${locale}/admin/inventory/storage`,
+          },
+        ]
+      : isManager
+        ? [
+            {
+              label: t("viewDashboard"),
+              icon: "📊",
+              href: `/${locale}/admin/dashboard`,
+            },
+          ]
+        : []),
   ];
 
   return (

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { signOut, useSession } from "next-auth/react";
 import LocalizedLink from "@/components/LocalizedLink";
 import { cn } from "@/lib/utils";
 import {
@@ -164,6 +165,9 @@ export function AdminSidebar({
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("admin.nav");
+  const { data: session } = useSession();
+  const userName =
+    session?.user?.name || session?.user?.email?.split("@")[0] || "";
 
   const isActive = (href: string) => {
     const localizedPath = `/${locale}${href}`;
@@ -335,23 +339,75 @@ export function AdminSidebar({
           className={cn(
             "border-t border-elite-burgundy/8 shrink-0",
             collapsed
-              ? "min-[769px]:px-0 min-[769px]:py-3 min-[769px]:text-center px-4 py-3"
-              : "px-4 py-3",
+              ? "min-[769px]:px-1.5 min-[769px]:py-3 px-3 py-3"
+              : "px-3 py-3",
           )}
         >
-          <span
+          {/* User identity row */}
+          <div
             className={cn(
-              "text-xs text-elite-black/35 font-cabin",
+              "flex items-center gap-2.5 mb-2",
               collapsed && "min-[769px]:hidden",
             )}
           >
-            {t("roleLabel")}: {t(`roles.${role}`)}
-          </span>
-          {collapsed && (
-            <span className="hidden min-[769px]:block text-[10px] text-elite-black/30 font-cabin uppercase tracking-wider">
-              {t(`roles.${role}`).slice(0, 3)}
-            </span>
-          )}
+            <div className="w-7 h-7 rounded-full bg-elite-burgundy/10 flex items-center justify-center shrink-0">
+              <span className="text-xs font-cabin font-semibold text-elite-burgundy uppercase">
+                {userName.charAt(0) || "?"}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-cabin font-medium text-elite-black/80 truncate leading-none mb-0.5">
+                {userName}
+              </p>
+              <p className="text-[10px] font-cabin text-elite-black/35 leading-none">
+                {t(`roles.${role}`)}
+              </p>
+            </div>
+          </div>
+
+          {/* Sign-out button */}
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: `/${locale}/auth/signin` })}
+              className={cn(
+                "w-full flex items-center gap-2.5 rounded-xl text-sm font-cabin text-elite-black/45 hover:text-red-600 hover:bg-red-50 transition-colors",
+                collapsed
+                  ? "min-[769px]:justify-center min-[769px]:px-0 min-[769px]:py-2.5 px-2.5 py-2"
+                  : "px-2.5 py-2",
+              )}
+            >
+              <svg
+                className="w-4 h-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span className={cn(collapsed && "min-[769px]:hidden")}>
+                {t("signOut")}
+              </span>
+            </button>
+
+            {collapsed && (
+              <span
+                className={cn(
+                  "absolute start-full ms-2 top-1/2 -translate-y-1/2 z-50",
+                  "px-2.5 py-1.5 rounded-lg bg-elite-black/90 text-white text-xs font-cabin whitespace-nowrap",
+                  "opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none",
+                  "hidden min-[769px]:block",
+                )}
+              >
+                {t("signOut")}
+              </span>
+            )}
+          </div>
         </div>
       </aside>
     </>
