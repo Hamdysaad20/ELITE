@@ -467,6 +467,41 @@ async function performSync(
       });
     }
 
+    // Build canonical category map: merge accent/plural duplicates
+    // (e.g. "Frappe" → "Frappé", "Milkshake" → "Milkshakes", "Smoothie" → "Smoothies")
+    const normCatKey = (name: string): string =>
+      name
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "") // strip accents: é→e
+        .replace(/s$/, ""); // strip trailing plural 's'
+
+    const catsByNormKey = new Map<string, CategoryRecord[]>();
+    for (const cat of categoriesRaw) {
+      const key = normCatKey(cat.name);
+      if (!catsByNormKey.has(key)) catsByNormKey.set(key, []);
+      catsByNormKey.get(key)!.push(cat);
+    }
+
+    // For each group pick canonical: prefer accented name (Frappé > Frappe), then longer (plural > singular)
+    const catIdToCanonical = new Map<number, CategoryRecord>();
+    for (const [, group] of catsByNormKey) {
+      const canonical = [...group].sort((a, b) => {
+        const aAccent = a.name !== a.name.normalize("NFD").replace(/[̀-ͯ]/g, "");
+        const bAccent = b.name !== b.name.normalize("NFD").replace(/[̀-ͯ]/g, "");
+        if (aAccent !== bAccent) return aAccent ? -1 : 1;
+        return b.name.length - a.name.length;
+      })[0];
+      for (const cat of group) catIdToCanonical.set(cat.id, canonical);
+      const aliases = group.filter((c) => c.id !== canonical.id);
+      if (aliases.length > 0) {
+        console.log(
+          `[SYNC] Category merge: ${aliases.map((c) => `"${c.name}"`).join(", ")} → "${canonical.name}"`,
+        );
+      }
+    }
+
     // Deduplicate products by product template: keep one product.product per template.
     // When Odoo has size/shot variants (e.g. "Spanish Latte Single", "Spanish Latte Double"),
     // each is a separate product.product under one product.template. We collapse them into
@@ -531,7 +566,57 @@ async function performSync(
       ...noTemplateProductsRaw,
     ];
 
-    const products = websiteProductsRaw
+    // Remap each product's categ_id to its canonical category so merged
+    // categories (e.g. Frappe→Frappé) are consistent before normalization.
+    const websiteProductsRemapped = websiteProductsRaw.map((p) => {
+      const rawId = Array.isArray(p.categ_id) ? p.categ_id[0] : p.categ_id;
+      const canonical = rawId != null ? catIdToCanonical.get(rawId) : null;
+      if (canonical && canonical.id !== rawId) {
+        return {
+          ...p,
+          categ_id: [canonical.id, canonical.name] as [number, string],
+        };
+      }
+      return p;
+    });
+
+    // Second name-dedup pass: collapse manual size-variant standalone products
+    // (e.g. "AMERICANO - M" created as a separate template instead of a variant).
+    // Template dedup only catches variants under the same template; this catches
+    // products in different templates whose names differ only by a size suffix.
+    const SIZE_SUFFIX_RE = /\s+-\s+(?:xs|s|m|l|xl|xxl)$/i;
+    const byNormalizedName = new Map<string, ProductRecord>();
+    for (const p of websiteProductsRemapped) {
+      const key = p.name
+        .trim()
+        .toLowerCase()
+        .replace(SIZE_SUFFIX_RE, "")
+        .trim();
+      const existing = byNormalizedName.get(key);
+      if (!existing) {
+        byNormalizedName.set(key, p);
+        continue;
+      }
+      const existSuffix = SIZE_SUFFIX_RE.test(existing.name);
+      const currSuffix = SIZE_SUFFIX_RE.test(p.name);
+      if (existSuffix && !currSuffix) {
+        byNormalizedName.set(key, p); // prefer the clean name
+      } else if (!existSuffix && currSuffix) {
+        // keep existing (already clean)
+      } else if (p.id < existing.id) {
+        byNormalizedName.set(key, p); // tie-break: lower ID wins
+      }
+    }
+    const websiteProductsFinal = Array.from(byNormalizedName.values());
+    const removedSizeDupCount =
+      websiteProductsRemapped.length - websiteProductsFinal.length;
+    if (removedSizeDupCount > 0) {
+      console.log(
+        `[SYNC] Size-suffix dedup removed ${removedSizeDupCount} manual size-variant(s)`,
+      );
+    }
+
+    const products = websiteProductsFinal
       .map((p) =>
         normalizeProduct(
           p,
@@ -544,13 +629,17 @@ async function performSync(
 
     const availableProductIds = products.map((product) => product.id);
 
-    // Key by ID, not name: two categories with the same leaf name but different IDs
-    // are distinct. Keying by name was silently dropping one, orphaning its products.
+    // Emit only canonical categories (alias categories like "Frappe" when "Frappé"
+    // is canonical are skipped so both the category list and product assignments
+    // are consistent).
     const uniqueCategories = new Map<string, any>();
+    const seenCanonicalIds = new Set<number>();
     categoriesRaw.forEach((cat) => {
       if (cat.name.toLowerCase() === "extras") return;
-      const normalized = normalizeCategory(cat);
-      uniqueCategories.set(normalized.id, normalized);
+      const canonical = catIdToCanonical.get(cat.id) ?? cat;
+      if (seenCanonicalIds.has(canonical.id)) return;
+      seenCanonicalIds.add(canonical.id);
+      uniqueCategories.set(String(canonical.id), normalizeCategory(canonical));
     });
 
     const categories = Array.from(uniqueCategories.values());

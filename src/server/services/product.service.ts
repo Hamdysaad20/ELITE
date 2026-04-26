@@ -63,6 +63,8 @@ const EXCLUDED_PRODUCT_NAME_PATTERNS = [
   /^open\s*register$/i,
   /^open\s*cashier$/i,
   /^deposit$/i,
+  /^extra\s+\w+$/i, // POS add-on entries like "EXTRA BOBA", "EXTRA SHOT"
+  /\s+-\s+(?:xs|s|m|l|xl|xxl)$/i, // manual size variants like "AMERICANO - M"
 ];
 
 function isExcludedWebsiteProduct(product: Product): boolean {
