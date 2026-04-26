@@ -2174,6 +2174,19 @@
       "unit": "الوحدة",
       "locations": "المكان",
       "minStock": "الحد الأدنى",
+      "alertLevel": "حد التنبيه",
+      "targetStock": "الهدف",
+      "backupThreshold": "الاحتياطي",
+      "supplier": "المورد",
+      "allSuppliers": "كل الموردين",
+      "missingOnly": "الحد الأدنى الناقص فقط",
+      "missingMinimumTask": "{count} صنف لسه محتاج حد أدنى",
+      "missingMinimumTaskDesc": "حد الاحتياطي يحافظ على الطلبات مؤقتًا، لكن الإدارة لازم تضبط الحد الأدنى والهدف لكل صنف.",
+      "changeReason": "سبب التغيير",
+      "recentChanges": "آخر تغييرات القواعد",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "cancel": "إلغاء",
       "bar": "البار",
       "storage": "المخزن",
       "itemCount": "{count} صنف"
@@ -2363,12 +2376,14 @@
     },
     "dashboard": {
       "title": "لوحة التحكم",
-      "subtitle": "نظرة عامة على المخزون والتنبيهات",
+      "subtitle": "نظرة عامة على المخزون + تنبيهات خطة الاحتياطي للطلبات",
       "stockOverview": "حالة المخزون",
       "itemName": "الصنف",
       "storageQty": "المخزن",
       "barQty": "البار",
       "totalQty": "الإجمالي",
+      "suggestedOrder": "الطلب المقترح",
+      "daysRemaining": "أيام",
       "barStatus": "حالة البار",
       "totalStatus": "حالة الإجمالي",
       "status": {
@@ -2376,7 +2391,8 @@
         "warning": "تنبيه",
         "order_now": "اطلب الآن",
         "empty": "نفد",
-        "bar_empty": "البار فاضي — اسحب من المخزن"
+        "bar_empty": "البار فاضي — اسحب من المخزن",
+        "backup_order": "طلب احتياطي (كمية جزئية قليلة)"
       },
       "todayActivity": "نشاط النهارده",
       "countsToday": "جرد",
@@ -2385,7 +2401,32 @@
       "alerts": "التنبيهات",
       "noAlerts": "كل المخزون كويس",
       "filterSection": "فلتر حسب القسم",
-      "allSections": "كل الأقسام"
+      "allSections": "كل الأقسام",
+      "allStatuses": "كل الحالات",
+      "allSuppliers": "كل الموردين",
+      "auditFilter": "تنبيهات الإعداد",
+      "actionableOnly": "المطلوب فقط",
+      "missingMinimumOnly": "الحد الأدنى ناقص",
+      "orderingPlan": "خطة الطلب",
+      "orderingPlanDesc": "الكمية المقترحة = المخزون المستهدف ناقص الموجود، وتتجمع حسب المورد لو متسجل.",
+      "generalSupplier": "مورد عام",
+      "currentVsTarget": "{current} / هدف {target}",
+      "backupHint": "قاعدة احتياطية: اطلب لما الإجمالي يكون ≤ {threshold} والحد الأدنى مش متسجل",
+      "diagram": {
+        "orderNow": "اطلب فوراً",
+        "backupOrder": "قائمة نقص احتياطية",
+        "warning": "متابعة وتنبيه",
+        "audit": "تنبيهات الإعداد",
+        "missingMinimum": "حد أدنى ناقص"
+      },
+      "audit": {
+        "negative_stock": "مخزون بالسالب",
+        "missing_minimum": "الحد الأدنى ناقص",
+        "alert_below_minimum": "حد التنبيه أقل من الحد الأدنى",
+        "target_below_minimum": "الهدف أقل من الحد الأدنى",
+        "never_counted": "لم يتم جرده",
+        "stale_count": "الجرد قديم"
+      }
     },
     "common": {
       "date": "التاريخ",

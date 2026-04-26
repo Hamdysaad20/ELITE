@@ -26,6 +26,7 @@ import {
   ServiceUnavailableError,
 } from "@/server/utils/errors";
 import { enqueueOrderSync } from "@/server/services/odooSync";
+import { consumeInventoryForOnlineOrder } from "@/server/services/inventoryConsumption";
 import { getAuthUser } from "@/server/auth/session";
 import { getCheckoutConfig } from "@/server/services/checkoutConfig";
 import { isPaymobConfigured } from "@/server/services/paymob/paymobClient";
@@ -380,6 +381,10 @@ export async function POST(request: NextRequest) {
     const isPaid = created.paymentStatus === PaymentStatus.PAID;
 
     if (isCashPayment || isPaid) {
+      await consumeInventoryForOnlineOrder(created.id).catch((err) =>
+        console.error("[Order] Failed to consume recipe inventory:", err),
+      );
+
       // Enqueue Odoo sync (fire-and-forget stub). Defaults: sale enabled, pos disabled.
       const enableSale = body.odoo?.sale?.enable !== false;
       const enablePos = body.odoo?.pos?.enable === true;

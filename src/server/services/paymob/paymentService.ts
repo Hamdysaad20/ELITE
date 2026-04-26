@@ -352,6 +352,15 @@ export class PaymentService {
 
       // Trigger Odoo sync for paid orders
       try {
+        const { consumeInventoryForOnlineOrder } = await import(
+          "@/server/services/inventoryConsumption"
+        );
+        await consumeInventoryForOnlineOrder(order.id);
+      } catch (err) {
+        console.error("[Payment] Failed to consume recipe inventory:", err);
+      }
+
+      try {
         const { enqueueOrderSync } = await import("@/server/services/odooSync");
         await enqueueOrderSync({
           orderId: order.id,

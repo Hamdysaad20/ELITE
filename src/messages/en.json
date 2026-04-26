@@ -2174,6 +2174,19 @@
       "unit": "Unit",
       "locations": "Where",
       "minStock": "Min",
+      "alertLevel": "Alert",
+      "targetStock": "Target",
+      "backupThreshold": "Backup",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "missingOnly": "Missing minimum only",
+      "missingMinimumTask": "{count} items still need minimum stock",
+      "missingMinimumTaskDesc": "Backup thresholds keep ordering safe, but managers should set real minimum and target stock for every item.",
+      "changeReason": "Change reason",
+      "recentChanges": "Recent rule changes",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
       "bar": "Bar",
       "storage": "Storage",
       "itemCount": "{count} items"
@@ -2363,12 +2376,14 @@
     },
     "dashboard": {
       "title": "Dashboard",
-      "subtitle": "Stock overview and alerts",
+      "subtitle": "Stock overview, shortage backup alerts, and order guidance",
       "stockOverview": "Stock Overview",
       "itemName": "Item",
       "storageQty": "Storage",
       "barQty": "Bar",
       "totalQty": "Total",
+      "suggestedOrder": "Suggested Order",
+      "daysRemaining": "Days",
       "barStatus": "Bar Status",
       "totalStatus": "Total Status",
       "status": {
@@ -2376,7 +2391,8 @@
         "warning": "Warning",
         "order_now": "Order Now",
         "empty": "Empty",
-        "bar_empty": "Bar empty — pull from storage"
+        "bar_empty": "Bar empty — pull from storage",
+        "backup_order": "Backup Order (Low partial stock)"
       },
       "todayActivity": "Today's Activity",
       "countsToday": "Counts",
@@ -2385,7 +2401,32 @@
       "alerts": "Alerts",
       "noAlerts": "All stock levels are healthy",
       "filterSection": "Filter by section",
-      "allSections": "All sections"
+      "allSections": "All sections",
+      "allStatuses": "All statuses",
+      "allSuppliers": "All suppliers",
+      "auditFilter": "Setup warnings",
+      "actionableOnly": "Actionable only",
+      "missingMinimumOnly": "Missing minimum",
+      "orderingPlan": "Ordering Plan",
+      "orderingPlanDesc": "Suggested quantity uses target stock minus current stock, grouped by supplier when configured.",
+      "generalSupplier": "General supplier",
+      "currentVsTarget": "{current} / target {target}",
+      "backupHint": "Backup rule: order when total is ≤ {threshold} and minimum is not configured",
+      "diagram": {
+        "orderNow": "Order immediately",
+        "backupOrder": "Backup shortage list",
+        "warning": "Watch list",
+        "audit": "Setup warnings",
+        "missingMinimum": "Missing minimums"
+      },
+      "audit": {
+        "negative_stock": "Negative stock",
+        "missing_minimum": "Missing minimum",
+        "alert_below_minimum": "Alert below minimum",
+        "target_below_minimum": "Target below minimum",
+        "never_counted": "Never counted",
+        "stale_count": "Stale count"
+      }
     },
     "common": {
       "date": "Date",

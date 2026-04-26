@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/db/client";
 import { requireRole } from "@/server/auth/session";
 import { suggestShift } from "@/lib/inventory/constants";
+import { reconcileSubmittedInventoryCount } from "@/server/services/inventoryReconciliation";
 
 const entrySchema = z.object({
   itemId: z.string().uuid(),
@@ -123,6 +124,24 @@ export async function POST(req: NextRequest) {
       submit,
     } = parsed.data;
     const today = new Date(new Date().toISOString().split("T")[0]);
+    const itemPackSizes = new Map(
+      (
+        await prisma.inventoryItem.findMany({
+          where: { id: { in: entries.map((entry) => entry.itemId) } },
+          select: { id: true, packSize: true },
+        })
+      ).map((item) => [item.id, item.packSize]),
+    );
+    const entryCreates = entries.map((e) => {
+      const packSize = itemPackSizes.get(e.itemId) || 1;
+      return {
+        itemId: e.itemId,
+        packsCount: e.packsCount,
+        looseSingles: e.looseSingles,
+        quantity: e.quantity,
+        totalQuantity: e.quantity || e.packsCount * packSize + e.looseSingles,
+      };
+    });
 
     const existingDraft = await prisma.inventoryCount.findFirst({
       where: {
@@ -149,22 +168,15 @@ export async function POST(req: NextRequest) {
           status: submit ? "submitted" : "draft",
           submittedAt: submit ? new Date() : null,
           entries: {
-            create: entries.map((e) => {
-              const item = {
-                itemId: e.itemId,
-                packsCount: e.packsCount,
-                looseSingles: e.looseSingles,
-                quantity: e.quantity,
-                totalQuantity: 0,
-              };
-              item.totalQuantity =
-                e.quantity || e.packsCount * 50 + e.looseSingles;
-              return item;
-            }),
+            create: entryCreates,
           },
         },
         include: { entries: true },
       });
+
+      if (submit) {
+        await reconcileSubmittedInventoryCount(updated.id, user.id);
+      }
 
       return NextResponse.json({ success: true, data: updated, updated: true });
     }
@@ -201,17 +213,15 @@ export async function POST(req: NextRequest) {
         shortageNotes,
         wasteNotes,
         entries: {
-          create: entries.map((e) => ({
-            itemId: e.itemId,
-            packsCount: e.packsCount,
-            looseSingles: e.looseSingles,
-            quantity: e.quantity,
-            totalQuantity: e.quantity || e.packsCount * 50 + e.looseSingles,
-          })),
+          create: entryCreates,
         },
       },
       include: { entries: true },
     });
+
+    if (submit) {
+      await reconcileSubmittedInventoryCount(count.id, user.id);
+    }
 
     return NextResponse.json({ success: true, data: count }, { status: 201 });
   } catch (error) {
