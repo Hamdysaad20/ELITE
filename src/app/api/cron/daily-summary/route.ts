@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         }),
         prisma.user.findMany({
           where: {
-            role: { in: ["admin", "manager", "barista"] },
+            role: { in: ["admin", "manager", "barista", "head_barista"] },
             status: { not: "suspended" },
           },
           select: { email: true, name: true },
@@ -73,18 +73,30 @@ export async function GET(request: NextRequest) {
       totalQty: number;
       unitAr: string;
       unit: string;
+      reason: "minimum_stock" | "backup_threshold" | "empty";
     }> = [];
 
     for (const item of items) {
       const total = stockMap.get(item.id) || 0;
       const min = Number(item.minimumStock);
-      if (total <= min) {
+      const fallbackThreshold = min > 0 ? min : 1;
+      if (
+        total <= 0 ||
+        (min > 0 && total <= min) ||
+        (min <= 0 && total <= fallbackThreshold)
+      ) {
         orderNow.push({
           nameAr: item.nameAr,
           name: item.name,
           totalQty: Math.round(total * 100) / 100,
           unitAr: item.unitAr,
           unit: item.unit,
+          reason:
+            total <= 0
+              ? "empty"
+              : min > 0 && total <= min
+                ? "minimum_stock"
+                : "backup_threshold",
         });
       }
     }

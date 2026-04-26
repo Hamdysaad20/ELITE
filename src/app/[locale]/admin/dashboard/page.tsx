@@ -19,7 +19,9 @@ interface StockLevel {
   minimumStock: number;
   alertLevel: number;
   barStatus: "ok" | "bar_empty" | "empty";
-  totalStatus: "ok" | "warning" | "order_now" | "empty";
+  totalStatus: "ok" | "warning" | "order_now" | "backup_order" | "empty";
+  fallbackThreshold: number;
+  statusReason: "minimum_stock" | "backup_threshold" | "empty" | "healthy";
 }
 
 interface StockData {
@@ -38,6 +40,7 @@ const STATUS_COLOR: Record<string, string> = {
   ok: "bg-emerald-500",
   warning: "bg-amber-400",
   order_now: "bg-orange-500",
+  backup_order: "bg-fuchsia-500",
   empty: "bg-red-500",
   bar_empty: "bg-orange-500",
 };
@@ -54,6 +57,11 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string }> =
       bg: "bg-orange-50",
       text: "text-orange-700",
       dot: "bg-orange-500",
+    },
+    backup_order: {
+      bg: "bg-fuchsia-50",
+      text: "text-fuchsia-700",
+      dot: "bg-fuchsia-500",
     },
     empty: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
   };
@@ -81,6 +89,17 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [sectionFilter, setSectionFilter] = useState("");
+  const stockInsights = useMemo(() => {
+    if (!stockData) return { orderNow: 0, backupOrder: 0, warnings: 0 };
+    return {
+      orderNow: stockData.levels.filter(
+        (i) => i.totalStatus === "order_now" || i.totalStatus === "empty",
+      ).length,
+      backupOrder: stockData.levels.filter((i) => i.totalStatus === "backup_order")
+        .length,
+      warnings: stockData.levels.filter((i) => i.totalStatus === "warning").length,
+    };
+  }, [stockData]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -273,6 +292,33 @@ export default function DashboardPage() {
         </div>
       )}
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="bg-red-50 border border-red-100 rounded-xl p-3">
+          <div className="text-xs text-red-700 font-cabin">
+            {t("diagram.orderNow")}
+          </div>
+          <div className="text-2xl text-red-700 font-calistoga">
+            {stockInsights.orderNow}
+          </div>
+        </div>
+        <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-xl p-3">
+          <div className="text-xs text-fuchsia-700 font-cabin">
+            {t("diagram.backupOrder")}
+          </div>
+          <div className="text-2xl text-fuchsia-700 font-calistoga">
+            {stockInsights.backupOrder}
+          </div>
+        </div>
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+          <div className="text-xs text-amber-700 font-cabin">
+            {t("diagram.warning")}
+          </div>
+          <div className="text-2xl text-amber-700 font-calistoga">
+            {stockInsights.warnings}
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-end justify-between gap-4 mb-4">
         <h2 className="font-calistoga text-base text-elite-burgundy">
           {t("stockOverview")}
@@ -324,6 +370,8 @@ export default function DashboardPage() {
                       "border-b border-elite-burgundy/5 last:border-0",
                       level.totalStatus === "empty" && "bg-red-50/40",
                       level.totalStatus === "order_now" && "bg-orange-50/30",
+                      level.totalStatus === "backup_order" &&
+                        "bg-fuchsia-50/30",
                       level.totalStatus === "ok" &&
                         i % 2 === 0 &&
                         "bg-elite-cream/20",
@@ -364,6 +412,13 @@ export default function DashboardPage() {
                         />
                         {t(`status.${level.totalStatus}`)}
                       </span>
+                      {level.statusReason === "backup_threshold" && (
+                        <div className="text-[11px] text-fuchsia-700 mt-1">
+                          {t("backupHint", {
+                            threshold: level.fallbackThreshold,
+                          })}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );

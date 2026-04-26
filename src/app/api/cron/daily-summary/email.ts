@@ -27,6 +27,7 @@ interface DailySummary {
     totalQty: number;
     unitAr: string;
     unit: string;
+    reason: "minimum_stock" | "backup_threshold" | "empty";
   }>;
   todayCounts: number;
   todayTransfers: number;
@@ -62,12 +63,19 @@ export async function sendDailySummaryEmail(
       <td style="padding: 8px 12px; border-bottom: 1px solid #f0e6d0; font-size: 14px; color: #2c2c2c;">${item.nameAr}</td>
       <td style="padding: 8px 12px; border-bottom: 1px solid #f0e6d0; font-size: 14px; color: ${item.totalQty <= 0 ? "#dc2626" : "#d97706"}; font-weight: 600; text-align: center;">${item.totalQty}</td>
       <td style="padding: 8px 12px; border-bottom: 1px solid #f0e6d0; font-size: 14px; color: #666; text-align: center;">${item.unitAr}</td>
+      <td style="padding: 8px 12px; border-bottom: 1px solid #f0e6d0; font-size: 12px; color: #444; text-align: center;">${
+        item.reason === "empty"
+          ? "نفد تمامًا"
+          : item.reason === "minimum_stock"
+            ? "عند حد الطلب"
+            : "خطة احتياطية (الحد الأدنى غير مضبوط)"
+      }</td>
     </tr>`,
     )
     .join("");
 
   const subject = hasOrderNow
-    ? `🚨 ${summary.orderNow.length} صنف محتاج يتطلب — ${arabicDate}`
+    ? `🚨 ${summary.orderNow.length} صنف محتاج طلب — ${arabicDate}`
     : `✅ ملخص اليوم — ${arabicDate}`;
 
   const html = `
@@ -100,9 +108,14 @@ export async function sendDailySummaryEmail(
                   <th style="padding: 8px 12px; text-align: right; font-size: 12px; color: #991b1b; font-weight: 600;">الصنف</th>
                   <th style="padding: 8px 12px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">الكمية</th>
                   <th style="padding: 8px 12px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">الوحدة</th>
+                  <th style="padding: 8px 12px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">سبب التنبيه</th>
                 </tr>
                 ${orderRows}
               </table>
+              <div style="margin-top: 12px; background-color: #f5f3ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px;">
+                <p style="margin: 0; font-size: 13px; color: #6b21a8; font-weight: 700;">📌 خطة احتياطية مؤقتة</p>
+                <p style="margin: 6px 0 0; font-size: 12px; color: #6b21a8;">لو الحد الأدنى مش متسجل للصنف، أي كمية ≤ 1 تعتبر نقص وتتحط في الطلبات تلقائيًا (مثال: نص زجاجة باشن فروت).</p>
+              </div>
             </td>
           </tr>`
               : `
@@ -117,6 +130,11 @@ export async function sendDailySummaryEmail(
 
           <tr>
             <td style="padding: 12px 24px 20px;">
+              <h2 style="margin: 0 0 10px; color: #8b2635; font-size: 15px; font-weight: 700;">👥 مسؤوليات الفريق</h2>
+              <ul style="margin: 0 0 12px; padding-right: 18px; color: #4b5563; font-size: 13px; line-height: 1.7;">
+                <li><strong>البارستا:</strong> يسجلوا النواقص الفعلية أول بأول ويأكدوا الكميات قبل نهاية الشيفت.</li>
+                <li><strong>الإدارة:</strong> تراجع الأصناف المطلوبة وتعتمد طلب الشراء في نفس اليوم.</li>
+              </ul>
               <h2 style="margin: 0 0 10px; color: #8b2635; font-size: 15px; font-weight: 700;">📊 نشاط اليوم</h2>
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
@@ -148,7 +166,10 @@ export async function sendDailySummaryEmail(
 </html>`.trim();
 
   const orderList = summary.orderNow
-    .map((item) => `  • ${item.nameAr}: ${item.totalQty} ${item.unitAr}`)
+    .map(
+      (item) =>
+        `  • ${item.nameAr}: ${item.totalQty} ${item.unitAr} (${item.reason === "empty" ? "نفد" : item.reason === "minimum_stock" ? "حد الطلب" : "خطة احتياطية"})`,
+    )
     .join("\n");
 
   const text = `Elite Coffee — ملخص يومي
@@ -160,6 +181,10 @@ ${
 ${orderList}`
     : "✅ كل الأصناف متوفرة"
 }
+
+👥 مسؤوليات الفريق:
+  • البارستا: تسجيل النواقص أولًا بأول.
+  • الإدارة: مراجعة واعتماد الطلبات.
 
 📊 نشاط اليوم:
   جرد مقدم: ${summary.todayCounts}

@@ -16,7 +16,9 @@ interface StockLevel {
   minimumStock: number;
   alertLevel: number;
   barStatus: "ok" | "bar_empty" | "empty";
-  totalStatus: "ok" | "warning" | "order_now" | "empty";
+  totalStatus: "ok" | "warning" | "order_now" | "backup_order" | "empty";
+  fallbackThreshold: number;
+  statusReason: "minimum_stock" | "backup_threshold" | "empty" | "healthy";
 }
 
 export async function GET(req: NextRequest) {
@@ -69,10 +71,19 @@ export async function GET(req: NextRequest) {
       if (stock.bar <= 0 && total <= 0) barStatus = "empty";
       else if (stock.bar <= 0 && total > 0) barStatus = "bar_empty";
 
+      const fallbackThreshold = minStock > 0 ? minStock : 1;
+
       let totalStatus: StockLevel["totalStatus"] = "ok";
+      let statusReason: StockLevel["statusReason"] = "healthy";
       if (total <= 0) totalStatus = "empty";
-      else if (total <= minStock) totalStatus = "order_now";
-      else if (total <= alert) totalStatus = "warning";
+      else if (minStock > 0 && total <= minStock) {
+        totalStatus = "order_now";
+        statusReason = "minimum_stock";
+      } else if (minStock <= 0 && total <= fallbackThreshold) {
+        totalStatus = "backup_order";
+        statusReason = "backup_threshold";
+      } else if (total <= alert) totalStatus = "warning";
+      if (totalStatus === "empty") statusReason = "empty";
 
       return {
         itemId: item.id,
@@ -88,6 +99,8 @@ export async function GET(req: NextRequest) {
         alertLevel: alert,
         barStatus,
         totalStatus,
+        fallbackThreshold,
+        statusReason,
       };
     });
 

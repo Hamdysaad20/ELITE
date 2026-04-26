@@ -2363,7 +2363,7 @@
     },
     "dashboard": {
       "title": "Dashboard",
-      "subtitle": "Stock overview and alerts",
+      "subtitle": "Stock overview, shortage backup alerts, and order guidance",
       "stockOverview": "Stock Overview",
       "itemName": "Item",
       "storageQty": "Storage",
@@ -2376,7 +2376,8 @@
         "warning": "Warning",
         "order_now": "Order Now",
         "empty": "Empty",
-        "bar_empty": "Bar empty — pull from storage"
+        "bar_empty": "Bar empty — pull from storage",
+        "backup_order": "Backup Order (Low partial stock)"
       },
       "todayActivity": "Today's Activity",
       "countsToday": "Counts",
@@ -2385,7 +2386,13 @@
       "alerts": "Alerts",
       "noAlerts": "All stock levels are healthy",
       "filterSection": "Filter by section",
-      "allSections": "All sections"
+      "allSections": "All sections",
+      "backupHint": "Backup rule: order when total is ≤ {threshold} and minimum is not configured",
+      "diagram": {
+        "orderNow": "Order immediately",
+        "backupOrder": "Backup shortage list",
+        "warning": "Watch list"
+      }
     },
     "common": {
       "date": "Date",
