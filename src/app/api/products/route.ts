@@ -42,6 +42,12 @@ const EXCLUDED_CATEGORIES = [
   "Toppings", // Add-ons (handled as product attributes)
   "Sauces", // Add-ons (handled as product attributes)
   "Elite Essentials", // Internal supplies
+  "other", // Catch-all for uncategorized items that shouldn't be shown
+  "Uncategorized", // Odoo default category for uncategorized products
+  "Miscellaneous", // Common catch-all category that may contain non-menu items
+  "Internal", // Internal use only items
+  "Supplies", // Non-menu items used for operations
+  "POS Only", // Items meant exclusively for point-of-sale, not online
 ];
 
 function applyFilters(
@@ -128,7 +134,7 @@ export async function GET(request: NextRequest) {
 
     // Filter out excluded categories (Extras, Services, etc.)
     const websiteProducts = allProducts.filter((product) => {
-      if (!product.category) return true; // Include products without category
+      if (!product.category) return false; // Exclude uncategorized products (POS-only admin items)
       return !EXCLUDED_CATEGORIES.includes(product.category.name);
     });
 

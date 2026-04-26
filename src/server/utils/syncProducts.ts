@@ -30,6 +30,7 @@ type ProductRecord = {
 
 type ProductTemplateRecord = {
   id: number;
+  name?: string;
   available_in_pos?: boolean;
   image_128?: string | boolean;
   image_1024?: string | boolean;
@@ -351,7 +352,7 @@ async function performSync(
         [productsRaw, categoriesRaw] = await Promise.all([
           client.searchRead<ProductRecord>(
             "product.product",
-            [["sale_ok", "=", true]],
+            [["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]]],
             productFields,
             { limit },
           ),
@@ -366,7 +367,7 @@ async function performSync(
         [productsRaw, categoriesRaw] = await Promise.all([
           client.searchReadPaginated<ProductRecord>(
             "product.product",
-            [["sale_ok", "=", true]],
+            [["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]]],
             productFields,
             batchSize,
           ),
@@ -413,6 +414,7 @@ async function performSync(
             [["id", "in", templateIds]],
             [
               "id",
+              "name",
               "available_in_pos",
               "image_128",
               "image_1024",
@@ -462,42 +464,69 @@ async function performSync(
       });
     }
 
-    /**
-     * Filter out POS-only products using regex patterns on product names.
-     *
-     * NOTE: In Odoo v19, the `website_published` field is NOT available on `product.product`.
-     * It only exists on `product.template` (as `is_published`), but we query `product.product` variants.
-     *
-     * Current approach: Use regex patterns to identify POS-only products by name.
-     * This works for known patterns but may need updates if naming conventions change.
-     *
-     * Future enhancement: Could query `product.template.is_published` separately and join,
-     * but the current regex-based approach is simpler and sufficient for now.
-     */
-    const posOnlyVariantPatterns = [
-      /turkish coffee single/i,
-      /turkish coffee double/i,
-      /spanish latte.*single/i,
-      /spanish latte.*double/i,
-    ];
+    // Deduplicate products by product template: keep one product.product per template.
+    // When Odoo has size/shot variants (e.g. "Spanish Latte Single", "Spanish Latte Double"),
+    // each is a separate product.product under one product.template. We collapse them into
+    // a single menu item, using the template name as the canonical display name.
+    const templateNameMap = new Map<number, string>();
+    for (const t of templatesRaw) {
+      if (typeof t.name === "string") templateNameMap.set(t.id, t.name);
+    }
 
-    // Filter out POS-only variant products before normalization
-    const websiteProductsRaw = productsRaw.filter((p) => {
-      // Use regex patterns to exclude POS-only products
-      const name = p.name?.toLowerCase() || "";
-      const matchesPosOnlyPattern = posOnlyVariantPatterns.some((pattern) =>
-        pattern.test(name),
-      );
-
-      if (matchesPosOnlyPattern) {
-        console.log(
-          `[SYNC] Product "${p.name}" (ID: ${p.id}) excluded by name pattern (POS-only variant)`,
-        );
-        return false;
+    const productsByTemplate = new Map<number, ProductRecord[]>();
+    const noTemplateProductsRaw: ProductRecord[] = [];
+    for (const p of productsRaw) {
+      const tmplId = Array.isArray(p.product_tmpl_id)
+        ? p.product_tmpl_id[0]
+        : p.product_tmpl_id;
+      if (!tmplId) {
+        noTemplateProductsRaw.push(p);
+        continue;
       }
+      if (!productsByTemplate.has(tmplId)) productsByTemplate.set(tmplId, []);
+      productsByTemplate.get(tmplId)!.push(p);
+    }
 
-      return true;
-    });
+    const deduplicatedVariants: ProductRecord[] = [];
+    let removedVariantCount = 0;
+    for (const [tmplId, variants] of productsByTemplate) {
+      if (variants.length === 1) {
+        deduplicatedVariants.push(variants[0]);
+        continue;
+      }
+      // Multiple variants: prefer the one whose name exactly matches the template name
+      const templateName = templateNameMap.get(tmplId);
+      let best = templateName
+        ? (variants.find(
+            (v) =>
+              v.name?.trim().toLowerCase() ===
+              templateName.trim().toLowerCase(),
+          ) ?? variants[0])
+        : variants[0];
+      // If the kept variant's name differs from the template name, rename it
+      if (
+        templateName &&
+        best.name?.trim().toLowerCase() !== templateName.trim().toLowerCase()
+      ) {
+        best = { ...best, name: templateName };
+      }
+      removedVariantCount += variants.length - 1;
+      console.log(
+        `[SYNC] Template "${templateName ?? tmplId}" has ${variants.length} variants — keeping "${best.name}", removed ${variants.length - 1} duplicate(s)`,
+      );
+      deduplicatedVariants.push(best);
+    }
+
+    if (removedVariantCount > 0) {
+      console.log(
+        `[SYNC] Deduplication removed ${removedVariantCount} variant product(s) total`,
+      );
+    }
+
+    const websiteProductsRaw = [
+      ...deduplicatedVariants,
+      ...noTemplateProductsRaw,
+    ];
 
     const products = websiteProductsRaw
       .map((p) =>
@@ -512,13 +541,13 @@ async function performSync(
 
     const availableProductIds = products.map((product) => product.id);
 
+    // Key by ID, not name: two categories with the same leaf name but different IDs
+    // are distinct. Keying by name was silently dropping one, orphaning its products.
     const uniqueCategories = new Map<string, any>();
     categoriesRaw.forEach((cat) => {
       if (cat.name.toLowerCase() === "extras") return;
       const normalized = normalizeCategory(cat);
-      if (!uniqueCategories.has(normalized.name)) {
-        uniqueCategories.set(normalized.name, normalized);
-      }
+      uniqueCategories.set(normalized.id, normalized);
     });
 
     const categories = Array.from(uniqueCategories.values());
