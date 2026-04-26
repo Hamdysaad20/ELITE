@@ -93,21 +93,32 @@ export function getOldItemImageCandidates(productName: string): string[] {
   return candidates.filter((candidate) => AVAILABLE_OLD_ITEMS.has(candidate));
 }
 
+// Pre-built lowercase index for case-insensitive lookups
+const LOWER_TO_ORIGINAL = new Map<string, string>(
+  [...AVAILABLE_OLD_ITEMS].map((f) => [f.toLowerCase(), f]),
+);
+
 /**
- * Get the local image path for a product from Old Items
- * STRICTLY prefers names ending in "-1.png" as per requirement
+ * Get the local image path for a product from Old Items.
+ * Tries exact case first, then falls back to case-insensitive match so that
+ * template-renamed products (e.g. "Turkish Coffee" vs "turkish coffee") still
+ * resolve correctly after the variant deduplication renames.
  */
 export function getOldItemImage(productName: string): string | null {
   if (!productName) return null;
 
-  // Clean the name slightly if needed (trim)
   const cleanName = productName.trim();
-
-  // STRICT requirement: Try exact name + "-1.png"
   const candidate = `${cleanName}-1.png`;
 
+  // Exact match (fast path)
   if (AVAILABLE_OLD_ITEMS.has(candidate)) {
     return `/Old Items/${candidate}`;
+  }
+
+  // Case-insensitive fallback
+  const original = LOWER_TO_ORIGINAL.get(candidate.toLowerCase());
+  if (original) {
+    return `/Old Items/${original}`;
   }
 
   return null;

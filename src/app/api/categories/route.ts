@@ -26,6 +26,12 @@ const EXCLUDED_CATEGORIES = [
   "Toppings", // Add-ons (handled as product attributes)
   "Sauces", // Add-ons (handled as product attributes)
   "Elite Essentials", // Internal supplies
+  "other", // Catch-all for uncategorized items that shouldn't be shown
+  "Uncategorized", // Odoo default category for uncategorized products
+  "Miscellaneous", // Common catch-all category that may contain non-menu items
+  "Internal", // Internal use only items
+  "Supplies", // Non-menu items used for operations
+  "POS Only", // Items meant exclusively for point-of-sale, not online
 ];
 
 export async function GET(_request: NextRequest) {
