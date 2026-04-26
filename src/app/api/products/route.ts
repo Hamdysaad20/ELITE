@@ -132,10 +132,12 @@ export async function GET(request: NextRequest) {
       300, // 5 minutes cache
     );
 
-    // Filter out excluded categories (Extras, Services, etc.)
+    // Filter out excluded categories (Extras, Services, etc.) — case-insensitive
     const websiteProducts = allProducts.filter((product) => {
       if (!product.category) return false; // Exclude uncategorized products (POS-only admin items)
-      return !EXCLUDED_CATEGORIES.includes(product.category.name);
+      return !EXCLUDED_CATEGORIES.some(
+        (ex) => ex.toLowerCase() === product.category!.name?.toLowerCase(),
+      );
     });
 
     // Handle single product fetch - ALWAYS include full images

@@ -126,9 +126,12 @@ export async function GET(_request: NextRequest) {
       }
     }
 
-    // Filter out excluded categories
+    // Filter out excluded categories (case-insensitive)
     const categories = allCategories.filter(
-      (cat) => !EXCLUDED_CATEGORIES.includes(cat.name),
+      (cat) =>
+        !EXCLUDED_CATEGORIES.some(
+          (ex) => ex.toLowerCase() === cat.name?.toLowerCase(),
+        ),
     );
 
     const response = jsonResponse(

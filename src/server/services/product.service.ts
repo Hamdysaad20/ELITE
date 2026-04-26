@@ -40,33 +40,36 @@ const HARD_TTL = 2 * 60 * 60; // seconds for Redis
 
 // Categories that must never appear in any website-facing endpoint.
 // Keep in sync with the same list in api/categories/route.ts and api/products/route.ts.
+// Stored lowercase for case-insensitive matching
 const EXCLUDED_CATEGORY_NAMES = new Set([
-  "Extras",
-  "EXTRA",
-  "Services",
-  "Offers",
-  "Expenses",
-  "Toppings",
-  "Sauces",
-  "Elite Essentials",
+  "extras",
+  "extra",
+  "services",
+  "offers",
+  "expenses",
+  "toppings",
+  "sauces",
+  "elite essentials",
   "other",
-  "Uncategorized",
-  "Miscellaneous",
-  "Internal",
-  "Supplies",
-  "POS Only",
+  "uncategorized",
+  "miscellaneous",
+  "internal",
+  "supplies",
+  "pos only",
 ]);
 
 // Product names that should never be exposed in website catalog endpoints.
 const EXCLUDED_PRODUCT_NAME_PATTERNS = [
   /^open\s*register$/i,
   /^open\s*cashier$/i,
+  /^deposit$/i,
 ];
 
 function isExcludedWebsiteProduct(product: Product): boolean {
   // Exclude by category
   if (!product.category) return true; // no category = not a menu item
-  if (EXCLUDED_CATEGORY_NAMES.has(product.category.name)) return true;
+  if (EXCLUDED_CATEGORY_NAMES.has(product.category.name?.toLowerCase()))
+    return true;
   // Exclude known POS-admin product names regardless of category
   const name = product.name?.trim();
   if (!name) return false;
