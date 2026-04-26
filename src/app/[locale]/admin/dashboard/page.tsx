@@ -24,7 +24,12 @@ interface StockLevel {
   barStatus: "ok" | "bar_empty" | "empty";
   totalStatus: "ok" | "warning" | "order_now" | "backup_order" | "empty";
   fallbackThreshold: number;
-  statusReason: "minimum_stock" | "backup_threshold" | "empty" | "healthy";
+  statusReason:
+    | "minimum_stock"
+    | "backup_threshold"
+    | "alert_level"
+    | "empty"
+    | "healthy";
   suggestedOrderQty: number;
   averageDailyUsage: number;
   daysRemaining: number | null;
