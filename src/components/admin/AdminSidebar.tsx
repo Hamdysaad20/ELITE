@@ -24,7 +24,7 @@ interface NavItem {
   href: string;
   labelKey: string;
   icon: React.ReactNode;
-  requiredRole?: "manager" | "admin" | "head_barista";
+  requiredRole?: "manager" | "admin" | "head_barista" | "ordering";
 }
 
 interface NavGroup {
@@ -53,7 +53,7 @@ const NAV_GROUPS: NavGroup[] = [
       {
         href: "/admin/dashboard",
         labelKey: "dashboard",
-        requiredRole: "manager",
+        requiredRole: "ordering",
         icon: (
           <SvgIcon>
             <rect x="3" y="3" width="7" height="9" rx="1" />
@@ -260,6 +260,8 @@ export function AdminSidebar({
               if (!item.requiredRole) return true;
               if (item.requiredRole === "head_barista")
                 return canAccessStorageCount(role);
+              if (item.requiredRole === "ordering")
+                return canAccessManagerRoutes(role) || role === "head_barista";
               if (item.requiredRole === "manager")
                 return canAccessManagerRoutes(role);
               if (item.requiredRole === "admin")

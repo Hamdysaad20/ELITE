@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface InventoryItem {
   id: string;
@@ -18,6 +18,17 @@ interface InventoryItem {
   minimumStock: number;
   alertLevel: number;
   maximumStock: number;
+  backupThreshold: number;
+  preferredSupplier: string | null;
+  ruleChangeLogs?: Array<{
+    id: string;
+    field: string;
+    oldValue: string | null;
+    newValue: string | null;
+    reason: string | null;
+    createdAt: string;
+    changedBy: { name: string | null; email: string | null };
+  }>;
 }
 
 interface GroupedItems {
@@ -31,10 +42,11 @@ export function useInventoryItems(location?: "bar" | "storage") {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadItems = useCallback(() => {
     const params = new URLSearchParams();
     if (location) params.set("location", location);
 
+    setLoading(true);
     fetch(`/api/admin/inventory-items?${params}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to load items");
@@ -59,7 +71,11 @@ export function useInventoryItems(location?: "bar" | "storage") {
       .finally(() => setLoading(false));
   }, [location]);
 
-  return { items, grouped, loading, error };
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
+
+  return { items, grouped, loading, error, reload: loadItems };
 }
 
 export type { InventoryItem, GroupedItems };

@@ -213,6 +213,7 @@ export default function DrinkCard({
       onQuickAdd,
       addItem,
       displayName,
+      name,
       displayPrice,
       displayImages,
       orderingEnabled,

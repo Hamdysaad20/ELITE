@@ -1,11 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/sync/products",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/retry-odoo-sync",
+      "path": "/api/cron/nightly",
       "schedule": "0 3 * * *"
     }
   ],

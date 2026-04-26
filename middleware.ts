@@ -7,6 +7,7 @@ import {
   type Locale,
 } from "./src/i18n/config";
 import { getLocaleFromPathname, stripLocaleFromPathname } from "./src/i18n/routing";
+import { canAccessInventory } from "./src/lib/inventory/constants";
 
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 const PUBLIC_FILE = /\.(.*)$/;
@@ -349,9 +350,8 @@ async function runMiddleware(request: NextRequest) {
       return unauthorizedResponse(request, "Account not found", locale);
     }
 
-    // Check admin access — allow barista, manager, and admin roles
-    const INVENTORY_ROLES = ["barista", "manager", "admin"];
-    if (requiresAdmin && (!token.role || !INVENTORY_ROLES.includes(token.role as string))) {
+    // Check admin access for staff inventory tools.
+    if (requiresAdmin && !canAccessInventory(token.role as string | undefined)) {
       return forbiddenResponse(request, "Staff access required", locale);
     }
 

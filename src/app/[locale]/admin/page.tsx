@@ -14,7 +14,8 @@ interface OrderNowItem {
   unitAr: string;
   totalQty: number;
   minimumStock: number;
-  totalStatus: "order_now" | "empty" | "warning";
+  totalStatus: "order_now" | "backup_order" | "empty" | "warning";
+  suggestedOrderQty: number;
 }
 
 interface HomeData {
@@ -33,6 +34,7 @@ export default function AdminHomePage() {
   const isAr = locale === "ar";
   const role = (session?.user as { role?: string } | undefined)?.role ?? "";
   const isManager = role === "admin" || role === "manager";
+  const canViewOrdering = isManager || role === "head_barista";
 
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export default function AdminHomePage() {
     if (!role) return;
     const today = new Date().toISOString().split("T")[0];
 
-    const stockFetch = isManager
+    const stockFetch = canViewOrdering
       ? fetch("/api/admin/stock").then((r) =>
           r.ok ? r.json() : { success: false },
         )
@@ -74,7 +76,9 @@ export default function AdminHomePage() {
             ? stockRes.data.alerts
                 .filter(
                   (a: OrderNowItem) =>
-                    a.totalStatus === "order_now" || a.totalStatus === "empty",
+                    a.totalStatus === "order_now" ||
+                    a.totalStatus === "backup_order" ||
+                    a.totalStatus === "empty",
                 )
                 .slice(0, 15)
             : [];
@@ -100,7 +104,7 @@ export default function AdminHomePage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [role, isManager]);
+  }, [role, isManager, canViewOrdering]);
 
   if (loading) {
     return (
@@ -165,6 +169,11 @@ export default function AdminHomePage() {
     ...(role === "head_barista"
       ? [
           {
+            label: t("viewDashboard"),
+            icon: "📊",
+            href: `/${locale}/admin/dashboard`,
+          },
+          {
             label: t("storageCount"),
             icon: "📦",
             href: `/${locale}/admin/inventory/storage`,
@@ -198,7 +207,7 @@ export default function AdminHomePage() {
       </div>
 
       {/* Order Now — managers see stock alerts; baristas see shift status (#1) */}
-      {isManager ? (
+      {canViewOrdering ? (
         <div className="mb-5">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-lg">🚨</span>
@@ -226,12 +235,18 @@ export default function AdminHomePage() {
                     "flex items-center justify-between rounded-2xl px-4 py-3 border",
                     item.totalStatus === "empty"
                       ? "bg-red-50 border-red-200"
-                      : "bg-amber-50 border-amber-200",
+                      : item.totalStatus === "backup_order"
+                        ? "bg-fuchsia-50 border-fuchsia-200"
+                        : "bg-amber-50 border-amber-200",
                   )}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="text-base shrink-0">
-                      {item.totalStatus === "empty" ? "🚨" : "🟠"}
+                      {item.totalStatus === "empty"
+                        ? "🚨"
+                        : item.totalStatus === "backup_order"
+                          ? "🟣"
+                          : "🟠"}
                     </span>
                     <span className="text-sm font-cabin font-medium text-elite-black truncate">
                       {isAr ? item.nameAr : item.name}
@@ -243,7 +258,9 @@ export default function AdminHomePage() {
                         "text-sm font-cabin font-bold",
                         item.totalStatus === "empty"
                           ? "text-red-700"
-                          : "text-amber-700",
+                          : item.totalStatus === "backup_order"
+                            ? "text-fuchsia-700"
+                            : "text-amber-700",
                       )}
                     >
                       {item.totalQty}
@@ -251,6 +268,11 @@ export default function AdminHomePage() {
                     <span className="text-xs text-elite-black/40 font-cabin">
                       {isAr ? item.unitAr : item.unit}
                     </span>
+                    {item.suggestedOrderQty > 0 && (
+                      <span className="text-xs text-elite-black/40 font-cabin">
+                        → {item.suggestedOrderQty}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}

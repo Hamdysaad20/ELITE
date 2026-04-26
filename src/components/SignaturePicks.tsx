@@ -186,7 +186,7 @@ export default function SignaturePicks() {
                   className="
                     relative overflow-hidden rounded-[1.5rem]
                     border border-white/[0.05] shadow-sm
-                    transition-all duration-[400ms] ease-out
+                    transition-all duration-500 ease-out
                     group-hover:shadow-[0_12px_40px_rgba(14,7,9,0.18)] group-hover:-translate-y-0.5
                     h-[13rem] sm:h-[14rem] lg:h-[10rem]
                   "

@@ -6,6 +6,10 @@ import {
   errorResponse,
 } from "@/server/utils/apiHelpers";
 import { sendDailySummaryEmail } from "./email";
+import {
+  calculateStockLevel,
+  type AuditWarning,
+} from "@/lib/inventory/stockCalculations";
 
 const ADMIN_EMAIL = "contact@jointhedragons.com";
 
@@ -31,9 +35,15 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             nameAr: true,
+            section: true,
             unit: true,
             unitAr: true,
             minimumStock: true,
+            alertLevel: true,
+            maximumStock: true,
+            backupThreshold: true,
+            preferredSupplier: true,
+            packSize: true,
           },
         }),
         prisma.stockMovement.groupBy({
@@ -73,28 +83,53 @@ export async function GET(request: NextRequest) {
       totalQty: number;
       unitAr: string;
       unit: string;
+      section: string;
+      preferredSupplier: string | null;
+      minimumStock: number;
+      targetStock: number;
+      suggestedOrderQty: number;
+      backupThreshold: number;
+      daysRemaining: number | null;
+      auditWarnings: AuditWarning[];
       reason: "minimum_stock" | "backup_threshold" | "empty";
     }> = [];
 
     for (const item of items) {
       const total = stockMap.get(item.id) || 0;
-      const min = Number(item.minimumStock);
-      const fallbackThreshold = min > 0 ? min : 1;
+      const calculation = calculateStockLevel({
+        unit: item.unit,
+        packSize: item.packSize,
+        storageQty: total,
+        barQty: 0,
+        minimumStock: Number(item.minimumStock),
+        alertLevel: Number(item.alertLevel),
+        maximumStock: Number(item.maximumStock),
+        backupThreshold: Number(item.backupThreshold),
+        lastCountedAt: null,
+      });
       if (
-        total <= 0 ||
-        (min > 0 && total <= min) ||
-        (min <= 0 && total <= fallbackThreshold)
+        calculation.totalStatus === "empty" ||
+        calculation.totalStatus === "order_now" ||
+        calculation.totalStatus === "backup_order"
       ) {
         orderNow.push({
           nameAr: item.nameAr,
           name: item.name,
-          totalQty: Math.round(total * 100) / 100,
+          totalQty: calculation.totalQty,
           unitAr: item.unitAr,
           unit: item.unit,
+          section: item.section,
+          preferredSupplier: item.preferredSupplier,
+          minimumStock: calculation.minimumStock,
+          targetStock: calculation.targetStock,
+          suggestedOrderQty: calculation.suggestedOrderQty,
+          backupThreshold: calculation.backupThreshold,
+          daysRemaining: calculation.daysRemaining,
+          auditWarnings: calculation.auditWarnings,
           reason:
-            total <= 0
+            calculation.totalStatus === "empty"
               ? "empty"
-              : min > 0 && total <= min
+              : calculation.totalStatus === "order_now"
                 ? "minimum_stock"
                 : "backup_threshold",
         });

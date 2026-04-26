@@ -16,6 +16,18 @@ const nextConfig = {
   reactStrictMode: true,
   devIndicators: false,
   webpack: (config, { dev }) => {
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /node_modules\/@opentelemetry\/instrumentation/,
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+      {
+        module: /node_modules\/bullmq/,
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+    ];
+
     if (dev) {
       const shimPath = path.resolve(
         __dirname,

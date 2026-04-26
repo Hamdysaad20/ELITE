@@ -11,6 +11,7 @@ interface StockLevel {
   name: string;
   nameAr: string;
   section: string;
+  preferredSupplier: string | null;
   unit: string;
   unitAr: string;
   storageQty: number;
@@ -18,16 +19,24 @@ interface StockLevel {
   totalQty: number;
   minimumStock: number;
   alertLevel: number;
+  targetStock: number;
+  backupThreshold: number;
   barStatus: "ok" | "bar_empty" | "empty";
   totalStatus: "ok" | "warning" | "order_now" | "backup_order" | "empty";
   fallbackThreshold: number;
   statusReason: "minimum_stock" | "backup_threshold" | "empty" | "healthy";
+  suggestedOrderQty: number;
+  averageDailyUsage: number;
+  daysRemaining: number | null;
+  lastCountedAt: string | null;
+  auditWarnings: string[];
 }
 
 interface StockData {
   levels: StockLevel[];
   alerts: StockLevel[];
   totalItems: number;
+  suppliers: string[];
 }
 
 interface TodayActivity {
@@ -89,21 +98,47 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [sectionFilter, setSectionFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("");
+  const [missingMinimumOnly, setMissingMinimumOnly] = useState(false);
+  const [actionableOnly, setActionableOnly] = useState(false);
   const stockInsights = useMemo(() => {
-    if (!stockData) return { orderNow: 0, backupOrder: 0, warnings: 0 };
+    if (!stockData) {
+      return { orderNow: 0, backupOrder: 0, warnings: 0, audit: 0, missing: 0 };
+    }
     return {
       orderNow: stockData.levels.filter(
         (i) => i.totalStatus === "order_now" || i.totalStatus === "empty",
       ).length,
-      backupOrder: stockData.levels.filter((i) => i.totalStatus === "backup_order")
+      backupOrder: stockData.levels.filter(
+        (i) => i.totalStatus === "backup_order",
+      ).length,
+      warnings: stockData.levels.filter((i) => i.totalStatus === "warning")
         .length,
-      warnings: stockData.levels.filter((i) => i.totalStatus === "warning").length,
+      audit: stockData.levels.filter((i) => i.auditWarnings.length > 0).length,
+      missing: stockData.levels.filter((i) => i.minimumStock <= 0).length,
     };
+  }, [stockData]);
+  const orderingPlan = useMemo(() => {
+    if (!stockData) return [];
+    return stockData.levels
+      .filter((level) => level.suggestedOrderQty > 0)
+      .sort((a, b) => {
+        const supplierCompare = (a.preferredSupplier || "").localeCompare(
+          b.preferredSupplier || "",
+        );
+        if (supplierCompare !== 0) return supplierCompare;
+        return b.suggestedOrderQty - a.suggestedOrderQty;
+      });
   }, [stockData]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (sectionFilter) params.set("section", sectionFilter);
+    if (statusFilter) params.set("status", statusFilter);
+    if (supplierFilter) params.set("supplier", supplierFilter);
+    if (missingMinimumOnly) params.set("missingMinimum", "true");
+    if (actionableOnly) params.set("actionable", "true");
 
     Promise.all([
       fetch(`/api/admin/stock?${params}`).then((r) => r.json()),
@@ -123,7 +158,13 @@ export default function DashboardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [sectionFilter]);
+  }, [
+    sectionFilter,
+    statusFilter,
+    supplierFilter,
+    missingMinimumOnly,
+    actionableOnly,
+  ]);
 
   if (loading) {
     return (
@@ -248,7 +289,9 @@ export default function DashboardPage() {
                     ? "border-red-200 bg-red-50/30"
                     : a.totalStatus === "order_now"
                       ? "border-orange-200 bg-orange-50/30"
-                      : "border-amber-200 bg-amber-50/30",
+                      : a.totalStatus === "backup_order"
+                        ? "border-fuchsia-200 bg-fuchsia-50/30"
+                        : "border-amber-200 bg-amber-50/30",
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -264,6 +307,8 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-sm font-cabin text-elite-black/50">
                   {a.totalQty} {isAr ? a.unitAr : a.unit}
+                  {a.suggestedOrderQty > 0 &&
+                    ` → ${a.suggestedOrderQty} ${isAr ? a.unitAr : a.unit}`}
                 </span>
               </div>
             ))}
@@ -292,7 +337,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 min-[720px]:grid-cols-5 gap-3 mb-6">
         <div className="bg-red-50 border border-red-100 rounded-xl p-3">
           <div className="text-xs text-red-700 font-cabin">
             {t("diagram.orderNow")}
@@ -317,20 +362,128 @@ export default function DashboardPage() {
             {stockInsights.warnings}
           </div>
         </div>
+        <div className="bg-sky-50 border border-sky-100 rounded-xl p-3">
+          <div className="text-xs text-sky-700 font-cabin">
+            {t("diagram.audit")}
+          </div>
+          <div className="text-2xl text-sky-700 font-calistoga">
+            {stockInsights.audit}
+          </div>
+        </div>
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-3">
+          <div className="text-xs text-stone-700 font-cabin">
+            {t("diagram.missingMinimum")}
+          </div>
+          <div className="text-2xl text-stone-700 font-calistoga">
+            {stockInsights.missing}
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-end justify-between gap-4 mb-4">
-        <h2 className="font-calistoga text-base text-elite-burgundy">
-          {t("stockOverview")}
-        </h2>
-        <div className="w-48">
-          <SearchableSelect
-            value={sectionFilter}
-            onChange={setSectionFilter}
-            options={sectionOptions}
-            placeholder={t("allSections")}
-            searchPlaceholder={tCommon("search")}
-          />
+      {orderingPlan.length > 0 && (
+        <div className="mb-6 bg-white rounded-2xl border border-elite-burgundy/8 overflow-hidden">
+          <div className="px-4 py-3 border-b border-elite-burgundy/8">
+            <h2 className="font-calistoga text-base text-elite-burgundy">
+              {t("orderingPlan")}
+            </h2>
+            <p className="text-xs text-elite-black/45 font-cabin mt-0.5">
+              {t("orderingPlanDesc")}
+            </p>
+          </div>
+          <div className="divide-y divide-elite-burgundy/5">
+            {orderingPlan.slice(0, 20).map((level) => (
+              <div
+                key={level.itemId}
+                className="grid grid-cols-[1fr_auto_auto] gap-3 items-center px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-cabin font-medium text-elite-black truncate">
+                    {isAr ? level.nameAr : level.name}
+                  </div>
+                  <div className="text-[11px] font-cabin text-elite-black/45 truncate">
+                    {level.preferredSupplier || t("generalSupplier")} ·{" "}
+                    {tSections(level.section)}
+                  </div>
+                  {level.auditWarnings.length > 0 && (
+                    <div className="text-[11px] font-cabin text-sky-700 mt-0.5">
+                      {level.auditWarnings
+                        .map((w) => t(`audit.${w}`))
+                        .join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="text-xs font-cabin text-elite-black/50 text-end">
+                  {t("currentVsTarget", {
+                    current: level.totalQty,
+                    target: level.targetStock,
+                  })}
+                </div>
+                <div className="text-sm font-cabin font-bold text-elite-burgundy text-end">
+                  {level.suggestedOrderQty} {isAr ? level.unitAr : level.unit}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-3 mb-4">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="font-calistoga text-base text-elite-burgundy">
+            {t("stockOverview")}
+          </h2>
+          <div className="w-48">
+            <SearchableSelect
+              value={sectionFilter}
+              onChange={setSectionFilter}
+              options={sectionOptions}
+              placeholder={t("allSections")}
+              searchPlaceholder={tCommon("search")}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 min-[760px]:grid-cols-[160px_180px_auto_auto] gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-10 px-3 bg-white border border-elite-burgundy/15 rounded-xl text-sm font-cabin"
+          >
+            <option value="">{t("allStatuses")}</option>
+            <option value="empty">{t("status.empty")}</option>
+            <option value="order_now">{t("status.order_now")}</option>
+            <option value="backup_order">{t("status.backup_order")}</option>
+            <option value="warning">{t("status.warning")}</option>
+            <option value="bar_empty">{t("status.bar_empty")}</option>
+            <option value="audit">{t("auditFilter")}</option>
+          </select>
+          <select
+            value={supplierFilter}
+            onChange={(e) => setSupplierFilter(e.target.value)}
+            className="h-10 px-3 bg-white border border-elite-burgundy/15 rounded-xl text-sm font-cabin"
+          >
+            <option value="">{t("allSuppliers")}</option>
+            {stockData?.suppliers.map((supplier) => (
+              <option key={supplier} value={supplier}>
+                {supplier}
+              </option>
+            ))}
+          </select>
+          <label className="h-10 flex items-center gap-2 px-3 bg-white border border-elite-burgundy/15 rounded-xl text-sm font-cabin text-elite-black/70">
+            <input
+              type="checkbox"
+              checked={actionableOnly}
+              onChange={(e) => setActionableOnly(e.target.checked)}
+            />
+            {t("actionableOnly")}
+          </label>
+          <label className="h-10 flex items-center gap-2 px-3 bg-white border border-elite-burgundy/15 rounded-xl text-sm font-cabin text-elite-black/70">
+            <input
+              type="checkbox"
+              checked={missingMinimumOnly}
+              onChange={(e) => setMissingMinimumOnly(e.target.checked)}
+            />
+            {t("missingMinimumOnly")}
+          </label>
         </div>
       </div>
 
@@ -350,6 +503,12 @@ export default function DashboardPage() {
                 </th>
                 <th className="text-center px-3 py-3 text-[11px] uppercase tracking-wider font-medium text-elite-black/40">
                   {t("totalQty")}
+                </th>
+                <th className="text-center px-3 py-3 text-[11px] uppercase tracking-wider font-medium text-elite-black/40 hidden min-[760px]:table-cell">
+                  {t("suggestedOrder")}
+                </th>
+                <th className="text-center px-3 py-3 text-[11px] uppercase tracking-wider font-medium text-elite-black/40 hidden min-[900px]:table-cell">
+                  {t("daysRemaining")}
                 </th>
                 <th className="text-center px-3 py-3 text-[11px] uppercase tracking-wider font-medium text-elite-black/40">
                   {t("barStatus")}
@@ -388,6 +547,14 @@ export default function DashboardPage() {
                     </td>
                     <td className="text-center px-3 py-2.5 font-medium text-elite-black">
                       {level.totalQty}
+                    </td>
+                    <td className="text-center px-3 py-2.5 font-medium text-elite-burgundy hidden min-[760px]:table-cell">
+                      {level.suggestedOrderQty > 0
+                        ? `${level.suggestedOrderQty} ${isAr ? level.unitAr : level.unit}`
+                        : "—"}
+                    </td>
+                    <td className="text-center px-3 py-2.5 text-elite-black/50 hidden min-[900px]:table-cell">
+                      {level.daysRemaining !== null ? level.daysRemaining : "—"}
                     </td>
                     <td className="text-center px-3 py-2.5">
                       <span className="inline-flex items-center justify-center">

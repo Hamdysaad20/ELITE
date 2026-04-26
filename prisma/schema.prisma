@@ -48,6 +48,7 @@ model User {
   stockTransfers   StockTransfer[]  @relation("StockTransfers")
   purchases        Purchase[]       @relation("Purchases")
   wasteEntries     WasteEntry[]     @relation("WasteEntries")
+  ruleChanges      InventoryRuleChangeLog[] @relation("InventoryRuleChanges")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -808,6 +809,8 @@ model InventoryItem {
   minimumStock Decimal @default(5)
   alertLevel   Decimal @default(10)
   maximumStock Decimal @default(50)
+  backupThreshold  Decimal @default(1)
+  preferredSupplier String?
 
   lastPurchasePrice Decimal?
   avgCost           Decimal?
@@ -817,6 +820,7 @@ model InventoryItem {
   wasteEntries      WasteEntry[]
   transfers         StockTransfer[]
   stockMovements    StockMovement[]
+  ruleChangeLogs    InventoryRuleChangeLog[]
   recipeIngredients RecipeIngredient[]
 
   createdAt DateTime @default(now())
@@ -936,6 +940,25 @@ model StockMovement {
   @@index([itemId, location, createdAt])
   @@index([referenceType, referenceId])
   @@index([createdAt])
+}
+
+model InventoryRuleChangeLog {
+  id     String        @id @default(uuid())
+  itemId String
+  item   InventoryItem @relation(fields: [itemId], references: [id])
+
+  changedById String
+  changedBy   User   @relation("InventoryRuleChanges", fields: [changedById], references: [id])
+
+  field    String
+  oldValue String?
+  newValue String?
+  reason   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([itemId, createdAt(sort: Desc)])
+  @@index([changedById, createdAt(sort: Desc)])
 }
 
 model StockTransfer {
