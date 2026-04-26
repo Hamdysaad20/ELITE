@@ -10,6 +10,7 @@ export type BarStatus = "ok" | "bar_empty" | "empty";
 export type StatusReason =
   | "minimum_stock"
   | "backup_threshold"
+  | "alert_level"
   | "empty"
   | "healthy";
 
@@ -105,6 +106,7 @@ export function calculateStockLevel(
     statusReason = "backup_threshold";
   } else if (alertLevel > 0 && totalQty <= alertLevel) {
     totalStatus = "warning";
+    statusReason = "alert_level";
   }
 
   const effectiveTarget =
