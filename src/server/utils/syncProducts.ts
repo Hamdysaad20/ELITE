@@ -76,9 +76,12 @@ function normalizeProduct(
   const template =
     templateId && templateImages ? templateImages.get(templateId) : null;
 
-  // Product availability: active and sale_ok
-  // Note: available_in_pos is not used here because products can be available for both website and POS
-  const available = rec.active !== false && rec.sale_ok !== false;
+  // A product is available on the website if it is active AND either:
+  // - sale_ok (explicitly marked for sale/website), OR
+  // - available_in_pos (sold at the counter — show on website menu even if sale_ok not set)
+  const available =
+    rec.active !== false &&
+    (rec.sale_ok !== false || rec.available_in_pos === true);
 
   const attributes =
     templateId && attributesByTemplate
