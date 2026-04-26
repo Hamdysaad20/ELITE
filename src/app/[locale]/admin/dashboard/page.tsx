@@ -24,7 +24,12 @@ interface StockLevel {
   barStatus: "ok" | "bar_empty" | "empty";
   totalStatus: "ok" | "warning" | "order_now" | "backup_order" | "empty";
   fallbackThreshold: number;
-  statusReason: "minimum_stock" | "backup_threshold" | "empty" | "healthy";
+  statusReason:
+    | "minimum_stock"
+    | "backup_threshold"
+    | "alert_level"
+    | "empty"
+    | "healthy";
   suggestedOrderQty: number;
   averageDailyUsage: number;
   daysRemaining: number | null;
@@ -103,21 +108,23 @@ export default function DashboardPage() {
   const [missingMinimumOnly, setMissingMinimumOnly] = useState(false);
   const [actionableOnly, setActionableOnly] = useState(false);
   const stockInsights = useMemo(() => {
-    if (!stockData) {
-      return { orderNow: 0, backupOrder: 0, warnings: 0, audit: 0, missing: 0 };
-    }
-    return {
-      orderNow: stockData.levels.filter(
-        (i) => i.totalStatus === "order_now" || i.totalStatus === "empty",
-      ).length,
-      backupOrder: stockData.levels.filter(
-        (i) => i.totalStatus === "backup_order",
-      ).length,
-      warnings: stockData.levels.filter((i) => i.totalStatus === "warning")
-        .length,
-      audit: stockData.levels.filter((i) => i.auditWarnings.length > 0).length,
-      missing: stockData.levels.filter((i) => i.minimumStock <= 0).length,
+    const counts = {
+      orderNow: 0,
+      backupOrder: 0,
+      warnings: 0,
+      audit: 0,
+      missing: 0,
     };
+    if (!stockData) return counts;
+    for (const i of stockData.levels) {
+      if (i.totalStatus === "order_now" || i.totalStatus === "empty")
+        counts.orderNow++;
+      else if (i.totalStatus === "backup_order") counts.backupOrder++;
+      else if (i.totalStatus === "warning") counts.warnings++;
+      if (i.auditWarnings.length > 0) counts.audit++;
+      if (i.minimumStock <= 0) counts.missing++;
+    }
+    return counts;
   }, [stockData]);
   const orderingPlan = useMemo(() => {
     if (!stockData) return [];

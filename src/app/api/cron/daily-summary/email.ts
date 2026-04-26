@@ -170,10 +170,14 @@ export async function sendDailySummaryEmail(
             <td style="padding: 20px 24px 12px;">
               <h2 style="margin: 0 0 12px; color: #dc2626; font-size: 16px; font-weight: 700;">🚨 لازم يتطلب / Needs Ordering (${summary.orderNow.length})</h2>
               ${sectionTables}
-              <div style="margin-top: 12px; background-color: #f5f3ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px;">
+              ${
+                summary.orderNow.some((i) => i.reason === "backup_threshold")
+                  ? `<div style="margin-top: 12px; background-color: #f5f3ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px;">
                 <p style="margin: 0; font-size: 13px; color: #6b21a8; font-weight: 700;">📌 خطة احتياطية مؤقتة / Temporary backup rule</p>
                 <p style="margin: 6px 0 0; font-size: 12px; color: #6b21a8;">لو الحد الأدنى مش متسجل، النظام يستخدم حد احتياطي قابل للتعديل لكل صنف. If minimum stock is missing, the configured backup threshold decides whether to order.</p>
-              </div>
+              </div>`
+                  : ""
+              }
               ${
                 warningRows
                   ? `<div style="margin-top: 12px; background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px;">
