@@ -210,7 +210,7 @@ export default function TransferPage() {
                       Math.max(
                         0,
                         q -
-                          (unitUsed === "kg" || unitUsed === "liter" ? 0.5 : 1),
+                          (unitUsed === "kg" || unitUsed === "liter" ? 0.1 : 1),
                       ),
                     )
                   }
@@ -232,7 +232,7 @@ export default function TransferPage() {
                     setQuantity(
                       (q) =>
                         q +
-                        (unitUsed === "kg" || unitUsed === "liter" ? 0.5 : 1),
+                        (unitUsed === "kg" || unitUsed === "liter" ? 0.1 : 1),
                     )
                   }
                   className="w-12 h-12 rounded-2xl bg-elite-cream/60 border border-elite-burgundy/15 text-elite-burgundy text-xl font-medium flex items-center justify-center hover:bg-elite-cream transition-colors"
