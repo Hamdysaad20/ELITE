@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { redisGet, redisSet, redisDel } from "../cache/redis";
+import { redisGet, redisSet, redisSetNx, redisDel } from "../cache/redis";
 import { syncProductsFromOdoo } from "../utils/syncProducts";
 
 // Define types locally to match usage
@@ -39,6 +39,8 @@ export type Category = {
 // Hard TTL: 2 hours (Redis expiry)
 const SOFT_TTL = 30 * 60 * 1000;
 const HARD_TTL = 2 * 60 * 60; // seconds for Redis
+const VERY_STALE_TTL = 12 * 60 * 60 * 1000;
+const BYPASS_ATTEMPT_COOLDOWN_SECONDS = 60 * 60;
 
 // Categories that must never appear in any website-facing endpoint.
 // Keep in sync with the same list in api/categories/route.ts and api/products/route.ts.
@@ -88,19 +90,17 @@ async function ensureFreshness(lastUpdate: string | null) {
   const now = Date.now();
   const lastSyncTime = lastUpdate ? new Date(lastUpdate).getTime() : 0;
   const isStale = !lastUpdate || now - lastSyncTime > SOFT_TTL;
-  const veryStale = !lastUpdate || now - lastSyncTime > 12 * 60 * 60 * 1000; // 12 hours
+  const veryStale = !lastUpdate || now - lastSyncTime > VERY_STALE_TTL;
 
   let bypassCircuitBreaker = false;
   if (veryStale) {
     // Self-healing path: when data is very stale, occasionally bypass circuit breaker
     // so the system can recover without manual intervention.
-    const lastBypassAttempt = await redisGet<string>(CACHE_KEYS.LAST_BYPASS_ATTEMPT);
-    const lastBypassMs = lastBypassAttempt ? parseInt(lastBypassAttempt, 10) : 0;
-    const oneHourAgo = now - 60 * 60 * 1000;
-    if (!lastBypassMs || lastBypassMs < oneHourAgo) {
-      bypassCircuitBreaker = true;
-      await redisSet(CACHE_KEYS.LAST_BYPASS_ATTEMPT, String(now), HARD_TTL).catch(() => {});
-    }
+    bypassCircuitBreaker = await redisSetNx(
+      CACHE_KEYS.LAST_BYPASS_ATTEMPT,
+      String(now),
+      BYPASS_ATTEMPT_COOLDOWN_SECONDS,
+    ).catch(() => false);
   }
 
   if (isStale) {

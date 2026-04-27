@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from "node:crypto";
 import { isOdooConfigured, createOdooClient } from "./odooClient";
-import { redisSet, redisGet, redisSetNx, redisDel, redisIncr } from "../cache/redis";
+import {
+  redisSet,
+  redisGet,
+  redisSetNx,
+  redisDel,
+  redisIncr,
+} from "../cache/redis";
 import {
   isRequestAllowed,
   recordSuccess,
@@ -177,6 +183,7 @@ function normalizeCategory(rec: CategoryRecord) {
 const SYNC_LOCK_KEY = "sync:in_progress";
 const SYNC_LAST_ATTEMPT_KEY = "sync:last_attempt";
 const SYNC_LOCK_TTL = 300; // 5 minutes max lock duration (sync should complete faster)
+const SYNC_LOCK_TTL_MS = SYNC_LOCK_TTL * 1000;
 const SYNC_RATE_LIMIT_SECONDS = 10; // Reduced from 30s to 10s for better responsiveness
 const SYNC_TIMEOUT_MS = 250000; // 250 seconds max sync time (Vercel limit is 300s)
 const SYNC_ERROR_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours — keep last error visible post-deploy
@@ -189,7 +196,10 @@ function formatSyncError(phase: string, err: unknown): string {
   const asError = err instanceof Error ? err : new Error(String(err));
   const head = `${phase}: ${asError.message}`;
   if (!asError.stack) return head;
-  const firstStackLine = asError.stack.split("\n")[1]?.trim();
+  const firstStackLine = asError.stack
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.startsWith("at "));
   return firstStackLine ? `${head} (${firstStackLine})` : head;
 }
 
@@ -258,14 +268,21 @@ async function performSync(
 
   // Try to acquire distributed lock (atomic operation).
   // If Redis is unavailable, continue without lock and serve direct Odoo data.
-  // Admin-bypassed syncs force-release any stale lock so manual recovery is
-  // never blocked by a zombie lock left by a crashed serverless invocation.
+  // Admin-bypassed syncs may release stale locks, but active locks are respected
+  // so a recovery attempt cannot start a competing sync on another instance.
   let redisAvailable = true;
   let lockAcquired = false;
   try {
     if (bypassCircuitBreaker) {
-      // Force-release any existing lock so admin recovery always proceeds.
-      await redisDel(SYNC_LOCK_KEY).catch(() => {});
+      const lockTimestamp = await redisGet<string>(SYNC_LOCK_KEY).catch(
+        () => null,
+      );
+      const lockAge = lockTimestamp
+        ? Date.now() - Number.parseInt(lockTimestamp, 10)
+        : 0;
+      if (lockAge > SYNC_LOCK_TTL_MS) {
+        await redisDel(SYNC_LOCK_KEY).catch(() => {});
+      }
     }
     lockAcquired = await redisSetNx(
       SYNC_LOCK_KEY,
@@ -693,7 +710,9 @@ async function performSync(
       );
     }
 
-    const availableProductIds = deduplicatedProducts.map((product) => product.id);
+    const availableProductIds = deduplicatedProducts.map(
+      (product) => product.id,
+    );
 
     // Emit only canonical categories (alias categories like "Frappe" when "Frappé"
     // is canonical are skipped so both the category list and product assignments
