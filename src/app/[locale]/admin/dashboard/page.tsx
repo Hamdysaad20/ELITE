@@ -80,6 +80,13 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string }> =
     empty: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
   };
 
+function formatQuantity(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 export default function DashboardPage() {
   const locale = useLocale();
   const t = useTranslations("admin.dashboard");
@@ -313,9 +320,12 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <span className="text-sm font-cabin text-elite-black/50">
-                  {a.totalQty} {isAr ? a.unitAr : a.unit}
+                  {formatQuantity(a.totalQty, locale)}{" "}
+                  {isAr ? a.unitAr : a.unit}
                   {a.suggestedOrderQty > 0 &&
-                    ` → ${a.suggestedOrderQty} ${isAr ? a.unitAr : a.unit}`}
+                    ` -> ${formatQuantity(a.suggestedOrderQty, locale)} ${
+                      isAr ? a.unitAr : a.unit
+                    }`}
                 </span>
               </div>
             ))}
@@ -547,13 +557,16 @@ export default function DashboardPage() {
                       {isAr ? level.nameAr : level.name}
                     </td>
                     <td className="text-center px-3 py-2.5 text-elite-black/50 hidden min-[480px]:table-cell">
-                      {level.storageQty}
+                      {formatQuantity(level.storageQty, locale)}{" "}
+                      {isAr ? level.unitAr : level.unit}
                     </td>
                     <td className="text-center px-3 py-2.5 text-elite-black/50 hidden min-[480px]:table-cell">
-                      {level.barQty}
+                      {formatQuantity(level.barQty, locale)}{" "}
+                      {isAr ? level.unitAr : level.unit}
                     </td>
                     <td className="text-center px-3 py-2.5 font-medium text-elite-black">
-                      {level.totalQty}
+                      {formatQuantity(level.totalQty, locale)}{" "}
+                      {isAr ? level.unitAr : level.unit}
                     </td>
                     <td className="text-center px-3 py-2.5 font-medium text-elite-burgundy hidden min-[760px]:table-cell">
                       {level.suggestedOrderQty > 0

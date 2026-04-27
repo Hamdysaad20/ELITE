@@ -72,7 +72,7 @@ export default function StorageCountPage() {
 
   const step = useCallback(
     (itemId: string, delta: number, itemUnit: string) => {
-      const inc = itemUnit === "kg" || itemUnit === "liter" ? 0.5 : 1;
+      const inc = itemUnit === "kg" || itemUnit === "liter" ? 0.1 : 1;
       setEntries((prev) => ({
         ...prev,
         [itemId]: Math.max(0, (prev[itemId] ?? 0) + delta * inc),

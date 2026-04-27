@@ -23,6 +23,17 @@ const createCountSchema = z.object({
   submit: z.boolean().default(false),
 });
 
+type ParsedEntry = z.infer<typeof entrySchema>;
+
+function calculateTotalQuantity(
+  entry: ParsedEntry,
+  item: { packSize: number },
+): number {
+  if (entry.quantity > 0) return entry.quantity;
+  const packSize = item.packSize > 0 ? item.packSize : 1;
+  return entry.packsCount * packSize + entry.looseSingles;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireRole(req, [
@@ -144,25 +155,37 @@ export async function POST(req: NextRequest) {
       submit,
     } = parsed.data;
     const canOverrideCounts = user.role === "head_barista";
-    const today = new Date(new Date().toISOString().split("T")[0]);
-    const itemPackSizes = new Map(
-      (
-        await prisma.inventoryItem.findMany({
-          where: { id: { in: entries.map((entry) => entry.itemId) } },
-          select: { id: true, packSize: true },
-        })
-      ).map((item) => [item.id, item.packSize]),
-    );
-    const entryCreates = entries.map((e) => {
-      const packSize = itemPackSizes.get(e.itemId) || 1;
+
+    const itemIds = Array.from(new Set(entries.map((entry) => entry.itemId)));
+    const inventoryItems = await prisma.inventoryItem.findMany({
+      where: { id: { in: itemIds } },
+      select: { id: true, packSize: true },
+    });
+    const itemById = new Map(inventoryItems.map((item) => [item.id, item]));
+
+    if (inventoryItems.length !== itemIds.length) {
+      return NextResponse.json(
+        { success: false, error: "One or more items were not found" },
+        { status: 404 },
+      );
+    }
+
+    const normalizedEntries = entries.map((entry) => {
+      const item = itemById.get(entry.itemId);
+      if (!item) {
+        throw new Error(`Missing inventory item ${entry.itemId}`);
+      }
+
       return {
-        itemId: e.itemId,
-        packsCount: e.packsCount,
-        looseSingles: e.looseSingles,
-        quantity: e.quantity,
-        totalQuantity: e.quantity || e.packsCount * packSize + e.looseSingles,
+        itemId: entry.itemId,
+        packsCount: entry.packsCount,
+        looseSingles: entry.looseSingles,
+        quantity: entry.quantity,
+        totalQuantity: calculateTotalQuantity(entry, item),
       };
     });
+
+    const today = new Date(new Date().toISOString().split("T")[0]);
 
     const existingSubmitted = await prisma.inventoryCount.findFirst({
       where: {
@@ -235,7 +258,7 @@ export async function POST(req: NextRequest) {
           status: submit ? "submitted" : "draft",
           submittedAt: submit ? new Date() : null,
           entries: {
-            create: entryCreates,
+            create: normalizedEntries,
           },
         },
         include: { entries: true },
@@ -265,7 +288,7 @@ export async function POST(req: NextRequest) {
             notes,
             shortageNotes,
             wasteNotes,
-            entries: entryCreates,
+            entries: normalizedEntries,
             status: submit ? "submitted" : "draft",
           },
         },
@@ -295,7 +318,7 @@ export async function POST(req: NextRequest) {
         shortageNotes,
         wasteNotes,
         entries: {
-          create: entryCreates,
+          create: normalizedEntries,
         },
       },
       include: { entries: true },
