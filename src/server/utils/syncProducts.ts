@@ -178,7 +178,7 @@ const SYNC_LOCK_KEY = "sync:in_progress";
 const SYNC_LAST_ATTEMPT_KEY = "sync:last_attempt";
 const SYNC_LOCK_TTL = 300; // 5 minutes max lock duration (sync should complete faster)
 const SYNC_RATE_LIMIT_SECONDS = 10; // Reduced from 30s to 10s for better responsiveness
-const SYNC_TIMEOUT_MS = 120000; // 2 minutes max sync time (prevents hanging)
+const SYNC_TIMEOUT_MS = 250000; // 250 seconds max sync time (Vercel limit is 300s)
 
 // Batch size limits for pagination
 const DEFAULT_BATCH_SIZE = 1000; // Products per batch
