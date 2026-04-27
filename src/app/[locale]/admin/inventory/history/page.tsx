@@ -15,6 +15,15 @@ interface CountEntry {
   status: string;
   notes: string | null;
   shortageNotes: string | null;
+  varianceNotes: string | null;
+  hasVarianceAlert: boolean;
+  correctionOfId: string | null;
+  correctionOf?: {
+    id: string;
+    countedBy: { name: string | null; email: string };
+    createdAt: string;
+    submittedAt: string | null;
+  } | null;
   countedBy: { name: string | null; email: string };
   entries: Array<{ itemId: string; totalQuantity: number }>;
   submittedAt: string | null;
@@ -439,6 +448,16 @@ export default function HistoryPage() {
                         <span className="text-xs font-cabin text-elite-black/60">
                           {c.countedBy.name || c.countedBy.email}
                         </span>
+                        {c.correctionOfId && (
+                          <>
+                            <span className="text-xs font-cabin text-elite-black/50">
+                              ·
+                            </span>
+                            <span className="text-xs font-cabin text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                              {t("overrideBadge")}
+                            </span>
+                          </>
+                        )}
                       </div>
                       <span
                         className={cn(
@@ -468,6 +487,20 @@ export default function HistoryPage() {
                     {c.shortageNotes && (
                       <p className="mt-2 text-xs font-cabin text-amber-700 bg-amber-50 rounded-xl px-3 py-2">
                         {c.shortageNotes}
+                      </p>
+                    )}
+                    {c.correctionOf && (
+                      <p className="mt-2 text-xs font-cabin text-purple-700 bg-purple-50 rounded-xl px-3 py-2">
+                        {t("overrideOf", {
+                          user:
+                            c.correctionOf.countedBy.name ||
+                            c.correctionOf.countedBy.email,
+                        })}
+                      </p>
+                    )}
+                    {c.hasVarianceAlert && c.varianceNotes && (
+                      <p className="mt-2 text-xs font-cabin text-red-700 bg-red-50 rounded-xl px-3 py-2">
+                        {c.varianceNotes}
                       </p>
                     )}
                   </div>

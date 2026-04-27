@@ -2163,7 +2163,9 @@
         "submitted": "مسلّم",
         "reviewed": "تم المراجعة",
         "flagged": "محتاج متابعة"
-      }
+      },
+      "overrideBadge": "تعديل",
+      "overrideOf": "تعديل على جرد سابق بواسطة {user}"
     },
     "items": {
       "title": "كتالوج الأصناف",
