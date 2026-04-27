@@ -20,6 +20,12 @@ const CIRCUIT_BREAKER_KEY = "circuit:odoo:state";
 const CIRCUIT_BREAKER_FAILURES_KEY = "circuit:odoo:failures";
 const CIRCUIT_BREAKER_SUCCESSES_KEY = "circuit:odoo:successes";
 const CIRCUIT_BREAKER_OPENED_AT_KEY = "circuit:odoo:opened_at";
+const CIRCUIT_BREAKER_LAST_ERROR_KEY = "circuit:odoo:last_error";
+const CIRCUIT_BREAKER_LAST_ERROR_AT_KEY = "circuit:odoo:last_error_at";
+
+// How long to retain the last error message in Redis (24 h) so it survives
+// across multiple deploy cycles and is still visible after the circuit closes.
+const ERROR_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours
 
 export enum CircuitState {
   CLOSED = "closed", // Normal operation
@@ -97,13 +103,31 @@ export async function recordSuccess(
 }
 
 /**
- * Record a failed Odoo operation
+ * Record a failed Odoo operation.
+ * @param config - Circuit breaker configuration
+ * @param errorMessage - Optional error message to persist for diagnostics (visible via getCircuitStatus)
  */
 export async function recordFailure(
   config: CircuitBreakerConfig = DEFAULT_CONFIG,
+  errorMessage?: string,
 ): Promise<void> {
   try {
     const currentState = await getCircuitState();
+
+    // Always persist the last error so operators can diagnose without log access
+    if (errorMessage) {
+      await Promise.all([
+        redisSet(CIRCUIT_BREAKER_LAST_ERROR_KEY, errorMessage, ERROR_RETENTION_SECONDS),
+        redisSet(
+          CIRCUIT_BREAKER_LAST_ERROR_AT_KEY,
+          Date.now().toString(),
+          ERROR_RETENTION_SECONDS,
+        ),
+      ]).catch((err) => {
+        // Best-effort — don't let storage failures mask the real error
+        console.warn("[CIRCUIT-BREAKER] Failed to persist last error:", err);
+      });
+    }
 
     if (currentState === CircuitState.HALF_OPEN) {
       // Failure in half-open immediately opens circuit
@@ -201,20 +225,27 @@ export async function getCircuitStatus(): Promise<{
   failures: number;
   successes: number;
   openedAt: number | null;
+  lastError: string | null;
+  lastErrorAt: number | null;
 }> {
   try {
-    const [state, failures, successes, openedAtStr] = await Promise.all([
-      getCircuitState(),
-      redisGet<number>(CIRCUIT_BREAKER_FAILURES_KEY),
-      redisGet<number>(CIRCUIT_BREAKER_SUCCESSES_KEY),
-      redisGet<string>(CIRCUIT_BREAKER_OPENED_AT_KEY),
-    ]);
+    const [state, failures, successes, openedAtStr, lastError, lastErrorAtStr] =
+      await Promise.all([
+        getCircuitState(),
+        redisGet<number>(CIRCUIT_BREAKER_FAILURES_KEY),
+        redisGet<number>(CIRCUIT_BREAKER_SUCCESSES_KEY),
+        redisGet<string>(CIRCUIT_BREAKER_OPENED_AT_KEY),
+        redisGet<string>(CIRCUIT_BREAKER_LAST_ERROR_KEY),
+        redisGet<string>(CIRCUIT_BREAKER_LAST_ERROR_AT_KEY),
+      ]);
 
     return {
       state,
       failures: failures || 0,
       successes: successes || 0,
       openedAt: openedAtStr ? parseInt(openedAtStr, 10) : null,
+      lastError: lastError || null,
+      lastErrorAt: lastErrorAtStr ? parseInt(lastErrorAtStr, 10) : null,
     };
   } catch (err) {
     console.warn("[CIRCUIT-BREAKER] Failed to get status:", err);
@@ -223,6 +254,8 @@ export async function getCircuitStatus(): Promise<{
       failures: 0,
       successes: 0,
       openedAt: null,
+      lastError: null,
+      lastErrorAt: null,
     };
   }
 }
@@ -237,6 +270,8 @@ export async function resetCircuitBreaker(): Promise<void> {
       redisDel(CIRCUIT_BREAKER_FAILURES_KEY),
       redisDel(CIRCUIT_BREAKER_SUCCESSES_KEY),
       redisDel(CIRCUIT_BREAKER_OPENED_AT_KEY),
+      redisDel(CIRCUIT_BREAKER_LAST_ERROR_KEY),
+      redisDel(CIRCUIT_BREAKER_LAST_ERROR_AT_KEY),
     ]);
     console.log("[CIRCUIT-BREAKER] Manually reset to CLOSED");
   } catch (err) {

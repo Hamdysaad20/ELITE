@@ -21,6 +21,10 @@ export async function GET(_req: NextRequest) {
         openedAt: status.openedAt
           ? new Date(status.openedAt).toISOString()
           : null,
+        lastError: status.lastError || null,
+        lastErrorAt: status.lastErrorAt
+          ? new Date(status.lastErrorAt).toISOString()
+          : null,
       }),
     );
   } catch (err) {

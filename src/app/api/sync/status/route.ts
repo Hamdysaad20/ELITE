@@ -10,10 +10,15 @@ import { getCircuitStatus } from "@/server/utils/circuitBreaker";
 
 export async function GET(_req: NextRequest) {
   try {
-    const [lastUpdate, circuitStatus] = await Promise.all([
-      redisGet<string>("sync:last_update"),
-      getCircuitStatus(),
-    ]);
+    const [lastUpdate, circuitStatus, totalSuccessesRaw, totalFailuresRaw, lastSyncError, lastSyncErrorAtRaw] =
+      await Promise.all([
+        redisGet<string>("sync:last_update"),
+        getCircuitStatus(),
+        redisGet<number>("sync:total_successes"),
+        redisGet<number>("sync:total_failures"),
+        redisGet<string>("sync:last_error"),
+        redisGet<string>("sync:last_error_at"),
+      ]);
 
     let queueCounts: Record<string, number> | null = null;
     if (odooQueue) {
@@ -28,6 +33,12 @@ export async function GET(_req: NextRequest) {
     return jsonResponse(
       successResponse({
         lastUpdate: lastUpdate || null,
+        totalSuccesses: totalSuccessesRaw ?? 0,
+        totalFailures: totalFailuresRaw ?? 0,
+        lastError: lastSyncError || null,
+        lastErrorAt: lastSyncErrorAtRaw
+          ? new Date(parseInt(lastSyncErrorAtRaw, 10)).toISOString()
+          : null,
         queue: queueCounts,
         circuitBreaker: {
           state: circuitStatus.state,
@@ -35,6 +46,10 @@ export async function GET(_req: NextRequest) {
           successes: circuitStatus.successes,
           openedAt: circuitStatus.openedAt
             ? new Date(circuitStatus.openedAt).toISOString()
+            : null,
+          lastError: circuitStatus.lastError || null,
+          lastErrorAt: circuitStatus.lastErrorAt
+            ? new Date(circuitStatus.lastErrorAt).toISOString()
             : null,
         },
       }),

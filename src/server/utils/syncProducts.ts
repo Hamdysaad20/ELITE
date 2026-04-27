@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from "node:crypto";
 import { isOdooConfigured, createOdooClient } from "./odooClient";
-import { redisSet, redisGet, redisSetNx, redisDel } from "../cache/redis";
+import { redisSet, redisGet, redisSetNx, redisDel, redisIncr } from "../cache/redis";
 import {
   isRequestAllowed,
   recordSuccess,
@@ -179,6 +179,7 @@ const SYNC_LAST_ATTEMPT_KEY = "sync:last_attempt";
 const SYNC_LOCK_TTL = 300; // 5 minutes max lock duration (sync should complete faster)
 const SYNC_RATE_LIMIT_SECONDS = 10; // Reduced from 30s to 10s for better responsiveness
 const SYNC_TIMEOUT_MS = 250000; // 250 seconds max sync time (Vercel limit is 300s)
+const SYNC_ERROR_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours — keep last error visible post-deploy
 
 // Batch size limits for pagination
 const DEFAULT_BATCH_SIZE = 1000; // Products per batch
@@ -235,9 +236,15 @@ async function performSync(
 
   // Try to acquire distributed lock (atomic operation).
   // If Redis is unavailable, continue without lock and serve direct Odoo data.
+  // Admin-bypassed syncs force-release any stale lock so manual recovery is
+  // never blocked by a zombie lock left by a crashed serverless invocation.
   let redisAvailable = true;
   let lockAcquired = false;
   try {
+    if (bypassCircuitBreaker) {
+      // Force-release any existing lock so admin recovery always proceeds.
+      await redisDel(SYNC_LOCK_KEY).catch(() => {});
+    }
     lockAcquired = await redisSetNx(
       SYNC_LOCK_KEY,
       Date.now().toString(),
@@ -253,8 +260,9 @@ async function performSync(
     return { success: false, error: "Sync already in progress" };
   }
 
-  // Check rate limiting using Redis (works across instances)
-  if (redisAvailable) {
+  // Check rate limiting using Redis (works across instances).
+  // Admin-bypassed syncs skip this check so manual recovery is never silently blocked.
+  if (redisAvailable && !bypassCircuitBreaker) {
     try {
       const lastAttemptStr = await redisGet<string>(SYNC_LAST_ATTEMPT_KEY);
       if (lastAttemptStr) {
@@ -388,8 +396,9 @@ async function performSync(
         `[AUTO-SYNC] Fetched ${productsRaw.length} products, ${categoriesRaw.length} categories`,
       );
     } catch (err) {
-      // Record failure for circuit breaker
-      await recordFailure();
+      // Record failure for circuit breaker with the error message for diagnostics
+      const errMsg = err instanceof Error ? err.message : String(err);
+      await recordFailure(undefined, errMsg);
       throw err;
     }
 
@@ -433,7 +442,8 @@ async function performSync(
         ]);
         await recordSuccess(); // Record success for additional Odoo calls
       } catch (err) {
-        await recordFailure();
+        const errMsg = err instanceof Error ? err.message : String(err);
+        await recordFailure(undefined, errMsg);
         throw err;
       }
     }
@@ -791,6 +801,9 @@ async function performSync(
         );
       }
 
+      // Increment persistent success counter (used by /api/sync/status to confirm recovery)
+      redisIncr("sync:total_successes").catch(() => {});
+
       try {
         const notificationResult =
           await markOrderingResumedForAvailableProducts(availableProductIds);
@@ -827,6 +840,13 @@ async function performSync(
   } catch (err: any) {
     const msg = err?.message || "Failed to sync products";
     console.error("[AUTO-SYNC] Error:", msg, err);
+    // Persist the last sync-level error (covers non-Odoo errors like config/init failures
+    // that bypass the circuit-breaker recordFailure path) so /api/sync/status exposes it.
+    await Promise.all([
+      redisSet("sync:last_error", msg, SYNC_ERROR_RETENTION_SECONDS),
+      redisSet("sync:last_error_at", Date.now().toString(), SYNC_ERROR_RETENTION_SECONDS),
+      redisIncr("sync:total_failures"),
+    ]).catch(() => {});
     return { success: false, error: msg };
   } finally {
     // Release lock only when it was actually acquired.
