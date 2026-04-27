@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { redisGet, redisSet, redisDel } from "../cache/redis";
 import { syncProductsFromOdoo } from "../utils/syncProducts";
 
@@ -88,19 +89,26 @@ async function ensureFreshness(lastUpdate: string | null) {
   const isStale = !lastUpdate || now - lastSyncTime > SOFT_TTL;
 
   if (isStale) {
-    console.log("[CACHE] Data is stale, triggering background sync...");
-    // syncProductsFromOdoo manages its own distributed lock — do not pre-acquire it here
-    syncProductsFromOdoo()
-      .then((result) => {
+    console.log("[CACHE] Data is stale, scheduling background sync...");
+    // Use after() so Vercel keeps the function alive until the sync completes.
+    // Falls back to fire-and-forget if called outside a request context (e.g. tests).
+    const runSync = async () => {
+      try {
+        const result = await syncProductsFromOdoo();
         if (result.success) {
           console.log("[CACHE] Background sync completed");
         } else {
           console.error("[CACHE] Background sync failed:", result.error);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("[CACHE] Background sync error:", err);
-      });
+      }
+    };
+    try {
+      after(runSync);
+    } catch {
+      runSync();
+    }
   }
 }
 
