@@ -185,6 +185,27 @@ const SYNC_ERROR_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours — keep last err
 const DEFAULT_BATCH_SIZE = 1000; // Products per batch
 const MAX_BATCH_SIZE = 5000; // Hard limit to prevent memory issues
 
+function formatSyncError(phase: string, err: unknown): string {
+  const asError = err instanceof Error ? err : new Error(String(err));
+  const head = `${phase}: ${asError.message}`;
+  if (!asError.stack) return head;
+  const firstStackLine = asError.stack.split("\n")[1]?.trim();
+  return firstStackLine ? `${head} (${firstStackLine})` : head;
+}
+
+async function persistSyncError(phase: string, err: unknown): Promise<void> {
+  const msg = formatSyncError(phase, err);
+  await Promise.all([
+    redisSet("sync:last_error", msg, SYNC_ERROR_RETENTION_SECONDS),
+    redisSet(
+      "sync:last_error_at",
+      Date.now().toString(),
+      SYNC_ERROR_RETENTION_SECONDS,
+    ),
+    redisIncr("sync:total_failures"),
+  ]).catch(() => {});
+}
+
 /**
  * Wrapper to add timeout to sync operation
  */
@@ -209,9 +230,10 @@ export async function syncProductsFromOdoo(options?: {
     `Sync operation timed out after ${SYNC_TIMEOUT_MS}ms`,
   ).catch((err) => {
     console.error("[AUTO-SYNC] Sync timeout or error:", err);
+    void persistSyncError("sync-timeout-wrapper", err);
     return {
       success: false,
-      error: err instanceof Error ? err.message : String(err),
+      error: formatSyncError("sync-timeout-wrapper", err),
     };
   });
 }
@@ -397,7 +419,7 @@ async function performSync(
       );
     } catch (err) {
       // Record failure for circuit breaker with the error message for diagnostics
-      const errMsg = err instanceof Error ? err.message : String(err);
+      const errMsg = formatSyncError("fetch-products-categories", err);
       await recordFailure(undefined, errMsg);
       throw err;
     }
@@ -442,7 +464,7 @@ async function performSync(
         ]);
         await recordSuccess(); // Record success for additional Odoo calls
       } catch (err) {
-        const errMsg = err instanceof Error ? err.message : String(err);
+        const errMsg = formatSyncError("fetch-templates-attributes", err);
         await recordFailure(undefined, errMsg);
         throw err;
       }
@@ -637,7 +659,41 @@ async function performSync(
       )
       .filter((p) => p.available !== false); // Final filter to exclude inactive/unavailable products
 
-    const availableProductIds = products.map((product) => product.id);
+    // Final defensive dedup to avoid residual duplicate records leaking to website cache.
+    const normalizedWebsiteName = (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/\s+/g, " ");
+
+    const productsByWebsiteKey = new Map<string, (typeof products)[number]>();
+    for (const product of products) {
+      const key = `${product.categoryId ?? "no-category"}::${normalizedWebsiteName(product.name)}`;
+      const existing = productsByWebsiteKey.get(key);
+      if (!existing) {
+        productsByWebsiteKey.set(key, product);
+        continue;
+      }
+      const existingImageCount = existing.images?.length ?? 0;
+      const currentImageCount = product.images?.length ?? 0;
+      if (
+        currentImageCount > existingImageCount ||
+        (currentImageCount === existingImageCount &&
+          Number(product.id) < Number(existing.id))
+      ) {
+        productsByWebsiteKey.set(key, product);
+      }
+    }
+    const deduplicatedProducts = Array.from(productsByWebsiteKey.values());
+    if (deduplicatedProducts.length !== products.length) {
+      console.log(
+        `[SYNC] Final website dedup removed ${products.length - deduplicatedProducts.length} duplicate(s)`,
+      );
+    }
+
+    const availableProductIds = deduplicatedProducts.map((product) => product.id);
 
     // Emit only canonical categories (alias categories like "Frappe" when "Frappé"
     // is canonical are skipped so both the category list and product assignments
@@ -656,7 +712,7 @@ async function performSync(
 
     const etag = crypto
       .createHash("sha1")
-      .update(JSON.stringify(products))
+      .update(JSON.stringify(deduplicatedProducts))
       .digest("hex");
     const lastUpdate = new Date().toISOString();
 
@@ -668,7 +724,7 @@ async function performSync(
     // Note: We don't delete all keys to avoid race conditions, but we overwrite the main ones
     if (redisAvailable) {
       console.log(
-        `[AUTO-SYNC] Caching ${products.length} products, ${categories.length} categories`,
+        `[AUTO-SYNC] Caching ${deduplicatedProducts.length} products, ${categories.length} categories`,
       );
     } else {
       console.warn(
@@ -697,8 +753,8 @@ async function performSync(
     let cachedCount = 0;
 
     if (redisAvailable) {
-      for (let i = 0; i < products.length; i += chunkSize) {
-        const chunk = products.slice(i, i + chunkSize);
+      for (let i = 0; i < deduplicatedProducts.length; i += chunkSize) {
+        const chunk = deduplicatedProducts.slice(i, i + chunkSize);
         const chunkResults = await Promise.all(
           chunk.map(async (p) => {
             try {
@@ -722,7 +778,7 @@ async function performSync(
       try {
         // Create lightweight summaries for the list view
         // Use the thumbnail as the main image to reduce payload size (50MB -> <2MB)
-        const productSummaries = products.map((p: any) => {
+        const productSummaries = deduplicatedProducts.map((p: any) => {
           const { thumbnail, images, ...rest } = p;
           return {
             ...rest,
@@ -742,12 +798,12 @@ async function performSync(
 
     if (cacheErrors.length > 0) {
       console.warn(
-        `[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors), but ${cachedCount}/${products.length} products cached`,
+        `[AUTO-SYNC] Some cache writes failed (${cacheErrors.length} errors), but ${cachedCount}/${deduplicatedProducts.length} products cached`,
       );
     }
 
     const pageSize = 50;
-    const summaries = products.slice(0, pageSize).map((p) => ({
+    const summaries = deduplicatedProducts.slice(0, pageSize).map((p) => ({
       id: p.id,
       name: p.name,
       price: p.price,
@@ -786,14 +842,16 @@ async function performSync(
 
     // Consider sync successful when either cache write succeeds or direct Odoo data exists.
     const directDataAvailable =
-      products.length > 0 || (products.length === 0 && categories.length > 0);
+      deduplicatedProducts.length > 0 ||
+      (deduplicatedProducts.length === 0 && categories.length > 0);
     const isSuccess = redisAvailable
-      ? cachedCount > 0 || (products.length === 0 && categories.length > 0)
+      ? cachedCount > 0 ||
+        (deduplicatedProducts.length === 0 && categories.length > 0)
       : directDataAvailable;
 
     if (isSuccess) {
       console.log(
-        `[AUTO-SYNC] Completed: ${cachedCount}/${products.length} products, ${categories.length} categories cached`,
+        `[AUTO-SYNC] Completed: ${cachedCount}/${deduplicatedProducts.length} products, ${categories.length} categories cached`,
       );
       if (cacheErrors.length > 0) {
         console.warn(
@@ -826,27 +884,23 @@ async function performSync(
     return {
       success: true,
       data: {
-        products: products.length,
+        products: deduplicatedProducts.length,
         categories: categories.length,
         lastUpdate,
         etag,
         fallbackCatalog: {
-          products,
+          products: deduplicatedProducts,
           categories,
           lastUpdate,
         },
       },
     };
   } catch (err: any) {
-    const msg = err?.message || "Failed to sync products";
+    const msg = formatSyncError("perform-sync", err);
     console.error("[AUTO-SYNC] Error:", msg, err);
     // Persist the last sync-level error (covers non-Odoo errors like config/init failures
     // that bypass the circuit-breaker recordFailure path) so /api/sync/status exposes it.
-    await Promise.all([
-      redisSet("sync:last_error", msg, SYNC_ERROR_RETENTION_SECONDS),
-      redisSet("sync:last_error_at", Date.now().toString(), SYNC_ERROR_RETENTION_SECONDS),
-      redisIncr("sync:total_failures"),
-    ]).catch(() => {});
+    await persistSyncError("perform-sync", err);
     return { success: false, error: msg };
   } finally {
     // Release lock only when it was actually acquired.

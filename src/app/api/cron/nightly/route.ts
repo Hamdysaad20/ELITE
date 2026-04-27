@@ -13,6 +13,7 @@ import {
   successResponse,
   errorResponse,
 } from "@/server/utils/apiHelpers";
+import { syncProductsFromOdoo } from "@/server/utils/syncProducts";
 
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -34,17 +35,17 @@ export async function GET(request: NextRequest) {
     authorization: `Bearer ${cronSecret}`,
   };
 
-  const adminToken = process.env.ADMIN_TOKEN;
   const results: Record<string, unknown> = {};
 
   // 1. Product sync
   try {
-    const res = await fetch(`${base}/api/sync/products`, {
-      method: "POST",
-      headers: { "x-admin-token": adminToken ?? "" },
-    });
-    results.productSync = { status: res.status, ok: res.ok };
-    console.log("[cron:nightly] product-sync:", res.status);
+    const syncResult = await syncProductsFromOdoo({ bypassCircuitBreaker: true });
+    results.productSync = {
+      ok: syncResult.success,
+      error: syncResult.error ?? null,
+      data: syncResult.data ?? null,
+    };
+    console.log("[cron:nightly] product-sync:", syncResult.success ? "ok" : "failed");
   } catch (err) {
     results.productSync = {
       error: err instanceof Error ? err.message : String(err),

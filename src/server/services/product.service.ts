@@ -24,6 +24,7 @@ const CACHE_KEYS = {
   DATA: "products:all",
   TIMESTAMP: "sync:last_update",
   LOCK: "sync:in_progress", // Must match SYNC_LOCK_KEY in syncProducts.ts
+  LAST_BYPASS_ATTEMPT: "sync:last_bypass_attempt",
   CATEGORIES: "categories:list",
   VERSION: "cache:version",
 };
@@ -87,6 +88,20 @@ async function ensureFreshness(lastUpdate: string | null) {
   const now = Date.now();
   const lastSyncTime = lastUpdate ? new Date(lastUpdate).getTime() : 0;
   const isStale = !lastUpdate || now - lastSyncTime > SOFT_TTL;
+  const veryStale = !lastUpdate || now - lastSyncTime > 12 * 60 * 60 * 1000; // 12 hours
+
+  let bypassCircuitBreaker = false;
+  if (veryStale) {
+    // Self-healing path: when data is very stale, occasionally bypass circuit breaker
+    // so the system can recover without manual intervention.
+    const lastBypassAttempt = await redisGet<string>(CACHE_KEYS.LAST_BYPASS_ATTEMPT);
+    const lastBypassMs = lastBypassAttempt ? parseInt(lastBypassAttempt, 10) : 0;
+    const oneHourAgo = now - 60 * 60 * 1000;
+    if (!lastBypassMs || lastBypassMs < oneHourAgo) {
+      bypassCircuitBreaker = true;
+      await redisSet(CACHE_KEYS.LAST_BYPASS_ATTEMPT, String(now), HARD_TTL).catch(() => {});
+    }
+  }
 
   if (isStale) {
     console.log("[CACHE] Data is stale, scheduling background sync...");
@@ -94,7 +109,7 @@ async function ensureFreshness(lastUpdate: string | null) {
     // Falls back to fire-and-forget if called outside a request context (e.g. tests).
     const runSync = async () => {
       try {
-        const result = await syncProductsFromOdoo();
+        const result = await syncProductsFromOdoo({ bypassCircuitBreaker });
         if (result.success) {
           console.log("[CACHE] Background sync completed");
         } else {
