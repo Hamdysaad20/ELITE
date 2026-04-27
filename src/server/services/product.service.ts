@@ -1,4 +1,4 @@
-import { redisGet, redisSet, redisDel, redisSetNx } from "../cache/redis";
+import { redisGet, redisSet, redisDel } from "../cache/redis";
 import { syncProductsFromOdoo } from "../utils/syncProducts";
 
 // Define types locally to match usage
@@ -88,36 +88,19 @@ async function ensureFreshness(lastUpdate: string | null) {
   const isStale = !lastUpdate || now - lastSyncTime > SOFT_TTL;
 
   if (isStale) {
-    // Use atomic lock to prevent race conditions (multiple requests triggering syncs)
-    // Lock expires in 5 minutes (sync should complete faster, but protects against crashes)
-    const lockAcquired = await redisSetNx(
-      CACHE_KEYS.LOCK,
-      Date.now().toString(),
-      300,
-    ).catch(() => false);
-
-    if (lockAcquired) {
-      console.log("[CACHE] Data is stale, triggering background sync...");
-      // Don't await - run in background
-      syncProductsFromOdoo()
-        .then((result) => {
-          if (result.success) {
-            console.log("[CACHE] Background sync completed");
-          } else {
-            console.error("[CACHE] Background sync failed:", result.error);
-          }
-        })
-        .catch((err) => {
-          console.error("[CACHE] Background sync error:", err);
-        })
-        .finally(() => {
-          // Clean up lock (best effort, lock also has TTL as safety)
-          redisDel(CACHE_KEYS.LOCK).catch(() => {
-            // Ignore cleanup errors - TTL will handle it
-          });
-        });
-    }
-    // If lock not acquired, another request is already syncing - that's fine
+    console.log("[CACHE] Data is stale, triggering background sync...");
+    // syncProductsFromOdoo manages its own distributed lock — do not pre-acquire it here
+    syncProductsFromOdoo()
+      .then((result) => {
+        if (result.success) {
+          console.log("[CACHE] Background sync completed");
+        } else {
+          console.error("[CACHE] Background sync failed:", result.error);
+        }
+      })
+      .catch((err) => {
+        console.error("[CACHE] Background sync error:", err);
+      });
   }
 }
 
