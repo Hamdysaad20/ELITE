@@ -47,20 +47,44 @@ export async function reconcileSubmittedInventoryCount(
     })
     .filter((entry) => entry.delta !== 0);
 
-  if (movements.length === 0) return { created: 0, skipped: false };
+  if (movements.length === 0) {
+    await prisma.inventoryCount.update({
+      where: { id: count.id },
+      data: {
+        hasVarianceAlert: false,
+        varianceNotes: null,
+      },
+    });
+    return { created: 0, skipped: false };
+  }
 
-  await prisma.stockMovement.createMany({
-    data: movements.map((movement) => ({
-      itemId: movement.itemId,
-      location: count.location,
-      type: "count_reconciliation",
-      quantity: movement.delta,
-      referenceType: "inventory_count",
-      referenceId: count.id,
-      note: `Reconciled ${count.location} stock to submitted count`,
-      recordedById,
-    })),
-  });
+  const totalVariance = movements.reduce(
+    (sum, movement) => sum + Math.abs(movement.delta),
+    0,
+  );
+  const netVariance = movements.reduce((sum, movement) => sum + movement.delta, 0);
+
+  await prisma.$transaction([
+    prisma.stockMovement.createMany({
+      data: movements.map((movement) => ({
+        itemId: movement.itemId,
+        location: count.location,
+        type: "count_reconciliation",
+        quantity: movement.delta,
+        referenceType: "inventory_count",
+        referenceId: count.id,
+        note: `Reconciled ${count.location} stock to submitted count`,
+        recordedById,
+      })),
+    }),
+    prisma.inventoryCount.update({
+      where: { id: count.id },
+      data: {
+        hasVarianceAlert: true,
+        varianceNotes: `System variance detected (${movements.length} items, total change ${totalVariance.toFixed(2)}, net ${netVariance.toFixed(2)}). Verify all withdrawals were logged via transfer page.`,
+      },
+    }),
+  ]);
 
   return { created: movements.length, skipped: false };
 }

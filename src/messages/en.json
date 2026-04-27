@@ -2163,7 +2163,9 @@
         "submitted": "Submitted",
         "reviewed": "Reviewed",
         "flagged": "Flagged"
-      }
+      },
+      "overrideBadge": "Override",
+      "overrideOf": "Overwrote previous count by {user}"
     },
     "items": {
       "title": "Item Catalog",

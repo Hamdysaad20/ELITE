@@ -58,6 +58,16 @@ export async function GET(req: NextRequest) {
         shortageNotes: true,
         wasteNotes: true,
         hasVarianceAlert: true,
+        varianceNotes: true,
+        correctionOfId: true,
+        correctionOf: {
+          select: {
+            id: true,
+            countedBy: { select: { name: true, email: true } },
+            createdAt: true,
+            submittedAt: true,
+          },
+        },
         countedBy: { select: { name: true, email: true } },
         entries: {
           select: {
@@ -123,6 +133,7 @@ export async function POST(req: NextRequest) {
       wasteNotes,
       submit,
     } = parsed.data;
+    const canOverrideCounts = user.role === "head_barista";
     const today = new Date(new Date().toISOString().split("T")[0]);
     const itemPackSizes = new Map(
       (
@@ -143,13 +154,49 @@ export async function POST(req: NextRequest) {
       };
     });
 
+    const existingSubmitted = await prisma.inventoryCount.findFirst({
+      where: {
+        date: today,
+        shiftConfirmed,
+        location,
+        status: { not: "draft" },
+      },
+      orderBy: { submittedAt: "desc" },
+      select: { id: true, countedById: true },
+    });
+
+    const shouldOverride =
+      submit &&
+      !!existingSubmitted &&
+      canOverrideCounts;
+
+    if (existingSubmitted && !shouldOverride) {
+      return NextResponse.json(
+        { success: false, error: "Count already submitted for this shift" },
+        { status: 409 },
+      );
+    }
+
+    const effectiveCountType = shouldOverride ? "correction" : "regular";
+
+    if (countType !== "regular" && !shouldOverride) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Only regular counts are allowed. Head barista can submit an overwrite correction.",
+        },
+        { status: 400 },
+      );
+    }
+
     const existingDraft = await prisma.inventoryCount.findFirst({
       where: {
         date: today,
         shiftConfirmed,
         location,
         countedById: user.id,
-        countType,
+        countType: "regular",
         status: "draft",
       },
     });
@@ -165,6 +212,8 @@ export async function POST(req: NextRequest) {
           notes,
           shortageNotes,
           wasteNotes,
+          countType: shouldOverride ? "correction" : "regular",
+          correctionOfId: shouldOverride ? existingSubmitted?.id : null,
           status: submit ? "submitted" : "draft",
           submittedAt: submit ? new Date() : null,
           entries: {
@@ -178,25 +227,13 @@ export async function POST(req: NextRequest) {
         await reconcileSubmittedInventoryCount(updated.id, user.id);
       }
 
-      return NextResponse.json({ success: true, data: updated, updated: true });
-    }
-
-    const existingSubmitted = await prisma.inventoryCount.findFirst({
-      where: {
-        date: today,
-        shiftConfirmed,
-        location,
-        countedById: user.id,
-        countType,
-        status: { not: "draft" },
-      },
-    });
-
-    if (existingSubmitted) {
-      return NextResponse.json(
-        { success: false, error: "Count already submitted for this shift" },
-        { status: 409 },
-      );
+      return NextResponse.json({
+        success: true,
+        data: updated,
+        updated: true,
+        overwrite: shouldOverride,
+        overwrittenCountId: shouldOverride ? existingSubmitted?.id : null,
+      });
     }
 
     const count = await prisma.inventoryCount.create({
@@ -205,10 +242,11 @@ export async function POST(req: NextRequest) {
         shiftSuggested: suggestShift(),
         shiftConfirmed,
         location,
-        countType,
+        countType: effectiveCountType,
         countedById: user.id,
         status: submit ? "submitted" : "draft",
         submittedAt: submit ? new Date() : null,
+        correctionOfId: shouldOverride ? existingSubmitted?.id : null,
         notes,
         shortageNotes,
         wasteNotes,
@@ -223,7 +261,15 @@ export async function POST(req: NextRequest) {
       await reconcileSubmittedInventoryCount(count.id, user.id);
     }
 
-    return NextResponse.json({ success: true, data: count }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: count,
+        overwrite: shouldOverride,
+        overwrittenCountId: shouldOverride ? existingSubmitted?.id : null,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof Error && error.message.includes("Authentication")) {
       return NextResponse.json(
