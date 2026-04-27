@@ -36,6 +36,10 @@ export async function GET(_req: NextRequest) {
           openedAt: circuitStatus.openedAt
             ? new Date(circuitStatus.openedAt).toISOString()
             : null,
+          lastError: circuitStatus.lastError || null,
+          lastErrorAt: circuitStatus.lastErrorAt
+            ? new Date(circuitStatus.lastErrorAt).toISOString()
+            : null,
         },
       }),
     );

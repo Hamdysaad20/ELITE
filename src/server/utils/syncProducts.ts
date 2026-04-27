@@ -388,8 +388,9 @@ async function performSync(
         `[AUTO-SYNC] Fetched ${productsRaw.length} products, ${categoriesRaw.length} categories`,
       );
     } catch (err) {
-      // Record failure for circuit breaker
-      await recordFailure();
+      // Record failure for circuit breaker with the error message for diagnostics
+      const errMsg = err instanceof Error ? err.message : String(err);
+      await recordFailure(undefined, errMsg);
       throw err;
     }
 
@@ -433,7 +434,8 @@ async function performSync(
         ]);
         await recordSuccess(); // Record success for additional Odoo calls
       } catch (err) {
-        await recordFailure();
+        const errMsg = err instanceof Error ? err.message : String(err);
+        await recordFailure(undefined, errMsg);
         throw err;
       }
     }
