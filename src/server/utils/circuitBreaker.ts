@@ -25,7 +25,7 @@ const CIRCUIT_BREAKER_LAST_ERROR_AT_KEY = "circuit:odoo:last_error_at";
 
 // How long to retain the last error message in Redis (24 h) so it survives
 // across multiple deploy cycles and is still visible after the circuit closes.
-const ERROR_RETENTION_SECONDS = 3600 * 24;
+const ERROR_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours
 
 export enum CircuitState {
   CLOSED = "closed", // Normal operation
