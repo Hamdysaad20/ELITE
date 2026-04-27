@@ -3,8 +3,10 @@ import { NextRequest } from "next/server";
 import { prismaMock } from "../../setup/prisma";
 import { POST } from "@/app/api/admin/inventory/route";
 
-const requireRoleMock = vi.fn();
-const reconcileMock = vi.fn();
+const { requireRoleMock, reconcileMock } = vi.hoisted(() => ({
+  requireRoleMock: vi.fn(),
+  reconcileMock: vi.fn(),
+}));
 
 vi.mock("@/server/auth/session", () => ({
   requireRole: requireRoleMock,

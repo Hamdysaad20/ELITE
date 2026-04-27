@@ -1,10 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/admin/inventory/route";
-import { prismaMock } from "@/tests/setup/prisma";
+import { prismaMock } from "../../setup/prisma";
 
 vi.mock("@/server/auth/session", () => ({
-  requireRole: vi.fn().mockResolvedValue({ id: "user-1" }),
+  requireRole: vi.fn().mockResolvedValue({ id: "user-1", role: "barista" }),
+}));
+
+vi.mock("@/server/services/inventoryReconciliation", () => ({
+  reconcileSubmittedInventoryCount: vi.fn().mockResolvedValue({
+    created: 0,
+    skipped: false,
+  }),
 }));
 
 describe("API Integrations: Admin Inventory POST", () => {
