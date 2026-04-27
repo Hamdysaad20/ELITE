@@ -19,6 +19,12 @@ interface CountEntry {
   entries: Array<{ itemId: string; totalQuantity: number }>;
   submittedAt: string | null;
   createdAt: string;
+  overwriteLogs?: Array<{
+    id: string;
+    reason: string | null;
+    createdAt: string;
+    overwrittenBy: { name: string | null; email: string };
+  }>;
 }
 
 interface TransferEntry {
@@ -445,9 +451,16 @@ export default function HistoryPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-cabin text-elite-black/50">
-                        {t("itemCount", { count: c.entries.length })}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-cabin text-elite-black/50">
+                          {t("itemCount", { count: c.entries.length })}
+                        </span>
+                        {(c.overwriteLogs?.length || 0) > 0 && (
+                          <span className="text-[11px] font-cabin px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                            ↺ {c.overwriteLogs?.length}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs font-cabin text-elite-black/40">
                         {fmtTime(c.createdAt, locale)}
                       </span>

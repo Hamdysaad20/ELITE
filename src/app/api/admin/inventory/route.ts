@@ -71,6 +71,16 @@ export async function GET(req: NextRequest) {
         },
         submittedAt: true,
         createdAt: true,
+        overwriteLogs: {
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            id: true,
+            reason: true,
+            createdAt: true,
+            overwrittenBy: { select: { name: true, email: true } },
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -155,6 +165,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingDraft) {
+      const previousEntries = await prisma.inventoryCountEntry.findMany({
+        where: { countId: existingDraft.id },
+        select: {
+          itemId: true,
+          packsCount: true,
+          looseSingles: true,
+          quantity: true,
+          totalQuantity: true,
+        },
+      });
+
       await prisma.inventoryCountEntry.deleteMany({
         where: { countId: existingDraft.id },
       });
@@ -177,6 +198,32 @@ export async function POST(req: NextRequest) {
       if (submit) {
         await reconcileSubmittedInventoryCount(updated.id, user.id);
       }
+
+      await prisma.inventoryCountOverwriteLog.create({
+        data: {
+          countId: existingDraft.id,
+          overwrittenById: user.id,
+          reason:
+            notes?.trim() ||
+            shortageNotes?.trim() ||
+            wasteNotes?.trim() ||
+            null,
+          previousSnapshot: {
+            notes: existingDraft.notes,
+            shortageNotes: existingDraft.shortageNotes,
+            wasteNotes: existingDraft.wasteNotes,
+            entries: previousEntries,
+            status: existingDraft.status,
+          },
+          newSnapshot: {
+            notes,
+            shortageNotes,
+            wasteNotes,
+            entries: entryCreates,
+            status: submit ? "submitted" : "draft",
+          },
+        },
+      });
 
       return NextResponse.json({ success: true, data: updated, updated: true });
     }
