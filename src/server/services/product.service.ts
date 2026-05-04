@@ -151,7 +151,7 @@ export async function getCatalogSafe(): Promise<{
     if (catalog?.products && catalog?.categories) {
       products = catalog.products;
       categories = catalog.categories;
-      lastUpdate = currentTimestamp || catalog.lastUpdate || null;
+      lastUpdate = currentTimestamp || null;
     } else {
       [products, categories, lastUpdate] = await Promise.all([
         redisGet<Product[]>(CACHE_KEYS.DATA),
