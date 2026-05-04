@@ -153,11 +153,11 @@ export async function getCatalogSafe(): Promise<{
       categories = catalog.categories;
       lastUpdate = currentTimestamp || null;
     } else {
-      [products, categories, lastUpdate] = await Promise.all([
+      [products, categories] = await Promise.all([
         redisGet<Product[]>(CACHE_KEYS.DATA),
         redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
-        redisGet<string>(CACHE_KEYS.TIMESTAMP),
       ]);
+      lastUpdate = currentTimestamp || null;
     }
   } catch (err) {
     // Redis might be down - log but continue

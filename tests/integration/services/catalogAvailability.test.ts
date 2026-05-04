@@ -98,12 +98,19 @@ describe("catalog availability during Odoo sync", () => {
     await redisSet("products:all", [catalogProduct]);
     await redisSet("categories:list", [catalogCategory]);
     await redisSet("sync:last_update", new Date().toISOString());
+    vi.mocked(redisGet).mockClear();
 
     const catalog = await getCatalogSafe();
 
     expect(catalog.products).toEqual([catalogProduct]);
     expect(catalog.categories).toEqual([catalogCategory]);
     expect(syncMocks.syncProductsFromOdoo).not.toHaveBeenCalled();
+    expect(vi.mocked(redisGet).mock.calls).toEqual([
+      ["catalog:current"],
+      ["sync:last_update"],
+      ["products:all"],
+      ["categories:list"],
+    ]);
   });
 
   it("uses direct Odoo fallback data when Redis writes fail during a cold start", async () => {

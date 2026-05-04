@@ -37,25 +37,29 @@ export async function GET(_request: NextRequest) {
   try {
     // Add in-memory cache layer on top of Redis (15 minutes TTL)
     // Categories change infrequently, so longer cache is appropriate
-    const cachedResult = await apiCache.get(
-      CacheKeys.categories.all(),
-      async () => {
-        const { categories: allCategories, lastUpdate } =
-          await getCatalogSafe();
-        return { allCategories, lastUpdate };
-      },
-      900, // 15 minutes cache
-    );
+    let cachedResult: {
+      allCategories: Category[];
+      lastUpdate: string | null;
+    };
 
-    let { allCategories, lastUpdate } = cachedResult;
-
-    // getCatalogSafe serves the active catalog snapshot during background syncs.
-    // If Redis/Odoo are both unavailable on a true cold start, return an empty list
-    // instead of exposing a synchronization outage to customers.
-    if (!allCategories) {
-      allCategories = [];
-      lastUpdate = null;
+    try {
+      cachedResult = await apiCache.get(
+        CacheKeys.categories.all(),
+        async () => {
+          const { categories: allCategories, lastUpdate } =
+            await getCatalogSafe();
+          return { allCategories, lastUpdate };
+        },
+        900, // 15 minutes cache
+      );
+    } catch (err) {
+      // True cold start / upstream outage: keep the category endpoint available
+      // instead of showing a customer-facing sync/maintenance error.
+      console.error("[CATEGORIES] Falling back to empty category list:", err);
+      cachedResult = { allCategories: [], lastUpdate: null };
     }
+
+    const { allCategories, lastUpdate } = cachedResult;
 
     // Filter out excluded categories (case-insensitive)
     const categories = allCategories.filter(
