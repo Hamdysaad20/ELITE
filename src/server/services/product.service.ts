@@ -21,6 +21,7 @@ export type Product = {
 };
 
 const CACHE_KEYS = {
+  CATALOG: "catalog:current",
   DATA: "products:all",
   TIMESTAMP: "sync:last_update",
   LOCK: "sync:in_progress", // Must match SYNC_LOCK_KEY in syncProducts.ts
@@ -138,11 +139,26 @@ export async function getCatalogSafe(): Promise<{
   let lastUpdate: string | null = null;
 
   try {
-    [products, categories, lastUpdate] = await Promise.all([
-      redisGet<Product[]>(CACHE_KEYS.DATA),
-      redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
+    const [catalog, currentTimestamp] = await Promise.all([
+      redisGet<{
+        products?: Product[];
+        categories?: Category[];
+        lastUpdate?: string | null;
+      }>(CACHE_KEYS.CATALOG),
       redisGet<string>(CACHE_KEYS.TIMESTAMP),
     ]);
+
+    if (catalog?.products && catalog?.categories) {
+      products = catalog.products;
+      categories = catalog.categories;
+      lastUpdate = currentTimestamp || catalog.lastUpdate || null;
+    } else {
+      [products, categories, lastUpdate] = await Promise.all([
+        redisGet<Product[]>(CACHE_KEYS.DATA),
+        redisGet<Category[]>(CACHE_KEYS.CATEGORIES),
+        redisGet<string>(CACHE_KEYS.TIMESTAMP),
+      ]);
+    }
   } catch (err) {
     // Redis might be down - log but continue
     console.error(
@@ -301,12 +317,9 @@ export async function invalidateCatalogCache(): Promise<{
   message: string;
 }> {
   try {
-    // Delete timestamp and catalog payload to prevent stale menu data after webhook invalidation.
-    await Promise.all([
-      redisDel(CACHE_KEYS.TIMESTAMP),
-      redisDel(CACHE_KEYS.DATA),
-      redisDel(CACHE_KEYS.CATEGORIES),
-    ]);
+    // Keep the active catalog payload serving while the next sync builds a fresh snapshot.
+    // Deleting products/categories here caused customer-facing 503 responses while sync was running.
+    await redisDel(CACHE_KEYS.TIMESTAMP);
     // Increment version to bust client-side caches
     const version = Date.now().toString();
     await redisSet(CACHE_KEYS.VERSION, version, HARD_TTL);
