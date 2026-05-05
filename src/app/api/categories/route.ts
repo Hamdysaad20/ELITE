@@ -5,8 +5,7 @@ import {
   successResponse,
   errorResponse,
 } from "@/server/utils/apiHelpers";
-import { redisGet } from "@/server/cache/redis";
-import { syncProductsFromOdoo } from "@/server/utils/syncProducts";
+import { getCatalogSafe } from "@/server/services/product.service";
 import { apiCache, CacheKeys } from "@/lib/apiCache";
 
 type Category = { id: string; name: string; parentId?: string };
@@ -38,93 +37,29 @@ export async function GET(_request: NextRequest) {
   try {
     // Add in-memory cache layer on top of Redis (15 minutes TTL)
     // Categories change infrequently, so longer cache is appropriate
-    const cachedResult = await apiCache.get(
-      CacheKeys.categories.all(),
-      async () => {
-        const [allCategories, lastUpdate] = await Promise.all([
-          redisGet<Category[]>("categories:list"),
-          redisGet<string>("sync:last_update"),
-        ]);
-        return { allCategories, lastUpdate };
-      },
-      900, // 15 minutes cache
-    );
+    let cachedResult: {
+      allCategories: Category[];
+      lastUpdate: string | null;
+    };
 
-    let { allCategories, lastUpdate } = cachedResult;
-
-    // Check if cache is empty - auto-sync if needed
-    if (!allCategories) {
-      console.log("[CATEGORIES] Cache empty, triggering auto-sync...");
-      const syncResult = await syncProductsFromOdoo();
-      const fallbackCatalog = syncResult.data?.fallbackCatalog as
-        | { categories?: Category[]; lastUpdate?: string | null }
-        | undefined;
-
-      if (!syncResult.success) {
-        // Check if sync is in progress - wait briefly for it
-        const isLocked = await redisGet("sync:in_progress").catch(() => null);
-        if (isLocked) {
-          console.log("[CATEGORIES] Sync in progress, waiting briefly...");
-          // Wait up to 3 seconds for sync to complete
-          for (let i = 0; i < 6; i++) {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            const waitCategories = await redisGet<Category[]>(
-              "categories:list",
-            ).catch(() => null);
-            const waitLastUpdate = await redisGet<string>(
-              "sync:last_update",
-            ).catch(() => null);
-            if (waitCategories) {
-              allCategories = waitCategories;
-              lastUpdate = waitLastUpdate;
-              break;
-            }
-          }
-        }
-
-        // If still no data after waiting, return 503
-        if (!allCategories) {
-          if (fallbackCatalog?.categories) {
-            allCategories = fallbackCatalog.categories;
-            lastUpdate = fallbackCatalog.lastUpdate || null;
-          }
-        }
-
-        if (!allCategories) {
-          return jsonResponse(
-            errorResponse(
-              "Category list is being synchronized. Please refresh the page in a moment.",
-            ),
-            503,
-          );
-        }
-      } else {
-        // Sync succeeded, fetch fresh data
-        const freshCategories = await redisGet<Category[]>(
-          "categories:list",
-        ).catch(() => null);
-        const freshLastUpdate = await redisGet<string>(
-          "sync:last_update",
-        ).catch(() => null);
-
-        if (freshCategories) {
-          allCategories = freshCategories;
-          lastUpdate = freshLastUpdate;
-        } else if (fallbackCatalog?.categories) {
-          allCategories = fallbackCatalog.categories;
-          lastUpdate = fallbackCatalog.lastUpdate || null;
-        } else {
-          // Sync said it succeeded but no data - this shouldn't happen, but handle gracefully
-          console.error("[CATEGORIES] Sync succeeded but no categories found");
-          return jsonResponse(
-            errorResponse(
-              "Failed to load categories after sync. Please try again.",
-            ),
-            503,
-          );
-        }
-      }
+    try {
+      cachedResult = await apiCache.get(
+        CacheKeys.categories.all(),
+        async () => {
+          const { categories: allCategories, lastUpdate } =
+            await getCatalogSafe();
+          return { allCategories, lastUpdate };
+        },
+        900, // 15 minutes cache
+      );
+    } catch (err) {
+      // True cold start / upstream outage: keep the category endpoint available
+      // instead of showing a customer-facing sync/maintenance error.
+      console.error("[CATEGORIES] Falling back to empty category list:", err);
+      cachedResult = { allCategories: [], lastUpdate: null };
     }
+
+    const { allCategories, lastUpdate } = cachedResult;
 
     // Filter out excluded categories (case-insensitive)
     const categories = allCategories.filter(

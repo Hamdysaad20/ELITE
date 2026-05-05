@@ -751,19 +751,28 @@ async function performSync(
       );
     }
 
+    // Build the next public catalog snapshot in memory first. Writing this single key
+    // is the customer-facing promotion step: the old snapshot remains readable until
+    // the new one has been completely built.
+    const productSummaries = deduplicatedProducts.map((p: any) => {
+      const { thumbnail, images, ...rest } = p;
+      return {
+        ...rest,
+        // Use thumbnail if available, otherwise fallback to existing images (or empty)
+        images: thumbnail ? [thumbnail] : images || [],
+      };
+    });
+
+    const catalogSnapshot = {
+      products: productSummaries,
+      categories,
+      lastUpdate,
+      etag,
+    };
+
     // Cache with partial failure handling - cache what we can even if some writes fail
     const cacheErrors: string[] = [];
-
-    if (redisAvailable) {
-      try {
-        await redisSet("categories:list", categories, cacheTTL);
-      } catch (err) {
-        cacheErrors.push(
-          `Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        console.error("[AUTO-SYNC] Failed to cache categories:", err);
-      }
-    }
+    let catalogSnapshotCached = false;
 
     // Cache products individually to allow partial success
     // Store FULL product details (high-res images) in individual keys
@@ -795,23 +804,23 @@ async function performSync(
 
     if (redisAvailable) {
       try {
-        // Create lightweight summaries for the list view
-        // Use the thumbnail as the main image to reduce payload size (50MB -> <2MB)
-        const productSummaries = deduplicatedProducts.map((p: any) => {
-          const { thumbnail, images, ...rest } = p;
-          return {
-            ...rest,
-            // Use thumbnail if available, otherwise fallback to existing images (or empty)
-            images: thumbnail ? [thumbnail] : images || [],
-          };
-        });
-
         await redisSet("products:all", productSummaries, cacheTTL);
       } catch (err) {
         cacheErrors.push(
           `Failed to cache products:all: ${err instanceof Error ? err.message : String(err)}`,
         );
         console.error("[AUTO-SYNC] Failed to cache products:all:", err);
+      }
+    }
+
+    if (redisAvailable) {
+      try {
+        await redisSet("categories:list", categories, cacheTTL);
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to cache categories: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        console.error("[AUTO-SYNC] Failed to cache categories:", err);
       }
     }
 
@@ -842,6 +851,18 @@ async function performSync(
 
     if (redisAvailable) {
       try {
+        await redisSet("catalog:current", catalogSnapshot, cacheTTL);
+        catalogSnapshotCached = true;
+      } catch (err) {
+        cacheErrors.push(
+          `Failed to promote catalog snapshot: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        console.error("[AUTO-SYNC] Failed to promote catalog snapshot:", err);
+      }
+    }
+
+    if (redisAvailable) {
+      try {
         await redisSet("sync:last_update", lastUpdate, cacheTTL);
       } catch (err) {
         cacheErrors.push(
@@ -864,7 +885,8 @@ async function performSync(
       deduplicatedProducts.length > 0 ||
       (deduplicatedProducts.length === 0 && categories.length > 0);
     const isSuccess = redisAvailable
-      ? cachedCount > 0 ||
+      ? catalogSnapshotCached ||
+        cachedCount > 0 ||
         (deduplicatedProducts.length === 0 && categories.length > 0)
       : directDataAvailable;
 
