@@ -402,7 +402,7 @@ async function performSync(
         [productsRaw, categoriesRaw] = await Promise.all([
           client.searchRead<ProductRecord>(
             "product.product",
-            [["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]]],
+            ["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]],
             productFields,
             { limit },
           ),
@@ -417,7 +417,7 @@ async function performSync(
         [productsRaw, categoriesRaw] = await Promise.all([
           client.searchReadPaginated<ProductRecord>(
             "product.product",
-            [["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]]],
+            ["|", ["sale_ok", "=", true], ["available_in_pos", "=", true]],
             productFields,
             batchSize,
           ),
