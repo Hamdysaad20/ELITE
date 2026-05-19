@@ -91,6 +91,9 @@ function OrderPageContent() {
   const [lastOrder, setLastOrder] = React.useState<Order | null>(null);
   const [pendingPaymentOrder, setPendingPaymentOrder] =
     React.useState<Order | null>(null);
+  const [upsellProducts, setUpsellProducts] = React.useState<
+    Array<{ id: string; name: string; image: string; reason?: string }>
+  >([]);
   const { push } = useToast();
 
   const formatCurrency = (value: number) =>
@@ -296,6 +299,30 @@ function OrderPageContent() {
     retryPaymentForOrder(retryOrderId);
   }, [searchParams, retryPaymentForOrder]);
 
+  React.useEffect(() => {
+    let cancelled = false;
+    async function loadUpsells() {
+      try {
+        const res = await fetch("/api/recommendations/loved-by-locals");
+        if (!res.ok) return;
+        const json = await res.json();
+        const products = (json?.data?.products || []) as Array<{
+          id: string;
+          name: string;
+          image: string;
+          reason?: string;
+        }>;
+        if (!cancelled) setUpsellProducts(products.slice(0, 3));
+      } catch {
+        // optional section
+      }
+    }
+    loadUpsells();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const placeOrder = async () => {
     setSubmitting(true);
     setSubmitError(null);
@@ -470,6 +497,16 @@ function OrderPageContent() {
       ? checkoutConfig.codFee
       : 0;
   const totalAmount = subtotal + deliveryFee + codFee;
+  const promoDeadline = React.useMemo(() => {
+    const now = new Date();
+    return new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999),
+    );
+  }, []);
+  const isPromoActive = new Date() <= promoDeadline;
+  const firstOrderDiscount =
+    isPromoActive && isOnlinePayment ? (subtotal * 20) / 100 : 0;
+  const discountedTotal = Math.max(0, totalAmount - firstOrderDiscount);
   const itemCount = localItemCount;
   const stepCartDone = cartItems.length > 0;
   const stepDetailsDone =
@@ -578,6 +615,64 @@ function OrderPageContent() {
 
         {/* Main Content - Menu page spacing, prevent overflow on mobile */}
         <div className="max-w-[1700px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 md:py-8 lg:py-12 overflow-x-hidden">
+          {isPromoActive && (
+            <div className="mb-4 sm:mb-6 rounded-3xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-emerald-100 p-4 sm:p-5 shadow-lg">
+              <p className="font-calistoga text-emerald-900 text-lg sm:text-xl">
+                {t("promo.title")}
+              </p>
+              <p className="font-cabin text-emerald-800 mt-1 text-sm sm:text-base">
+                {t("promo.description", { deadline: promoDeadline.toLocaleDateString() })}
+              </p>
+            </div>
+          )}
+          <div className="mb-4 sm:mb-6 grid gap-3 lg:grid-cols-3">
+            <div className="rounded-3xl border border-elite-burgundy/20 bg-white p-4">
+              <p className="font-calistoga text-elite-burgundy">{t("marketing.card1Title")}</p>
+              <p className="font-cabin text-sm text-elite-black/70 mt-1">{t("marketing.card1Desc")}</p>
+            </div>
+            <div className="rounded-3xl border border-elite-burgundy/20 bg-white p-4">
+              <p className="font-calistoga text-elite-burgundy">{t("marketing.card2Title")}</p>
+              <p className="font-cabin text-sm text-elite-black/70 mt-1">{t("marketing.card2Desc")}</p>
+            </div>
+            <div className="rounded-3xl border border-elite-burgundy/20 bg-white p-4">
+              <p className="font-calistoga text-elite-burgundy">{t("marketing.card3Title")}</p>
+              <p className="font-cabin text-sm text-elite-black/70 mt-1">{t("marketing.card3Desc")}</p>
+            </div>
+          </div>
+          <div className="mb-4 sm:mb-6 rounded-3xl border border-elite-burgundy/15 bg-white p-4 sm:p-5">
+            <h3 className="font-calistoga text-elite-burgundy text-lg sm:text-xl">
+              {t("journey.title")}
+            </h3>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <p className="font-cabin text-sm text-elite-black/70">
+                1) {t("journey.step1")}
+              </p>
+              <p className="font-cabin text-sm text-elite-black/70">
+                2) {t("journey.step2")}
+              </p>
+              <p className="font-cabin text-sm text-elite-black/70">
+                3) {t("journey.step3")}
+              </p>
+            </div>
+          </div>
+          {upsellProducts.length > 0 && (
+            <div className="mb-4 sm:mb-6 rounded-3xl border-2 border-elite-burgundy/10 bg-white p-4 sm:p-5">
+              <h3 className="font-calistoga text-xl text-elite-burgundy mb-3">{t("upsell.title")}</h3>
+              <div className="grid gap-3 md:grid-cols-3">
+                {upsellProducts.map((product) => (
+                  <LocalizedLink
+                    key={product.id}
+                    href={`/products/${product.id}`}
+                    className="text-start rounded-2xl border border-elite-burgundy/20 p-3 hover:bg-elite-cream/40 transition-colors block"
+                  >
+                    <p className="font-cabin font-semibold">{product.name}</p>
+                    <p className="font-cabin text-xs text-elite-black/60 mt-1">{product.reason || t("upsell.reason")}</p>
+                    <p className="font-cabin text-xs text-elite-burgundy mt-2">{t("upsell.add")}</p>
+                  </LocalizedLink>
+                ))}
+              </div>
+            </div>
+          )}
           {/* Checkout progress */}
           <div className="mb-4 sm:mb-6">
             <div className="bg-white rounded-3xl shadow-xl border-2 border-elite-burgundy/5 bg-gradient-to-br from-white to-elite-cream/30 p-3 sm:p-4 md:p-5">
@@ -1307,12 +1402,20 @@ function OrderPageContent() {
                         </div>
                       )}
                     </div>
+                    {firstOrderDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-700">
+                        <span>{t("summary.firstOrderDiscount")}</span>
+                        <span className="tabular-nums font-semibold">
+                          -{formatCurrency(firstOrderDiscount)}
+                        </span>
+                      </div>
+                    )}
                     <div className="grid grid-cols-[1fr_auto] items-end gap-3 pt-4 sm:pt-5 border-t-2 border-elite-burgundy/20">
                       <span className="font-calistoga text-elite-black text-lg sm:text-xl font-bold leading-tight">
                         {t("summary.total")}
                       </span>
                       <span className="font-calistoga text-elite-burgundy text-2xl sm:text-3xl font-bold tabular-nums text-end whitespace-nowrap leading-none">
-                        {formatCurrency(totalAmount)}
+                        {formatCurrency(discountedTotal)}
                       </span>
                     </div>
                   </div>

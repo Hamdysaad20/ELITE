@@ -36,6 +36,11 @@ import { withTimeout, REQUEST_TIMEOUTS } from "@/server/utils/timeouts";
 import { trackOrderEvent, trackApiPerformance } from "@/server/utils/analytics";
 import { ORDERING_DISABLED_MESSAGE } from "@/lib/constants";
 import { buildPricedOrderItems } from "@/server/utils/orderPricing";
+import {
+  calculateFirstOrderDiscount,
+  canApplyFirstOrderDiscount,
+  getEligiblePriorOrderFilter,
+} from "@/server/services/orderPromotions";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
 // Auto-start Points Retry worker when orders API is first accessed
@@ -261,7 +266,19 @@ export async function POST(request: NextRequest) {
       body.orderType === "DELIVERY" && body.paymentMethod === PaymentMethod.CASH
         ? checkoutConfig.codFee
         : 0;
-    const total = subtotal + deliveryFee + codFee;
+    const existingOrdersCount = await prisma.order.count({
+      where: getEligiblePriorOrderFilter(userId),
+    });
+    const shouldApplyFirstOrderDiscount = canApplyFirstOrderDiscount({
+      paymentMethod: body.paymentMethod,
+      now: new Date(),
+      eligibleOrdersCount: existingOrdersCount,
+    });
+    const firstOrderDiscount = calculateFirstOrderDiscount(
+      subtotal,
+      shouldApplyFirstOrderDiscount,
+    );
+    const total = subtotal + deliveryFee + codFee - firstOrderDiscount;
     const clientOrderRef = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     // Create order with timeout
@@ -279,7 +296,7 @@ export async function POST(request: NextRequest) {
           subtotal,
           deliveryFee,
           codFee,
-          discount: 0,
+          discount: firstOrderDiscount,
           total,
           notes: body.notes?.trim() || null,
           clientOrderRef,
