@@ -40,6 +40,7 @@ import {
   calculateFirstOrderDiscount,
   canApplyFirstOrderDiscount,
   getEligiblePriorOrderFilter,
+  roundCurrency,
 } from "@/server/services/orderPromotions";
 // Auto-start Odoo worker when orders API is first accessed
 import "@/server/services/startOdooWorkerOnInit";
@@ -266,19 +267,28 @@ export async function POST(request: NextRequest) {
       body.orderType === "DELIVERY" && body.paymentMethod === PaymentMethod.CASH
         ? checkoutConfig.codFee
         : 0;
-    const existingOrdersCount = await prisma.order.count({
-      where: getEligiblePriorOrderFilter(userId),
-    });
+    // Promo eligibility — only authenticated, online-paying first-time buyers.
+    // Guests fall through `getUserId` to a shared default id, so we never run
+    // the eligibility query for them; the promo simply doesn't apply.
+    const isAuthenticated = Boolean(authUser?.id);
+    const existingOrdersCount = isAuthenticated
+      ? await prisma.order.count({
+          where: getEligiblePriorOrderFilter(userId),
+        })
+      : 0;
     const shouldApplyFirstOrderDiscount = canApplyFirstOrderDiscount({
       paymentMethod: body.paymentMethod,
       now: new Date(),
       eligibleOrdersCount: existingOrdersCount,
+      isAuthenticated,
     });
     const firstOrderDiscount = calculateFirstOrderDiscount(
       subtotal,
       shouldApplyFirstOrderDiscount,
     );
-    const total = subtotal + deliveryFee + codFee - firstOrderDiscount;
+    const total = roundCurrency(
+      Math.max(0, subtotal + deliveryFee + codFee - firstOrderDiscount),
+    );
     const clientOrderRef = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     // Create order with timeout
