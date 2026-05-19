@@ -492,7 +492,8 @@
       "subtotal": "Subtotal",
       "delivery": "Delivery",
       "codFee": "COD Fee",
-      "total": "Total"
+      "total": "Total",
+      "firstOrderDiscount": "First-order online discount (20%)"
     },
     "actions": {
       "clearCart": "Clear Cart",
@@ -518,7 +519,16 @@
       "requestTimeout": "Request took too long. Please try again.",
       "tooManyRequests": "Too many requests. Please wait a moment and try again."
     },
-    "partnerFallback": "Website Customer"
+    "partnerFallback": "Website Customer",
+    "promo": {
+      "title": "🎉 Your first online order is {percent}% off",
+      "description": "Pay with Card or Wallet and the discount is applied automatically at checkout."
+    },
+    "upsell": {
+      "title": "Popular add-ons for your order",
+      "reason": "Great with your current selection",
+      "add": "View product"
+    }
   },
   "cartDrawer": {
     "aria": {
